@@ -6,3 +6,7 @@ Crue10 tools
 ## Read Crue10 sub-model
 
 See example in file `crue10/read_crue_submodel.py`.
+
+## Read Crue10 result file (rcal/bin)
+
+See example in file `crue10/read_crue_run.py`.

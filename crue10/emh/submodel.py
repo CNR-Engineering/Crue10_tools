@@ -5,9 +5,8 @@ from shapely.geometry import LineString
 import sys
 import xml.etree.ElementTree as ET
 
-from crue10.utils import CrueError
+from crue10.utils import CrueError, PREFIX
 
-from . import PREFIX
 from .branche import Branche
 from .noeud import Noeud
 from .section import SectionIdem, SectionProfil
@@ -34,7 +33,7 @@ class SubModel:
         sous_modeles = ET.parse(etu_path).getroot().find(PREFIX + 'SousModeles')
         sous_modele = sous_modeles.find(PREFIX + 'SousModele[@Nom="%s"]' % nom_sous_modele)
         if sous_modele is None:
-            raise CrueError("Le sous-modèle %s n'existe pas !\n" % nom_sous_modele +\
+            raise CrueError("Le sous-modèle %s n'existe pas !\n" % nom_sous_modele +
                             "Les sous-modeles possibles sont :\n%s" % [sm.attrib['Nom'] for sm in sous_modeles])
         sm_name = sous_modele.attrib['Nom']
         if sm_name == nom_sous_modele:
@@ -119,7 +118,8 @@ class SubModel:
                     max_xt = float(lits_numerotes[-1].find(PREFIX + 'LimFin').text.split()[0])
 
                     etiquette = emh.find(PREFIX + 'Etiquettes').find(PREFIX + 'Etiquette[@Nom="Et_AxeHyd"]')
-                    self.sections_profil[nom_section].set_xp_axe(float(etiquette.find(PREFIX + 'PointFF').text.split()[0]))
+                    self.sections_profil[nom_section].set_xp_axe(
+                        float(etiquette.find(PREFIX + 'PointFF').text.split()[0]))
 
                     xz = []
                     for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):

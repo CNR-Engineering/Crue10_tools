@@ -1,6 +1,9 @@
 import logging
 
 
+PREFIX = "{http://www.fudaa.fr/xsd/crue}"
+
+
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter('%(message)s'))
