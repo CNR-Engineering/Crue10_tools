@@ -26,7 +26,7 @@ class FilePosition:
         self.bin_path = bin_path
         self.byte_offset = byte_offset
 
-    def get_data(self, res_pattern, is_steady):
+    def get_data(self, res_pattern, is_steady, emh_type_first_branche):
         res = {}
         with open(self.bin_path, 'rb') as resin:
             resin.seek(self.byte_offset * FilePosition.FLOAT_SIZE)
@@ -41,12 +41,9 @@ class FilePosition:
                     raise CrueError("Le calcul n'est pas transitoire !")
 
             for emh_type, (nb_emh, nb_var) in res_pattern:
-                if not emh_type.startswith('Branche') or emh_type.startswith('BrancheBarrageFilEau'):
-                    emh_delimiter = resin.read(8).decode(FilePosition.ENCODING).strip()
-                    if emh_type.startswith('BrancheBarrageFilEau'):
-                        emh_delimiter += 'BarrageFilEau'  #FIXME: HACK...
-                    # Check emh type (which has to be singular)
-                    if emh_type != emh_delimiter:
+                if not emh_type.startswith('Branche') or emh_type == emh_type_first_branche:
+                    emh_delimiter = resin.read(FilePosition.FLOAT_SIZE).decode(FilePosition.ENCODING).strip()
+                    if emh_delimiter not in emh_type:
                         raise CrueError("Les EMH attendus sont %s (au lieu de %s)" % (emh_type, emh_delimiter))
                 values = struct.unpack('<' + str(nb_emh * nb_var) + FilePosition.FLOAT_TYPE,
                                        resin.read(nb_emh * nb_var * FilePosition.FLOAT_SIZE))

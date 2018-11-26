@@ -19,6 +19,7 @@ class CrueRun:
         self.rcal = ET.parse(rcal_path).getroot()
         self.rcal_folder = os.path.dirname(rcal_path)
         self.emh_types = []
+        self.emh_type_first_branche = None
         self.emh = OrderedDict()
         self.variables = OrderedDict()
         self.calc_perms = {}
@@ -40,6 +41,8 @@ class CrueRun:
     def _add_emh_names(self, elt, emh_sec):
         if int(elt.get('NbrMot')) > 0:  # Avoid empty lists in self.emh
             if emh_sec not in self.emh:
+                if emh_sec.startswith('Branche') and self.emh_type_first_branche is None:
+                    self.emh_type_first_branche = emh_sec
                 self.emh_types.append(emh_sec)
                 self.emh[emh_sec] = []
             for sub_elt in elt:
@@ -151,7 +154,7 @@ class CrueRun:
 
     def get_res_perm(self, calc_name):
         calc = self.get_calc_perm(calc_name)
-        return calc.file_pos.get_data(self.res_pattern, True)
+        return calc.file_pos.get_data(self.res_pattern, True, self.emh_type_first_branche)
 
     def get_res_trans(self, calc_name):
         calc = self.get_calc_trans(calc_name)
@@ -159,7 +162,7 @@ class CrueRun:
         # Append arrays
         res_all = {}
         for i, (time_sec, file_pos) in enumerate(calc.frame_list):
-            res = file_pos.get_data(self.res_pattern, False)
+            res = file_pos.get_data(self.res_pattern, False, self.emh_type_first_branche)
             for emh_type in self.emh_types:
                 if i == 0:
                     res_all[emh_type] = []
