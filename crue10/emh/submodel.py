@@ -1,7 +1,7 @@
 import fiona
 import numpy as np
 import os.path
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point
 import sys
 import xml.etree.ElementTree as ET
 
@@ -140,6 +140,13 @@ class SubModel:
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
                     self.sections_idem[emh.get('NomRef')].dz = float(emh.find(PREFIX + 'Dz').text)
 
+    def read_shp_noeuds(self):
+        with fiona.open(self.files['noeuds'], 'r') as src:
+            for obj in src:
+                nom_noeud = obj['properties']['EMH_NAME']
+                coord = obj['geometry']['coordinates']
+                self.noeuds[nom_noeud].set_geom(Point(coord))
+
     def read_shp_traces_sections(self):
         with fiona.open(self.files['tracesSections'], 'r') as src:
             for obj in src:
@@ -165,6 +172,9 @@ class SubModel:
             yield branche
 
     def connected_branches(self, nom_noeud):
+        """
+        Returns the list of the branchs connected to requested node
+        """
         branches = []
         for branche in self.iter_on_branches():
             if nom_noeud in (branche.noeud_amont.id, branche.noeud_aval.id):

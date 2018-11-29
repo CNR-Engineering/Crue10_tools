@@ -5,5 +5,8 @@ class Noeud:
         self.id = nom_noeud
         self.geom = None
 
+    def set_geom(self, geom):
+        self.geom = geom
+
     def __str__(self):
         return "Noeud #%s" % self.id

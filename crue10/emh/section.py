@@ -42,7 +42,6 @@ class SectionProfil(Section):
             coords.append((point.x, point.y, z))
         return coords
 
-
     def has_xz(self):
         return self.xz is not None
 
@@ -67,5 +66,6 @@ class SectionIdem(Section):
 
     def set_as_profil(self, section, dz):
         new_section = deepcopy(section)
+        new_section.id = self.id
         #TODO apply dz translation
         return new_section
