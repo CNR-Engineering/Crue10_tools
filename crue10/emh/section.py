@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from crue10.utils import CrueError, logger
 
 
@@ -60,9 +62,10 @@ class SectionIdem(Section):
     def __init__(self, nom_section):
         super().__init__(nom_section)
         self.nom_section = nom_section
-        self.nom_section_ori = None
+        self.section_ori = None
         self.dz = None
 
-    def set_origin(self, nom_section_ori, dz):
-        self.nom_section_ori = nom_section_ori
-        self.dz = dz
+    def set_as_profil(self, section, dz):
+        new_section = deepcopy(section)
+        #TODO apply dz translation
+        return new_section

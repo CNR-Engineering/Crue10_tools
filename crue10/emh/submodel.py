@@ -85,8 +85,16 @@ class SubModel:
                     section_profil = SectionProfil(emh_section.get('Nom'),
                                                    emh_section.find(PREFIX + 'ProfilSection').get('NomRef'))
                     self.add_section_profil(section_profil)
+
                 for emh_section in emh_group.findall(PREFIX + 'SectionIdem'):
-                    section_idem = SectionIdem(emh_section.get('Nom'))
+                    nom_section = emh_section.get('Nom')
+                    section_idem = SectionIdem(nom_section)
+                    nom_section_ori = emh_section.find(PREFIX + 'Section').get('NomRef')
+                    try:
+                        section_idem.section_ori = self.sections_profil[nom_section_ori]
+                    except KeyError:
+                        raise CrueError("La SectionIdem `%s` fait référence à une SectionProfil inexistante `%s`"
+                                        % (nom_section, nom_section_ori))
                     self.add_section_idem(section_idem)
 
             elif emh_group.tag == (PREFIX + 'Branches'):
@@ -128,6 +136,10 @@ class SubModel:
                             xz.append([x, z])
                     self.sections_profil[nom_section].set_xz(np.array(xz))
 
+            if emh_group.tag == (PREFIX + 'DonPrtGeoSections'):
+                for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
+                    self.sections_idem[emh.get('NomRef')].dz = float(emh.find(PREFIX + 'Dz').text)
+
     def read_shp_traces_sections(self):
         with fiona.open(self.files['tracesSections'], 'r') as src:
             for obj in src:
@@ -151,6 +163,13 @@ class SubModel:
     def iter_on_branches(self):
         for _, branche in self.branches.items():
             yield branche
+
+    def connected_branches(self, nom_noeud):
+        branches = []
+        for branche in self.iter_on_branches():
+            if nom_noeud in (branche.noeud_amont.id, branche.noeud_aval.id):
+                branches.append(branche)
+        return branches
 
     def __repr__(self):
         return "%i noeuds, %i branches, %i sections profil + %i idem" % (
