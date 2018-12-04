@@ -1,7 +1,7 @@
 import fiona
 import numpy as np
 import os.path
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, mapping, Point
 import sys
 import xml.etree.ElementTree as ET
 
@@ -108,7 +108,8 @@ class SubModel:
                             section = self.sections_profil[emh_section.get('NomRef')]
                         except KeyError:
                             section = self.sections_idem[emh_section.get('NomRef')]
-                        branche.add_section(section)
+                        xp = float(emh_section.find(PREFIX + 'Xp').text)
+                        branche.add_section(section, xp)
                     self.add_branche(branche)
 
     def read_dptg(self):
@@ -126,7 +127,7 @@ class SubModel:
                     max_xt = float(lits_numerotes[-1].find(PREFIX + 'LimFin').text.split()[0])
 
                     etiquette = emh.find(PREFIX + 'Etiquettes').find(PREFIX + 'Etiquette[@Nom="Et_AxeHyd"]')
-                    self.sections_profil[nom_section].set_xp_axe(
+                    self.sections_profil[nom_section].set_xt_axe(
                         float(etiquette.find(PREFIX + 'PointFF').text.split()[0]))
 
                     xz = []
@@ -173,13 +174,56 @@ class SubModel:
 
     def connected_branches(self, nom_noeud):
         """
-        Returns the list of the branchs connected to requested node
+        Returns the list of the branches connected to requested node
         """
         branches = []
         for branche in self.iter_on_branches():
             if nom_noeud in (branche.noeud_amont.id, branche.noeud_aval.id):
                 branches.append(branche)
         return branches
+
+    def convert_sectionidem_to_sectionprofil(self):
+        """
+        Replace all SectionIdem by a SectionProfil with an appropriate trace.
+        If the SectionIdem is at a branch extremity, which is connected to its original SectionProfil,
+           the original SectionProfil is reused. Else the default behaviour is to build a trace which
+           is orthogonal to the hydraulic axis.
+        """
+        for branche in self.iter_on_branches():
+            for j, section in enumerate(branche.sections):
+                if isinstance(section, SectionIdem):
+                    # Replace current instance by its original SectionProfil
+                    branche.sections[j] = branche.sections[j].get_as_sectionprofil()
+                    self.sections_idem.pop(section.id)
+                    self.sections_profil[section.id] = branche.sections[j]
+
+                    # Find if current SectionIdem is located at geographic position of its original SectionProfil
+                    located_at_section_ori = False
+                    if j == 0 or j == len(branche.sections) - 1:
+                        # Determine node name at junction
+                        nom_noeud = branche.noeud_amont.id if j == 0 else branche.noeud_aval.id
+
+                        # Check if any adjacent branches has this section
+                        branches = self.connected_branches(nom_noeud)
+                        branches.remove(branche)
+                        for br in branches:
+                            section_pos = 0 if br.noeud_amont.id == nom_noeud else -1
+                            section_at_node = br.sections[section_pos]
+                            if section_at_node is section.section_ori:
+                                located_at_section_ori = True
+                                break
+                    if not located_at_section_ori:
+                        # Overwrite SectionProfil original trace by the orthogonal trace because their location differ
+                        branche.sections[j].build_orthogonal_trace(branche.geom)
+
+    def write_shp_active_trace(self, shp_path):
+        schema = {'geometry': 'LineString', 'properties': {'id_section': 'str'}}
+        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
+            for branche in self.iter_on_branches():
+                for section in branche.sections:
+                    if isinstance(section, SectionProfil):
+                        out_shp.write({'geometry': mapping(section.geom_trace),
+                                       'properties': {'id_section': section.id}})
 
     def __repr__(self):
         return "%i noeuds, %i branches, %i sections profil + %i idem" % (

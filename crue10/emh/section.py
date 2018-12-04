@@ -1,11 +1,16 @@
 from copy import deepcopy
+from shapely.geometry import LineString
 
 from crue10.utils import CrueError, logger
+
+
+DIFF_XP = 0.1  # m
 
 
 class Section:
     def __init__(self, nom_section):
         self.id = nom_section
+        self.xp = -1
 
     def __repr__(self):
         return '%s #%s:' % (self.__class__.__name__, self.id)
@@ -15,12 +20,12 @@ class SectionProfil(Section):
     def __init__(self, nom_section, nom_profilsection):
         super().__init__(nom_section)
         self.nom_profilsection = nom_profilsection
-        self.xp_axe = 0
+        self.xt_axe = 0  # curvilinear abscissa of hydraulic axis intersection
         self.xz = None
         self.geom_trace = None
 
-    def set_xp_axe(self, xp_axe):
-        self.xp_axe = xp_axe
+    def set_xt_axe(self, xt_axe):
+        self.xt_axe = xt_axe
 
     def set_xz(self, coords):
         self.xz = coords
@@ -48,6 +53,19 @@ class SectionProfil(Section):
     def has_trace(self):
         return self.geom_trace is not None
 
+    def build_orthogonal_trace(self, axe_geom):
+        """
+        Section xp is supposed to be normalized (ie. xp is consistent with axe_geom length)
+        """
+        point = axe_geom.interpolate(self.xp)
+        point_avant = axe_geom.interpolate(max(self.xp - DIFF_XP, 0.0))
+        point_apres = axe_geom.interpolate(min(self.xp + DIFF_XP, axe_geom.length))
+        distance = axe_geom.project(point_apres) - axe_geom.project(point_avant)
+        u, v = (point_avant.y - point_apres.y) / distance, (point_apres.x - point_avant.x) / distance
+        xt_list = [self.xz[:, 0].min(), self.xz[:, 0].max()]  # only extremities are written
+        coords = [(point.x + (xt - self.xt_axe) * u, point.y + (xt - self.xt_axe) * v) for xt in xt_list]
+        self.geom_trace = LineString(coords)
+
     def __repr__(self):
         text = 'SectionProfil #%s:' % self.id
         if self.has_xz():
@@ -64,8 +82,12 @@ class SectionIdem(Section):
         self.section_ori = None
         self.dz = None
 
-    def set_as_profil(self, section, dz):
-        new_section = deepcopy(section)
+    def get_as_sectionprofil(self):
+        """
+        Return a SectionProfil instance from the original section
+        """
+        new_section = deepcopy(self.section_ori)
         new_section.id = self.id
-        #TODO apply dz translation
+        new_section.xp = self.xp
+        new_section.xz[:, 1] += self.dz
         return new_section
