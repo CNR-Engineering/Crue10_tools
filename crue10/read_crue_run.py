@@ -32,7 +32,7 @@ try:
         print(emh_type)
         print(res)  # shape = (number of time steps, number of EMHs, number of variables)
 
-    # Read results at locations for all steady calculations
+    # Read results at locations for a single unsteady calculation
     #   shape = (number of time steps, number of requested EMHs)
     print(run.get_res_trans_var_at_emhs('Cc_dcnc1400-5min', 'Z', ['St_RET33.300', 'Nd_VRH8.500']))
 
