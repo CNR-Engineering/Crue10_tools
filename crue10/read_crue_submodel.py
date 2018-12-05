@@ -1,15 +1,5 @@
 """
 Lecture de la géométrie (et bathymétrie) d'un sous-modèle Crue10
-
-Branches: seules les branches avec les sections profil ou idem sont traitées
-- EMHBrancheSaintVenant (type 20)
-- EMHBrancheSeuilTransversal (type 4) => TODO
-- EMHBrancheStrickler (type 6) => TODO
-(- EMHBrancheBarrageFil est ignoré (type 15))
-/!\ Les branches sont orientées
-
-Particularités :
-- SectionIdem: l'abscisse curviligne xp est normalisée, la traceProfil est regénérée,
 """
 import sys
 

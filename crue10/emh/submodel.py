@@ -5,7 +5,7 @@ from shapely.geometry import LineString, mapping, Point
 import sys
 import xml.etree.ElementTree as ET
 
-from crue10.utils import CrueError, PREFIX
+from crue10.utils import CrueError, logger, PREFIX
 
 from .branche import Branche
 from .noeud import Noeud
@@ -72,7 +72,7 @@ class SubModel:
             sys.exit('La branche `%s` est déjà présente' % branche.id)
         self.branches[branche.id] = branche
 
-    def read_drso(self):
+    def read_drso(self, filter_branch_types=None):
         for emh_group in ET.parse(self.files['drso']).getroot():
 
             if emh_group.tag == (PREFIX + 'Noeuds'):
@@ -98,19 +98,32 @@ class SubModel:
                     self.add_section_idem(section_idem)
 
             elif emh_group.tag == (PREFIX + 'Branches'):
-                for emh_branche_st_venant in emh_group.findall(PREFIX + 'BrancheSaintVenant'):
-                    noeud_amont = self.noeuds[emh_branche_st_venant.find(PREFIX + 'NdAm').get('NomRef')]
-                    noeud_aval = self.noeuds[emh_branche_st_venant.find(PREFIX + 'NdAv').get('NomRef')]
-                    sections = emh_branche_st_venant.find(PREFIX + 'BrancheSaintVenant-Sections')
-                    branche = Branche(emh_branche_st_venant.get('Nom'), noeud_amont, noeud_aval)
-                    for emh_section in sections.findall(PREFIX + 'BrancheSaintVenant-Section'):
-                        try:
-                            section = self.sections_profil[emh_section.get('NomRef')]
-                        except KeyError:
-                            section = self.sections_idem[emh_section.get('NomRef')]
-                        xp = float(emh_section.find(PREFIX + 'Xp').text)
-                        branche.add_section(section, xp)
-                    self.add_branche(branche)
+                if filter_branch_types is None:
+                    branch_types = Branche.TYPES_WITH_GEOM
+                else:
+                    branch_types = filter_branch_types
+                for emh_branche in emh_group:
+                    emh_branche_type = emh_branche.tag[len(PREFIX):]
+                    branche_type_id = Branche.get_id_type_from_name(emh_branche_type)
+                    if branche_type_id not in Branche.TYPES:
+                        logger.warn("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
+
+                    if branche_type_id in branch_types:
+                        noeud_amont = self.noeuds[emh_branche.find(PREFIX + 'NdAm').get('NomRef')]
+                        noeud_aval = self.noeuds[emh_branche.find(PREFIX + 'NdAv').get('NomRef')]
+                        if branche_type_id == 20:
+                            emh_sections = emh_branche.find(PREFIX + 'BrancheSaintVenant-Sections')
+                        else:
+                            emh_sections = emh_branche.find(PREFIX + 'Branche-Sections')
+                        branche = Branche(emh_branche.get('Nom'), noeud_amont, noeud_aval, branche_type_id)
+                        for emh_section in emh_sections:
+                            try:
+                                section = self.sections_profil[emh_section.get('NomRef')]
+                            except KeyError:
+                                section = self.sections_idem[emh_section.get('NomRef')]
+                            xp = float(emh_section.find(PREFIX + 'Xp').text)
+                            branche.add_section(section, xp)
+                        self.add_branche(branche)
 
     def read_dptg(self):
         """

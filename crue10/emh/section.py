@@ -8,6 +8,11 @@ DIFF_XP = 0.1  # m
 
 
 class Section:
+    """
+    Section
+    - id <str>: section identifier
+    - xp <float>: curvilinear abscissa of section on its associated branch
+    """
     def __init__(self, nom_section):
         self.id = nom_section
         self.xp = -1
@@ -78,7 +83,6 @@ class SectionProfil(Section):
 class SectionIdem(Section):
     def __init__(self, nom_section):
         super().__init__(nom_section)
-        self.nom_section = nom_section
         self.section_ori = None
         self.dz = None
 
