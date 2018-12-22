@@ -74,12 +74,13 @@ class Branche:
 
     def normalize_sections_xp(self):
         """
-        Normalize section xp by the branch length to be consistent with geometry
+        Recompute section xp to correspond to geometric distance (original values are taken from drso).
+        Last section xp will correspond exactly to the branch length.
         """
         xp_max = self.sections[-1].xp
         length = self.geom.length
         if abs(xp_max - length) > DIFF_XP_TO_WARN:
-            logger.warn("La longueur de la branche `%s` est %f (non pas %f)." % (self.id, length, xp_max))
+            logger.warn("La longueur de la branche `%s` est estimée à %.2fm (non pas %.2fm)." % (self.id, length, xp_max))
         for i, section in enumerate(self.sections):
             try:
                 section.xp = section.xp * length / xp_max

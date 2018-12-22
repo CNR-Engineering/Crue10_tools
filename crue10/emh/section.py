@@ -22,6 +22,14 @@ class Section:
 
 
 class SectionProfil(Section):
+    """
+    SectionProfil
+    - nom_profilsection <str>: profil section identifier (should start with `Ps_`)
+    - xt_axe <float>: transversal position of hydraulic axis
+    - xz <2D-array>: ndarray(dtype=float, ndim=2)
+        Array containing series of transversal abscissa and elevation (first axis should be sctricly increasing)
+    - geom_trace <LineString>: polyline section trace
+    """
     def __init__(self, nom_section, nom_profilsection):
         super().__init__(nom_section)
         self.nom_profilsection = nom_profilsection
@@ -81,6 +89,11 @@ class SectionProfil(Section):
 
 
 class SectionIdem(Section):
+    """
+    SectionIdem
+    - section_ori <SectionProfil>: original (= reference) section
+    - dz <float>: vertical shift (in meters)
+    """
     def __init__(self, nom_section):
         super().__init__(nom_section)
         self.section_ori = None
@@ -95,3 +108,11 @@ class SectionIdem(Section):
         new_section.xp = self.xp
         new_section.xz[:, 1] += self.dz
         return new_section
+
+
+class SectionInterpolee(Section):
+    """
+    SectionInterpolee
+    """
+    def __init__(self, nom_section):
+        super().__init__(nom_section)
