@@ -102,8 +102,14 @@ class CrueRun:
             self.calc_trans[calc_trans.name] = calc_trans
 
     def set_res_pattern(self):
+        emh_types_with_res = []
         for emh_type in self.emh_types:
+            emh_types_with_res.append(emh_type)
             self.res_pattern.append((emh_type, (len(self.emh[emh_type]), len(self.variables[emh_type]))))
+        # Add emh_types which have no result data (because delimiter is still present)
+        for i, emh_type in enumerate(CrueRun.EMH_PRIMARY_TYPES[:-1]):
+            if emh_type not in emh_types_with_res:
+                self.res_pattern.insert(i, (emh_type, (0, 0)))
 
     def emh_type(self, emh_name):
         for emh_type in self.emh_types:
