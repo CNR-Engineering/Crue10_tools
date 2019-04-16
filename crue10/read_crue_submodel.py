@@ -8,7 +8,7 @@ from crue10.emh.submodel import SubModel
 
 
 try:
-    submodel = SubModel('../../crue10_examples/Etu_VS2015_conc/Etu_VS2003_Conc.etu.xml',
+    submodel = SubModel('../../tatooinemesher_examples/VS2015/in/Etu_VS2015_conc/Etu_VS2003_Conc.etu.xml',
                         'Sm_VS2013_c10_octobre_2014')
     submodel.read_all()
 

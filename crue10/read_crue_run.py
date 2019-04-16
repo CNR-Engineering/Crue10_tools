@@ -4,7 +4,7 @@ from crue10.run import CrueRun
 from crue10.utils import CrueError, logger
 
 
-rcal_path = '../../crue10_examples/Etu_VS2015_conc/Runs/Sc_VS2013-dclt/R2016-03-25-10h53m35s/Mo_VS2013-dclt/VS2013_c10_dcnc1400.rcal.xml'
+rcal_path = '../../tatooinemesher_examples/VS2015/in/Etu_VS2015_conc/Runs/Sc_EtatsRef2015/R2019-04-16-14h09m19s/Mo_VS2013_c10_octobre_2014/VS2013_c10_EtatsRef.rcal.xml'
 try:
     run = CrueRun(rcal_path)
     print(run.summary())
@@ -27,14 +27,14 @@ try:
     run.export_calc_perm_as_csv('Etu_VS2015_conc_perms.csv')
 
     # Read a single *unsteady* calculation
-    res_trans = run.get_res_trans('Cc_dcnc1400-5min')
+    res_trans = run.get_res_trans('Cc_Avr_2006')
     for emh_type, res in res_trans.items():
         print(emh_type)
         print(res)  # shape = (number of time steps, number of EMHs, number of variables)
 
     # Read results at locations for a single unsteady calculation
     #   shape = (number of time steps, number of requested EMHs)
-    print(run.get_res_trans_var_at_emhs('Cc_dcnc1400-5min', 'Z', ['St_RET33.300', 'Nd_VRH8.500']))
+    print(run.get_res_trans_var_at_emhs('Cc_Avr_2006', 'Z', ['St_RET33.300', 'Nd_VRH8.500']))
 
     # Export unsteady calculations data
     run.export_calc_trans_as_csv('Etu_VS2015_conc_trans.csv')
