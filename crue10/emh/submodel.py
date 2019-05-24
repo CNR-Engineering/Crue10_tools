@@ -8,7 +8,7 @@ from crue10.utils import CrueError, logger, PREFIX
 
 from .branche import Branche
 from .noeud import Noeud
-from .section import SectionIdem, SectionInterpolee, SectionProfil
+from .section import SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 
 
 class SubModel:
@@ -19,6 +19,7 @@ class SubModel:
     - sections_profil <{crue10.emh.section.SectionProfil}>
     - sections_idem <{crue10.emh.section.SectionIdem}>
     - sections_interpolee <{crue10.emh.section.SectionInterpolee}>
+    - sections_sans_geometrie <{crue10.emh.section.SectionSansGeometrie}>
     - branches <{crue10.emh.section.SectionInterpolee}>: branches (only those with geometry are considered)
     """
 
@@ -35,6 +36,7 @@ class SubModel:
         self.sections_profil = {}
         self.sections_idem = {}
         self.sections_interpolee = {}
+        self.sections_sans_geometrie = {}
         self.branches = {}
         self._get_xml_files(etu_path, nom_sous_modele)
         self._get_shp_files(etu_path, nom_sous_modele)
@@ -68,8 +70,17 @@ class SubModel:
         self.noeuds[noeud.id] = noeud
 
     def get_section_names(self):
+        """Returns the list of all section names"""
         return list(self.sections_profil.keys()) + list(self.sections_idem.keys()) + \
-               list(self.sections_interpolee.keys())
+               list(self.sections_interpolee.keys()) + list(self.sections_sans_geometrie.keys())
+
+    def get_active_section_names(self):
+        """Returns the list of all active section names"""
+        section_id_list = []
+        for section_name in self.get_section_names():
+            if self.get_section(section_name).is_active:
+                section_id_list.append(section_name)
+        return section_id_list
 
     def add_section_profil(self, section):
         if section.id in self.get_section_names():
@@ -86,6 +97,11 @@ class SubModel:
             raise CrueError("La SectionInterpolee `%s` est déjà présente" % section.id)
         self.sections_interpolee[section.id] = section
 
+    def add_section_sans_geometrie(self, section):
+        if section.id in self.get_section_names():
+            raise CrueError("La SectionSansGeometrie `%s` est déjà présente" % section.id)
+        self.sections_sans_geometrie[section.id] = section
+
     def get_section(self, section_name):
         try:
             return self.sections_profil[section_name]
@@ -93,7 +109,10 @@ class SubModel:
             try:
                 return self.sections_idem[section_name]
             except KeyError:
-                return self.sections_interpolee[section_name]
+                try:
+                    return self.sections_interpolee[section_name]
+                except KeyError:
+                    return self.sections_sans_geometrie[section_name]
 
     def add_branche(self, branche):
         if branche.id in self.branches:
@@ -101,6 +120,9 @@ class SubModel:
         self.branches[branche.id] = branche
 
     def read_drso(self, filter_branch_types=None):
+        """
+        Read drso.xml file
+        """
         for emh_group in ET.parse(self.files['drso']).getroot():
 
             if emh_group.tag == (PREFIX + 'Noeuds'):
@@ -129,6 +151,10 @@ class SubModel:
                     nom_section = emh_section.get('Nom')
                     self.add_section_interpolee(SectionInterpolee(nom_section))
 
+                for emh_section in emh_group.findall(PREFIX + 'SectionSansGeometrie'):
+                    nom_section = emh_section.get('Nom')
+                    self.add_section_sans_geometrie(SectionSansGeometrie(nom_section))
+
             elif emh_group.tag == (PREFIX + 'Branches'):
                 if filter_branch_types is None:
                     branch_types = Branche.TYPES_WITH_GEOM
@@ -141,13 +167,14 @@ class SubModel:
                         logger.warn("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
 
                     if branche_type_id in branch_types:
+                        is_active = emh_branche.find(PREFIX + 'IsActive').text == 'true'
                         noeud_amont = self.noeuds[emh_branche.find(PREFIX + 'NdAm').get('NomRef')]
                         noeud_aval = self.noeuds[emh_branche.find(PREFIX + 'NdAv').get('NomRef')]
                         if branche_type_id == 20:
                             emh_sections = emh_branche.find(PREFIX + 'BrancheSaintVenant-Sections')
                         else:
                             emh_sections = emh_branche.find(PREFIX + 'Branche-Sections')
-                        branche = Branche(emh_branche.get('Nom'), noeud_amont, noeud_aval, branche_type_id)
+                        branche = Branche(emh_branche.get('Nom'), noeud_amont, noeud_aval, branche_type_id, is_active)
                         for emh_section in emh_sections:
                             section = self.get_section(emh_section.get('NomRef'))
                             xp = float(emh_section.find(PREFIX + 'Xp').text)
@@ -156,7 +183,8 @@ class SubModel:
 
     def read_dptg(self):
         """
-        Le profil est tronqué sur le lit utile (ie. entre les limites RD et RG)
+        Read dptg.xml file
+        /!\ Le profil est tronqué sur le lit utile (ie. entre les limites RD et RG)
         """
         for emh_group in ET.parse(self.files['dptg']).getroot():
 
@@ -210,6 +238,12 @@ class SubModel:
             except KeyError:
                 raise CrueError("La géométrie de la branche %s n'est pas trouvée!" % (branche.id))
 
+    def set_active_sections(self):
+        for branche in self.iter_on_branches():
+            branch_is_active = branche.is_active
+            for section in branche.sections:
+                section.is_active = branch_is_active
+
     def read_all(self):
         self.read_drso()
         self.read_dptg()
@@ -217,6 +251,7 @@ class SubModel:
         self.read_shp_noeuds()
         self.read_shp_traces_sections()
         self.read_shp_branches()
+        self.set_active_sections()
 
     def iter_on_branches(self):
         for _, branche in self.branches.items():
@@ -286,6 +321,14 @@ class SubModel:
                     if isinstance(section, SectionProfil):
                         out_shp.write({'geometry': mapping(section.geom_trace),
                                        'properties': {'id_section': section.id}})
+
+    def get_missing_active_sections(self, section_id_list):
+        """
+        Returns the list of the requested sections which are not found (or not active) in the current submodel
+            (section type is not checked)
+        :param section_id_list: list of section identifiers
+        """
+        return set(self.get_active_section_names()).difference(set(section_id_list))
 
     def __repr__(self):
         return "%i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee)" % (

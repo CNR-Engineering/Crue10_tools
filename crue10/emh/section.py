@@ -12,9 +12,11 @@ class Section:
     Section
     - id <str>: section identifier
     - xp <float>: curvilinear abscissa of section on its associated branch
+    - is_active <bool>: True if the section is active (it is associated to an active branch)
     """
     def __init__(self, nom_section):
         self.id = nom_section
+        self.is_active = False
         self.xp = -1
 
     def __repr__(self):
@@ -47,8 +49,10 @@ class SectionProfil(Section):
         self.geom_trace = trace
 
     def get_coord_3d(self):
-        if self.xz is None or self.geom_trace is None:
-            raise CrueError("`%s`: 3D trace could not be computed!" % self)
+        if self.xz is None:
+            raise CrueError("`%s`: 3D trace could not be computed (xz is missing)!" % self)
+        if self.geom_trace is None:
+            raise CrueError("`%s`: 3D trace could not be computed (trace is missing)!" % self)
         min_xt = self.xz[:, 0].min()
         range_xt = self.xz[:, 0].max() - min_xt
         diff_xt = range_xt - self.geom_trace.length
@@ -114,5 +118,11 @@ class SectionInterpolee(Section):
     """
     SectionInterpolee
     """
-    def __init__(self, nom_section):
-        super().__init__(nom_section)
+    pass
+
+
+class SectionSansGeometrie(Section):
+    """
+    SectionSansGeometrie
+    """
+    pass

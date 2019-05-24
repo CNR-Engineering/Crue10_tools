@@ -13,9 +13,17 @@ try:
     submodel.read_all()
 
     # Do something with `submodel`...
-    print(submodel)
-    # submodel.remove_sectioninterpolee()
-    # submodel.convert_sectionidem_to_sectionprofil()
+    # Here is an example below:
+    submodel.remove_sectioninterpolee()
+    submodel.convert_sectionidem_to_sectionprofil()
+
+    # Select a single branch
+    branch = submodel.branches['Br_AVB5.560']
+    print(branch)
+    # Sections of a single branch
+    print(branch.sections)
+    # Coordinates of a section
+    print(branch.sections[0].get_coord_3d())
 
 except FileNotFoundError as e:
     logger.critical(e)

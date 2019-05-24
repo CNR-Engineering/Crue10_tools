@@ -1,10 +1,14 @@
+import os.path
 import sys
 
 from crue10.run import CrueRun
 from crue10.utils import CrueError, logger
 
 
-rcal_path = '../../tatooinemesher_examples/VS2015/in/Etu_VS2015_conc/Runs/Sc_EtatsRef2015/R2019-04-16-14h09m19s/Mo_VS2013_c10_octobre_2014/VS2013_c10_EtatsRef.rcal.xml'
+model_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
+rcal_path = os.path.join(model_folder,
+                         'Runs/Sc_EtatsRef2015/R2019-04-16-14h09m19s/Mo_VS2013_c10_octobre_2014',
+                         'VS2013_c10_EtatsRef.rcal.xml')
 try:
     run = CrueRun(rcal_path)
     print(run.summary())
