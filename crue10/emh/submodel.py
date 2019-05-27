@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 from crue10.utils import CrueError, logger, PREFIX
 
 from .branche import Branche
+from .casier import Casier
 from .noeud import Noeud
 from .section import SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 
@@ -21,6 +22,7 @@ class SubModel:
     - sections_interpolee <{crue10.emh.section.SectionInterpolee}>
     - sections_sans_geometrie <{crue10.emh.section.SectionSansGeometrie}>
     - branches <{crue10.emh.section.SectionInterpolee}>: branches (only those with geometry are considered)
+    - casiers <{crue10.emh.casier.Casier}>: casiers
     """
 
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
@@ -38,6 +40,7 @@ class SubModel:
         self.sections_interpolee = {}
         self.sections_sans_geometrie = {}
         self.branches = {}
+        self.casiers = {}
         self._get_xml_files(etu_path, nom_sous_modele)
         self._get_shp_files(etu_path, nom_sous_modele)
 
@@ -119,6 +122,11 @@ class SubModel:
             raise CrueError("La branche `%s` est déjà présente" % branche.id)
         self.branches[branche.id] = branche
 
+    def add_casier(self, casier):
+        if casier.id in self.casiers:
+            raise CrueError("Le casier %s est déjà présent" % casier.id)
+        self.casiers[casier.id] = casier
+
     def read_drso(self, filter_branch_types=None):
         """
         Read drso.xml file
@@ -181,6 +189,12 @@ class SubModel:
                             branche.add_section(section, xp)
                         self.add_branche(branche)
 
+            elif emh_group.tag == (PREFIX + 'Casiers'):
+                for emh_casier_profil in emh_group:
+                    is_active = emh_casier_profil.find(PREFIX + 'IsActive') == 'true'
+                    casier = Casier(emh_casier_profil.get('Nom'), is_active)
+                    self.add_casier(casier)
+
     def read_dptg(self):
         """
         Read dptg.xml file
@@ -236,7 +250,20 @@ class SubModel:
             try:
                 branche.set_geom(geoms[branche.id])
             except KeyError:
-                raise CrueError("La géométrie de la branche %s n'est pas trouvée!" % (branche.id))
+                raise CrueError("La géométrie de la branche %s n'est pas trouvée!" % branche.id)
+
+    def read_shp_casiers(self):
+        geoms = {}
+        with fiona.open(self.files['casiers'], 'r') as src:
+            for obj in src:
+                nom_casier = obj['properties']['EMH_NAME']
+                coords = obj['geometry']['coordinates']
+                geoms[nom_casier] = LineString(coords)
+        for _, casier in self.casiers.items():
+            try:
+                casier.set_geom(geoms[casier.id])
+            except KeyError:
+                raise CrueError("La géométrie du casier %s n'est pas trouvée!" % casier.id)
 
     def set_active_sections(self):
         for branche in self.iter_on_branches():
@@ -251,6 +278,7 @@ class SubModel:
         self.read_shp_noeuds()
         self.read_shp_traces_sections()
         self.read_shp_branches()
+        self.read_shp_casiers()
         self.set_active_sections()
 
     def iter_on_branches(self):
@@ -331,7 +359,9 @@ class SubModel:
         return set(self.get_active_section_names()).difference(set(section_id_list))
 
     def __repr__(self):
-        return "%i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee)" % (
-            len(self.noeuds), len(self.branches), len(self.get_section_names()),
-            len(self.sections_profil), len(self.sections_idem), len(self.sections_interpolee)
+        return "%i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee + %i sans géométrie), " \
+           "%i casiers" % (
+           len(self.noeuds), len(self.branches), len(self.get_section_names()),
+           len(self.sections_profil), len(self.sections_idem), len(self.sections_interpolee),
+           len(self.sections_sans_geometrie), len(self.casiers)
         )

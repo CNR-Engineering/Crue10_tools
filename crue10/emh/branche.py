@@ -13,6 +13,7 @@ class Branche:
     Branche
     - id <str>: branch identifier
     - type <int>: branch type (a key from `Branche.TYPES`)
+    - is_active <bool>: True if the section is active (it is associated to an active branch)
     - noeud_amont <crue10.emh.noeud.Noeud>: upstream node
     - noeud_aval <crue10.emh.noeud.Noeud>: downstream node
     - sections <[crue10.emh.section.Section]>: list of sections

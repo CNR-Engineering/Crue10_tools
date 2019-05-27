@@ -20,7 +20,7 @@ class Section:
         self.xp = -1
 
     def __repr__(self):
-        return '%s #%s:' % (self.__class__.__name__, self.id)
+        return '%s #%s' % (self.__class__.__name__, self.id)
 
 
 class SectionProfil(Section):
@@ -84,7 +84,7 @@ class SectionProfil(Section):
         self.geom_trace = LineString(coords)
 
     def __repr__(self):
-        text = 'SectionProfil #%s:' % self.id
+        text = super().__repr__() + ':'
         if self.has_xz():
             text += ' %i points' % len(self.xz)
         if self.has_trace():
