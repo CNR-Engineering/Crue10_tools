@@ -9,7 +9,7 @@ from crue10.utils import CrueError, logger, PREFIX
 from .branche import Branche
 from .casier import Casier
 from .noeud import Noeud
-from .section import SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
+from .section import LitNumerote, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 
 
 class SubModel:
@@ -205,21 +205,26 @@ class SubModel:
             if emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
                     nom_section = emh.get('Nom').replace('Ps_', 'St_')  #FIXME: not necessary consistant
+                    section = self.sections_profil[nom_section]
 
-                    lits_numerotes = list(emh.find(PREFIX + 'LitNumerotes').findall(PREFIX + 'LitNumerote'))
-                    min_xt = float(lits_numerotes[0].find(PREFIX + 'LimDeb').text.split()[0])
-                    max_xt = float(lits_numerotes[-1].find(PREFIX + 'LimFin').text.split()[0])
+                    for lit_num_elt in emh.find(PREFIX + 'LitNumerotes').findall(PREFIX + 'LitNumerote'):
+                        lit_id = lit_num_elt.find(PREFIX + 'LitNomme').text
+                        xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
+                        xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
+                        section.add_lit_numerote(LitNumerote(lit_id, xt_min, xt_max))
+                    section_xt_min = section.lits_numerotes[0].xt_min
+                    section_xt_max = section.lits_numerotes[-1].xt_max
 
                     etiquette = emh.find(PREFIX + 'Etiquettes').find(PREFIX + 'Etiquette[@Nom="Et_AxeHyd"]')
-                    self.sections_profil[nom_section].set_xt_axe(
+                    section.set_xt_axe(
                         float(etiquette.find(PREFIX + 'PointFF').text.split()[0]))
 
                     xz = []
                     for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
                         x, z = [float(v) for v in pointff.text.split()]
-                        if min_xt <= x <= max_xt:
+                        if section_xt_min <= x <= section_xt_max:
                             xz.append([x, z])
-                    self.sections_profil[nom_section].set_xz(np.array(xz))
+                    section.set_xz(np.array(xz))
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoSections'):
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
@@ -349,6 +354,23 @@ class SubModel:
                     if isinstance(section, SectionProfil):
                         out_shp.write({'geometry': mapping(section.geom_trace),
                                        'properties': {'id_section': section.id}})
+
+    def write_shp_limites_lits_numerotes(self, shp_path):
+        schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
+        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
+            for branche in self.iter_on_branches():
+                for i_lit, lit_name in enumerate(LitNumerote.LIMITES_NAMES):
+                    coords = []
+                    for section in branche.sections:
+                        if isinstance(section, SectionProfil):
+                            if i_lit == 0:
+                                point = section.interp_point(section.lits_numerotes[0].xt_min)
+                            else:
+                                point = section.interp_point(section.lits_numerotes[i_lit - 1].xt_max)
+                            coords.append((point.x, point.y))
+                    if len(coords) > 2:
+                        out_shp.write({'geometry': mapping(LineString(coords)),
+                                       'properties': {'id_limite': lit_name, 'id_branche': branche.id}})
 
     def get_missing_active_sections(self, section_id_list):
         """

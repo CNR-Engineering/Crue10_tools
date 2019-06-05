@@ -7,6 +7,21 @@ from crue10.utils import CrueError, logger
 DIFF_XP = 0.1  # m
 
 
+class LitNumerote:
+    """Lit numéroté"""
+
+    LITS_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
+    LIMITES_NAMES = ['RD', 'StoD-MajD', 'MajD-Min', 'Min-MajG', 'MajG-StoG', 'RG']
+
+    def __init__(self, id, xt_min, xt_max):
+        self.id = id
+        self.xt_min = xt_min
+        self.xt_max = xt_max
+
+    def __repr__(self):
+        return 'LitNumerote #%s (%f -> %s)' % (self.id, self.xt_min, self.xt_max)
+
+
 class Section:
     """
     Section
@@ -31,6 +46,7 @@ class SectionProfil(Section):
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be sctricly increasing)
     - geom_trace <LineString>: polyline section trace
+    - lits_numerotes <[LitNumerote]>:
     """
     def __init__(self, nom_section, nom_profilsection):
         super().__init__(nom_section)
@@ -38,6 +54,7 @@ class SectionProfil(Section):
         self.xt_axe = 0  # curvilinear abscissa of hydraulic axis intersection
         self.xz = None
         self.geom_trace = None
+        self.lits_numerotes = []
 
     def set_xt_axe(self, xt_axe):
         self.xt_axe = xt_axe
@@ -46,21 +63,31 @@ class SectionProfil(Section):
         self.xz = coords
 
     def set_trace(self, trace):
+        if not self.lits_numerotes:
+            raise CrueError('xz has to be set before (to check consistancy)')
         self.geom_trace = trace
+        min_xt = self.xz[:, 0].min()
+        range_xt = self.xz[:, 0].max() - min_xt
+        diff_xt = range_xt - self.geom_trace.length
+        if abs(diff_xt) > 1e-2:
+            logger.warn("Écart de longueur pour la section %s: %s" % (self, diff_xt))
+
+    def add_lit_numerote(self, lit_numerote):
+        self.lits_numerotes.append(lit_numerote)
+
+    def interp_point(self, xt):
+        if not self.lits_numerotes:
+            raise CrueError('lits_numerotes has to be set before')
+        return self.geom_trace.interpolate(xt - self.lits_numerotes[0].xt_min)
 
     def get_coord_3d(self):
         if self.xz is None:
             raise CrueError("`%s`: 3D trace could not be computed (xz is missing)!" % self)
         if self.geom_trace is None:
             raise CrueError("`%s`: 3D trace could not be computed (trace is missing)!" % self)
-        min_xt = self.xz[:, 0].min()
-        range_xt = self.xz[:, 0].max() - min_xt
-        diff_xt = range_xt - self.geom_trace.length
-        if abs(diff_xt) > 1e-2:
-            logger.warn("Écart de longeur pour la section %s: %s" % (self, diff_xt))
         coords = []
         for x, z in self.xz:
-            point = self.geom_trace.interpolate(x - min_xt)
+            point = self.interp_point(x)
             coords.append((point.x, point.y, z))
         return coords
 
