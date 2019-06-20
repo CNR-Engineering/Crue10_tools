@@ -5,6 +5,8 @@ from shapely.geometry import LineString, mapping, Point
 import xml.etree.ElementTree as ET
 
 from crue10.utils import CrueError, logger, PREFIX
+from mascaret.mascaret_file import Reach, Section
+from mascaret.mascaretgeo_file import MascaretGeoFile
 
 from .branche import Branche
 from .casier import Casier
@@ -371,6 +373,31 @@ class SubModel:
                     if len(coords) > 2:
                         out_shp.write({'geometry': mapping(LineString(coords)),
                                        'properties': {'id_limite': lit_name, 'id_branche': branche.id}})
+
+    def convert_to_mascaret_format(self, geo_path):
+        """
+        @brief: Convert submodel to mascaret geometry format (georef for example)
+        Only reaches with sections having elevation information are written
+        TODO: Add min/maj delimiter
+        @param geo_path <str>: output file path
+        """
+        geofile = MascaretGeoFile('test.georef', access='w')
+        i_section = 0
+        for i_branche, branche in enumerate(self.iter_on_branches()):
+            if branche.has_geom():
+                reach = Reach(i_branche, name=branche.id)
+                for section in branche.sections:
+                    if not isinstance(section, SectionProfil):
+                        raise CrueError("The ``%s, which is not a SectionProfil, could not be written" % section)
+                    masc_section = Section(i_section, section.xp, name=section.id)
+                    coord = np.array(section.get_coord_3d())
+                    masc_section.set_points_from_xyz(coord[:, 0], coord[:, 1], coord[:, 2])
+                    pt_at_axis = section.interp_point(section.xt_axe)
+                    masc_section.axis = (pt_at_axis.x, pt_at_axis.y)
+                    reach.add_section(masc_section)
+                    i_section += 1
+                geofile.add_reach(reach)
+        geofile.save()
 
     def get_missing_active_sections(self, section_id_list):
         """

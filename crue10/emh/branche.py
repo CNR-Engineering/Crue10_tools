@@ -48,6 +48,9 @@ class Branche:
                 return type_id
         return None
 
+    def has_geom(self):
+        return self.type in Branche.TYPES_WITH_GEOM
+
     def add_section(self, section, xp):
         section.xp = xp
         self.sections.append(section)

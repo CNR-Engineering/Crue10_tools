@@ -1,5 +1,5 @@
 """
-Lecture de la géométrie (et bathymétrie) d'un sous-modèle Crue10
+Lecture de la géométrie (et de la bathymétrie) d'un sous-modèle Crue10
 """
 import sys
 
@@ -23,12 +23,13 @@ try:
     print(branch)
     # Sections of a single branch
     print(branch.sections)
-    # Coordinates of a section
-    print(branch.sections[0].get_coord_3d())
-
-    print(submodel.get_section('St_CAF4.000').lits_numerotes)
-    print(submodel.get_section('St_CAF5.000').lits_numerotes)
+    # Select a section (the first in this case) with its index within the branch
+    section = branch.sections[0]
+    print(section)
+    #print(section.get_coord_3d())  # 3D coordinates
+    # Select another section by its identifier
     section = submodel.get_section('St_CAF5.500')
+    # Display coordinates of its limits
     print(section.lits_numerotes)
     for i_lit, lit_name in enumerate(LitNumerote.LIMITES_NAMES):
         if i_lit == 0:
@@ -37,7 +38,9 @@ try:
             point = section.interp_point(section.lits_numerotes[i_lit - 1].xt_max)
         print((point.x, point.y))
 
+    # Write some output files
     submodel.write_shp_limites_lits_numerotes('limites.shp')
+    submodel.convert_to_mascaret_format('Etu_VS2003_Conc.georef')
 
 except FileNotFoundError as e:
     logger.critical(e)
