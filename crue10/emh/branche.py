@@ -93,4 +93,5 @@ class Branche:
                 section.xp = (i / (len(self.sections) - 1)) * length
 
     def __repr__(self):
-        return "Branche #%s: %s -> %s (%i sections)" % (self.id, self.noeud_amont, self.noeud_aval, len(self.sections))
+        return "Branche [%i] #%s: %s -> %s (%i sections)" % (self.type, self.id,
+                                                             self.noeud_amont, self.noeud_aval, len(self.sections))

@@ -348,6 +348,12 @@ class SubModel:
                         # Overwrite SectionProfil original trace by the orthogonal trace because their location differ
                         branche.sections[j].build_orthogonal_trace(branche.geom)
 
+    def normalize_geometry(self):
+        for branche in self.iter_on_branches():
+            branche.normalize_sections_xp()
+            branche.shift_sectionprofil_to_extremity()
+        self.convert_sectionidem_to_sectionprofil()
+
     def write_shp_active_trace(self, shp_path):
         schema = {'geometry': 'LineString', 'properties': {'id_section': 'str'}}
         with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
@@ -381,7 +387,7 @@ class SubModel:
         TODO: Add min/maj delimiter
         @param geo_path <str>: output file path
         """
-        geofile = MascaretGeoFile('test.georef', access='w')
+        geofile = MascaretGeoFile(geo_path, access='w')
         i_section = 0
         for i_branche, branche in enumerate(self.iter_on_branches()):
             if branche.has_geom():
@@ -390,7 +396,7 @@ class SubModel:
                     if not isinstance(section, SectionProfil):
                         raise CrueError("The ``%s, which is not a SectionProfil, could not be written" % section)
                     masc_section = Section(i_section, section.xp, name=section.id)
-                    coord = np.array(section.get_coord_3d())
+                    coord = np.array(section.get_coord(add_z=True))
                     masc_section.set_points_from_xyz(coord[:, 0], coord[:, 1], coord[:, 2])
                     pt_at_axis = section.interp_point(section.xt_axe)
                     masc_section.axis = (pt_at_axis.x, pt_at_axis.y)

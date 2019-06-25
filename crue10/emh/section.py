@@ -80,7 +80,7 @@ class SectionProfil(Section):
             raise CrueError('lits_numerotes has to be set before')
         return self.geom_trace.interpolate(xt - self.lits_numerotes[0].xt_min)
 
-    def get_coord_3d(self):
+    def get_coord(self, add_z=False):
         if self.xz is None:
             raise CrueError("`%s`: 3D trace could not be computed (xz is missing)!" % self)
         if self.geom_trace is None:
@@ -88,7 +88,10 @@ class SectionProfil(Section):
         coords = []
         for x, z in self.xz:
             point = self.interp_point(x)
-            coords.append((point.x, point.y, z))
+            if add_z:
+                coords.append((point.x, point.y, z))
+            else:
+                coords.append((point.x, point.y))
         return coords
 
     def has_xz(self):
