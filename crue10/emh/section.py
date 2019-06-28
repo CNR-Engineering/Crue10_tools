@@ -1,4 +1,5 @@
 from copy import deepcopy
+import numpy as np
 from shapely.geometry import LineString
 
 from crue10.utils import CrueError, logger
@@ -7,16 +8,29 @@ from crue10.utils import CrueError, logger
 DIFF_XP = 0.1  # m
 
 
+class FrictionLaw:
+    """
+    Friction law
+    (Strickler coefficient could vary with Z elevation)
+    """
+    def __init__(self, id, type, array):
+        self.id = id
+        self.type = type
+        self.array = array
+
+
 class LitNumerote:
     """Lit numéroté"""
 
-    LITS_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
-    LIMITES_NAMES = ['RD', 'StoD-MajD', 'MajD-Min', 'Min-MajG', 'MajG-StoG', 'RG']
+    BED_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
+    LIMIT_NAMES = ['RD', 'StoD-MajD', 'MajD-Min', 'Min-MajG', 'MajG-StoG', 'RG']
 
-    def __init__(self, id, xt_min, xt_max):
+    def __init__(self, id, xt_min, xt_max, friction_law):
         self.id = id
         self.xt_min = xt_min
         self.xt_max = xt_max
+        self.is_active = 'Maj' in self.id or 'Min' in self.id
+        self.friction_law = friction_law
 
     def __repr__(self):
         return 'LitNumerote #%s (%f -> %s)' % (self.id, self.xt_min, self.xt_max)
@@ -46,7 +60,7 @@ class SectionProfil(Section):
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be sctricly increasing)
     - geom_trace <LineString>: polyline section trace
-    - lits_numerotes <[LitNumerote]>:
+    - lits_numerotes <[LitNumerote]>
     """
     def __init__(self, nom_section, nom_profilsection):
         super().__init__(nom_section)
@@ -93,6 +107,29 @@ class SectionProfil(Section):
             else:
                 coords.append((point.x, point.y))
         return coords
+
+    def get_is_bed_active_array(self):
+        """/!\ Overestimation of active bed width"""
+        xt = self.xz[:, 0]
+        is_active = np.zeros(len(xt), dtype=bool)
+        for lit in self.lits_numerotes:
+            if 'G' in lit.id:
+                bed_pos = np.logical_and(lit.xt_min < xt, xt < lit.xt_max)
+            else:
+                bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
+            is_active[bed_pos] = lit.is_active
+        return is_active
+
+    def get_friction_coeff_array(self):
+        xt = self.xz[:, 0]
+        coeff = np.zeros(self.xz.shape[0], dtype=np.float)
+        for lit in self.lits_numerotes:
+            if 'G' in lit.id:
+                bed_pos = np.logical_and(lit.xt_min < xt, xt < lit.xt_max)
+            else:
+                bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
+            coeff[bed_pos] = lit.friction_law.array[:, 1].mean()
+        return coeff
 
     def has_xz(self):
         return self.xz is not None

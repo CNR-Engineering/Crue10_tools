@@ -11,7 +11,7 @@ from mascaret.mascaretgeo_file import MascaretGeoFile
 from .branche import Branche
 from .casier import Casier
 from .noeud import Noeud
-from .section import LitNumerote, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
+from .section import FrictionLaw, LitNumerote, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 
 
 class SubModel:
@@ -25,10 +25,11 @@ class SubModel:
     - sections_sans_geometrie <{crue10.emh.section.SectionSansGeometrie}>
     - branches <{crue10.emh.section.SectionInterpolee}>: branches (only those with geometry are considered)
     - casiers <{crue10.emh.casier.Casier}>: casiers
+    - friction_laws <{crue10.emh.section.FrictionLaw}>: friction law (Strickler coefficient)
     """
 
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
-    FILES_XML = ['drso', 'dptg', 'dcsp']
+    FILES_XML = ['dfrt', 'drso', 'dptg', 'dcsp']
 
     def __init__(self, etu_path, nom_sous_modele):
         """
@@ -43,6 +44,7 @@ class SubModel:
         self.sections_sans_geometrie = {}
         self.branches = {}
         self.casiers = {}
+        self.friction_laws = {}
         self._get_xml_files(etu_path, nom_sous_modele)
         self._get_shp_files(etu_path, nom_sous_modele)
 
@@ -68,6 +70,11 @@ class SubModel:
         for shp_name in SubModel.FILES_SHP:
             self.files[shp_name] = os.path.join(os.path.dirname(etu_path), 'Config', nom_sous_modele.upper(),
                                                 shp_name + '.shp')
+
+    def add_friction_law(self, friction_law):
+        if friction_law.id in self.friction_laws:
+            raise CrueError("La loi de frottement %s est déjà présente" % friction_law.id)
+        self.friction_laws[friction_law.id] = friction_law
 
     def add_noeud(self, noeud):
         if noeud.id in self.noeuds:
@@ -128,6 +135,17 @@ class SubModel:
         if casier.id in self.casiers:
             raise CrueError("Le casier %s est déjà présent" % casier.id)
         self.casiers[casier.id] = casier
+
+    def read_dfrt(self):
+        """
+        Read dfrt.xml file
+        """
+        for loi in ET.parse(self.files['dfrt']).getroot().find(PREFIX + 'LoiFFs'):
+            xk_list = []
+            for xk in loi.find(PREFIX + 'EvolutionFF'):
+                xk_list.append(tuple(float(x) for x in xk.text.split()))
+            friction_law = FrictionLaw(loi.get('Nom'), loi.get('Type'), np.array(xk_list))
+            self.add_friction_law(friction_law)
 
     def read_drso(self, filter_branch_types=None):
         """
@@ -213,7 +231,8 @@ class SubModel:
                         lit_id = lit_num_elt.find(PREFIX + 'LitNomme').text
                         xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
                         xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
-                        section.add_lit_numerote(LitNumerote(lit_id, xt_min, xt_max))
+                        friction_law = self.friction_laws[lit_num_elt.find(PREFIX + 'Frot').get('NomRef')]
+                        section.add_lit_numerote(LitNumerote(lit_id, xt_min, xt_max, friction_law))
                     section_xt_min = section.lits_numerotes[0].xt_min
                     section_xt_max = section.lits_numerotes[-1].xt_max
 
@@ -279,6 +298,7 @@ class SubModel:
                 section.is_active = branch_is_active
 
     def read_all(self):
+        self.read_dfrt()
         self.read_drso()
         self.read_dptg()
         # dcsp is ignored
@@ -367,7 +387,7 @@ class SubModel:
         schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
         with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
             for branche in self.iter_on_branches():
-                for i_lit, lit_name in enumerate(LitNumerote.LIMITES_NAMES):
+                for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
                     coords = []
                     for section in branche.sections:
                         if isinstance(section, SectionProfil):

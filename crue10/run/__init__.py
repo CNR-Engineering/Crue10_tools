@@ -22,8 +22,8 @@ class CrueRun:
         self.emh_type_first_branche = None
         self.emh = OrderedDict()
         self.variables = OrderedDict()
-        self.calc_perms = {}
-        self.calc_trans = {}
+        self.calc_perms = OrderedDict()
+        self.calc_trans = OrderedDict()
         self.res_pattern = []
 
         self._read_parametrage()
