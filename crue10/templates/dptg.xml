@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DPTG xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dptg-1.2.xsd">
+  <Commentaire></Commentaire>
+  <DonPrtGeoProfilCasiers>
+    {%- for profil_casier in profil_casier_list %}
+    <ProfilCasier Nom="{{ profil_casier.id }}">
+      <Commentaire></Commentaire>
+      <Longueur>{{ profil_casier.distance }}</Longueur>
+      <EvolutionFF>
+        {%- for xt, z in profil_casier.xz %}
+        <PointFF>{{ xt }} {{ z }}</PointFF>
+        {%- endfor %}
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>{{ profil_casier.xt_min }} {{ profil_casier.interp_z(profil_casier.xt_min) }}</LimDeb>
+        <LimFin>{{ profil_casier.xt_max }} {{ profil_casier.interp_z(profil_casier.xt_max) }}</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    {%- endfor %}
+  </DonPrtGeoProfilCasiers>
+  <DonPrtGeoProfilSections>
+    {%- for section in section_profil_list %}
+    <ProfilSection Nom="{{ section.nom_profilsection }}">
+      <Commentaire>{{ section.comment }}</Commentaire>
+      <EvolutionFF>
+        {%- for xt, z in section.xz %}
+        <PointFF>{{ xt }} {{ z }}</PointFF>
+        {%- endfor %}
+      </EvolutionFF>
+      <LitNumerotes>
+        {%- for lit_numerote in section.lits_numerotes %}
+        <LitNumerote>
+          <LimDeb>{{ lit_numerote.xt_min }} {{ section.interp_z(lit_numerote.xt_min) }}</LimDeb>
+          <LimFin>{{ lit_numerote.xt_max }} {{ section.interp_z(lit_numerote.xt_max) }}</LimFin>
+          <LitNomme>{{ lit_numerote.id }}</LitNomme>
+          <IsLitActif>{% if lit_numerote.is_active %}true{% else %}false{% endif %}</IsLitActif>
+          <IsLitMineur>{% if lit_numerote.is_mineur %}true{% else %}false{% endif %}</IsLitMineur>
+          <Frot NomRef="{{ lit_numerote.friction_law.id }}"/>
+        </LitNumerote>
+        {%- endfor %}
+      </LitNumerotes>
+      <Etiquettes>
+        {%- for limite in section.limites_geom %}
+        <Etiquette Nom="{{ limite.id }}">
+          <PointFF>{{ limite.xt }} {{ section.interp_z(limite.xt) }}</PointFF>
+        </Etiquette>
+        {%- endfor %}
+      </Etiquettes>
+    </ProfilSection>
+    {%- endfor %}
+  </DonPrtGeoProfilSections>
+  <DonPrtGeoCasiers/>
+  <DonPrtGeoSections>
+    {%- for section in section_idem_list %}
+    <DonPrtGeoSectionIdem NomRef="{{ section.id }}">
+      <Dz>{{ section.dz }}</Dz>
+    </DonPrtGeoSectionIdem>
+    {%- endfor %}
+  </DonPrtGeoSections>
+  <DonPrtGeoBranches>
+    {%- for branche in branche_saintvenant_list %}
+    <DonPrtGeoBrancheSaintVenant NomRef="{{ branche.id }}">
+      <CoefSinuo>1.0</CoefSinuo>
+    </DonPrtGeoBrancheSaintVenant>
+    {%- endfor %}
+  </DonPrtGeoBranches>
+</DPTG>

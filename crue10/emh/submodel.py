@@ -1,4 +1,6 @@
+from collections import OrderedDict
 import fiona
+from jinja2 import Environment, FileSystemLoader
 import numpy as np
 import os.path
 from shapely.geometry import LineString, mapping, Point
@@ -9,9 +11,10 @@ from mascaret.mascaret_file import Reach, Section
 from mascaret.mascaretgeo_file import MascaretGeoFile
 
 from .branche import Branche
-from .casier import Casier
+from .casier import Casier, ProfilCasier
 from .noeud import Noeud
-from .section import FrictionLaw, LitNumerote, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
+from .section import FrictionLaw, LimiteGeom, LitNumerote, SectionIdem, SectionInterpolee, \
+    SectionProfil, SectionSansGeometrie
 
 
 class SubModel:
@@ -19,12 +22,11 @@ class SubModel:
     Crue10 sub-model
     - files <[str]>: dict with path to xml and shp files (keys correspond to `FILES_SHP` and `FILES_XML` lists)
     - noeuds <{crue10.emh.noeud.Noeud}>: nodes
-    - sections_profil <{crue10.emh.section.SectionProfil}>
-    - sections_idem <{crue10.emh.section.SectionIdem}>
-    - sections_interpolee <{crue10.emh.section.SectionInterpolee}>
-    - sections_sans_geometrie <{crue10.emh.section.SectionSansGeometrie}>
+    - sections <{crue10.emh.section.Section}>: sections
+        (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
     - branches <{crue10.emh.section.SectionInterpolee}>: branches (only those with geometry are considered)
     - casiers <{crue10.emh.casier.Casier}>: casiers
+    - profils_casier <{crue10.emh.casier.ProfilCasier}>: profils casier
     - friction_laws <{crue10.emh.section.FrictionLaw}>: friction law (Strickler coefficient)
     """
 
@@ -36,15 +38,14 @@ class SubModel:
         :param etu_path: Crue10 study file (etu.xml format)
         :param nom_sous_modele: submodel name
         """
+        self.submodel_name = nom_sous_modele
         self.files = {}
-        self.noeuds = {}
-        self.sections_profil = {}
-        self.sections_idem = {}
-        self.sections_interpolee = {}
-        self.sections_sans_geometrie = {}
-        self.branches = {}
-        self.casiers = {}
-        self.friction_laws = {}
+        self.noeuds = OrderedDict()
+        self.sections = OrderedDict()
+        self.branches = OrderedDict()
+        self.casiers = OrderedDict()
+        self.profils_casier = OrderedDict()
+        self.friction_laws = OrderedDict()
         self._get_xml_files(etu_path, nom_sous_modele)
         self._get_shp_files(etu_path, nom_sous_modele)
 
@@ -81,50 +82,16 @@ class SubModel:
             raise CrueError("Le noeud %s est déjà présent" % noeud.id)
         self.noeuds[noeud.id] = noeud
 
-    def get_section_names(self):
-        """Returns the list of all section names"""
-        return list(self.sections_profil.keys()) + list(self.sections_idem.keys()) + \
-               list(self.sections_interpolee.keys()) + list(self.sections_sans_geometrie.keys())
-
     def get_active_section_names(self):
         """Returns the list of all active section names"""
-        section_id_list = []
-        for section_name in self.get_section_names():
-            if self.get_section(section_name).is_active:
-                section_id_list.append(section_name)
-        return section_id_list
+        for _, section in self.sections.items():
+            if section.is_active:
+                yield section.id
 
-    def add_section_profil(self, section):
-        if section.id in self.get_section_names():
-            raise CrueError("La SectionProfil `%s` est déjà présente" % section.id)
-        self.sections_profil[section.id] = section
-
-    def add_section_idem(self, section):
-        if section.id in self.get_section_names():
-            raise CrueError("La SectionIdem `%s` est déjà présente" % section.id)
-        self.sections_idem[section.id] = section
-
-    def add_section_interpolee(self, section):
-        if section.id in self.get_section_names():
-            raise CrueError("La SectionInterpolee `%s` est déjà présente" % section.id)
-        self.sections_interpolee[section.id] = section
-
-    def add_section_sans_geometrie(self, section):
-        if section.id in self.get_section_names():
-            raise CrueError("La SectionSansGeometrie `%s` est déjà présente" % section.id)
-        self.sections_sans_geometrie[section.id] = section
-
-    def get_section(self, section_name):
-        try:
-            return self.sections_profil[section_name]
-        except KeyError:
-            try:
-                return self.sections_idem[section_name]
-            except KeyError:
-                try:
-                    return self.sections_interpolee[section_name]
-                except KeyError:
-                    return self.sections_sans_geometrie[section_name]
+    def add_section(self, section):
+        if section.id in self.sections:
+            raise CrueError("La Section `%s` est déjà présente" % section.id)
+        self.sections[section.id] = section
 
     def add_branche(self, branche):
         if branche.id in self.branches:
@@ -135,6 +102,11 @@ class SubModel:
         if casier.id in self.casiers:
             raise CrueError("Le casier %s est déjà présent" % casier.id)
         self.casiers[casier.id] = casier
+
+    def add_profil_casier(self, profil_casier):
+        if profil_casier.id in self.profils_casier:
+            raise CrueError("Le profil casier %s est déjà présent" % profil_casier.id)
+        self.profils_casier[profil_casier.id] = profil_casier
 
     def read_dfrt(self):
         """
@@ -156,38 +128,48 @@ class SubModel:
             if emh_group.tag == (PREFIX + 'Noeuds'):
                 for emh_noeud in emh_group.findall(PREFIX + 'NoeudNiveauContinu'):
                     noeud = Noeud(emh_noeud.get('Nom'))
+                    if emh_noeud.find(PREFIX + 'Commentaire').text is not None:
+                        noeud.comment = emh_noeud.find(PREFIX + 'Commentaire').text
                     self.add_noeud(noeud)
 
             elif emh_group.tag == (PREFIX + 'Sections'):
-                for emh_section in emh_group.findall(PREFIX + 'SectionProfil'):
-                    section_profil = SectionProfil(emh_section.get('Nom'),
-                                                   emh_section.find(PREFIX + 'ProfilSection').get('NomRef'))
-                    self.add_section_profil(section_profil)
 
-                for emh_section in emh_group.findall(PREFIX + 'SectionIdem'):
+                for emh_section in emh_group:
+                    section_type = emh_section.tag[len(PREFIX):]
                     nom_section = emh_section.get('Nom')
-                    section_idem = SectionIdem(nom_section)
-                    nom_section_ori = emh_section.find(PREFIX + 'Section').get('NomRef')
+
+                    if section_type == 'SectionProfil':
+                        section = SectionProfil(nom_section, emh_section.find(PREFIX + 'ProfilSection').get('NomRef'))
+                    elif section_type == 'SectionIdem':
+                        section = SectionIdem(nom_section)
+                        section.section_ori = emh_section.find(PREFIX + 'Section').get('NomRef')
+                    elif section_type == 'SectionInterpolee':
+                        section = SectionInterpolee(nom_section)
+                    elif section_type == 'SectionSansGeometrie':
+                        section = SectionSansGeometrie(nom_section)
+                    else:
+                        raise NotImplementedError
+                    if emh_section.find(PREFIX + 'Commentaire').text is not None:
+                        section.comment = emh_section.find(PREFIX + 'Commentaire').text
+                    self.add_section(section)
+
+                # Replace SectionIdem.section_ori and check consistancy
+                for section in self.iter_on_sections_item():
                     try:
-                        section_idem.section_ori = self.sections_profil[nom_section_ori]
+                        section.section_ori = self.sections[section.section_ori]
                     except KeyError:
-                        raise CrueError("La SectionIdem `%s` fait référence à une SectionProfil inexistante `%s`"
-                                        % (nom_section, nom_section_ori))
-                    self.add_section_idem(section_idem)
-
-                for emh_section in emh_group.findall(PREFIX + 'SectionInterpolee'):
-                    nom_section = emh_section.get('Nom')
-                    self.add_section_interpolee(SectionInterpolee(nom_section))
-
-                for emh_section in emh_group.findall(PREFIX + 'SectionSansGeometrie'):
-                    nom_section = emh_section.get('Nom')
-                    self.add_section_sans_geometrie(SectionSansGeometrie(nom_section))
+                        raise CrueError("La SectionIdem `%s` fait référence à une Section inexistante `%s`"
+                                        % (section, section.section_ori))
+                    if not isinstance(section.section_ori, SectionProfil):
+                        raise CrueError("La SectionIdem `%s` ne fait pas référence à une SectionProfil"
+                                        % section)
 
             elif emh_group.tag == (PREFIX + 'Branches'):
                 if filter_branch_types is None:
-                    branch_types = Branche.TYPES_WITH_GEOM
+                    branch_types = list(Branche.TYPES.keys())
                 else:
                     branch_types = filter_branch_types
+
                 for emh_branche in emh_group:
                     emh_branche_type = emh_branche.tag[len(PREFIX):]
                     branche_type_id = Branche.get_id_type_from_name(emh_branche_type)
@@ -195,24 +177,37 @@ class SubModel:
                         logger.warn("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
 
                     if branche_type_id in branch_types:
+                        # Build branche instance
                         is_active = emh_branche.find(PREFIX + 'IsActive').text == 'true'
                         noeud_amont = self.noeuds[emh_branche.find(PREFIX + 'NdAm').get('NomRef')]
                         noeud_aval = self.noeuds[emh_branche.find(PREFIX + 'NdAv').get('NomRef')]
+                        branche = Branche(emh_branche.get('Nom'), noeud_amont, noeud_aval, branche_type_id, is_active)
+                        if emh_branche.find(PREFIX + 'Commentaire').text is not None:
+                            branche.comment = emh_branche.find(PREFIX + 'Commentaire').text
+
+                        # Add associated sections
                         if branche_type_id == 20:
                             emh_sections = emh_branche.find(PREFIX + 'BrancheSaintVenant-Sections')
                         else:
                             emh_sections = emh_branche.find(PREFIX + 'Branche-Sections')
-                        branche = Branche(emh_branche.get('Nom'), noeud_amont, noeud_aval, branche_type_id, is_active)
+
                         for emh_section in emh_sections:
-                            section = self.get_section(emh_section.get('NomRef'))
+                            section = self.sections[emh_section.get('NomRef')]
                             xp = float(emh_section.find(PREFIX + 'Xp').text)
                             branche.add_section(section, xp)
                         self.add_branche(branche)
 
             elif emh_group.tag == (PREFIX + 'Casiers'):
-                for emh_casier_profil in emh_group:
-                    is_active = emh_casier_profil.find(PREFIX + 'IsActive') == 'true'
-                    casier = Casier(emh_casier_profil.get('Nom'), is_active)
+                for emh_profils_casier in emh_group:
+                    is_active = emh_profils_casier.find(PREFIX + 'IsActive').text == 'true'
+                    nom_noeud = emh_profils_casier.find(PREFIX + 'Noeud').get('NomRef')
+                    casier = Casier(emh_profils_casier.get('Nom'), nom_noeud, is_active=is_active)
+                    if emh_profils_casier.find(PREFIX + 'Commentaire').text is not None:
+                        casier.comment = emh_profils_casier.find(PREFIX + 'Commentaire').text
+                    for emh_pc in emh_profils_casier.findall(PREFIX + 'ProfilCasier'):
+                        pc = ProfilCasier(emh_pc.get('NomRef'))
+                        self.add_profil_casier(pc)
+                        casier.add_profil_casier(pc)
                     self.add_casier(casier)
 
     def read_dptg(self):
@@ -222,10 +217,27 @@ class SubModel:
         """
         for emh_group in ET.parse(self.files['dptg']).getroot():
 
+            if emh_group.tag == (PREFIX + 'DonPrtGeoProfilCasiers'):
+                for emh in emh_group.findall(PREFIX + 'ProfilCasier'):
+                    nom_profil_casier = emh.get('Nom')
+                    profil_casier = self.profils_casier[nom_profil_casier]
+                    if emh.find(PREFIX + 'Commentaire').text is not None:
+                        profil_casier.comment = emh.find(PREFIX + 'Commentaire').text
+                    profil_casier.distance = float(emh.find(PREFIX + 'Longueur').text)
+
+                    lit_num_elt = emh.find(PREFIX + 'LitUtile')
+                    profil_casier.xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
+                    profil_casier.xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
+
+                    xz = []
+                    for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
+                        xz.append([float(v) for v in pointff.text.split()])
+                    profil_casier.set_xz(np.array(xz))
+
             if emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
                     nom_section = emh.get('Nom').replace('Ps_', 'St_')  #FIXME: not necessary consistant
-                    section = self.sections_profil[nom_section]
+                    section = self.sections[nom_section]
 
                     for lit_num_elt in emh.find(PREFIX + 'LitNumerotes').findall(PREFIX + 'LitNumerote'):
                         lit_id = lit_num_elt.find(PREFIX + 'LitNomme').text
@@ -236,9 +248,12 @@ class SubModel:
                     section_xt_min = section.lits_numerotes[0].xt_min
                     section_xt_max = section.lits_numerotes[-1].xt_max
 
-                    etiquette = emh.find(PREFIX + 'Etiquettes').find(PREFIX + 'Etiquette[@Nom="Et_AxeHyd"]')
-                    section.set_xt_axe(
-                        float(etiquette.find(PREFIX + 'PointFF').text.split()[0]))
+                    for etiquette in emh.find(PREFIX + 'Etiquettes'):
+                        xt = float(etiquette.find(PREFIX + 'PointFF').text.split()[0])
+                        limite = LimiteGeom(etiquette.get('Nom'), xt)
+                        if limite.id == 'Et_Thalweg':
+                            section.set_xt_axe(xt)  #FIXME
+                        section.add_limite_geom(limite)
 
                     xz = []
                     for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
@@ -249,7 +264,8 @@ class SubModel:
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoSections'):
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
-                    self.sections_idem[emh.get('NomRef')].dz = float(emh.find(PREFIX + 'Dz').text)
+                    self.sections[emh.get('NomRef')].dz = float(emh.find(PREFIX + 'Dz').text)
+
 
     def read_shp_noeuds(self):
         with fiona.open(self.files['noeuds'], 'r') as src:
@@ -263,7 +279,7 @@ class SubModel:
             for obj in src:
                 nom_section = obj['properties']['EMH_NAME']
                 coords = obj['geometry']['coordinates']
-                self.sections_profil[nom_section].set_trace(LineString(coords))
+                self.sections[nom_section].set_trace(LineString(coords))
 
     def read_shp_branches(self):
         geoms = {}
@@ -291,6 +307,26 @@ class SubModel:
             except KeyError:
                 raise CrueError("La géométrie du casier %s n'est pas trouvée!" % casier.id)
 
+    def iter_on_sections(self, section_type=None):
+        for _, section in self.sections.items():
+            if type is not None:
+                if isinstance(section, section_type):
+                    yield section
+            else:
+                yield section
+
+    def iter_on_sections_profil(self):
+        return self.iter_on_sections(SectionProfil)
+
+    def iter_on_sections_item(self):
+        return self.iter_on_sections(SectionIdem)
+
+    def iter_on_sections_interpolees(self):
+        return self.iter_on_sections(SectionInterpolee)
+
+    def iter_on_sections_sans_geometrie(self):
+        return self.iter_on_sections(SectionSansGeometrie)
+
     def set_active_sections(self):
         for branche in self.iter_on_branches():
             branch_is_active = branche.is_active
@@ -308,9 +344,13 @@ class SubModel:
         self.read_shp_casiers()
         self.set_active_sections()
 
-    def iter_on_branches(self):
+    def iter_on_branches(self, filter_branch_types=None):
         for _, branche in self.branches.items():
-            yield branche
+            if filter_branch_types is not None:
+                if branche.type in filter_branch_types:
+                    yield branche
+            else:
+                yield branche
 
     def connected_branches(self, nom_noeud):
         """
@@ -345,9 +385,9 @@ class SubModel:
             for j, section in enumerate(branche.sections):
                 if isinstance(section, SectionIdem):
                     # Replace current instance by its original SectionProfil
-                    branche.sections[j] = branche.sections[j].get_as_sectionprofil()
-                    self.sections_idem.pop(section.id)
-                    self.sections_profil[section.id] = branche.sections[j]
+                    new_section = section.get_as_sectionprofil()
+                    branche.sections[j] = new_section
+                    self.sections[section.id] = new_section
 
                     # Find if current SectionIdem is located at geographic position of its original SectionProfil
                     located_at_section_ori = False
@@ -370,7 +410,6 @@ class SubModel:
 
     def normalize_geometry(self):
         for branche in self.iter_on_branches():
-            branche.normalize_sections_xp()
             branche.shift_sectionprofil_to_extremity()
         self.convert_sectionidem_to_sectionprofil()
 
@@ -433,10 +472,58 @@ class SubModel:
         """
         return set(self.get_active_section_names()).difference(set(section_id_list))
 
+    def export_xml(self, folder):
+        env = Environment(loader=FileSystemLoader(os.path.join('crue10', 'templates')))
+
+        xml = 'dfrt'
+        template = env.get_template(xml + '.xml')
+        template_render = template.render(
+            friction_law_list=[fl for _, fl in self.friction_laws.items()],
+        )
+        with open(os.path.join(folder, self.submodel_name + '.' + xml + '.xml'), 'w') as stream:
+            stream.write(template_render)
+
+        xml = 'drso'
+        template = env.get_template(xml + '.xml')
+        template_render = template.render(
+            noeud_list=[nd for _, nd in self.noeuds.items()],
+            casier_list=[ca for _, ca in self.casiers.items()],
+            section_list=[st for _, st in self.sections.items()],
+            isinstance=isinstance,
+            SectionIdem=SectionIdem,
+            SectionProfil=SectionProfil,
+            SectionSansGeometrie=SectionSansGeometrie,
+            SectionInterpolee=SectionInterpolee,
+            branche_list=self.iter_on_branches(),
+        )
+        with open(os.path.join(folder, self.submodel_name + '.' + xml + '.xml'), 'w') as stream:
+            stream.write(template_render)
+
+        xml = 'dptg'
+        template = env.get_template(xml + '.xml')
+        template_render = template.render(
+            profil_casier_list=[pc for _, pc in self.profils_casier.items()],
+            section_profil_list=sorted(self.iter_on_sections_profil(), key=lambda st: st.id),  # alphabetic order
+            section_idem_list=sorted(self.iter_on_sections_item(), key=lambda st: st.id),  # alphabetic order
+            branche_saintvenant_list=sorted(self.iter_on_branches([20]), key=lambda br: br.id),  # alphabetic order
+        )
+        with open(os.path.join(folder, self.submodel_name + '.' + xml + '.xml'), 'w') as stream:
+            stream.write(template_render)
+
+        xml = 'dcsp'
+        template = env.get_template(xml + '.xml')
+        template_render = template.render(
+            branche_list=self.iter_on_branches(),
+            casier_list=[ca for _, ca in self.casiers.items()],
+        )
+        with open(os.path.join(folder, self.submodel_name + '.' + xml + '.xml'), 'w') as stream:
+            stream.write(template_render)
+
     def __repr__(self):
         return "%i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee + %i sans géométrie), " \
-           "%i casiers" % (
-           len(self.noeuds), len(self.branches), len(self.get_section_names()),
-           len(self.sections_profil), len(self.sections_idem), len(self.sections_interpolee),
-           len(self.sections_sans_geometrie), len(self.casiers)
+           "%i casiers (%i profils casier)" % (
+           len(self.noeuds), len(self.branches), len(self.sections),
+           len(list(self.iter_on_sections_profil())), len(list(self.iter_on_sections_item())),
+           len(list(self.iter_on_sections_interpolees())), len(list(self.iter_on_sections_sans_geometrie())),
+           len(self.casiers), len(self.profils_casier)
         )

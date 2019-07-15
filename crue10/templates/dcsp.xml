@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DCSP xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dcsp-1.2.xsd">
+  <Commentaire></Commentaire>
+  <DonCalcSansPrtBranches>
+    {%- for branche in branche_list %}
+    {#- FIXME: support branches of type 1 and 14 -#}
+    {%- if branche.type == 2 %}
+    <DonCalcSansPrtBrancheSeuilTransversal NomRef="{{ branche.id }}">
+      <FormulePdc>Borda</FormulePdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>1.0</Largeur>
+        <Zseuil>0.0</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+    </DonCalcSansPrtBrancheSeuilTransversal>
+    {%- endif %}
+    {%- if branche.type == 4 %}
+    <DonCalcSansPrtBrancheSeuilLateral NomRef="{{ branche.id }}">
+      <FormulePdc>Borda</FormulePdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>1.0</Largeur>
+        <Zseuil>0.0</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+    </DonCalcSansPrtBrancheSeuilLateral>
+    {%- endif %}
+    {%- if branche.type == 5 %}
+    <DonCalcSansPrtBrancheOrifice NomRef="{{ branche.id }}">
+      <ElemOrifice>
+        <CoefCtrLim>0.65</CoefCtrLim>
+        <Largeur>1.0</Largeur>
+        <Zseuil>0.0</Zseuil>
+        <Haut>1.0</Haut>
+        <CoefD>1.0</CoefD>
+        <SensOrifice>Bidirect</SensOrifice>
+      </ElemOrifice>
+    </DonCalcSansPrtBrancheOrifice>
+    {%- endif %}
+    {%- if branche.type == 15 %}
+    <DonCalcSansPrtBrancheBarrageFilEau NomRef="{{ branche.id }}">
+      <QLimInf>-1.0E30</QLimInf>
+      <QLimSup>1.0E30</QLimSup>
+      <ElemSeuil>
+        <Largeur>1.0</Largeur>
+        <Zseuil>0.0</Zseuil>
+        <CoefD>1.0</CoefD>
+      </ElemSeuil>
+      <RegimeDenoye Nom="LoiQpilZam_AMB262.500" Type="LoiQpilZam">
+        <Commentaire></Commentaire>
+        <EvolutionFF>
+          <PointFF>0.0 10.0</PointFF>
+        </EvolutionFF>
+      </RegimeDenoye>
+    </DonCalcSansPrtBrancheBarrageFilEau>
+    {%- endif %}
+    {%- if branche.type == 20 %}
+    <DonCalcSansPrtBrancheSaintVenant NomRef="{{ branche.id }}">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    {%- endif %}
+    {%- endfor %}
+  </DonCalcSansPrtBranches>
+  <DonCalcSansPrtCasiers>
+    {%- for casier in casier_list %}
+    <DonCalcSansPrtCasierProfil NomRef="{{ casier.id }}">
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtCasierProfil>
+    {%- endfor %}
+  </DonCalcSansPrtCasiers>
+</DCSP>

@@ -29,11 +29,28 @@ class LitNumerote:
         self.id = id
         self.xt_min = xt_min
         self.xt_max = xt_max
-        self.is_active = 'Maj' in self.id or 'Min' in self.id
         self.friction_law = friction_law
+
+    @property
+    def is_active(self):
+        return 'Maj' in self.id or 'Min' in self.id
+
+    @property
+    def is_mineur(self):
+        return 'Min' in self.id
 
     def __repr__(self):
         return 'LitNumerote #%s (%f -> %s)' % (self.id, self.xt_min, self.xt_max)
+
+
+class LimiteGeom:
+    """Geometric limit"""
+    def __init__(self, id, xt):
+        self.id = id
+        self.xt = xt
+
+    def __repr__(self):
+        return 'Limite #%s (%f)' % (self.id, self.xt)
 
 
 class Section:
@@ -42,11 +59,13 @@ class Section:
     - id <str>: section identifier
     - xp <float>: curvilinear abscissa of section on its associated branch
     - is_active <bool>: True if the section is active (it is associated to an active branch)
+    - comment <str>: optional text explanation
     """
     def __init__(self, nom_section):
         self.id = nom_section
         self.is_active = False
         self.xp = -1
+        self.comment = ''
 
     def __repr__(self):
         return '%s #%s' % (self.__class__.__name__, self.id)
@@ -58,9 +77,11 @@ class SectionProfil(Section):
     - nom_profilsection <str>: profil section identifier (should start with `Ps_`)
     - xt_axe <float>: transversal position of hydraulic axis
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
-        Array containing series of transversal abscissa and elevation (first axis should be sctricly increasing)
+        Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
     - geom_trace <LineString>: polyline section trace
     - lits_numerotes <[LitNumerote]>
+    - limites_geom <[LimiteGeom]>
+    TODO: avoid deleting of data ouside lateral banks
     """
     def __init__(self, nom_section, nom_profilsection):
         super().__init__(nom_section)
@@ -69,6 +90,7 @@ class SectionProfil(Section):
         self.xz = None
         self.geom_trace = None
         self.lits_numerotes = []
+        self.limites_geom = []
 
     def set_xt_axe(self, xt_axe):
         self.xt_axe = xt_axe
@@ -88,6 +110,12 @@ class SectionProfil(Section):
 
     def add_lit_numerote(self, lit_numerote):
         self.lits_numerotes.append(lit_numerote)
+
+    def add_limite_geom(self, limite_geom):
+        self.limites_geom.append(limite_geom)
+
+    def interp_z(self, xt):
+        return np.interp(xt, self.xz[:, 0], self.xz[:, 1])
 
     def interp_point(self, xt):
         if not self.lits_numerotes:

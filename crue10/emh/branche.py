@@ -17,6 +17,7 @@ class Branche:
     - noeud_amont <crue10.emh.noeud.Noeud>: upstream node
     - noeud_aval <crue10.emh.noeud.Noeud>: downstream node
     - sections <[crue10.emh.section.Section]>: list of sections
+    - comment <str>: optional text explanation
     """
     TYPES = {
         1: 'BranchePdc',
@@ -29,7 +30,7 @@ class Branche:
         20: 'BrancheSaintVenant'
     }
 
-    # Branch types whose sections (at least 2) have a geometry
+    # Branch types whose sections (at least 2) have a geometry (SectionProfil or SectionIdem)
     TYPES_WITH_GEOM = [2, 6, 15, 20]
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, branch_type, is_active=True):
@@ -40,6 +41,7 @@ class Branche:
         self.noeud_amont = noeud_amont
         self.noeud_aval = noeud_aval
         self.sections = []
+        self.comment = ''
 
     @staticmethod
     def get_id_type_from_name(branch_type_name):
@@ -47,6 +49,10 @@ class Branche:
             if type_name == branch_type_name:
                 return type_id
         return None
+
+    @property
+    def type_name(self):
+        return Branche.TYPES[self.type]
 
     def has_geom(self):
         return self.type in Branche.TYPES_WITH_GEOM
