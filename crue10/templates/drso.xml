@@ -50,7 +50,7 @@
     {%- for branche in branche_list %}
     {%- if branche.type == 20 %}
     <BrancheSaintVenant Nom="{{ branche.id }}">
-      <Commentaire></Commentaire>
+      <Commentaire>{{ branche.comment }}</Commentaire>
       <IsActive>{% if branche.is_active %}true{% else %}false{% endif %}</IsActive>
       <NdAm NomRef="{{ branche.noeud_amont.id }}"/>
       <NdAv NomRef="{{ branche.noeud_aval.id }}"/>
@@ -59,9 +59,9 @@
         <BrancheSaintVenant-Section NomRef="{{ section.id }}">
           <Pos>{% if loop.first %}Amont{% elif loop.last %}Aval{% else %}Interne{% endif %}</Pos>
           <Xp>{{ section.xp }}</Xp>
-          <CoefPond>0.5</CoefPond>
-          <CoefConv>0.0</CoefConv>
-          <CoefDiv>0.0</CoefDiv>
+          <CoefPond>{{ section.CoefPond }}</CoefPond>
+          <CoefConv>{{ section.CoefConv }}</CoefConv>
+          <CoefDiv>{{ section.CoefDiv }}</CoefDiv>
         </BrancheSaintVenant-Section>
         {%- endfor %}
       </BrancheSaintVenant-Sections>
@@ -72,8 +72,8 @@
       <IsActive>{% if branche.is_active %}true{% else %}false{% endif %}</IsActive>
       <NdAm NomRef="{{ branche.noeud_amont.id }}"/>
       <NdAv NomRef="{{ branche.noeud_aval.id }}"/>
-      {%- if branche.type == 15 %}
-      <SectionPilote NomRef="St_FIXME"/>
+      {%- if branche.type in (14, 15) %}
+      <SectionPilote NomRef="{{ branche.section_pilotage.id }}"/>
       {%- endif %}
       <Branche-Sections>
         <Branche-Section NomRef="{{ branche.sections[0].id }}">
@@ -82,7 +82,7 @@
         </Branche-Section>
         <Branche-Section NomRef="{{ branche.sections[-1].id }}">
           <Pos>Aval</Pos>
-          <Xp>{% if branche.type == 6 %}{{ branche.sections[-1].xp }}{% else%}0.0{% endif %}</Xp>
+          <Xp>{{ branche.sections[-1].xp }}</Xp>
         </Branche-Section>
       </Branche-Sections>
     </{{branche.type_name}}>

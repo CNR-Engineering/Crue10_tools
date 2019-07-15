@@ -1,3 +1,19 @@
+"""
+Classes for cross-section in minor and major beds:
+- FrictionLaw
+- LitNumerote
+- LimiteGeom
+- Section
+    - SectionProfil
+    - SectionIdem
+    - SectionInterpolee
+    - SectionSansGeometrie
+
+Not supported yet:
+- Fente (dptg.xml)
+- SectionProfil is truncated on "usefull width" (TODO)
+"""
+from abc import ABC
 from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString
@@ -10,18 +26,25 @@ DIFF_XP = 0.1  # m
 
 class FrictionLaw:
     """
-    Friction law
-    (Strickler coefficient could vary with Z elevation)
+    Friction law (Strickler coefficient could vary with Z elevation)
+    - id <str>: friction law identifier
+    - type <str>: friction law type
+    - loi_Fk <2D-array>: ndarray(dtype=float, ndim=2) with Stricker coefficient varying with elevation
     """
-    def __init__(self, id, type, array):
+    def __init__(self, id, type, loi_Fk):
         self.id = id
         self.type = type
-        self.array = array
+        self.loi_Fk = loi_Fk
 
 
 class LitNumerote:
-    """Lit numéroté"""
-
+    """
+    Lit numéroté
+    - id <str>: bed identifier
+    - xt_min <str>: first curvilinear abscissa
+    - xt_max <str>: first curvilinear abscissa
+    - friction_law <FrictionLaw>: friction law
+    """
     BED_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
     LIMIT_NAMES = ['RD', 'StoD-MajD', 'MajD-Min', 'Min-MajG', 'MajG-StoG', 'RG']
 
@@ -40,11 +63,15 @@ class LitNumerote:
         return 'Min' in self.id
 
     def __repr__(self):
-        return 'LitNumerote #%s (%f -> %s)' % (self.id, self.xt_min, self.xt_max)
+        return 'LitNumeroté #%s (%f -> %s)' % (self.id, self.xt_min, self.xt_max)
 
 
 class LimiteGeom:
-    """Geometric limit"""
+    """
+    Geometric limit
+    - id <str>: bed identifier
+    - xt <str>: curvilinear abscissa
+    """
     def __init__(self, id, xt):
         self.id = id
         self.xt = xt
@@ -53,18 +80,26 @@ class LimiteGeom:
         return 'Limite #%s (%f)' % (self.id, self.xt)
 
 
-class Section:
+class Section(ABC):
     """
-    Section
+    Abstract class for Sections
     - id <str>: section identifier
     - xp <float>: curvilinear abscissa of section on its associated branch
     - is_active <bool>: True if the section is active (it is associated to an active branch)
+    - CoefPond <float>: "coefficient de pondération amont/aval de la discrétisation de la perte de charge régulière J
+        entre la section et sa suivante"
+    - CoefConv <float>: "coefficient de perte de charge ponctuelle en cas de convergence entre la section et sa
+        suivante"
+    - CoefDiv <float>: "coefficient de perte de charge ponctuelle en cas de divergence entre la section et sa suivante"
     - comment <str>: optional text explanation
     """
     def __init__(self, nom_section):
         self.id = nom_section
         self.is_active = False
         self.xp = -1
+        self.CoefPond = 0.5
+        self.CoefConv = 0.0
+        self.CoefDiv = 0.0
         self.comment = ''
 
     def __repr__(self):
@@ -79,21 +114,24 @@ class SectionProfil(Section):
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
     - geom_trace <LineString>: polyline section trace
-    - lits_numerotes <[LitNumerote]>
-    - limites_geom <[LimiteGeom]>
-    TODO: avoid deleting of data ouside lateral banks
+    - lits_numerotes <[LitNumerote]>: lits numérotés
+    - limites_geom <[LimiteGeom]>: limites géométriques (thalweg, axe hydraulique...)
     """
     def __init__(self, nom_section, nom_profilsection):
         super().__init__(nom_section)
         self.nom_profilsection = nom_profilsection
-        self.xt_axe = 0  # curvilinear abscissa of hydraulic axis intersection
         self.xz = None
         self.geom_trace = None
         self.lits_numerotes = []
         self.limites_geom = []
 
-    def set_xt_axe(self, xt_axe):
-        self.xt_axe = xt_axe
+    @property
+    def xt_axe(self):
+        """Curvilinear abscissa of hydraulic axis intersection"""
+        for limite in self.limites_geom:
+            if limite.id == 'Et_AxeHyd':
+                return limite.xt
+        raise CrueError("Limite 'Et_AxeHyd' could not be found for %s" % self)
 
     def set_xz(self, coords):
         self.xz = coords

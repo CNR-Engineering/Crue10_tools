@@ -3,63 +3,104 @@
   <Commentaire></Commentaire>
   <DonCalcSansPrtBranches>
     {%- for branche in branche_list %}
-    {#- FIXME: support branches of type 1 and 14 -#}
+    {%- if branche.type == 1 %}
+    <DonCalcSansPrtBranchePdc NomRef="{{ branche.id }}">
+      <Pdc Nom="{{ branche.name_loi_LoiQPdc }}" Type="LoiQPdc">
+        <Commentaire></Commentaire>
+        <EvolutionFF>
+          {%- for q, dz in branche.loi_QPdc %}
+          <PointFF>{{ q }} {{ dz }}</PointFF>
+          {%- endfor %}
+        </EvolutionFF>
+      </Pdc>
+    </DonCalcSansPrtBranchePdc>
+    {%- endif %}
     {%- if branche.type == 2 %}
     <DonCalcSansPrtBrancheSeuilTransversal NomRef="{{ branche.id }}">
-      <FormulePdc>Borda</FormulePdc>
+      <FormulePdc>{{ branche.formule_pdc }}</FormulePdc>
+      {%- for larg, z_seuil, coeff_d, coeff_pdc in branche.elts_seuil %}
       <ElemSeuilAvecPdc>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <CoefD>1.0</CoefD>
-        <CoefPdc>1.0</CoefPdc>
+        <Largeur>{{ larg }}</Largeur>
+        <Zseuil>{{ z_seuil }}</Zseuil>
+        <CoefD>{{ coeff_d }}</CoefD>
+        <CoefPdc>{{ coeff_pdc }}</CoefPdc>
       </ElemSeuilAvecPdc>
+      {%- endfor %}
     </DonCalcSansPrtBrancheSeuilTransversal>
     {%- endif %}
     {%- if branche.type == 4 %}
     <DonCalcSansPrtBrancheSeuilLateral NomRef="{{ branche.id }}">
-      <FormulePdc>Borda</FormulePdc>
+      <FormulePdc>{{ branche.formule_pdc }}</FormulePdc>
+      {%- for larg, z_seuil, coeff_d, coeff_pdc in branche.elts_seuil %}
       <ElemSeuilAvecPdc>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <CoefD>1.0</CoefD>
-        <CoefPdc>1.0</CoefPdc>
+        <Largeur>{{ larg }}</Largeur>
+        <Zseuil>{{ z_seuil }}</Zseuil>
+        <CoefD>{{ coeff_d }}</CoefD>
+        <CoefPdc>{{ coeff_pdc }}</CoefPdc>
       </ElemSeuilAvecPdc>
+      {%- endfor %}
     </DonCalcSansPrtBrancheSeuilLateral>
     {%- endif %}
     {%- if branche.type == 5 %}
     <DonCalcSansPrtBrancheOrifice NomRef="{{ branche.id }}">
       <ElemOrifice>
-        <CoefCtrLim>0.65</CoefCtrLim>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <Haut>1.0</Haut>
-        <CoefD>1.0</CoefD>
-        <SensOrifice>Bidirect</SensOrifice>
+        <CoefCtrLim>{{ branche.CoefCtrLim }}</CoefCtrLim>
+        <Largeur>{{ branche.Largeur }}</Largeur>
+        <Zseuil>{{ branche.Zseuil }}</Zseuil>
+        <Haut>{{ branche.Haut }}</Haut>
+        <CoefD>{{ branche.CoefD }}</CoefD>
+        <SensOrifice>{{ branche.SensOrifice }}</SensOrifice>
       </ElemOrifice>
     </DonCalcSansPrtBrancheOrifice>
     {%- endif %}
-    {%- if branche.type == 15 %}
-    <DonCalcSansPrtBrancheBarrageFilEau NomRef="{{ branche.id }}">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
-      <ElemSeuil>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <CoefD>1.0</CoefD>
-      </ElemSeuil>
-      <RegimeDenoye Nom="LoiQpilZam_AMB262.500" Type="LoiQpilZam">
+    {%- if branche.type == 14 %}
+    <DonCalcSansPrtBrancheBarrageGenerique NomRef="{{ branche.id }}">
+      <QLimInf>{{ branche.QLimInf }}</QLimInf>
+      <QLimSup>{{ branche.QLimSup }}</QLimSup>
+      <RegimeNoye Nom="{{ branche.name_loi_QDz }}" Type="LoiQDz">
         <Commentaire></Commentaire>
         <EvolutionFF>
-          <PointFF>0.0 10.0</PointFF>
+          {%- for q, dz in branche.loi_QDz %}
+          <PointFF>{{ q }} {{ dz }}</PointFF>
+          {%- endfor %}
+        </EvolutionFF>
+      </RegimeNoye>
+      <RegimeDenoye Nom="{{ branche.name_loi_QpilZam }}" Type="LoiQpilZam">
+        <Commentaire></Commentaire>
+        <EvolutionFF>
+          {%- for q, zam in branche.loi_QpilZam %}
+          <PointFF>{{ q }} {{ zam }}</PointFF>
+          {%- endfor %}
+        </EvolutionFF>
+      </RegimeDenoye>
+    </DonCalcSansPrtBrancheBarrageGenerique>
+    {%- endif %}
+    {%- if branche.type == 15 %}
+    <DonCalcSansPrtBrancheBarrageFilEau NomRef="{{ branche.id }}">
+      <QLimInf>{{ branche.QLimInf }}</QLimInf>
+      <QLimSup>{{ branche.QLimSup }}</QLimSup>
+      {%- for larg, z_seuil, coeff_d in branche.elts_seuil %}
+      <ElemSeuil>
+        <Largeur>{{ larg }}</Largeur>
+        <Zseuil>{{ z_seuil }}</Zseuil>
+        <CoefD>{{ coeff_d }}</CoefD>
+      </ElemSeuil>
+      {%- endfor %}
+      <RegimeDenoye Nom="{{ branche.name_loi_QZam }}" Type="LoiQpilZam">
+        <Commentaire></Commentaire>
+        <EvolutionFF>
+          {%- for q, zam in branche.loi_QZam %}
+          <PointFF>{{ q }} {{ zam }}</PointFF>
+          {%- endfor %}
         </EvolutionFF>
       </RegimeDenoye>
     </DonCalcSansPrtBrancheBarrageFilEau>
     {%- endif %}
     {%- if branche.type == 20 %}
     <DonCalcSansPrtBrancheSaintVenant NomRef="{{ branche.id }}">
-      <CoefBeta>1.0</CoefBeta>
-      <CoefRuisQdm>0.0</CoefRuisQdm>
-      <CoefRuis>0.0</CoefRuis>
+      <CoefBeta>{{ branche.CoefBeta }}</CoefBeta>
+      <CoefRuisQdm>{{ branche.CoefRuisQdm }}</CoefRuisQdm>
+      <CoefRuis>{{ branche.CoefRuis }}</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
     {%- endif %}
     {%- endfor %}
@@ -67,7 +108,7 @@
   <DonCalcSansPrtCasiers>
     {%- for casier in casier_list %}
     <DonCalcSansPrtCasierProfil NomRef="{{ casier.id }}">
-      <CoefRuis>0.0</CoefRuis>
+      <CoefRuis>{{ casier.CoefRuis }}</CoefRuis>
     </DonCalcSansPrtCasierProfil>
     {%- endfor %}
   </DonCalcSansPrtCasiers>

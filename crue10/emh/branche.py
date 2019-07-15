@@ -1,3 +1,18 @@
+"""
+Classes for branches (or river reaches) in minor and major beds:
+- Branche
+    - 1 = BranchePdc
+    - 2 = BrancheSeuilTransversal
+    - 4 = BrancheSeuilLateral
+    - 5 = BrancheOrifice
+    - 6 = BrancheStrickler
+    - 12 = BrancheNiveauxAssocies
+    - 14 = BrancheBarrageGenerique
+    - 15 = BrancheBarrageFilEau
+    - 20 = BrancheSaintVenant
+"""
+from abc import ABC
+import numpy as np
 from shapely.affinity import translate
 from shapely.geometry import Point
 
@@ -7,13 +22,24 @@ from crue10.utils import logger
 
 DIFF_XP_TO_WARN = 20.0  # m
 
+DEFAULT_ELTS_SEUILS = np.array([(1.0, 0.0, 1.0)])
 
-class Branche:
+DEFAULT_ELTS_SEUILS_AVEC_PDC = np.array([(1.0, 0.0, 1.0, 1.0)])
+
+DEFAULT_FORMULE_PDC = 'Borda'
+
+DEFAULT_QLIMINF = -1.0E30  # m3/s
+
+DEFAULT_QLIMSUP = 1.0E30  # m3/s
+
+
+class Branche(ABC):
     """
-    Branche
+    Abstract class for `Branche`
     - id <str>: branch identifier
     - type <int>: branch type (a key from `Branche.TYPES`)
-    - is_active <bool>: True if the section is active (it is associated to an active branch)
+    - is_active <bool>: True if the branch is active
+    - geom_trace <LineString>: polyline branch trace
     - noeud_amont <crue10.emh.noeud.Noeud>: upstream node
     - noeud_aval <crue10.emh.noeud.Noeud>: downstream node
     - sections <[crue10.emh.section.Section]>: list of sections
@@ -25,6 +51,7 @@ class Branche:
         4: 'BrancheSeuilLateral',
         5: 'BrancheOrifice',
         6: 'BrancheStrickler',
+        12: 'BrancheNiveauxAssocies',
         14: 'BrancheBarrageGenerique',
         15: 'BrancheBarrageFilEau',
         20: 'BrancheSaintVenant'
@@ -49,6 +76,14 @@ class Branche:
             if type_name == branch_type_name:
                 return type_id
         return None
+
+    @property
+    def length(self):
+        """Length displayed in FC (may differ from geometry)"""
+        if self.type in (6, 20):
+            return self.sections[-1].xp
+        else:
+            return 0.0
 
     @property
     def type_name(self):
@@ -101,3 +136,148 @@ class Branche:
     def __repr__(self):
         return "Branche [%i] #%s: %s -> %s (%i sections)" % (self.type, self.id,
                                                              self.noeud_amont, self.noeud_aval, len(self.sections))
+
+
+class BranchePdC(Branche):
+    """
+    BrancheSaintVenant - #1
+    - loi_QPdc
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 1, is_active)
+        self.loi_QPdc = np.array([(-15000.0, 0.0)])
+
+    @property
+    def name_loi_LoiQPdc(self):
+        return 'LoiQPdc_%s' % self.id[3:]
+
+class BrancheSeuilTransversal(Branche):
+    """
+    BrancheSeuilTransversal - #2
+    - formule_pdc <str>: 'Borda' or 'Divergent'
+    - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 2, is_active)
+        self.formule_pdc = DEFAULT_FORMULE_PDC
+        self.elts_seuil = DEFAULT_ELTS_SEUILS_AVEC_PDC
+
+
+class BrancheSeuilLateral(Branche):
+    """
+    BrancheSeuilLateral - #4
+    - formule_pdc <str>: 'Borda' or 'Divergent'
+    - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 4, is_active)
+        self.formule_pdc = DEFAULT_FORMULE_PDC
+        self.elts_seuil = DEFAULT_ELTS_SEUILS_AVEC_PDC
+
+
+class BrancheOrifice(Branche):
+    """
+    BrancheOrifice - #5
+    - CoefCtrLim <float>: "Coefficient maximum de contraction de la veine submergée"
+    - Largeur <float>: "Largeur"
+    - Zseuil <float>: "Cote du radier du clapet"
+    - CoefD <float>: ?
+    - Haut <float>: "Hauteur du clapet à pleine ouverture"
+    - SensOrifice <str>: "Sens de l'écoulement"
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 5, is_active)
+        self.CoefCtrLim = 0.65
+        self.Largeur = 1.0
+        self.Zseuil = 0.0
+        self.Haut = 1.0
+        self.CoefD = 1.0
+        self.SensOrifice = 'Bidirect'
+
+
+class BrancheStrickler(Branche):
+    """
+    BrancheStrickler - #6
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 6, is_active)
+
+
+class BrancheNiveauxAssocies(Branche):
+    """
+    BrancheNiveauxAssocies - #12
+    - QLimInf: "Débit  minimum admis dans la branche"
+    - QLimSup: "Débit maximum admis dans la branche"
+    - loi_ZavZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 12, is_active)
+        self.QLimInf = DEFAULT_QLIMINF
+        self.QLimSup = DEFAULT_QLIMSUP
+        self.loi_ZavZam = np.array([(-15.0, -15.0)])
+
+
+class BrancheBarrageGenerique(Branche):
+    """
+    BrancheBarrageGenerique - #14
+    - section_pilotage <crue10.emh.section.Section>: section de pilotage
+    - QLimInf: "Débit  minimum admis dans la branche"
+    - QLimSup: "Débit maximum admis dans la branche"
+    - loi_QDz <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
+    - loi_QpilZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 14, is_active)
+        self.section_pilotage = None
+        self.QLimInf = DEFAULT_QLIMINF
+        self.QLimSup = DEFAULT_QLIMSUP
+        self.loi_QDz = np.array([(-15000.0, -1.0E30)])
+        self.loi_QpilZam = np.array([(0.0, -15.0)])
+
+    @property
+    def name_loi_QDz(self):
+        return 'LoiQDz_%s' % self.id[3:]
+
+    @property
+    def name_loi_QpilZam(self):
+        return 'LoiQpilZam_%s' % self.id[3:]
+
+
+class BrancheBarrageFilEau(Branche):
+    """
+    BrancheBarrageFilEau - #15
+    - section_pilotage <crue10.emh.section.Section>: section de pilotage
+    - QLimInf: "Débit  minimum admis dans la branche"
+    - QLimSup: "Débit maximum admis dans la branche"
+    - loi_QZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
+    - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 3 columns)
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 15, is_active)
+        self.section_pilotage = None
+        self.QLimInf = DEFAULT_QLIMINF
+        self.QLimSup = DEFAULT_QLIMSUP
+        self.loi_QZam = np.array([(0.0, -15.0)])
+        self.elts_seuil = DEFAULT_ELTS_SEUILS
+
+    @property
+    def name_loi_QZam(self):
+        return 'LoiQpilZam_%s' % self.id[3:]
+
+
+class BrancheSaintVenant(Branche):
+    """
+    BrancheSaintVenant - #20
+    - CoefSinuo <float>: "coefficient de sinuosité de la branche, rapport des longueurs des axes hydrauliques
+         du lit mineur et du lit majeur"
+    - CoefBeta <float>: "coefficient de modulation global à la branche du coefficient de Boussinesq,
+         afin de tenir compte de la forme du profil des vitesses sur le calcul de la QdM de l'écoulement"
+    - CoefRuis <float>: "coefficient modulation du débit linéique de ruissellement"
+    - CoefRuisQdm <float>: "coefficient de prise en compte du débit de ruissellement dans la QdM de l'écoulement"
+    """
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, 20, is_active)
+        self.CoefSinuo = 1.0
+        self.CoefBeta = 1.0
+        self.CoefRuis = 0.0
+        self.CoefRuisQdm = 0.0

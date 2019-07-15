@@ -60,7 +60,7 @@
   <DonPrtGeoBranches>
     {%- for branche in branche_saintvenant_list %}
     <DonPrtGeoBrancheSaintVenant NomRef="{{ branche.id }}">
-      <CoefSinuo>1.0</CoefSinuo>
+      <CoefSinuo>{{ branche.CoefSinuo }}</CoefSinuo>
     </DonPrtGeoBrancheSaintVenant>
     {%- endfor %}
   </DonPrtGeoBranches>

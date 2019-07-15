@@ -1,3 +1,7 @@
+"""
+Classes for junctions located in minor or major beds:
+- Noeud
+"""
 
 
 class Noeud:

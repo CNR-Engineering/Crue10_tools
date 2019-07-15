@@ -1,20 +1,22 @@
 from collections import OrderedDict
 import fiona
 from jinja2 import Environment, FileSystemLoader
-import numpy as np
 import os.path
-from shapely.geometry import LineString, mapping, Point
+from shapely.geometry import LineString, mapping
 import xml.etree.ElementTree as ET
 
-from crue10.utils import CrueError, logger, PREFIX
+from crue10.utils import CrueError, PREFIX
 from mascaret.mascaret_file import Reach, Section
 from mascaret.mascaretgeo_file import MascaretGeoFile
 
-from .branche import Branche
+from .branche import *
 from .casier import Casier, ProfilCasier
 from .noeud import Noeud
 from .section import FrictionLaw, LimiteGeom, LitNumerote, SectionIdem, SectionInterpolee, \
     SectionProfil, SectionSansGeometrie
+
+
+XML_ENCODING = 'utf-8'
 
 
 class SubModel:
@@ -27,7 +29,7 @@ class SubModel:
     - branches <{crue10.emh.section.SectionInterpolee}>: branches (only those with geometry are considered)
     - casiers <{crue10.emh.casier.Casier}>: casiers
     - profils_casier <{crue10.emh.casier.ProfilCasier}>: profils casier
-    - friction_laws <{crue10.emh.section.FrictionLaw}>: friction law (Strickler coefficient)
+    - friction_laws <{crue10.emh.section.FrictionLaw}>: friction laws (Strickler coefficients)
     """
 
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
@@ -172,24 +174,50 @@ class SubModel:
 
                 for emh_branche in emh_group:
                     emh_branche_type = emh_branche.tag[len(PREFIX):]
-                    branche_type_id = Branche.get_id_type_from_name(emh_branche_type)
-                    if branche_type_id not in Branche.TYPES:
-                        logger.warn("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
 
+                    if emh_branche_type == 'BranchePdc':
+                        branche_cls = BranchePdC
+                    elif emh_branche_type == 'BrancheSeuilTransversal':
+                        branche_cls = BrancheSeuilTransversal
+                    elif emh_branche_type == 'BrancheSeuilLateral':
+                        branche_cls = BrancheSeuilLateral
+                    elif emh_branche_type == 'BrancheOrifice':
+                        branche_cls = BrancheOrifice
+                    elif emh_branche_type == 'BrancheStrickler':
+                        branche_cls = BrancheStrickler
+                    elif emh_branche_type == 'BrancheNiveauxAssocies':
+                        branche_cls = BrancheNiveauxAssocies
+                    elif emh_branche_type == 'BrancheBarrageGenerique':
+                        branche_cls = BrancheBarrageGenerique
+                    elif emh_branche_type == 'BrancheBarrageFilEau':
+                        branche_cls = BrancheBarrageFilEau
+                    elif emh_branche_type == 'BrancheSaintVenant':
+                        branche_cls = BrancheSaintVenant
+                    elif emh_branche_type == 'BranchePdc':
+                        branche_cls = BranchePdC
+                    else:
+                         raise CrueError("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
+
+                    branche_type_id = Branche.get_id_type_from_name(emh_branche_type)
                     if branche_type_id in branch_types:
                         # Build branche instance
                         is_active = emh_branche.find(PREFIX + 'IsActive').text == 'true'
                         noeud_amont = self.noeuds[emh_branche.find(PREFIX + 'NdAm').get('NomRef')]
                         noeud_aval = self.noeuds[emh_branche.find(PREFIX + 'NdAv').get('NomRef')]
-                        branche = Branche(emh_branche.get('Nom'), noeud_amont, noeud_aval, branche_type_id, is_active)
+                        branche = branche_cls(emh_branche.get('Nom'), noeud_amont, noeud_aval, is_active)
                         if emh_branche.find(PREFIX + 'Commentaire').text is not None:
                             branche.comment = emh_branche.find(PREFIX + 'Commentaire').text
 
                         # Add associated sections
-                        if branche_type_id == 20:
+                        if isinstance(branche, BrancheSaintVenant):
                             emh_sections = emh_branche.find(PREFIX + 'BrancheSaintVenant-Sections')
                         else:
                             emh_sections = emh_branche.find(PREFIX + 'Branche-Sections')
+
+                        # Add section pilotage
+                        if isinstance(branche, BrancheBarrageGenerique) or isinstance(branche, BrancheBarrageFilEau):
+                            branche.section_pilotage = \
+                                self.sections[emh_branche.find(PREFIX + 'SectionPilote').get('NomRef')]
 
                         for emh_section in emh_sections:
                             section = self.sections[emh_section.get('NomRef')]
@@ -251,8 +279,6 @@ class SubModel:
                     for etiquette in emh.find(PREFIX + 'Etiquettes'):
                         xt = float(etiquette.find(PREFIX + 'PointFF').text.split()[0])
                         limite = LimiteGeom(etiquette.get('Nom'), xt)
-                        if limite.id == 'Et_Thalweg':
-                            section.set_xt_axe(xt)  #FIXME
                         section.add_limite_geom(limite)
 
                     xz = []
@@ -341,7 +367,8 @@ class SubModel:
         self.read_shp_noeuds()
         self.read_shp_traces_sections()
         self.read_shp_branches()
-        self.read_shp_casiers()
+        if self.casiers:
+            self.read_shp_casiers()
         self.set_active_sections()
 
     def iter_on_branches(self, filter_branch_types=None):
@@ -480,8 +507,8 @@ class SubModel:
         template_render = template.render(
             friction_law_list=[fl for _, fl in self.friction_laws.items()],
         )
-        with open(os.path.join(folder, self.submodel_name + '.' + xml + '.xml'), 'w') as stream:
-            stream.write(template_render)
+        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
+            out.write(template_render)
 
         xml = 'drso'
         template = env.get_template(xml + '.xml')
@@ -496,8 +523,8 @@ class SubModel:
             SectionInterpolee=SectionInterpolee,
             branche_list=self.iter_on_branches(),
         )
-        with open(os.path.join(folder, self.submodel_name + '.' + xml + '.xml'), 'w') as stream:
-            stream.write(template_render)
+        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
+            out.write(template_render)
 
         xml = 'dptg'
         template = env.get_template(xml + '.xml')
@@ -507,8 +534,8 @@ class SubModel:
             section_idem_list=sorted(self.iter_on_sections_item(), key=lambda st: st.id),  # alphabetic order
             branche_saintvenant_list=sorted(self.iter_on_branches([20]), key=lambda br: br.id),  # alphabetic order
         )
-        with open(os.path.join(folder, self.submodel_name + '.' + xml + '.xml'), 'w') as stream:
-            stream.write(template_render)
+        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
+            out.write(template_render)
 
         xml = 'dcsp'
         template = env.get_template(xml + '.xml')
@@ -516,8 +543,8 @@ class SubModel:
             branche_list=self.iter_on_branches(),
             casier_list=[ca for _, ca in self.casiers.items()],
         )
-        with open(os.path.join(folder, self.submodel_name + '.' + xml + '.xml'), 'w') as stream:
-            stream.write(template_render)
+        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
+            out.write(template_render)
 
     def __repr__(self):
         return "%i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee + %i sans géométrie), " \
