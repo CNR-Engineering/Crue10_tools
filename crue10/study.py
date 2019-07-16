@@ -7,7 +7,7 @@ from crue10.submodel import SubModel
 from crue10.utils import CrueError, logger, PREFIX
 
 
-XSD_FOLDER = os.path.join('crue10', 'data', 'xsd')
+XSD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'crue10', 'data', 'xsd')
 
 
 class Study:

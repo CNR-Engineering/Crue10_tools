@@ -107,8 +107,9 @@ class SubModel:
             if emh_group.tag == (PREFIX + 'Noeuds'):
                 for emh_noeud in emh_group.findall(PREFIX + 'NoeudNiveauContinu'):
                     noeud = Noeud(emh_noeud.get('Nom'))
-                    if emh_noeud.find(PREFIX + 'Commentaire').text is not None:
-                        noeud.comment = emh_noeud.find(PREFIX + 'Commentaire').text
+                    if emh_noeud.find(PREFIX + 'Commentaire') is not None:
+                        if emh_noeud.find(PREFIX + 'Commentaire').text is not None:
+                            noeud.comment = emh_noeud.find(PREFIX + 'Commentaire').text
                     self.add_noeud(noeud)
 
             elif emh_group.tag == (PREFIX + 'Sections'):
@@ -128,7 +129,7 @@ class SubModel:
                         section = SectionSansGeometrie(nom_section)
                     else:
                         raise NotImplementedError
-                    if emh_section.find(PREFIX + 'Commentaire'):
+                    if emh_section.find(PREFIX + 'Commentaire') is not None:
                         if emh_section.find(PREFIX + 'Commentaire').text is not None:
                             section.comment = emh_section.find(PREFIX + 'Commentaire').text
                     self.add_section(section)
@@ -183,8 +184,9 @@ class SubModel:
                         noeud_amont = self.noeuds[emh_branche.find(PREFIX + 'NdAm').get('NomRef')]
                         noeud_aval = self.noeuds[emh_branche.find(PREFIX + 'NdAv').get('NomRef')]
                         branche = branche_cls(emh_branche.get('Nom'), noeud_amont, noeud_aval, is_active)
-                        if emh_branche.find(PREFIX + 'Commentaire').text is not None:
-                            branche.comment = emh_branche.find(PREFIX + 'Commentaire').text
+                        if emh_branche.find(PREFIX + 'Commentaire') is not None:
+                            if emh_branche.find(PREFIX + 'Commentaire').text is not None:
+                                branche.comment = emh_branche.find(PREFIX + 'Commentaire').text
 
                         # Add associated sections
                         if isinstance(branche, BrancheSaintVenant):
@@ -208,8 +210,9 @@ class SubModel:
                     is_active = emh_profils_casier.find(PREFIX + 'IsActive').text == 'true'
                     nom_noeud = emh_profils_casier.find(PREFIX + 'Noeud').get('NomRef')
                     casier = Casier(emh_profils_casier.get('Nom'), nom_noeud, is_active=is_active)
-                    if emh_profils_casier.find(PREFIX + 'Commentaire').text is not None:
-                        casier.comment = emh_profils_casier.find(PREFIX + 'Commentaire').text
+                    if emh_profils_casier.find(PREFIX + 'Commentaire') is not None:
+                        if emh_profils_casier.find(PREFIX + 'Commentaire').text is not None:
+                            casier.comment = emh_profils_casier.find(PREFIX + 'Commentaire').text
                     for emh_pc in emh_profils_casier.findall(PREFIX + 'ProfilCasier'):
                         pc = ProfilCasier(emh_pc.get('NomRef'))
                         self.add_profil_casier(pc)
@@ -227,8 +230,9 @@ class SubModel:
                 for emh in emh_group.findall(PREFIX + 'ProfilCasier'):
                     nom_profil_casier = emh.get('Nom')
                     profil_casier = self.profils_casier[nom_profil_casier]
-                    if emh.find(PREFIX + 'Commentaire').text is not None:
-                        profil_casier.comment = emh.find(PREFIX + 'Commentaire').text
+                    if emh.find(PREFIX + 'Commentaire') is not None:
+                        if emh.find(PREFIX + 'Commentaire').text is not None:
+                            profil_casier.comment = emh.find(PREFIX + 'Commentaire').text
                     profil_casier.distance = float(emh.find(PREFIX + 'Longueur').text)
 
                     lit_num_elt = emh.find(PREFIX + 'LitUtile')
@@ -269,7 +273,6 @@ class SubModel:
             if emh_group.tag == (PREFIX + 'DonPrtGeoSections'):
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
                     self.sections[emh.get('NomRef')].dz = float(emh.find(PREFIX + 'Dz').text)
-
 
     def read_shp_noeuds(self):
         with fiona.open(self.files['noeuds'], 'r') as src:
