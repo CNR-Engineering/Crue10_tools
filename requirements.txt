@@ -1,3 +1,5 @@
 fiona
+jinja2
+lxml
 numpy
 shapely

@@ -1,15 +1,15 @@
 Crue10 tools
 ============
 
-> Tools to handle 1D hydraulic model file format called `Crue10`.
+> Tools to handle 1D hydraulic model file format called `Crue10` (.
 
-## Read Crue10 sub-model
+## Read Crue10 submodel
 
-See example in file `crue10/read_crue_submodel.py`.
+See example in file `snippets/read_crue_submodel.py`.
 
 ## Read Crue10 result file (rcal/bin)
 
-See example in file `crue10/read_crue_run.py`.
+See example in file `snippets/read_crue_run.py`.
 
 
 ## TODO

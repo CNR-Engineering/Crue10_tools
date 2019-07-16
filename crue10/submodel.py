@@ -6,14 +6,13 @@ from shapely.geometry import LineString, mapping
 import xml.etree.ElementTree as ET
 
 from crue10.utils import CrueError, PREFIX
+from crue10.emh.branche import *
+from crue10.emh.casier import Casier, ProfilCasier
+from crue10.emh.noeud import Noeud
+from crue10.emh.section import FrictionLaw, LimiteGeom, LitNumerote, SectionIdem, SectionInterpolee, \
+    SectionProfil, SectionSansGeometrie
 from mascaret.mascaret_file import Reach, Section
 from mascaret.mascaretgeo_file import MascaretGeoFile
-
-from .branche import *
-from .casier import Casier, ProfilCasier
-from .noeud import Noeud
-from .section import FrictionLaw, LimiteGeom, LitNumerote, SectionIdem, SectionInterpolee, \
-    SectionProfil, SectionSansGeometrie
 
 
 XML_ENCODING = 'utf-8'
@@ -22,7 +21,8 @@ XML_ENCODING = 'utf-8'
 class SubModel:
     """
     Crue10 sub-model
-    - files <[str]>: dict with path to xml and shp files (keys correspond to `FILES_SHP` and `FILES_XML` lists)
+    - id <str>: submodel identifier
+    - files <{str}>: dict with path to xml and shp files (keys correspond to `FILES_SHP` and `FILES_XML` lists)
     - noeuds <{crue10.emh.noeud.Noeud}>: nodes
     - sections <{crue10.emh.section.Section}>: sections
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
@@ -35,44 +35,20 @@ class SubModel:
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
     FILES_XML = ['dfrt', 'drso', 'dptg', 'dcsp']
 
-    def __init__(self, etu_path, nom_sous_modele):
+    def __init__(self, name_submodel, files):
         """
         :param etu_path: Crue10 study file (etu.xml format)
         :param nom_sous_modele: submodel name
+        :param files: dict with xml and shp path files
         """
-        self.submodel_name = nom_sous_modele
-        self.files = {}
+        self.id = name_submodel
+        self.files = files
         self.noeuds = OrderedDict()
         self.sections = OrderedDict()
         self.branches = OrderedDict()
         self.casiers = OrderedDict()
         self.profils_casier = OrderedDict()
         self.friction_laws = OrderedDict()
-        self._get_xml_files(etu_path, nom_sous_modele)
-        self._get_shp_files(etu_path, nom_sous_modele)
-
-    def _get_xml_files(self, etu_path, nom_sous_modele):
-        sous_modeles = ET.parse(etu_path).getroot().find(PREFIX + 'SousModeles')
-        sous_modele = sous_modeles.find(PREFIX + 'SousModele[@Nom="%s"]' % nom_sous_modele)
-        if sous_modele is None:
-            raise CrueError("Le sous-modèle %s n'existe pas !\n" % nom_sous_modele +
-                            "Les sous-modeles possibles sont :\n%s" % [sm.attrib['Nom'] for sm in sous_modeles])
-        sm_name = sous_modele.attrib['Nom']
-        if sm_name == nom_sous_modele:
-            fichiers = sous_modele.find(PREFIX + 'SousModele-FichEtudes')
-            for ext in SubModel.FILES_XML:
-                try:
-                    filename = fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
-                except AttributeError:
-                    raise CrueError("Le fichier %s n'est pas renseigné dans le sous-modèle." % ext)
-                if filename is None:
-                    raise CrueError("Le sous-modèle n'a pas de fichier %s !" % ext)
-                self.files[ext] = os.path.join(os.path.dirname(etu_path), filename)
-
-    def _get_shp_files(self, etu_path, nom_sous_modele):
-        for shp_name in SubModel.FILES_SHP:
-            self.files[shp_name] = os.path.join(os.path.dirname(etu_path), 'Config', nom_sous_modele.upper(),
-                                                shp_name + '.shp')
 
     def add_friction_law(self, friction_law):
         if friction_law.id in self.friction_laws:
@@ -151,8 +127,9 @@ class SubModel:
                         section = SectionSansGeometrie(nom_section)
                     else:
                         raise NotImplementedError
-                    if emh_section.find(PREFIX + 'Commentaire').text is not None:
-                        section.comment = emh_section.find(PREFIX + 'Commentaire').text
+                    if emh_section.find(PREFIX + 'Commentaire'):
+                        if emh_section.find(PREFIX + 'Commentaire').text is not None:
+                            section.comment = emh_section.find(PREFIX + 'Commentaire').text
                     self.add_section(section)
 
                 # Replace SectionIdem.section_ori and check consistancy
@@ -395,10 +372,10 @@ class SubModel:
             for section in branche.sections[1:-1]:
                 if isinstance(section, SectionInterpolee):
                     branche.sections.remove(section)  # remove element (current iteration)
-                    self.sections_interpolee.pop(section.id)
-        if self.sections_interpolee:
+                    self.sections.pop(section.id)
+        if len(list(self.iter_on_sections_interpolees())) != 0:
             raise CrueError("Des SectionInterpolee n'ont pas pu être supprimées : %s"
-                            % list(self.sections_interpolee.keys()))
+                            % list(self.iter_on_sections_interpolees()))
 
     def convert_sectionidem_to_sectionprofil(self):
         """
@@ -547,9 +524,9 @@ class SubModel:
             out.write(template_render)
 
     def __repr__(self):
-        return "%i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee + %i sans géométrie), " \
-           "%i casiers (%i profils casier)" % (
-           len(self.noeuds), len(self.branches), len(self.sections),
+        return "Submodel %s: %i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee +" \
+               " %i sans géométrie), %i casiers (%i profils casier)" % (
+           self.id, len(self.noeuds), len(self.branches), len(self.sections),
            len(list(self.iter_on_sections_profil())), len(list(self.iter_on_sections_item())),
            len(list(self.iter_on_sections_interpolees())), len(list(self.iter_on_sections_sans_geometrie())),
            len(self.casiers), len(self.profils_casier)

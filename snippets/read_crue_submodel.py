@@ -5,12 +5,13 @@ import sys
 
 from crue10.utils import CrueError, logger
 from crue10.emh.section import LitNumerote
-from crue10.emh.submodel import SubModel
+from crue10.study import Study
 
 
 try:
-    submodel = SubModel('../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc/Etu_VS2003_Conc.etu.xml',
-                        'Sm_VS2013_c10_octobre_2014')
+    # Get submodel
+    study = Study('../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc/Etu_VS2003_Conc.etu.xml')
+    submodel = study.get_submodel('Sm_VS2013_c10_octobre_2014')
     submodel.read_all()
 
     # Do something with `submodel`...
@@ -26,12 +27,12 @@ try:
     # Select a section (the first in this case) with its index within the branch
     section = branch.sections[0]
     print(section)
-    #print(section.get_coord_3d())  # 3D coordinates
+    print(section.get_coord(add_z=True))  # 3D coordinates
     # Select another section by its identifier
-    section = submodel.get_section('St_CAF5.500')
+    section = submodel.sections['St_CAF5.500']
     # Display coordinates of its limits
     print(section.lits_numerotes)
-    for i_lit, lit_name in enumerate(LitNumerote.LIMITES_NAMES):
+    for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
         if i_lit == 0:
             point = section.interp_point(section.lits_numerotes[0].xt_min)
         else:

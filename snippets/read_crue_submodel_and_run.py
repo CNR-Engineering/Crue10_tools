@@ -8,13 +8,13 @@ H <- Z - Zf
 """
 from collections import OrderedDict
 import fiona
-import numpy as np
 import os.path
 from shapely.geometry import mapping, Point
 import sys
 
+from crue10.emh.section import SectionProfil
 from crue10.run import CrueRun
-from crue10.emh.submodel import SubModel
+from crue10.study import Study
 from crue10.utils import CrueError, logger
 
 
@@ -24,16 +24,17 @@ VARIABLES = ['Z', 'H', 'Fr']
 
 model_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
-    # Read submodel
-    submodel = SubModel(os.path.join(model_folder, 'Etu_VS2003_Conc.etu.xml'), 'Sm_VS2013_c10_octobre_2014')
+    # Get submodel
+    study = Study(os.path.join(model_folder, 'Etu_VS2003_Conc.etu.xml'))
+    submodel = study.get_submodel('Sm_VS2013_c10_octobre_2014')
     submodel.read_all()
     submodel.convert_sectionidem_to_sectionprofil()
 
     # Get a dict with active section bottom elevations
     bottom = OrderedDict()
-    for _, section in submodel.sections_profil.items():
-        if section.is_active:
-            bottom[section.id] = section.get_coord_3d()
+    for _, section in submodel.sections.items():
+        if section.is_active and isinstance(section, SectionProfil):
+            bottom[section.id] = section.get_coord(add_z=True)
 
     # Read rcal result file
     run = CrueRun(os.path.join(model_folder, 'Runs/Sc_EtatsRef2015/R2019-04-16-14h09m19s/Mo_VS2013_c10_octobre_2014',
