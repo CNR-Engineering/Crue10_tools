@@ -15,10 +15,10 @@ Classes for branches (or river reaches) in minor and major beds:
 import abc
 import numpy as np
 from shapely.affinity import translate
-from shapely.geometry import Point
+from shapely.geometry import LineString, Point
 
 from .section import SectionProfil
-from crue10.utils import logger
+from crue10.utils import CrueError, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -43,7 +43,7 @@ class Branche(ABC):
     - id <str>: branch identifier
     - type <int>: branch type (a key from `Branche.TYPES`)
     - is_active <bool>: True if the branch is active
-    - geom_trace <LineString>: polyline branch trace
+    - geom <LineString>: polyline branch trace
     - noeud_amont <crue10.emh.noeud.Noeud>: upstream node
     - noeud_aval <crue10.emh.noeud.Noeud>: downstream node
     - sections <[crue10.emh.section.Section]>: list of sections
@@ -101,6 +101,10 @@ class Branche(ABC):
         self.sections.append(section)
 
     def set_geom(self, geom):
+        if not isinstance(geom, LineString):
+            raise CrueError("Le type de la trace de la %s n'est pas supporté : %s !" % (self, type(geom)))
+        if geom.has_z:
+            raise CrueError("La trace de la %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
     def shift_sectionprofil_to_extremity(self):

@@ -3,7 +3,7 @@ from collections import OrderedDict
 import fiona
 from jinja2 import Environment, FileSystemLoader
 import os.path
-from shapely.geometry import LineString, mapping
+from shapely.geometry import LinearRing, LineString, mapping, Point
 import xml.etree.ElementTree as ET
 
 from crue10.utils import CrueError, PREFIX
@@ -17,6 +17,10 @@ from mascaret.mascaretgeo_file import MascaretGeoFile
 
 
 XML_ENCODING = 'utf-8'
+
+XML_TEMPLATES_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'crue10', 'data', 'templates')
+
+ENV = Environment(loader=FileSystemLoader(XML_TEMPLATES_FOLDER))
 
 
 class SubModel:
@@ -87,7 +91,7 @@ class SubModel:
             raise CrueError("Le profil casier %s est déjà présent" % profil_casier.id)
         self.profils_casier[profil_casier.id] = profil_casier
 
-    def read_dfrt(self):
+    def _read_dfrt(self):
         """
         Read dfrt.xml file
         """
@@ -98,7 +102,7 @@ class SubModel:
             friction_law = FrictionLaw(loi.get('Nom'), loi.get('Type'), np.array(xk_list))
             self.add_friction_law(friction_law)
 
-    def read_drso(self, filter_branch_types=None):
+    def _read_drso(self, filter_branch_types=None):
         """
         Read drso.xml file
         """
@@ -219,7 +223,7 @@ class SubModel:
                         casier.add_profil_casier(pc)
                     self.add_casier(casier)
 
-    def read_dptg(self):
+    def _read_dptg(self):
         """
         Read dptg.xml file
         /!\ Le profil est tronqué sur le lit utile (ie. entre les limites RD et RG)
@@ -274,26 +278,26 @@ class SubModel:
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
                     self.sections[emh.get('NomRef')].dz = float(emh.find(PREFIX + 'Dz').text)
 
-    def read_shp_noeuds(self):
+    def _read_shp_noeuds(self):
         with fiona.open(self.files['noeuds'], 'r') as src:
             for obj in src:
                 nom_noeud = obj['properties']['EMH_NAME']
-                coord = obj['geometry']['coordinates']
+                coord = obj['geometry']['coordinates'][:2]  # Ignore Z
                 self.noeuds[nom_noeud].set_geom(Point(coord))
 
-    def read_shp_traces_sections(self):
+    def _read_shp_traces_sections(self):
         with fiona.open(self.files['tracesSections'], 'r') as src:
             for obj in src:
                 nom_section = obj['properties']['EMH_NAME']
-                coords = obj['geometry']['coordinates']
+                coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 self.sections[nom_section].set_trace(LineString(coords))
 
-    def read_shp_branches(self):
+    def _read_shp_branches(self):
         geoms = {}
         with fiona.open(self.files['branches'], 'r') as src:
             for obj in src:
                 nom_branche = obj['properties']['EMH_NAME']
-                coords = obj['geometry']['coordinates']
+                coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_branche] = LineString(coords)
         for branche in self.iter_on_branches():
             try:
@@ -301,18 +305,33 @@ class SubModel:
             except KeyError:
                 raise CrueError("La géométrie de la branche %s n'est pas trouvée!" % branche.id)
 
-    def read_shp_casiers(self):
+    def _read_shp_casiers(self):
         geoms = {}
         with fiona.open(self.files['casiers'], 'r') as src:
             for obj in src:
                 nom_casier = obj['properties']['EMH_NAME']
-                coords = obj['geometry']['coordinates']
-                geoms[nom_casier] = LineString(coords)
+                coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
+                geoms[nom_casier] = LinearRing(coords)
         for _, casier in self.casiers.items():
             try:
                 casier.set_geom(geoms[casier.id])
             except KeyError:
                 raise CrueError("La géométrie du casier %s n'est pas trouvée!" % casier.id)
+
+    def read_all(self):
+        self._read_dfrt()
+        self._read_drso()
+        self._read_dptg()
+        #TODO: dcsp is ignored
+        if self.noeuds:
+            self._read_shp_noeuds()
+        if self.sections:
+            self._read_shp_traces_sections()
+        if self.branches:
+            self._read_shp_branches()
+        if self.casiers:
+            self._read_shp_casiers()
+        self.set_active_sections()
 
     def iter_on_sections(self, section_type=None):
         for _, section in self.sections.items():
@@ -339,18 +358,6 @@ class SubModel:
             branch_is_active = branche.is_active
             for section in branche.sections:
                 section.is_active = branch_is_active
-
-    def read_all(self):
-        self.read_dfrt()
-        self.read_drso()
-        self.read_dptg()
-        # dcsp is ignored
-        self.read_shp_noeuds()
-        self.read_shp_traces_sections()
-        self.read_shp_branches()
-        if self.casiers:
-            self.read_shp_casiers()
-        self.set_active_sections()
 
     def iter_on_branches(self, filter_branch_types=None):
         for _, branche in self.branches.items():
@@ -421,15 +428,6 @@ class SubModel:
             branche.shift_sectionprofil_to_extremity()
         self.convert_sectionidem_to_sectionprofil()
 
-    def write_shp_active_trace(self, shp_path):
-        schema = {'geometry': 'LineString', 'properties': {'id_section': 'str'}}
-        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
-            for branche in self.iter_on_branches():
-                for section in branche.sections:
-                    if isinstance(section, SectionProfil):
-                        out_shp.write({'geometry': mapping(section.geom_trace),
-                                       'properties': {'id_section': section.id}})
-
     def write_shp_limites_lits_numerotes(self, shp_path):
         schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
         with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
@@ -480,20 +478,17 @@ class SubModel:
         """
         return set(self.get_active_section_names()).difference(set(section_id_list))
 
-    def export_xml(self, folder):
-        env = Environment(loader=FileSystemLoader(os.path.join('crue10', 'templates')))
-
+    def _write_dfrt(self, folder):
         xml = 'dfrt'
-        template = env.get_template(xml + '.xml')
-        template_render = template.render(
+        template_render = ENV.get_template(xml + '.xml').render(
             friction_law_list=[fl for _, fl in self.friction_laws.items()],
         )
         with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
 
+    def _write_drso(self, folder):
         xml = 'drso'
-        template = env.get_template(xml + '.xml')
-        template_render = template.render(
+        template_render = ENV.get_template(xml + '.xml').render(
             noeud_list=[nd for _, nd in self.noeuds.items()],
             casier_list=[ca for _, ca in self.casiers.items()],
             section_list=[st for _, st in self.sections.items()],
@@ -507,9 +502,9 @@ class SubModel:
         with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
 
+    def _write_dptg(self, folder):
         xml = 'dptg'
-        template = env.get_template(xml + '.xml')
-        template_render = template.render(
+        template_render = ENV.get_template(xml + '.xml').render(
             profil_casier_list=[pc for _, pc in self.profils_casier.items()],
             section_profil_list=sorted(self.iter_on_sections_profil(), key=lambda st: st.id),  # alphabetic order
             section_idem_list=sorted(self.iter_on_sections_item(), key=lambda st: st.id),  # alphabetic order
@@ -518,14 +513,89 @@ class SubModel:
         with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
 
+    def _write_dcsp(self, folder):
         xml = 'dcsp'
-        template = env.get_template(xml + '.xml')
-        template_render = template.render(
+        template_render = ENV.get_template(xml + '.xml').render(
             branche_list=self.iter_on_branches(),
             casier_list=[ca for _, ca in self.casiers.items()],
         )
         with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
+
+    def _write_shp_noeuds(self, folder):
+        schema = {'geometry': 'Point',  # Write Point without 3D not to perturbe Fudaa-Crue
+                  'properties': OrderedDict([('EMH_NAME', 'str:250'), ('ATTRIBUTE_', 'int:9')])}
+        with fiona.open(os.path.join(folder, 'noeuds.shp'), 'w', 'ESRI Shapefile', schema) as layer:
+            for i, (_, noeud) in enumerate(self.noeuds.items()):
+                point = Point((noeud.geom.x, noeud.geom.y))
+                elem = {
+                    'geometry': mapping(point),
+                    'properties': {'EMH_NAME': noeud.id, 'ATTRIBUTE_': i}
+                }
+                layer.write(elem)
+
+    def _write_shp_branches(self, folder):
+        schema = {'geometry': '3D LineString',
+                  'properties': OrderedDict([('EMH_NAME', 'str:250'), ('ATTRIBUTE_', 'int:9')])}
+        with fiona.open(os.path.join(folder, 'branches.shp'), 'w', 'ESRI Shapefile', schema) as layer:
+            for i, branche in enumerate(self.iter_on_branches()):
+                # Convert LineString to 3D LineString
+                line = LineString([(x, y, 0.0) for x, y in branche.geom.coords])
+                elem = {
+                    'geometry': mapping(line),
+                    'properties': {'EMH_NAME': branche.id, 'ATTRIBUTE_': i}
+                }
+                layer.write(elem)
+
+    def _write_shp_traces_sections(self, folder):
+        schema = {'geometry': 'LineString',
+                  'properties': OrderedDict([('EMH_NAME', 'str:250'), ('ATTRIBUTE_', 'int:9'),
+                                             ('ANGLE_STAR', 'float:32'), ('ANGLE_END', 'float:32')])}
+        with fiona.open(os.path.join(folder, 'tracesSections.shp'), 'w', 'ESRI Shapefile', schema) as layer:
+            i = 0
+            for section in self.iter_on_sections_profil():
+                if section.is_active:
+                    elem = {
+                        'geometry': mapping(section.geom_trace),
+                        'properties': {'EMH_NAME': section.id, 'ATTRIBUTE_': i,
+                                       'ANGLE_STAR': 0.0, 'ANGLE_END': 0.0}
+                    }
+                    layer.write(elem)
+                    i += 0
+
+    def _write_shp_casiers(self, folder):
+        schema = {'geometry': '3D LineString',
+                  'properties': OrderedDict([('EMH_NAME', 'str:250'), ('ATTRIBUTE_', 'int:9')])}
+        with fiona.open(os.path.join(folder, 'casiers.shp'), 'w', 'ESRI Shapefile', schema) as layer:
+            for i, (_, casier) in enumerate(self.casiers.items()):
+                # Convert LinearRing to 3D LineString
+                line = LineString([(x, y, 0.0) for x, y in casier.geom.coords])
+                elem = {
+                    'geometry': mapping(line),
+                    'properties': {'EMH_NAME': casier.id, 'ATTRIBUTE_': i}
+                }
+                layer.write(elem)
+
+    def write_all(self, folder):
+        # Write xml files
+        self._write_dfrt(folder)
+        self._write_drso(folder)
+        self._write_dptg(folder)
+        self._write_dcsp(folder)
+
+        # Create folder if not existing
+        sm_folder = os.path.join(folder, 'Config', self.id.upper())
+        if not os.path.exists(sm_folder):
+            os.makedirs(sm_folder)
+
+        if self.noeuds:
+            self._write_shp_noeuds(sm_folder)
+        if self.branches:
+            self._write_shp_branches(sm_folder)
+        if self.sections:
+            self._write_shp_traces_sections(sm_folder)
+        if self.casiers:
+            self._write_shp_casiers(sm_folder)
 
     def __repr__(self):
         return "Submodel %s: %i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee +" \

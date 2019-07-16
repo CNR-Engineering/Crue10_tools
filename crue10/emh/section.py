@@ -143,7 +143,12 @@ class SectionProfil(Section):
     def set_trace(self, trace):
         if not self.lits_numerotes:
             raise CrueError('xz has to be set before (to check consistancy)')
+        if not isinstance(trace, LineString):
+            raise CrueError("Le type de la trace de la %s n'est pas supporté : %s !" % (self, type(trace)))
+        if trace.has_z:
+            raise CrueError("La trace de la %s ne doit pas avoir de Z !" % self)
         self.geom_trace = trace
+        # Display a warning if geometry is not consistent with self.xz array
         min_xt = self.xz[:, 0].min()
         range_xt = self.xz[:, 0].max() - min_xt
         diff_xt = range_xt - self.geom_trace.length

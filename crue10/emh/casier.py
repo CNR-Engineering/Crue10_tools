@@ -8,6 +8,7 @@ Not supported yet:
 - TypeDPTGCasiers: SplanBati, ZBatiTotal (dptg.xml)
 """
 import numpy as np
+from shapely.geometry import LinearRing
 
 from crue10.utils import CrueError
 
@@ -63,6 +64,10 @@ class Casier:
         self.comment = ''
 
     def set_geom(self, geom):
+        if not isinstance(geom, LinearRing):
+            raise CrueError("Le type de la trace du %s n'est pas supporté : %s !" % (self, type(geom)))
+        if geom.has_z:
+            raise CrueError("La trace du %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
     def add_profil_casier(self, profil_casier):
