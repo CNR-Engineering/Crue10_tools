@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Classes for junctions located in minor or major beds:
 - Noeud

@@ -1,3 +1,4 @@
+# coding: utf-8
 from collections import OrderedDict
 import fiona
 from jinja2 import Environment, FileSystemLoader

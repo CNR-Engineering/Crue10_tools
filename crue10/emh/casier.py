@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Classes for `Casier` in major bed (floodplain):
 - ProfilCasier

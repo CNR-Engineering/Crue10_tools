@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Classes for branches (or river reaches) in minor and major beds:
 - Branche
@@ -11,7 +12,7 @@ Classes for branches (or river reaches) in minor and major beds:
     - 15 = BrancheBarrageFilEau
     - 20 = BrancheSaintVenant
 """
-from abc import ABC
+import abc
 import numpy as np
 from shapely.affinity import translate
 from shapely.geometry import Point
@@ -19,6 +20,9 @@ from shapely.geometry import Point
 from .section import SectionProfil
 from crue10.utils import logger
 
+
+# ABC below is compatible with Python 2 and 3
+ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 DIFF_XP_TO_WARN = 20.0  # m
 

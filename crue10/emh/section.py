@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Classes for cross-section in minor and major beds:
 - FrictionLaw
@@ -13,13 +14,16 @@ Not supported yet:
 - Fente (dptg.xml)
 - SectionProfil is truncated on "usefull width" (TODO)
 """
-from abc import ABC
+import abc
 from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString
 
 from crue10.utils import CrueError, logger
 
+
+# ABC below is compatible with Python 2 and 3
+ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 DIFF_XP = 0.1  # m
 
