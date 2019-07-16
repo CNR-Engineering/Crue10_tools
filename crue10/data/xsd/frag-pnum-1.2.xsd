@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.2 Release 3
+			schema incomplet: voir le meme sans le préfixe frag-
+			pour la validation par fichier
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="Pdt">
+		<xs:complexType>
+			<xs:choice>
+				<xs:element name="PdtCst" type="TypeDuree" />
+				<xs:element ref="PdtVar" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="PdtVar">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ElemPdt" minOccurs="1" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ElemPdt">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="NbrPdt" type="xs:positiveInteger" />
+				<xs:element name="DureePdt" type="TypeDuree" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+
+	<xs:element name="ParamNumCommuns">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FrLinInf" type="TypeDoublePositiveOrNull" />
+				<xs:element name="FrLinSup" type="TypeDoublePositiveOrNull" />
+				<xs:element name="Zref" type="xs:double" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ParamNumCalcPseudoPerm">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="CoefRelaxQ" type="xs:double" />
+				<xs:element name="CoefRelaxZ" type="xs:double" />
+				<xs:element name="CrMaxFlu" type="xs:double" />
+				<xs:element name="CrMaxTor" type="xs:double" />
+				<xs:element name="NbrPdtDecoup" type="xs:positiveInteger" />
+				<xs:element name="NbrPdtMax" type="xs:positiveInteger" />
+				<xs:element ref="Pdt" />
+				<xs:element name="TolMaxQ" type="TypeDoublePositiveOrNull" />
+				<xs:element name="TolMaxZ" type="TypeDoublePositiveOrNull" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ParamNumCalcTrans">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="CrMaxFlu" type="xs:double" />
+				<xs:element name="CrMaxTor" type="xs:double" />
+				<!-- est-ce un entier positif -->
+				<xs:element ref="Pdt" />
+				<xs:element name="ThetaPreissmann" type="TypeDoublePositiveOrNull" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="PNUM">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element ref="ParamNumCommuns" />
+				<xs:element ref="ParamNumCalcPseudoPerm" />
+				<xs:element ref="ParamNumCalcTrans" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.2 Release 1
+			schema incomplet: voir le meme sans le préfixe frag-
+			pour la validation par fichier
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="Lois">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="LoiDF" type="TypeLoiDF" />
+				<xs:element name="LoiFF" type="TypeLoiFF" />
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- GENERAL -->
+	<xs:element name="DLHY">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element ref="Lois" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

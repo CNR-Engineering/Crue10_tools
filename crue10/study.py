@@ -1,9 +1,13 @@
 # coding: utf-8
+from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
 
 from crue10.submodel import SubModel
-from crue10.utils import CrueError, PREFIX
+from crue10.utils import CrueError, logger, PREFIX
+
+
+XSD_FOLDER = os.path.join('crue10', 'data', 'xsd')
 
 
 class Study:
@@ -59,3 +63,22 @@ class Study:
             raise CrueError("Le sous-modèle %s n'existe pas  !\nLes noms possibles sont: %s"
                             % (submodel_name, list(self.submodels.keys())))
 
+    def check_xml_files(self):
+        for file in self.files:
+            file_splitted = file.split('.')
+            if len(file_splitted) > 2:
+                logger.debug("~> Checking %s" % file)
+                xml_type = file_splitted[-2]
+                xsd_tree = etree.parse(os.path.join(XSD_FOLDER, '%s-1.2.xsd' % xml_type))
+
+                with open(file, 'r') as in_xml:
+                    content = '\n'.join(in_xml.readlines())
+                    xmlschema = etree.XMLSchema(xsd_tree)
+                    try:
+                        xml_tree = etree.fromstring(content)
+                    except etree.XMLSyntaxError as e:
+                        raise CrueError('Error XML: %s' % e)
+                    try:
+                        xmlschema.assertValid(xml_tree)
+                    except etree.DocumentInvalid as e:
+                        raise CrueError('Invalid XML: %s' % e)
