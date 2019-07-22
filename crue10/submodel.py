@@ -523,7 +523,7 @@ class SubModel:
             out.write(template_render)
 
     def _write_shp_noeuds(self, folder):
-        schema = {'geometry': 'Point',  # Write Point without 3D not to perturbe Fudaa-Crue
+        schema = {'geometry': 'Point',  # Write Point without 3D not to disturb Fudaa-Crue
                   'properties': OrderedDict([('EMH_NAME', 'str:250'), ('ATTRIBUTE_', 'int:9')])}
         with fiona.open(os.path.join(folder, 'noeuds.shp'), 'w', 'ESRI Shapefile', schema) as layer:
             for i, (_, noeud) in enumerate(self.noeuds.items()):
@@ -596,6 +596,21 @@ class SubModel:
             self._write_shp_traces_sections(sm_folder)
         if self.casiers:
             self._write_shp_casiers(sm_folder)
+
+    def append_submodel(self, submodel, suffix):
+        for _, noeud in submodel.noeuds.items():
+            self.add_noeud(noeud)
+        for _, section in submodel.sections.items():
+            self.add_section(section)
+        for branche in submodel.iter_on_branches():
+            self.add_branche(branche)
+        for _, profils_casier in submodel.profils_casier.items():
+            self.add_profil_casier(profils_casier)
+        for _, casier in submodel.casiers.items():
+            self.add_casier(casier)
+        for _, friction_law in submodel.friction_laws.items():
+            friction_law.id = friction_law.id + suffix
+            self.add_friction_law(friction_law)
 
     def __repr__(self):
         return "Submodel %s: %i noeuds, %i branches, %i sections (%i profil + %i idem + %i interpolee +" \
