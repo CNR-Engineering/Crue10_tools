@@ -64,21 +64,23 @@ class Study:
                             % (submodel_name, list(self.submodels.keys())))
 
     def check_xml_files(self):
+        errors = {}
         for file in self.files:
+            errors[file] = []
             file_splitted = file.split('.')
             if len(file_splitted) > 2:
-                logger.debug("~> Checking %s" % file)
                 xml_type = file_splitted[-2]
                 xsd_tree = etree.parse(os.path.join(XSD_FOLDER, '%s-1.2.xsd' % xml_type))
 
-                with open(file, 'r') as in_xml:
+                with open(file, 'r', encoding='utf-8') as in_xml:
                     content = '\n'.join(in_xml.readlines())
                     xmlschema = etree.XMLSchema(xsd_tree)
                     try:
                         xml_tree = etree.fromstring(content)
+                        try:
+                            xmlschema.assertValid(xml_tree)
+                        except etree.DocumentInvalid as e:
+                            errors[file].append('Invalid XML: %s' % e)
                     except etree.XMLSyntaxError as e:
-                        raise CrueError('Error XML: %s' % e)
-                    try:
-                        xmlschema.assertValid(xml_tree)
-                    except etree.DocumentInvalid as e:
-                        raise CrueError('Invalid XML: %s' % e)
+                        errors[file].append('Error XML: %s' % e)
+        return errors
