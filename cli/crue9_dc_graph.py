@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 """
 @brief:
 Générer un schéma topologique sous forme d'image png à partir d'un fichier dc (fichier de géométrie de Crue 9)
@@ -24,9 +25,7 @@ import sys
 from crue10.utils.graph_1d_model import *
 
 
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.RawDescriptionHelpFormatter,
-    description=(__doc__))
+parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=__doc__)
 parser.add_argument("fichier_dc", help="fichier d'entrée dc (format géométrie Crue9)")
 parser.add_argument("--out_png", help="fichier de sortie au format png")
 parser.add_argument("--out_svg", help="fichier de sortie au format svg")
@@ -61,6 +60,7 @@ with open(dc_file, 'r', encoding="ISO-8859-1") as filein:
                 elif line.startswith('BRANCHE'):
                     # Une nouvelle branche est trouvée
                     (key, name, node_up, node_down, btype) = line.split()
+                    btype = int(btype)
                     print("Ajout de la branche {} ({} -> {})".format(name, node_up, node_down))
 
                     # Ajout des noeuds si non présents
@@ -82,37 +82,36 @@ try:
 except:
     sys.exit("Le module pydot ne fonctionne pas !")
 
-# Création de l'arbre
+# Create a directed graph
 graph = pydot.Dot(graph_type='digraph', nodesep=args.sep)  # vertical : rankdir='LR'
 
-# Ajout des noeuds
+# Add nodes
 for node in nodes:
     if node in casiers:
-        shape = 'box3d'
+        has_casier = True
     else:
-        shape = 'ellipse'
-    graph.add_node(pydot.Node(node, style="filled", fillcolor="white", shape=shape))
+        has_casier = False
+    graph.add_node(pydot.Node(node, style="filled", fillcolor="white",
+                              shape=key_from_constant(has_casier, CASIER_SHAPE)))
 
-# Ajout des branches
+# Add branches
 for nom_branche, (node_up, node_down, btype) in branches.items():
-    edge = pydot.Edge(node_up, node_down,
-                      arrowhead=key_from_constant(btype, ARROWHEAD),
-                      # arrowtail="inv",
-                      label=nom_branche,
-                      color=key_from_constant(btype, COLORS),
-                      fontcolor=key_from_constant(btype, COLORS),
-                      penwidth=key_from_constant(btype, SIZE)
-                      # arrowtail="normal",
-                      # dirType="back", marche pas
-                      # shape="dot"
+    edge = pydot.Edge(
+        node_up, node_down,
+        arrowhead=key_from_constant(btype, BRANCHE_ARROWHEAD),
+        label=nom_branche,
+        color=key_from_constant(btype, BRANCHE_COLORS),
+        fontcolor=key_from_constant(btype, BRANCHE_COLORS),
+        penwidth=key_from_constant(btype, BRANCHE_SIZE)
     )
     graph.add_edge(edge)
 
-# Export(s) en png et/ou svg
-# prog='neato' optimise l'espace
+# Export(s) to png and/or svg
+# prog='neato' optimizes space
 if args.out_png:
     print("Génération du fichier {}".format(args.out_png))
     graph.write_png(args.out_png)
 if args.out_svg:
     print("Génération du fichier {}".format(args.out_svg))
     graph.write_svg(args.out_svg)
+# graph.write('debug.dot')

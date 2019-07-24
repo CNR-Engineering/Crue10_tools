@@ -1,135 +1,79 @@
 #!/usr/bin/env python
+# coding: utf-8
 """
 @brief:
-Générer un schéma topologique sous forme d'image png/svg à partir d'une étude FC (fichier drso)
+Générer un schéma topologique sous forme d'image png/svg à partir d'une étude FC
 
 @warnings:
 Les fichiers de sortie sont écrasés s'ils existent
-
-TODO:
-* Use crue10.emh classes and display inactive EMHs
 
 FIXME:
 * les orifices ne sont pas orientés en réalité (Pb: avec le type de graph 'digraph' (DIrected graph) cela ne semble pas possible d'avoir les deux sur la double flèche)
 """
 import argparse
-import sys
-import xml.etree.ElementTree as ET
 
+from crue10.study import Study
 from crue10.utils.graph_1d_model import *
 
 
-def key_from_constant(key, dictionary):
-    """Returns the value of the dictionary if present, or the default value"""
-    try:
-        return dictionary[key]
-    except KeyError:
-        try:
-            return dictionary['default']
-        except KeyError:
-            sys.exit("La clé '{}' n'existe pas".format(key))
-
-
-def remove_prefix(text, prefix):
-    if text.startswith(prefix):
-        return text[len(prefix):]
-    else:
-        return text
-
-
-PREFIX = "{http://www.fudaa.fr/xsd/crue}"
-ET.register_namespace('', "http://www.fudaa.fr/xsd/crue")
-
-
-parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=(__doc__))
-parser.add_argument("fichier_drso", help="fichier d'entrée drso")
+parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=__doc__)
+parser.add_argument("etu_path", help="fichier d'entrée etu.xml")
+parser.add_argument("sm_name", help="sous-modèle")
 parser.add_argument("--out_png", help="fichier de sortie au format png")
 parser.add_argument("--out_svg", help="fichier de sortie au format svg")
-parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2) [1 par défaut]", default=1)
-parser.add_argument("--remove_preffix", help="suppression des préfixes des EMHs ('Br_' et 'Nd_')", action='store_true')
+parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2) [1 par défaut]", default=0.8)
 args = parser.parse_args()
 
 
-branches = {}  # dictionnaire de la forme {nom_branche: (noeud_amont, noeud_aval, type)}
-nodes = []  # liste de noeuds
-casiers = []  # liste de noeuds
-
-# drso
-for emh_group in ET.parse(args.fichier_drso).getroot():
-    if emh_group.tag == (PREFIX + 'Branches'):
-        for branche in emh_group:
-            is_active = branche.find(PREFIX + 'IsActive').text  == "true"
-
-            if is_active:
-                type_branche = branche.tag.replace(PREFIX, '')
-                name = branche.attrib['Nom']
-                node_up = branche.find(PREFIX + 'NdAm').attrib['NomRef']
-                node_down = branche.find(PREFIX + 'NdAv').attrib['NomRef']
-                if args.remove_preffix:
-                    name = remove_prefix(name, 'Br_')
-                    node_up = remove_prefix(node_up, 'Nd_')
-                    node_down = remove_prefix(node_down, 'Nd_')
-                print("Ajout de la branche {} ({} -> {})".format(name, node_up, node_down))
-
-                btype = TYPE_BRANCHES[type_branche]
-
-                # Ajout des noeuds si non présents
-                if node_up not in nodes:
-                    nodes.append(node_up)
-                if node_down not in nodes:
-                    nodes.append(node_down)
-
-                # Ajout de la branche
-                branches[name] = (node_up, node_down, btype)
-
-    elif emh_group.tag == (PREFIX + 'Casiers'):
-        for casier in emh_group:
-            is_active = casier.find(PREFIX + 'IsActive').text == "true"
-
-            if is_active:
-                noeud = casier.find(PREFIX + 'Noeud').attrib['NomRef']
-                print("Ajout du noeud %s" % noeud)
-                if args.remove_preffix:
-                    noeud = remove_prefix(noeud, 'Nd_')
-                casiers.append(noeud)
+study = Study(args.etu_path)
+submodel = study.get_submodel(args.sm_name)
+submodel.read_all()
+print(submodel)
 
 try:
     import pydot
 except:
     raise CrueError("Le module pydot ne fonctionne pas !")
 
-# Création de l'arbre
+
+# Create a directed graph
 graph = pydot.Dot(graph_type='digraph', nodesep=args.sep)  # vertical : rankdir='LR'
+subgraph = pydot.Cluster(submodel.id, label=submodel.id, fontsize=SM_FONTSIZE)
 
-# Ajout des noeuds
-for node in nodes:
-    if node in casiers:
-        shape = 'box3d'
-    else:
-        shape = 'ellipse'
-    graph.add_node(pydot.Node(node, style="filled", fillcolor="white", shape=shape))
+# Add nodes
+for _, noeud in submodel.noeuds.items():
+    connected_casier = submodel.connected_casier(noeud.id)
+    has_casier = connected_casier is not None
+    is_active = True
+    if has_casier:
+        is_active = connected_casier.is_active
+    subgraph.add_node(pydot.Node(noeud.id, style="filled", fontsize=EMH_FONTSIZE,
+                                 fillcolor=key_from_constant(is_active, NODE_BGCOLOR),
+                                 shape=key_from_constant(has_casier, CASIER_SHAPE)))
 
-# Ajout des branches
-for nom_branche, (node_up, node_down, btype) in branches.items():
-    edge = pydot.Edge(node_up, node_down,
-                      arrowhead=key_from_constant(btype, ARROWHEAD),
-                      # arrowtail="inv",
-                      label=nom_branche,
-                      color=key_from_constant(btype, COLORS),
-                      fontcolor=key_from_constant(btype, COLORS),
-                      penwidth=key_from_constant(btype, SIZE)
-                      # arrowtail="normal",
-                      # dirType="back", marche pas
-                      # shape="dot"
+# Add branches
+for branche in submodel.iter_on_branches():
+    edge = pydot.Edge(
+        branche.noeud_amont.id, branche.noeud_aval.id, label=branche.id, fontsize=EMH_FONTSIZE,
+        arrowhead=key_from_constant(branche.type, BRANCHE_ARROWHEAD),
+        arrowtail=key_from_constant(branche.type, BRANCHE_ARROWHEAD),
+        # arrowtail="inv",
+        dir="forward",  # "both" or "back"
+        style=key_from_constant(branche.is_active, BRANCHE_ARROWSTYLE),
+        color=key_from_constant(branche.type, BRANCHE_COLORS),
+        fontcolor=key_from_constant(branche.type, BRANCHE_COLORS),
+        penwidth=key_from_constant(branche.type, BRANCHE_SIZE),
+        # shape="dot"
     )
-    graph.add_edge(edge)
+    subgraph.add_edge(edge)
+graph.add_subgraph(subgraph)
 
-# Export(s) en png et/ou svg
-# prog='neato' optimise l'espace
+# Export(s) to png and/or svg
+# prog='neato' optimizes space
 if args.out_png:
     print("Génération du fichier {}".format(args.out_png))
     graph.write_png(args.out_png)
 if args.out_svg:
     print("Génération du fichier {}".format(args.out_svg))
     graph.write_svg(args.out_svg)
-# graph.write('toto.dot')
+# graph.write('debug.dot')

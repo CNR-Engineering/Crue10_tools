@@ -15,6 +15,7 @@ Not supported yet:
 - SectionProfil is truncated on "usefull width" (TODO)
 """
 import abc
+from builtins import super  # python2 compatibility, requires module `future`
 from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString

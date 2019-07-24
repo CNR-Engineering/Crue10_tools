@@ -1,46 +1,52 @@
+# coding: utf-8
 from crue10.utils import CrueError
 
 
-# Branches
-TYPE_BRANCHES = {
-    'BranchePdc': '1',
-    'BrancheSeuilTransversal': '2',
-    'BrancheSeuilLateral': '4',
-    'BrancheOrifice': '5',
-    'BrancheStrickler': '6',
-    'BrancheNiveauxAssocies': '12',
-    'BrancheBarrageGenerique': '14',
-    'BrancheBarrageFilEau': '15',
-    'BrancheSaintVenant': '20',
-}
+SM_FONTSIZE = 40
 
-# Flèches selon le type de branche
-ARROWHEAD = {
-    '2': 'curve',
-    '4': 'tee',
-    '5': 'odot',
-    '6': 'diamond',
-    '15': 'box',
+EMH_FONTSIZE = 20
+
+BRANCHE_ARROWHEAD = {  # depends on branch type
+    2: 'curve',
+    4: 'tee',
+    5: 'odot',
+    6: 'diamond',
+    15: 'box',
     'default': 'normal'
-    # 'BrancheNiveauxAssocies': '?',
 }
 
-# Couleurs selon le type de branche
-COLORS = {
-    '4': 'darkgreen',
-    '5': 'green',
-    '6': 'purple',
-    '9': 'navy',
-    '20': 'blue',
+BRANCHE_ARROWSTYLE = {  # depends if is active
+    True: 'solid',
+    False: 'dashed',
+}
+
+BRANCHE_COLORS = {  # depends on branch type
+    1: 'red',
+    4: 'darkgreen',
+    5: 'green',
+    6: 'purple',
+    9: 'navy',
+    20: 'blue',
     'default': 'black'
 }
 
-# Taille selon le type de branche
-SIZE = {
-    '9': 4,
-    '15': 4,
-    '20': 4,
+BRANCHE_SIZE = {  # depends on branch type (minor bed is larger)
+    1: 4,
+    2: 4,
+    14: 4,
+    15: 4,
+    20: 4,
     'default': 2
+}
+
+CASIER_SHAPE = {  # depends if it has a connected casier
+    True: 'box3d',
+    False: 'ellipse',
+}
+
+NODE_BGCOLOR = {  # depends if it is active
+    True: 'white',
+    False: 'grey',
 }
 
 

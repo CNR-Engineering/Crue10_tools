@@ -13,6 +13,7 @@ Classes for branches (or river reaches) in minor and major beds:
     - 20 = BrancheSaintVenant
 """
 import abc
+from builtins import super  # python2 compatibility, requires module `future`
 import numpy as np
 from shapely.affinity import translate
 from shapely.geometry import LineString, Point

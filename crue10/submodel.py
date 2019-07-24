@@ -377,6 +377,15 @@ class SubModel:
                 branches.append(branche)
         return branches
 
+    def connected_casier(self, nom_noeud):
+        """
+        Returns the connected casier if found, else returns None
+        """
+        for _, casier in self.casiers.items():
+            if casier.nom_noeud == nom_noeud:
+                return casier
+        return None
+
     def remove_sectioninterpolee(self):
         """Remove all `SectionInterpolee` which are internal sections"""
         for branche in self.iter_on_branches():
