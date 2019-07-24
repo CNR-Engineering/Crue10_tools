@@ -39,21 +39,29 @@ class SubModel:
 
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
     FILES_XML = ['dfrt', 'drso', 'dptg', 'dcsp']
+    METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
+                       'DateDerniereModif']
 
-    def __init__(self, name_submodel, files):
+    def __init__(self, submodel_name, files, metadata):
         """
-        :param etu_path: Crue10 study file (etu.xml format)
-        :param nom_sous_modele: submodel name
+        :param submodel_name: submodel name
         :param files: dict with xml and shp path files
+        :param metadata: dict containing metadata
         """
-        self.id = name_submodel
+        self.id = submodel_name
         self.files = files
+        self.metadata = metadata
+
         self.noeuds = OrderedDict()
         self.sections = OrderedDict()
         self.branches = OrderedDict()
         self.casiers = OrderedDict()
         self.profils_casier = OrderedDict()
         self.friction_laws = OrderedDict()
+
+    @property
+    def is_active(self):
+        return self.metadata['IsActive'] == 'true'
 
     def add_friction_law(self, friction_law):
         if friction_law.id in self.friction_laws:

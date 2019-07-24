@@ -3,6 +3,7 @@ from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
 
+from crue10.model import Model
 from crue10.submodel import SubModel
 from crue10.utils import CrueError, logger, PREFIX
 
@@ -17,9 +18,14 @@ class Study:
     - files <[str]>: list of xml files
     - submodels <{str: SubModel}>: dict with submodel name and SubModel object
     """
+
     def __init__(self, etu_path):
+        """
+        :param etu_path: Crue10 study file (etu.xml format)
+        """
         self.etu_path = etu_path
         self.files = []
+        self.models = {}
         self.submodels = {}
         self.read_etu()
 
@@ -38,6 +44,10 @@ class Study:
             files = {}
             submodel_name = sous_modele.get('Nom')
 
+            metadata = {}
+            for field in SubModel.METADATA_FIELDS:
+                metadata[field] = sous_modele.find(PREFIX + field).text
+
             fichiers = sous_modele.find(PREFIX + 'SousModele-FichEtudes')
             for ext in SubModel.FILES_XML:
                 try:
@@ -53,8 +63,49 @@ class Study:
 
             for shp_name in SubModel.FILES_SHP:
                 files[shp_name] = os.path.join(folder, 'Config', submodel_name.upper(), shp_name + '.shp')
-            submodel = SubModel(submodel_name, files)
+
+            submodel = SubModel(submodel_name, files, metadata)
             self.submodels[submodel.id] = submodel
+
+        # Modele
+        modeles = root.find(PREFIX + 'Modeles')
+        for modele in modeles:
+            files = {}
+            model_name = modele.get('Nom')
+
+            metadata = {}
+            for field in Model.METADATA_FIELDS:
+                metadata[field] = modele.find(PREFIX + field).text
+
+            fichiers = modele.find(PREFIX + 'Modele-FichEtudes')
+            for ext in Model.FILES_XML:
+                try:
+                    filename = fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
+                except AttributeError:
+                    raise CrueError("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
+                if filename is None:
+                    raise CrueError("Le modèle n'a pas de fichier %s !" % ext)
+                filepath = os.path.join(folder, filename)
+                if filepath not in self.files:
+                    raise CrueError("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
+                files[ext] = filepath
+
+            model = Model(model_name, files, metadata)
+
+            sous_modeles = modele.find(PREFIX + 'Modele-SousModeles')
+            for sous_modele in sous_modeles:
+                submodel_name = sous_modele.get('NomRef')
+                submodel = self.submodels[submodel_name]
+                model.add_submodel(submodel)
+
+            self.models[model.id] = model
+
+    def get_model(self, model_name):
+        try:
+            return self.models[model_name]
+        except KeyError:
+            raise CrueError("Le modèle %s n'existe pas  !\nLes noms possibles sont: %s"
+                            % (model_name, list(self.models.keys())))
 
     def get_submodel(self, submodel_name):
         try:
@@ -84,3 +135,6 @@ class Study:
                     except etree.XMLSyntaxError as e:
                         errors[file].append('Error XML: %s' % e)
         return errors
+
+    def __repr__(self):
+        return "Etude %s: %i modèles, %i sous-modèles" % (self.etu_path, len(self.models), len(self.submodels))

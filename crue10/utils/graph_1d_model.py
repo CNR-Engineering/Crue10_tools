@@ -2,7 +2,9 @@
 from crue10.utils import CrueError
 
 
-SM_FONTSIZE = 40
+MO_FONTSIZE = 40
+
+SM_FONTSIZE = 30
 
 EMH_FONTSIZE = 20
 
@@ -44,9 +46,14 @@ CASIER_SHAPE = {  # depends if it has a connected casier
     False: 'ellipse',
 }
 
-NODE_BGCOLOR = {  # depends if it is active
+NODE_COLOR = {  # depends if it is active
     True: 'white',
     False: 'grey',
+}
+
+SM_STYLE = {  # depends if it is active
+    True: 'normal',
+    False: 'dashed',
 }
 
 

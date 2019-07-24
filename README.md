@@ -30,6 +30,5 @@ optional arguments:
 ```
 
 ## TODO
-* support reading of dcsp
+* support reading of dcsp.xml
 * convert html entities in comments
-* write shp files

@@ -91,15 +91,18 @@ for node in nodes:
         has_casier = True
     else:
         has_casier = False
-    graph.add_node(pydot.Node(node, style="filled", fillcolor="white",
+    graph.add_node(pydot.Node(node, fontsize=EMH_FONTSIZE, style="filled",
+                              fillcolor=key_from_constant(True, NODE_COLOR),
                               shape=key_from_constant(has_casier, CASIER_SHAPE)))
 
 # Add branches
 for nom_branche, (node_up, node_down, btype) in branches.items():
     edge = pydot.Edge(
-        node_up, node_down,
+        node_up, node_down, label=nom_branche, fontsize=EMH_FONTSIZE,
         arrowhead=key_from_constant(btype, BRANCHE_ARROWHEAD),
-        label=nom_branche,
+        arrowtail=key_from_constant(btype, BRANCHE_ARROWHEAD),
+        dir="forward",
+        style=key_from_constant(True, BRANCHE_ARROWSTYLE),
         color=key_from_constant(btype, BRANCHE_COLORS),
         fontcolor=key_from_constant(btype, BRANCHE_COLORS),
         penwidth=key_from_constant(btype, BRANCHE_SIZE)

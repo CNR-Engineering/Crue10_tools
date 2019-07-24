@@ -1,5 +1,5 @@
 """
-Lecture de la géométrie (et de la bathymétrie) d'un sous-modèle Crue10
+Lecture d'un sous-modèle Crue10
 """
 import sys
 
