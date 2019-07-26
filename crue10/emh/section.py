@@ -20,7 +20,7 @@ from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString
 
-from crue10.utils import check_preffix, CrueError, logger
+from crue10.utils import check_isinstance, check_preffix, CrueError, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -37,9 +37,15 @@ class FrictionLaw:
     - loi_Fk <2D-array>: ndarray(dtype=float, ndim=2) with Stricker coefficient varying with elevation
     """
     def __init__(self, id, type, loi_Fk):
+        check_preffix(id, 'Fk')
         self.id = id
         self.type = type
         self.loi_Fk = loi_Fk
+
+
+DEFAULT_FK_STO = FrictionLaw('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)]))
+DEFAULT_FK_MAJ = FrictionLaw('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)]))
+DEFAULT_FK_MIN = FrictionLaw('Fk_DefautMin', 'Fk', np.array([(-15.0, 8.0)]))
 
 
 class LitNumerote:
@@ -53,10 +59,19 @@ class LitNumerote:
     BED_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
     LIMIT_NAMES = ['RD', 'StoD-MajD', 'MajD-Min', 'Min-MajG', 'MajG-StoG', 'RG']
 
-    def __init__(self, id, xt_min, xt_max, friction_law):
+    def __init__(self, id, xt_min, xt_max, friction_law=None):
+        if id not in LitNumerote.BED_NAMES:
+            raise RuntimeError
         self.id = id
         self.xt_min = xt_min
         self.xt_max = xt_max
+        if friction_law is None:
+            if 'Sto' in id:
+                friction_law = DEFAULT_FK_STO
+            elif 'Maj' in id:
+                friction_law = DEFAULT_FK_MAJ
+            else:
+                friction_law = DEFAULT_FK_MIN
         self.friction_law = friction_law
 
     @property
@@ -78,6 +93,7 @@ class LimiteGeom:
     - xt <str>: curvilinear abscissa
     """
     def __init__(self, id, xt):
+        check_preffix(id, 'Et_')
         self.id = id
         self.xt = xt
 
@@ -122,10 +138,14 @@ class SectionProfil(Section):
     - lits_numerotes <[LitNumerote]>: lits numérotés
     - limites_geom <[LimiteGeom]>: limites géométriques (thalweg, axe hydraulique...)
     """
-    def __init__(self, nom_section, nom_profilsection):
+
+    def __init__(self, nom_section, nom_profilsection=None):
         super().__init__(nom_section)
-        check_preffix(nom_profilsection, 'Ps_')
-        self.nom_profilsection = nom_profilsection
+        if nom_profilsection is None:
+            self.nom_profilsection = 'Ps_' + nom_section[3:]
+        else:
+            check_preffix(nom_profilsection, 'Ps_')
+            self.nom_profilsection = nom_profilsection
         self.xz = None
         self.geom_trace = None
         self.lits_numerotes = []
@@ -158,9 +178,11 @@ class SectionProfil(Section):
             logger.warn("Écart de longueur pour la section %s: %s" % (self, diff_xt))
 
     def add_lit_numerote(self, lit_numerote):
+        check_isinstance(lit_numerote, LitNumerote)
         self.lits_numerotes.append(lit_numerote)
 
     def add_limite_geom(self, limite_geom):
+        check_isinstance(limite_geom, LimiteGeom)
         self.limites_geom.append(limite_geom)
 
     def interp_z(self, xt):
@@ -245,7 +267,7 @@ class SectionIdem(Section):
     def __init__(self, nom_section):
         super().__init__(nom_section)
         self.section_ori = None
-        self.dz = None
+        self.dz = 0.0
 
     def get_as_sectionprofil(self):
         """

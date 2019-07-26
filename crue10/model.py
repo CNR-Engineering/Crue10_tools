@@ -30,24 +30,24 @@ class Model:
         """
         check_preffix(model_name, 'Mo_')
         self.id = model_name
-        self.metadata = metadata
+        self.metadata = {} if metadata is None else metadata
         self.comment = comment
+        self.was_read = False
 
         self.submodels = []
         # self.initial_conditions = {}
         # self.data = {}
 
-        if metadata is None:
+        if 'Type' not in self.metadata:
             self.metadata['Type'] = 'Crue10'
         self.metadata = add_default_missing_metadata(self.metadata, Model.METADATA_FIELDS)
 
         if access == 'r':
             if files is None:
                 raise RuntimeError
-            if set(files.keys()) != set(Model.METADATA_FIELDS):
+            if set(files.keys()) != set(Model.FILES_XML):
                 raise RuntimeError
             self.files = files
-            self.read_all()
         elif access == 'w':
             self.files = {}
             if files is None:
@@ -73,12 +73,14 @@ class Model:
         pass  # TODO
 
     def read_all(self):
-        # TODO: Reading of ['optr', 'optg', 'opti', 'pnum', 'dpti'] is not supported yet!
+        if not self.was_read:
+            # TODO: Reading of ['optr', 'optg', 'opti', 'pnum', 'dpti'] is not supported yet!
 
-        for submodel in self.submodels:
-            submodel.read_all()
+            for submodel in self.submodels:
+                submodel.read_all()
 
-        self._read_dpti()
+            self._read_dpti()
+        self.was_read = True
 
     def _write_default_file(self, xml_type, file_path):
         shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
@@ -91,15 +93,6 @@ class Model:
 
         for submodel in self.submodels:
             submodel.write_all(folder)
-
-    def _write_default_file(self, xml_type, file_path):
-        shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
-
-    def write_all(self, folder):
-        logger.debug("Writing %s in %s" % (self, folder))
-
-        for xml_type in ['optr', 'optg', 'opti', 'pnum', 'dpti']:
-            self._write_default_file(xml_type, os.path.join(folder, self.files[xml_type]))
 
     def summary(self):
         return "%s: %i sous-modèle(s)" % (self, len(self.submodels))

@@ -19,18 +19,20 @@ class Scenario:
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, scenario_name, access='r', files=None, metadata=None, comment=''):
+    def __init__(self, scenario_name, model, access='r', files=None, metadata=None, comment=''):
         check_preffix(scenario_name, 'Sc_')
         self.id = scenario_name
         self.files = files
-        self.metadata = metadata
+        self.metadata = {} if metadata is None else metadata
         self.comment = comment
+        self.was_read = False
 
         self.model = None
+        self.set_model(model)
 
-        if metadata is None:
+        if 'Type' not in self.metadata:
             self.metadata['Type'] = 'Crue10'
-        self.metadata = add_default_missing_metadata(self.metadata, Model.METADATA_FIELDS)
+        self.metadata = add_default_missing_metadata(self.metadata, Scenario.METADATA_FIELDS)
 
         if access == 'r':
             if files is None:
@@ -38,7 +40,6 @@ class Scenario:
             if set(files.keys()) != set(Scenario.FILES_XML):
                 raise RuntimeError
             self.files = files
-            self.read_all()
         elif access == 'w':
             self.files = {}
             if files is None:
@@ -56,8 +57,11 @@ class Scenario:
         self.model = model
 
     def read_all(self):
-        # TODO: Reading of ['ocal', 'ores', 'pcal', 'dclm', 'dlhy'] is not supported yet!
-        self.model.read_all()
+        if not self.was_read:
+            # TODO: Reading of ['ocal', 'ores', 'pcal', 'dclm', 'dlhy'] is not supported yet!
+
+            self.model.read_all()
+        self.was_read = True
 
     def _write_default_file(self, xml_type, file_path):
         shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)

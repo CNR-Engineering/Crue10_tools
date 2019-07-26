@@ -24,17 +24,24 @@ class ProfilCasier:
     - xt_max <float>: last curvilinear abscissa (for LitUtile)
     - comment <str>: optional text explanation
     """
+    DEFAULT_COORDS = np.array([(0, 0), (50, 0), (100, 0)])
+
     def __init__(self, nom_profil_casier):
         check_preffix(nom_profil_casier, 'Pc_')
         self.id = nom_profil_casier
-        self.distance = 0
+        self.distance = 0.0
         self.xz = None
-        self.xt_min = -1
-        self.xt_max = -1
+        self.xt_min = -1.0
+        self.xt_max = -1.0
         self.comment = ''
 
+        self.set_xz(ProfilCasier.DEFAULT_COORDS)
+
     def set_xz(self, coords):
+        check_isinstance(coords, np.ndarray)
         self.xz = coords
+        self.xt_min = self.xz[0, 0]
+        self.xt_max = self.xz[-1, 0]
 
     def interp_z(self, xt):
         if xt < self.xt_min or xt > self.xt_max:

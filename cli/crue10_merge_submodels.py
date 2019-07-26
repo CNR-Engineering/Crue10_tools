@@ -38,7 +38,7 @@ try:
         if first:
             merged_submodel = SubModel(submodel.id, submodel.files)
             first = False
-        merged_submodel.append_submodel(submodel, suffix)
+        merged_submodel.add_emh_from_submodel(submodel, suffix)
 
     print("~> Merged submodel:")
     print(merged_submodel)

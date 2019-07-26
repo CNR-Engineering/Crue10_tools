@@ -46,13 +46,15 @@ class Study:
                 raise NotImplementedError
             self.folders = folders
         self.filename_list = []
-        self.metadata = add_default_missing_metadata(metadata, Study.METADATA_FIELDS)
+        self.metadata = {} if metadata is None else metadata
         self.current_scenario = ''
         self.comment = comment
 
         self.scenarios = OrderedDict()
         self.models = OrderedDict()
         self.submodels = OrderedDict()
+
+        self.metadata = add_default_missing_metadata(self.metadata, Study.METADATA_FIELDS)
 
         if access == 'r':
             self._read_etu()
@@ -68,6 +70,11 @@ class Study:
     def _read_etu(self):
         root = ET.parse(self.etu_path).getroot()
         folder = os.path.dirname(self.etu_path)
+
+        # Study metadata
+        self.metadata = {}
+        for field in Study.METADATA_FIELDS:
+            self.metadata[field] = root.find(PREFIX + field).text
 
         # FichEtudes
         fichiers = root.find(PREFIX + 'FichEtudes')
@@ -105,11 +112,13 @@ class Study:
 
             submodel = SubModel(submodel_name, files=files, metadata=metadata)
             self.add_submodel(submodel)
+        if not self.submodels:
+            raise CrueError("Il faut au moins un sous-modèle !")
 
         # Modele
         modeles = root.find(PREFIX + 'Modeles')
         for scenario in modeles:
-            if scenario.tag == 'Modele':    # Ignore Crue9 models
+            if scenario.tag == PREFIX + 'Modele':  # Ignore Crue9 models
                 files = {}
                 model_name = scenario.get('Nom')
 
@@ -139,8 +148,10 @@ class Study:
                     model.add_submodel(submodel)
 
                 self.add_model(model)
+        if not self.models:
+            raise CrueError("Il faut au moins un modèle !")
 
-        # Scenario
+        # Scenarios
         scenarios = root.find(PREFIX + 'Scenarios')
         for scenario in scenarios:
             if scenario.tag == PREFIX + 'Scenario':
@@ -164,22 +175,24 @@ class Study:
                         raise CrueError("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
                     files[ext] = filepath
 
-                sc = Scenario(scenario_name, files=files, metadata=metadata)
-
                 modeles = scenario.find(PREFIX + 'Scenario-Modeles')
+                model = None
                 for i, modele in enumerate(modeles):
-                    sc.set_model(self.models[modele.get('NomRef')])
+                    model = self.models[modele.get('NomRef')]
                     if i != 0:
-                        raise NotImplementedError
+                        raise NotImplementedError  # A single Model for a Scenario!
 
+                sc = Scenario(scenario_name, model, files=files, metadata=metadata)
                 self.add_scenario(sc)
+        if not self.scenarios:
+            raise CrueError("Il faut au moins un scénario !")
 
     def read_all(self):
         # self._read_etu() is done in `__init__` method
         for _, scenario in self.scenarios.items():
             scenario.read_all()
 
-    def _write_etu(self):
+    def _write_etu(self, folder):
         xml = 'etu'
         template_render = JINJA_ENV.get_template(xml + '.xml').render(
             folders=[(name, folder) for name, folder in self.folders.items()],
@@ -190,7 +203,7 @@ class Study:
             submodels=[sm for _, sm in self.submodels.items()],
             scenarios=[sc for _, sc in self.scenarios.items()],
         )
-        with open(os.path.join(self.etu_path), 'w', encoding=XML_ENCODING) as out:
+        with open(os.path.join(folder, os.path.basename(self.etu_path)), 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
 
     def write_all(self, folder):
@@ -200,7 +213,7 @@ class Study:
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        self._write_etu()
+        self._write_etu(folder)
         for _, scenario in self.scenarios.items():
             scenario.write_all(folder)
 
@@ -230,10 +243,9 @@ class Study:
         submodel = SubModel(submodel_name, access=self.access, comment=comment)
         model = Model(model_name, access=self.access, comment=comment)
         model.add_submodel(submodel)
-        scenario = Scenario(scenario_name, access=self.access, comment=comment)
-        scenario.set_model(model)
+        scenario = Scenario(scenario_name, model, access=self.access, comment=comment)
         self.add_scenario(scenario)
-        if self.current_scenario is None:
+        if not self.current_scenario:
             self.current_scenario = scenario.id
 
     def get_scenario(self, scenario_name):

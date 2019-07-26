@@ -45,8 +45,9 @@ class SubModel:
         """
         check_preffix(submodel_name, 'Sm_')
         self.id = submodel_name
-        self.metadata = metadata
+        self.metadata = {} if metadata is None else metadata
         self.comment = comment
+        self.was_read = False
 
         self.noeuds = OrderedDict()
         self.sections = OrderedDict()
@@ -55,18 +56,17 @@ class SubModel:
         self.profils_casier = OrderedDict()
         self.friction_laws = OrderedDict()
 
-        if metadata is None:
-            self.metadata['Type'] = 'Crue10'
-        self.metadata = add_default_missing_metadata(self.metadata, SubModel.METADATA_FIELDS)
-
         if access == 'r':
             if files is None:
                 raise RuntimeError
             if set(files.keys()) != set(SubModel.FILES_XML + SubModel.FILES_SHP):
                 raise RuntimeError
             self.files = files
-            self.read_all()
         elif access == 'w':
+            if not metadata:
+                self.metadata = {'Type': 'Crue10'}
+            self.metadata = add_default_missing_metadata(self.metadata, SubModel.METADATA_FIELDS)
+
             self.files = {}
             if files is None:
                 for xml_type in SubModel.FILES_XML:
@@ -100,6 +100,9 @@ class SubModel:
         check_isinstance(casier, Casier)
         if casier.id in self.casiers:
             raise CrueError("Le casier %s est déjà présent" % casier.id)
+        for profilcasier in casier.profils_casier:
+            if profilcasier.id not in self.profils_casier:
+                self.add_profil_casier(profilcasier)
         self.casiers[casier.id] = casier
 
     def add_profil_casier(self, profil_casier):
@@ -113,6 +116,11 @@ class SubModel:
         if friction_law.id in self.friction_laws:
             raise CrueError("La loi de frottement %s est déjà présente" % friction_law.id)
         self.friction_laws[friction_law.id] = friction_law
+
+    def add_default_friction_laws(self):
+        self.add_friction_law(FrictionLaw('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)])))
+        self.add_friction_law(FrictionLaw('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)])))
+        self.add_friction_law(FrictionLaw('Fk_DefautMin', 'Fk', np.array([(-15.0, 8.0)])))
 
     def get_noeud(self, nom_noeud):
         try:
@@ -296,13 +304,14 @@ class SubModel:
                             profil_casier.comment = emh.find(PREFIX + 'Commentaire').text
                     profil_casier.distance = float(emh.find(PREFIX + 'Longueur').text)
 
+                    xz = []
+                    for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
+                        xz.append([float(v) for v in pointff.text.split()])
+
                     lit_num_elt = emh.find(PREFIX + 'LitUtile')
                     profil_casier.xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
                     profil_casier.xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
 
-                    xz = []
-                    for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
-                        xz.append([float(v) for v in pointff.text.split()])
                     profil_casier.set_xz(np.array(xz))
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
@@ -383,25 +392,27 @@ class SubModel:
                 raise CrueError("La géométrie du casier %s n'est pas trouvée!" % casier.id)
 
     def read_all(self):
-        # Read xml files
-        self._read_dfrt()
-        self._read_drso()
-        self._read_dptg()
-        self._read_dcsp()
+        if not self.was_read:
+            # Read xml files
+            self._read_dfrt()
+            self._read_drso()
+            self._read_dptg()
+            self._read_dcsp()
 
-        # Read shp files
-        try:
-            if self.noeuds:
-                self._read_shp_noeuds()
-            if self.sections:
-                self._read_shp_traces_sections()
-            if self.branches:
-                self._read_shp_branches()
-            if self.casiers:
-                self._read_shp_casiers()
-        except fiona.errors.DriverError as e:
-            logger.warn("Un fichier shp n'a pas pu être lu, la géométrie des EMH n'est pas lisible.")
-            logger.warn(str(e))
+            # Read shp files
+            try:
+                if self.noeuds:
+                    self._read_shp_noeuds()
+                if self.sections:
+                    self._read_shp_traces_sections()
+                if self.branches:
+                    self._read_shp_branches()
+                if self.casiers:
+                    self._read_shp_casiers()
+            except fiona.errors.DriverError as e:
+                logger.warn("Un fichier shp n'a pas pu être lu, la géométrie des EMH n'est pas lisible.")
+                logger.warn(str(e))
+        self.was_read = True
 
         self.set_active_sections()
 
@@ -517,6 +528,9 @@ class SubModel:
 
     def write_all(self, folder):
         logger.debug("Writing %s in %s" % (self, folder))
+
+        # TO CHECK
+        # Casier has at least one ProfilCasier
 
         # Create folder if not existing
         sm_folder = os.path.join(folder, 'Config', self.id.upper())
@@ -675,7 +689,7 @@ class SubModel:
             branche.shift_sectionprofil_to_extremity()
         self.convert_sectionidem_to_sectionprofil()
 
-    def append_submodel(self, submodel, suffix):
+    def add_emh_from_submodel(self, submodel, suffix=''):
         for _, noeud in submodel.noeuds.items():
             self.add_noeud(noeud)
         for _, section in submodel.sections.items():
