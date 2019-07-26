@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ORES xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/ores-1.2.xsd">
+	<!--
+		Le fichier ORES rassemble les demandes de résultats.
+		Son périmètre est le scénario
+		Ce fichier en particulier est celui qui doit être l'équivalent Crue10 de tout chargement de scénario Crue9,
+		parce que les résultats demandés (Dde à true) correspondent aux varaibles de sortie fixes du fichier FCB
+
+		Les variables demandées par ORES sont sorties dans le RCAL pour tous les calculs demandés dans le OCAL.
+		
+		Aucune Dde n'est obligatoirement à true.
+		Aucune Dde n'est obligatoire du point de vue de la xsd.
+		FC contrôle que la liste des Dde du ORES correspond exactement à la liste des Dde du default.ores.xml
+		et sort une erreur bloquante sinon.
+	-->
+  <Commentaire></Commentaire>
+  <OrdResNoeuds>
+    <OrdResNoeudNiveauContinu>
+      <Dde NomRef="Z">false</Dde>
+    </OrdResNoeudNiveauContinu>
+  </OrdResNoeuds>
+  <OrdResCasiers>
+    <OrdResCasier>
+      <Dde NomRef="Qech">true</Dde>
+      <Dde NomRef="Splan">true</Dde>
+      <Dde NomRef="Vol">true</Dde>
+      <Dde NomRef="Z">false</Dde>
+    </OrdResCasier>
+  </OrdResCasiers>
+  <OrdResSections>
+    <OrdResSection>
+      <Dde NomRef="Dact">false</Dde>
+      <Dde NomRef="Fr">false</Dde>
+      <Dde NomRef="H">false</Dde>
+      <Dde NomRef="Hs">false</Dde>
+      <Dde NomRef="Lact">false</Dde>
+      <Dde NomRef="Ltot">false</Dde>
+      <Dde NomRef="Q">true</Dde>
+      <Dde NomRef="Sact">false</Dde>
+      <Dde NomRef="Stot">true</Dde>
+      <Dde NomRef="Vact">true</Dde>
+      <Dde NomRef="Vc">true</Dde>
+      <Dde NomRef="Vtot">false</Dde>
+      <Dde NomRef="Y">false</Dde>
+      <Dde NomRef="Yc">false</Dde>
+      <Dde NomRef="Yn">false</Dde>
+      <Dde NomRef="Z">true</Dde>
+      <Dde NomRef="Zc">false</Dde>
+      <Dde NomRef="Zf">false</Dde>
+      <Dde NomRef="Zn">false</Dde>
+    </OrdResSection>
+  </OrdResSections>
+  <OrdResBranches>
+    <OrdResBrancheBarrageFilEau>
+      <Dde NomRef="RegimeBarrage">false</Dde>
+    </OrdResBrancheBarrageFilEau>
+    <OrdResBrancheBarrageGenerique>
+      <Dde NomRef="RegimeBarrage">false</Dde>
+    </OrdResBrancheBarrageGenerique>
+    <OrdResBrancheNiveauxAssocies>
+      <Dde NomRef="Dz">false</Dde>
+    </OrdResBrancheNiveauxAssocies>
+    <OrdResBrancheOrifice>
+      <Dde NomRef="CoefCtr">false</Dde>
+      <Dde NomRef="RegimeOrifice">false</Dde>
+    </OrdResBrancheOrifice>
+    <OrdResBranchePdc>
+      <Dde NomRef="Dz">false</Dde>
+    </OrdResBranchePdc>
+    <OrdResBrancheSaintVenant>
+      <Dde NomRef="Qlat">false</Dde>
+      <Dde NomRef="SplanAct">true</Dde>
+      <Dde NomRef="SplanSto">true</Dde>
+      <Dde NomRef="SplanTot">true</Dde>
+      <Dde NomRef="Vol">true</Dde>
+    </OrdResBrancheSaintVenant>
+    <OrdResBrancheSeuilLateral>
+      <Dde NomRef="RegimeSeuil">false</Dde>
+    </OrdResBrancheSeuilLateral>
+    <OrdResBrancheSeuilTransversal>
+      <Dde NomRef="RegimeSeuil">false</Dde>
+    </OrdResBrancheSeuilTransversal>
+    <OrdResBrancheStrickler>
+      <Dde NomRef="Splan">true</Dde>
+      <Dde NomRef="Vol">true</Dde>
+    </OrdResBrancheStrickler>
+  </OrdResBranches>
+</ORES>

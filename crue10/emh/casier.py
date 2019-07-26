@@ -10,7 +10,7 @@ Not supported yet:
 import numpy as np
 from shapely.geometry import LinearRing
 
-from crue10.utils import CrueError
+from crue10.utils import check_isinstance, check_preffix, CrueError
 
 
 class ProfilCasier:
@@ -25,6 +25,7 @@ class ProfilCasier:
     - comment <str>: optional text explanation
     """
     def __init__(self, nom_profil_casier):
+        check_preffix(nom_profil_casier, 'Pc_')
         self.id = nom_profil_casier
         self.distance = 0
         self.xz = None
@@ -55,6 +56,7 @@ class Casier:
     - comment <str>: optional text explanation
     """
     def __init__(self, nom_casier, nom_noeud, is_active=False):
+        check_preffix(nom_casier, 'Ca_')
         self.id = nom_casier
         self.is_active = is_active
         self.geom = None
@@ -64,13 +66,13 @@ class Casier:
         self.comment = ''
 
     def set_geom(self, geom):
-        if not isinstance(geom, LinearRing):
-            raise CrueError("Le type de la trace du %s n'est pas supporté : %s !" % (self, type(geom)))
+        check_isinstance(geom, LinearRing)
         if geom.has_z:
             raise CrueError("La trace du %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
     def add_profil_casier(self, profil_casier):
+        check_isinstance(profil_casier, ProfilCasier)
         self.profils_casier.append(profil_casier)
 
     def __str__(self):

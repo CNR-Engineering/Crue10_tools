@@ -20,7 +20,7 @@ from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString
 
-from crue10.utils import CrueError, logger
+from crue10.utils import check_preffix, CrueError, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -124,6 +124,7 @@ class SectionProfil(Section):
     """
     def __init__(self, nom_section, nom_profilsection):
         super().__init__(nom_section)
+        check_preffix(nom_profilsection, 'Ps_')
         self.nom_profilsection = nom_profilsection
         self.xz = None
         self.geom_trace = None

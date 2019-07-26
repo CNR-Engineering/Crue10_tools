@@ -18,8 +18,9 @@ import numpy as np
 from shapely.affinity import translate
 from shapely.geometry import LineString, Point
 
-from .section import SectionProfil
-from crue10.utils import CrueError, logger
+from .noeud import Noeud
+from .section import Section, SectionProfil
+from crue10.utils import check_isinstance, check_preffix, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -66,6 +67,11 @@ class Branche(ABC):
     TYPES_WITH_GEOM = [2, 6, 15, 20]
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, branch_type, is_active=True):
+        check_preffix(nom_branche, 'Br_')
+        check_isinstance(noeud_amont, Noeud)
+        check_isinstance(noeud_aval, Noeud)
+        if branch_type not in Branche.TYPES:
+            raise RuntimeError
         self.id = nom_branche
         self.type = branch_type
         self.is_active = is_active
@@ -98,14 +104,12 @@ class Branche(ABC):
         return self.type in Branche.TYPES_WITH_GEOM
 
     def add_section(self, section, xp):
+        check_isinstance(section, Section)
         section.xp = xp
         self.sections.append(section)
 
     def set_geom(self, geom):
-        if not isinstance(geom, LineString):
-            raise CrueError("Le type de la trace de la %s n'est pas supporté : %s !" % (self, type(geom)))
-        if geom.has_z:
-            raise CrueError("La trace de la %s ne doit pas avoir de Z !" % self)
+        check_isinstance(geom, LineString)
         self.geom = geom
 
     def shift_sectionprofil_to_extremity(self):
@@ -159,6 +163,7 @@ class BranchePdC(Branche):
     @property
     def name_loi_LoiQPdc(self):
         return 'LoiQPdc_%s' % self.id[3:]
+
 
 class BrancheSeuilTransversal(Branche):
     """
@@ -290,3 +295,7 @@ class BrancheSaintVenant(Branche):
         self.CoefBeta = 1.0
         self.CoefRuis = 0.0
         self.CoefRuisQdm = 0.0
+
+
+BRANCHE_CLASSES = [BranchePdC, BrancheSeuilTransversal, BrancheSeuilLateral, BrancheOrifice, BrancheStrickler,
+                   BrancheNiveauxAssocies, BrancheBarrageGenerique, BrancheBarrageFilEau, BrancheSaintVenant]

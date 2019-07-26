@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ETU xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/etu-1.2.xsd">
+  <Commentaire>{{ metadata.Commentaire }}</Commentaire>
+  <AuteurCreation>{{ metadata.AuteurCreation }}</AuteurCreation>
+  <DateCreation>{{ metadata.DateCreation }}</DateCreation>
+  <AuteurDerniereModif>{{ metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+  <DateDerniereModif>{{ metadata.DateDerniereModif }}</DateDerniereModif>
+  <ScenarioCourant NomRef="{{ current_scenario }}"/>
+  <Repertoires>
+    {%- for name, folder in folders %}
+    <Repertoire Nom="{{ name }}">
+      <path>{{ folder }}</path>
+    </Repertoire>
+    {%- endfor %}
+  </Repertoires>
+  <FichEtudes>
+	{%- for filename, xml_type in files %}
+    <FichEtude Nom="{{ filename }}" Chemin=".\" Type="{{ xml_type }}"/>
+    {%- endfor %}
+  </FichEtudes>
+  <SousModeles>
+    {%- for submodel in submodels %}
+    <SousModele Nom="{{ submodel.id }}">
+      <Type>{{ submodel.metadata.Type }}</Type>
+      <IsActive>{{ submodel.metadata.IsActive }}</IsActive>
+      <Commentaire>{{ submodel.metadata.Commentaire }}</Commentaire>
+      <AuteurCreation>{{ submodel.metadata.AuteurCreation }}</AuteurCreation>
+      <DateCreation>{{ submodel.metadata.DateCreation }}</DateCreation>
+      <AuteurDerniereModif>{{ submodel.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+      <DateDerniereModif>{{ submodel.metadata.DateDerniereModif }}</DateDerniereModif>
+      <SousModele-FichEtudes>
+        <DRSO NomRef="{{ submodel.files.drso }}"/>
+        <DCSP NomRef="{{ submodel.files.dcsp }}"/>
+        <DPTG NomRef="{{ submodel.files.dptg }}"/>
+        <DFRT NomRef="{{ submodel.files.dfrt }}"/>
+      </SousModele-FichEtudes>
+    </SousModele>
+	{%- endfor %}
+  </SousModeles>
+  <Modeles>
+    {%- for model in models %}
+    <Modele Nom="{{ model.id }}">
+      <Type>{{ model.metadata.Type }}</Type>
+      <IsActive>{{ model.metadata.IsActive }}</IsActive>
+      <Commentaire>{{ model.metadata.Commentaire }}</Commentaire>
+      <AuteurCreation>{{ model.metadata.AuteurCreation }}</AuteurCreation>
+      <DateCreation>{{ model.metadata.DateCreation }}</DateCreation>
+      <AuteurDerniereModif>{{ model.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+      <DateDerniereModif>{{ model.metadata.DateDerniereModif }}</DateDerniereModif>
+      <Modele-FichEtudes>
+        <OPTR NomRef="{{ model.files.optr }}"/>
+        <OPTG NomRef="{{ model.files.optg }}"/>
+        <OPTI NomRef="{{ model.files.opti }}"/>
+        <PNUM NomRef="{{ model.files.pnum }}"/>
+        <DPTI NomRef="{{ model.files.dpti }}"/>
+      </Modele-FichEtudes>
+      <Modele-SousModeles>
+		{%- for submodel in model.submodels %}
+        <Modele-SousModele NomRef="{{ submodel.id }}"/>
+		{%- endfor %}
+      </Modele-SousModeles>
+    </Modele>
+	{%- endfor %}
+  </Modeles>
+  <Scenarios>
+    {%- for scenario in scenarios %}
+    <Scenario Nom="{{ scenario.id }}">
+      <Type>{{ scenario.metadata.Type }}</Type>
+      <IsActive>{{ scenario.metadata.IsActive }}</IsActive>
+      <Commentaire>{{ scenario.metadata.Commentaire }}</Commentaire>
+      <AuteurCreation>{{ scenario.metadata.AuteurCreation }}</AuteurCreation>
+      <DateCreation>{{ scenario.metadata.DateCreation }}</DateCreation>
+      <AuteurDerniereModif>{{ scenario.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+      <DateDerniereModif>{{ scenario.metadata.DateDerniereModif }}</DateDerniereModif>
+      <Scenario-FichEtudes>
+        <OCAL NomRef="{{ scenario.files.ocal }}"/>
+        <ORES NomRef="{{ scenario.files.ores }}"/>
+        <PCAL NomRef="{{ scenario.files.pcal }}"/>
+        <DCLM NomRef="{{ scenario.files.dclm }}"/>
+        <DLHY NomRef="{{ scenario.files.dlhy }}"/>
+      </Scenario-FichEtudes>
+      <Scenario-Modeles>
+        <Scenario-Modele NomRef="{{ scenario.model.id }}"/>
+      </Scenario-Modeles>
+    </Scenario>
+	{%- endfor %}
+  </Scenarios>
+</ETU>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.2.xsd">
-  <Commentaire></Commentaire>
+  <Commentaire>{{ comment }}</Commentaire>
   <Noeuds>
     {%- for noeud in noeud_list %}
     <NoeudNiveauContinu Nom="{{ noeud.id }}">

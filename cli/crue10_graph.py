@@ -45,7 +45,7 @@ for submodel in model.submodels:
     # Add nodes
     for _, noeud in submodel.noeuds.items():
         name = noeud.id
-        connected_casier = submodel.connected_casier(noeud.id)
+        connected_casier = submodel.get_connected_casier(noeud.id)
         has_casier = connected_casier is not None
         is_active = True
         if has_casier:

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DFRT xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dfrt-1.2.xsd">
-  <Commentaire></Commentaire>
+  <Commentaire>{{ comment }}</Commentaire>
   <LoiFFs>
     {%- for friction_law in friction_law_list %}
     <LoiFF Nom="{{ friction_law.id }}" Type="{{ friction_law.type }}">
