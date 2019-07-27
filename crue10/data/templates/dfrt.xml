@@ -6,7 +6,7 @@
     <LoiFF Nom="{{ friction_law.id }}" Type="{{ friction_law.type }}">
       <Commentaire></Commentaire>
       <EvolutionFF>
-        {% for z, k in friction_law.loi_Fk -%}
+        {%- for z, k in friction_law.loi_Fk %}
         <PointFF>{{ z }} {{ k }}</PointFF>
         {%- endfor %}
       </EvolutionFF>

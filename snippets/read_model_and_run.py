@@ -26,13 +26,16 @@ model_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
     # Get submodel
     study = Study(os.path.join(model_folder, 'Etu_VS2003_Conc.etu.xml'))
-    submodel = study.get_submodel('Sm_VS2013_c10_octobre_2014')
-    submodel.read_all()
-    submodel.convert_sectionidem_to_sectionprofil()
+    model = study.get_model('Mo_VS2013_c10_octobre_2014')
+    model.read_all()
+
+    for submodel in model.submodels:
+        submodel.convert_sectionidem_to_sectionprofil()
+        print(submodel.summary())
 
     # Get a dict with active section bottom elevations
     bottom = OrderedDict()
-    for _, section in submodel.sections.items():
+    for section in model.get_section_list():
         if section.is_active and isinstance(section, SectionProfil):
             bottom[section.id] = section.get_coord(add_z=True)
 
@@ -42,7 +45,7 @@ try:
     print(run.summary())
 
     # Check result consistency
-    missing_sections = submodel.get_missing_active_sections(run.emh['Section'])
+    missing_sections = model.get_missing_active_sections(run.emh['Section'])
     if missing_sections:
         print("Missing sections:\n%s" % missing_sections)
 
@@ -65,7 +68,7 @@ try:
     }
     if ADD_BOTTOM:
         schema['properties']['Zf'] = 'float'
-    with fiona.open('debug.shp', 'w', 'ESRI Shapefile', schema) as out_shp:
+    with fiona.open('../tmp/read_model_and_run/debug.shp', 'w', 'ESRI Shapefile', schema) as out_shp:
         for section_index, (section_name, xyz_array) in enumerate(bottom.items()):
             for x, y, z_bottom in xyz_array:
                 values = {}

@@ -10,6 +10,7 @@ Not supported yet:
 import numpy as np
 from shapely.geometry import LinearRing
 
+from crue10.emh.noeud import Noeud
 from crue10.utils import check_isinstance, check_preffix, CrueError
 
 
@@ -17,10 +18,10 @@ class ProfilCasier:
     """
     ProfilCasier
     - id <str>: profil casier identifier
-    - distance <float>: applied length (or width)
+    - distance <float>: applied length (or width) in meters
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
-    - xt_min <float: first curvilinear abscissa (for LitUtile)
+    - xt_min <float>: first curvilinear abscissa (for LitUtile)
     - xt_max <float>: last curvilinear abscissa (for LitUtile)
     - comment <str>: optional text explanation
     """
@@ -37,9 +38,9 @@ class ProfilCasier:
 
         self.set_xz(ProfilCasier.DEFAULT_COORDS)
 
-    def set_xz(self, coords):
-        check_isinstance(coords, np.ndarray)
-        self.xz = coords
+    def set_xz(self, array):
+        check_isinstance(array, np.ndarray)
+        self.xz = array
         self.xt_min = self.xz[0, 0]
         self.xt_max = self.xz[-1, 0]
 
@@ -56,18 +57,23 @@ class Casier:
     """
     Casier (or storage area/reservoir)
     - id <str>: casier identifier
+    - is_active <bool>: True if its node is active
     - geom <shapely.geometry.LinearRing>: polygon
-    - noeud <str>: related node name
-    - profils_casier <[ProfilCaser]>: profils casier (usually length=1)
+    - noeud <Noeud>: related node
+    - profils_casier <[ProfilCaser]>: profils casier (usually only one)
     - CoefRuis <float>: "coefficient modulation du débit linéique de ruissellement"
     - comment <str>: optional text explanation
     """
-    def __init__(self, nom_casier, nom_noeud, is_active=False):
+    def __init__(self, nom_casier, noeud, is_active=None):
         check_preffix(nom_casier, 'Ca_')
+        check_isinstance(noeud, Noeud)
         self.id = nom_casier
-        self.is_active = is_active
+        if is_active is None:
+            pass  # TODO self.is_active = self.noeud.is_active
+        else:
+            self.is_active = is_active
         self.geom = None
-        self.nom_noeud = nom_noeud
+        self.noeud = noeud
         self.profils_casier = []
         self.CoefRuis = 0.0
         self.comment = ''

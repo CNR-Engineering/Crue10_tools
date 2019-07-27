@@ -63,16 +63,17 @@ class Scenario:
             self.model.read_all()
         self.was_read = True
 
-    def _write_default_file(self, xml_type, file_path):
+    @staticmethod
+    def _write_default_file(xml_type, file_path):
         shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
 
-    def write_all(self, folder):
+    def write_all(self, folder, folder_config):
         logger.debug("Writing %s in %s" % (self, folder))
 
         for xml_type in Scenario.FILES_XML:
-            self._write_default_file(xml_type, os.path.join(folder, self.files[xml_type]))
+            Scenario._write_default_file(xml_type, os.path.join(folder, os.path.basename(self.files[xml_type])))
 
-        self.model.write_all(folder)
+        self.model.write_all(folder, folder_config)
 
     def __repr__(self):
         return "Scénario %s" % self.id

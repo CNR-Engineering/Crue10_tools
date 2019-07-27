@@ -76,6 +76,11 @@ class Study:
         for field in Study.METADATA_FIELDS:
             self.metadata[field] = root.find(PREFIX + field).text
 
+        # Repertoires
+        repertoires = root.find(PREFIX + 'Repertoires')
+        for repertoire in repertoires:
+            self.folders[repertoire.get('Nom')] = repertoire.find(PREFIX + 'path').text
+
         # FichEtudes
         fichiers = root.find(PREFIX + 'FichEtudes')
         for fichier in fichiers:
@@ -108,7 +113,8 @@ class Study:
                 files[ext] = filepath
 
             for shp_name in SubModel.FILES_SHP:
-                files[shp_name] = os.path.join(folder, 'Config', submodel_name.upper(), shp_name + '.shp')
+                files[shp_name] = os.path.join(folder, self.folders['CONFIG'],
+                                               submodel_name.upper(), shp_name + '.shp')
 
             submodel = SubModel(submodel_name, files=files, metadata=metadata)
             self.add_submodel(submodel)
@@ -215,7 +221,7 @@ class Study:
 
         self._write_etu(folder)
         for _, scenario in self.scenarios.items():
-            scenario.write_all(folder)
+            scenario.write_all(folder, self.folders['CONFIG'])
 
     def add_files(self, file_list):
         for file in file_list:

@@ -36,9 +36,15 @@ class FrictionLaw:
     - type <str>: friction law type
     - loi_Fk <2D-array>: ndarray(dtype=float, ndim=2) with Stricker coefficient varying with elevation
     """
-    def __init__(self, id, type, loi_Fk):
-        check_preffix(id, 'Fk')
-        self.id = id
+
+    TYPES = ['FkSto', 'Fk']
+
+    def __init__(self, nom_loi_frottement, type, loi_Fk):
+        check_preffix(nom_loi_frottement, 'Fk')
+        check_isinstance(loi_Fk, np.ndarray)
+        if type not in FrictionLaw.TYPES:
+            raise RuntimeError
+        self.id = nom_loi_frottement
         self.type = type
         self.loi_Fk = loi_Fk
 
@@ -56,19 +62,20 @@ class LitNumerote:
     - xt_max <str>: first curvilinear abscissa
     - friction_law <FrictionLaw>: friction law
     """
+
     BED_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
     LIMIT_NAMES = ['RD', 'StoD-MajD', 'MajD-Min', 'Min-MajG', 'MajG-StoG', 'RG']
 
-    def __init__(self, id, xt_min, xt_max, friction_law=None):
-        if id not in LitNumerote.BED_NAMES:
+    def __init__(self, nom_lit, xt_min, xt_max, friction_law=None):
+        if nom_lit not in LitNumerote.BED_NAMES:
             raise RuntimeError
-        self.id = id
+        self.id = nom_lit
         self.xt_min = xt_min
         self.xt_max = xt_max
         if friction_law is None:
-            if 'Sto' in id:
+            if 'Sto' in nom_lit:
                 friction_law = DEFAULT_FK_STO
-            elif 'Maj' in id:
+            elif 'Maj' in nom_lit:
                 friction_law = DEFAULT_FK_MAJ
             else:
                 friction_law = DEFAULT_FK_MIN
@@ -159,17 +166,18 @@ class SectionProfil(Section):
                 return limite.xt
         raise CrueError("Limite 'Et_AxeHyd' could not be found for %s" % self)
 
-    def set_xz(self, coords):
-        self.xz = coords
+    def set_xz(self, array):
+        check_isinstance(array, np.ndarray)
+        self.xz = array
 
     def set_trace(self, trace):
-        if not self.lits_numerotes:
-            raise CrueError('xz has to be set before (to check consistancy)')
-        if not isinstance(trace, LineString):
-            raise CrueError("Le type de la trace de la %s n'est pas supporté : %s !" % (self, type(trace)))
+        check_isinstance(trace, LineString)
         if trace.has_z:
             raise CrueError("La trace de la %s ne doit pas avoir de Z !" % self)
+        if not self.lits_numerotes:
+            raise CrueError('xz has to be set before (to check consistancy)')
         self.geom_trace = trace
+
         # Display a warning if geometry is not consistent with self.xz array
         min_xt = self.xz[:, 0].min()
         range_xt = self.xz[:, 0].max() - min_xt
@@ -179,10 +187,14 @@ class SectionProfil(Section):
 
     def add_lit_numerote(self, lit_numerote):
         check_isinstance(lit_numerote, LitNumerote)
+        if lit_numerote.id in self.lits_numerotes:
+            raise CrueError("Le lit numéroté `%s` est déjà présent" % lit_numerote.id)
         self.lits_numerotes.append(lit_numerote)
 
     def add_limite_geom(self, limite_geom):
         check_isinstance(limite_geom, LimiteGeom)
+        if limite_geom.id in self.limites_geom:
+            raise CrueError("La limite géométrique `%s` est déjà présente" % limite_geom.id)
         self.limites_geom.append(limite_geom)
 
     def interp_z(self, xt):
@@ -240,6 +252,7 @@ class SectionProfil(Section):
         """
         Section xp is supposed to be normalized (ie. xp is consistent with axe_geom length)
         """
+        check_isinstance(axe_geom, LineString)
         point = axe_geom.interpolate(self.xp)
         point_avant = axe_geom.interpolate(max(self.xp - DIFF_XP, 0.0))
         point_apres = axe_geom.interpolate(min(self.xp + DIFF_XP, axe_geom.length))
@@ -249,31 +262,35 @@ class SectionProfil(Section):
         coords = [(point.x + (xt - self.xt_axe) * u, point.y + (xt - self.xt_axe) * v) for xt in xt_list]
         self.geom_trace = LineString(coords)
 
-    def __repr__(self):
-        text = super().__repr__() + ':'
+    def summary(self):
+        text = '%s:' % self
         if self.has_xz():
             text += ' %i points' % len(self.xz)
         if self.has_trace():
             text += ' (%0.2f m)' % self.geom_trace.length
         return text
 
+    def __repr__(self):
+        return super().__repr__()
+
 
 class SectionIdem(Section):
     """
     SectionIdem
-    - section_ori <SectionProfil>: original (= reference) section
+    - parent_section <SectionProfil>: parent (= initial/reference) section
     - dz <float>: vertical shift (in meters)
     """
-    def __init__(self, nom_section):
+    def __init__(self, nom_section, parent_section, dz=0.0):
         super().__init__(nom_section)
-        self.section_ori = None
-        self.dz = 0.0
+        check_isinstance(parent_section, SectionProfil)
+        self.parent_section = parent_section
+        self.dz = dz
 
     def get_as_sectionprofil(self):
         """
         Return a SectionProfil instance from the original section
         """
-        new_section = deepcopy(self.section_ori)
+        new_section = deepcopy(self.parent_section)
         new_section.id = self.id
         new_section.xp = self.xp
         new_section.xz[:, 1] += self.dz

@@ -19,8 +19,8 @@ from shapely.affinity import translate
 from shapely.geometry import LineString, Point
 
 from .noeud import Noeud
-from .section import Section, SectionProfil
-from crue10.utils import check_isinstance, check_preffix, logger
+from .section import Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
+from crue10.utils import check_isinstance, check_preffix, CrueError, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -105,6 +105,15 @@ class Branche(ABC):
 
     def add_section(self, section, xp):
         check_isinstance(section, Section)
+        if isinstance(section, SectionInterpolee):
+            if self.type != 20:
+                raise CrueError("La %s ne peut être affectée qu'à une branche Saint-Venant" % section)
+        elif self.type in Branche.TYPES_WITH_GEOM:
+            if not isinstance(section, SectionProfil) and not isinstance(section, SectionIdem):
+                raise CrueError("La %s ne peut porter que des SectionProfil ou SectionIdem" % self)
+        else:
+            if not isinstance(section, SectionSansGeometrie):
+                raise CrueError("La %s ne peut porter que des SectionSansGeometrie")
         section.xp = xp
         self.sections.append(section)
 

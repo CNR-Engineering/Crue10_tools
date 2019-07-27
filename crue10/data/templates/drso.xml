@@ -13,7 +13,7 @@
     <CasierProfil Nom="{{ casier.id }}">
       <Commentaire>{{ casier.comment }}</Commentaire>
       <IsActive>{% if casier.is_active %}true{% else %}false{% endif %}</IsActive>
-      <Noeud NomRef="{{ casier.nom_noeud }}"/>
+      <Noeud NomRef="{{ casier.noeud.id }}"/>
       {%- for profil_casier in casier.profils_casier %}
       <ProfilCasier NomRef="{{ profil_casier.id }}"/>
       {%- endfor %}
@@ -31,7 +31,7 @@
     {%- if isinstance(section, SectionIdem) %}
     <SectionIdem Nom="{{ section.id }}">
       <Commentaire>{{ section.comment }}</Commentaire>
-      <Section NomRef="{{ section.section_ori.id }}"/>
+      <Section NomRef="{{ section.parent_section.id }}"/>
     </SectionIdem>
     {%- endif %}
     {%- if isinstance(section, SectionInterpolee) %}

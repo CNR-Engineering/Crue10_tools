@@ -88,18 +88,31 @@ class SubModel:
         check_isinstance(section, [SectionProfil, SectionIdem, SectionSansGeometrie, SectionInterpolee])
         if section.id in self.sections:
             raise CrueError("La Section `%s` est déjà présente" % section.id)
+        if isinstance(section, SectionIdem):
+            if section.parent_section.id not in self.sections:
+                raise CrueError("La SectionIdem `%s` fait référence à une SectionProfil inexistante `%s`"
+                                % (section.id, section.section_ori.id))
         self.sections[section.id] = section
 
     def add_branche(self, branche):
         check_isinstance(branche, BRANCHE_CLASSES)
         if branche.id in self.branches:
             raise CrueError("La branche `%s` est déjà présente" % branche.id)
+        if branche.noeud_amont.id not in self.noeuds:
+            raise CrueError("Le noeud amont %s de la branche `%s` doit être ajouté au sous-modèle avant"
+                            % (branche.noeud_amont.id, branche.id))
+        if branche.noeud_aval.id not in self.noeuds:
+            raise CrueError("Le noeud aval %s de la branche `%s` doit être ajouté au sous-modèle avant"
+                            % (branche.noeud_aval.id, branche.id))
         self.branches[branche.id] = branche
 
     def add_casier(self, casier):
         check_isinstance(casier, Casier)
         if casier.id in self.casiers:
             raise CrueError("Le casier %s est déjà présent" % casier.id)
+        if casier.noeud.id not in self.noeuds:
+            raise CrueError("Le noeud %s du casier `%s` doit être ajouté au sous-modèle avant"
+                            % (casier.noeud.id, casier.id))
         for profilcasier in casier.profils_casier:
             if profilcasier.id not in self.profils_casier:
                 self.add_profil_casier(profilcasier)
@@ -128,8 +141,10 @@ class SubModel:
         except KeyError:
             raise CrueError("Le noeud %s n'est pas dans le sous-modèle %s" % (nom_noeud, self))
 
-    def iter_on_sections(self, section_type=None):
+    def iter_on_sections(self, section_type=None, ignore_inactive=False):
         for _, section in self.sections.items():
+            if ignore_inactive and not section.is_active:
+                continue
             if section_type is not None:
                 if isinstance(section, section_type):
                     yield section
@@ -183,6 +198,7 @@ class SubModel:
 
             elif emh_group.tag == (PREFIX + 'Sections'):
 
+                # SectionProfil, SectionInterpolee, SectionSansGeometrie
                 for emh_section in emh_group:
                     section_type = emh_section.tag[len(PREFIX):]
                     nom_section = emh_section.get('Nom')
@@ -190,29 +206,32 @@ class SubModel:
                     if section_type == 'SectionProfil':
                         section = SectionProfil(nom_section, emh_section.find(PREFIX + 'ProfilSection').get('NomRef'))
                     elif section_type == 'SectionIdem':
-                        section = SectionIdem(nom_section)
-                        section.section_ori = emh_section.find(PREFIX + 'Section').get('NomRef')
+                        continue  # they are considered below
                     elif section_type == 'SectionInterpolee':
                         section = SectionInterpolee(nom_section)
                     elif section_type == 'SectionSansGeometrie':
                         section = SectionSansGeometrie(nom_section)
                     else:
                         raise NotImplementedError
+
                     if emh_section.find(PREFIX + 'Commentaire') is not None:
                         if emh_section.find(PREFIX + 'Commentaire').text is not None:
                             section.comment = emh_section.find(PREFIX + 'Commentaire').text
                     self.add_section(section)
 
-                # Replace SectionIdem.section_ori and check consistancy
-                for section in self.iter_on_sections_item():
-                    try:
-                        section.section_ori = self.sections[section.section_ori]
-                    except KeyError:
-                        raise CrueError("La SectionIdem `%s` fait référence à une Section inexistante `%s`"
-                                        % (section, section.section_ori))
-                    if not isinstance(section.section_ori, SectionProfil):
-                        raise CrueError("La SectionIdem `%s` ne fait pas référence à une SectionProfil"
-                                        % section)
+                # SectionIdem read after SectionProfil to define its parent section
+                for emh_section in emh_group:
+                    section_type = emh_section.tag[len(PREFIX):]
+                    nom_section = emh_section.get('Nom')
+
+                    if section_type == 'SectionIdem':
+                        parent_section = self.sections[emh_section.find(PREFIX + 'Section').get('NomRef')]
+                        section = SectionIdem(nom_section, parent_section)
+
+                        if emh_section.find(PREFIX + 'Commentaire') is not None:
+                            if emh_section.find(PREFIX + 'Commentaire').text is not None:
+                                section.comment = emh_section.find(PREFIX + 'Commentaire').text
+                        self.add_section(section)
 
             elif emh_group.tag == (PREFIX + 'Branches'):
                 if filter_branch_types is None:
@@ -277,8 +296,8 @@ class SubModel:
             elif emh_group.tag == (PREFIX + 'Casiers'):
                 for emh_profils_casier in emh_group:
                     is_active = emh_profils_casier.find(PREFIX + 'IsActive').text == 'true'
-                    nom_noeud = emh_profils_casier.find(PREFIX + 'Noeud').get('NomRef')
-                    casier = Casier(emh_profils_casier.get('Nom'), nom_noeud, is_active=is_active)
+                    noeud = self.get_noeud(emh_profils_casier.find(PREFIX + 'Noeud').get('NomRef'))
+                    casier = Casier(emh_profils_casier.get('Nom'), noeud, is_active=is_active)
                     if emh_profils_casier.find(PREFIX + 'Commentaire') is not None:
                         if emh_profils_casier.find(PREFIX + 'Commentaire').text is not None:
                             casier.comment = emh_profils_casier.find(PREFIX + 'Commentaire').text
@@ -291,7 +310,8 @@ class SubModel:
     def _read_dptg(self):
         """
         Read dptg.xml file
-        /!\ Le profil est tronqué sur le lit utile (ie. entre les limites RD et RG)
+        FIXME: Le profil est tronqué sur le lit utile (ie. entre les limites RD et RG)
+        TODO: Support Fente!
         """
         for emh_group in ET.parse(self.files['dptg']).getroot():
 
@@ -526,14 +546,14 @@ class SubModel:
                 }
                 layer.write(elem)
 
-    def write_all(self, folder):
+    def write_all(self, folder, folder_config):
         logger.debug("Writing %s in %s" % (self, folder))
 
         # TO CHECK
         # Casier has at least one ProfilCasier
 
         # Create folder if not existing
-        sm_folder = os.path.join(folder, 'Config', self.id.upper())
+        sm_folder = os.path.join(folder, folder_config, self.id.upper())
         if not os.path.exists(sm_folder):
             os.makedirs(sm_folder)
 
@@ -605,12 +625,6 @@ class SubModel:
             for section in branche.sections:
                 section.is_active = True
 
-    def get_active_section_names(self):
-        """Returns the list of all active section names"""
-        for _, section in self.sections.items():
-            if section.is_active:
-                yield section.id
-
     def get_connected_branches(self, nom_noeud):
         """
         Returns the list of the branches connected to requested node
@@ -629,14 +643,6 @@ class SubModel:
             if casier.nom_noeud == nom_noeud:
                 return casier
         return None
-
-    def get_missing_active_sections(self, section_id_list):
-        """
-        Returns the list of the requested sections which are not found (or not active) in the current submodel
-            (section type is not checked)
-        :param section_id_list: list of section identifiers
-        """
-        return set(self.get_active_section_names()).difference(set(section_id_list))
 
     def remove_sectioninterpolee(self):
         """Remove all `SectionInterpolee` which are internal sections"""
@@ -666,7 +672,7 @@ class SubModel:
                     self.sections[section.id] = new_section
 
                     # Find if current SectionIdem is located at geographic position of its original SectionProfil
-                    located_at_section_ori = False
+                    located_at_parent_section = False
                     if j == 0 or j == len(branche.sections) - 1:
                         # Determine node name at junction
                         nom_noeud = branche.noeud_amont.id if j == 0 else branche.noeud_aval.id
@@ -677,10 +683,10 @@ class SubModel:
                         for br in branches:
                             section_pos = 0 if br.noeud_amont.id == nom_noeud else -1
                             section_at_node = br.sections[section_pos]
-                            if section_at_node is section.section_ori:
-                                located_at_section_ori = True
+                            if section_at_node is section.parent_section:
+                                located_at_parent_section = True
                                 break
-                    if not located_at_section_ori:
+                    if not located_at_parent_section:
                         # Overwrite SectionProfil original trace by the orthogonal trace because their location differ
                         branche.sections[j].build_orthogonal_trace(branche.geom)
 
@@ -690,6 +696,9 @@ class SubModel:
         self.convert_sectionidem_to_sectionprofil()
 
     def add_emh_from_submodel(self, submodel, suffix=''):
+        for _, friction_law in submodel.friction_laws.items():
+            friction_law.id = friction_law.id + suffix
+            self.add_friction_law(friction_law)
         for _, noeud in submodel.noeuds.items():
             self.add_noeud(noeud)
         for _, section in submodel.sections.items():
@@ -700,9 +709,6 @@ class SubModel:
             self.add_profil_casier(profils_casier)
         for _, casier in submodel.casiers.items():
             self.add_casier(casier)
-        for _, friction_law in submodel.friction_laws.items():
-            friction_law.id = friction_law.id + suffix
-            self.add_friction_law(friction_law)
 
     def summary(self):
         return "%s: %i noeud(s), %i branche(s), %i section(s) (%i profil + %i idem + %i interpolee +" \

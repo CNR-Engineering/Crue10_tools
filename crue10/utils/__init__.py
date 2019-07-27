@@ -32,7 +32,7 @@ PREFIX = "{http://www.fudaa.fr/xsd/crue}"
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter('%(message)s'))
+handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
