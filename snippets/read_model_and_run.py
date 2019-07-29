@@ -61,6 +61,11 @@ try:
     # Correct some variables (transversal profile)
     # TODO
 
+    # Create output folder if not existing
+    out_folder = '../tmp/read_model_and_run'
+    if not os.path.exists(out_folder):
+        os.makedirs(out_folder)
+
     # Write a shp file to check
     schema = {
         'geometry': 'Point',
@@ -68,7 +73,7 @@ try:
     }
     if ADD_BOTTOM:
         schema['properties']['Zf'] = 'float'
-    with fiona.open('../tmp/read_model_and_run/debug.shp', 'w', 'ESRI Shapefile', schema) as out_shp:
+    with fiona.open(os.path.join(out_folder, 'debug.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for section_index, (section_name, xyz_array) in enumerate(bottom.items()):
             for x, y, z_bottom in xyz_array:
                 values = {}

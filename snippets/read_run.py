@@ -27,8 +27,13 @@ try:
     #   shape = (number of steady calculations, number of requested EMH)
     print(run.get_res_all_perm_var_at_emhs('Z', ['St_RET33.300', 'Nd_VRH8.500']))
 
+    # Create output folder if not existing
+    out_folder = '../tmp/read_run'
+    if not os.path.exists(out_folder):
+        os.makedirs(out_folder)
+
     # Export steady calculations data
-    run.export_calc_perm_as_csv('Etu_VS2015_conc_perms.csv')
+    run.export_calc_perm_as_csv(os.path.join(out_folder, 'Etu_VS2015_conc_perms.csv'))
 
     # Read a single *unsteady* calculation
     res_trans = run.get_res_trans('Cc_Avr_2006')
@@ -41,7 +46,7 @@ try:
     print(run.get_res_trans_var_at_emhs('Cc_Avr_2006', 'Z', ['St_RET33.300', 'Nd_VRH8.500']))
 
     # Export unsteady calculations data
-    run.export_calc_trans_as_csv('Etu_VS2015_conc_trans.csv')
+    run.export_calc_trans_as_csv(os.path.join(out_folder, 'Etu_VS2015_conc_trans.csv'))
 
 except CrueError as e:
     logger.critical(e)

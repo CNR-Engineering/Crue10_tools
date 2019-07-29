@@ -10,18 +10,14 @@ from crue10.utils import CrueError, logger
 
 for folder in glob(os.path.join('..', 'SHY_C10_Crue10', 'Cas-tests', '*')):
     for etu_path in glob(os.path.join(folder, '*.etu.xml')):
-        if 'Etu35' not in etu_path:
-            continue
         print(etu_path)
         try:
             study = Study(etu_path)
             study.check_xml_files()
             study.read_all()
-            study.etu_path = study.etu_path.replace('..', '../..')
-
-            out_folder = os.path.join('../tmp/SHY_C10_Crue10/Cas-tests', os.path.basename(etu_path)[:-8])
 
             # Write study
+            out_folder = os.path.join('../tmp/SHY_C10_Crue10/Cas-tests', os.path.basename(etu_path)[:-8])
             study.write_all(out_folder)
 
             # Write topographical graph for each model

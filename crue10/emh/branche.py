@@ -246,6 +246,10 @@ class BrancheNiveauxAssocies(Branche):
         self.QLimSup = DEFAULT_QLIMSUP
         self.loi_ZavZam = np.array([(-15.0, -15.0)])
 
+    @property
+    def name_loi_ZavZam(self):
+        return 'LoiZavZam_%s' % self.id[3:]
+
 
 class BrancheBarrageGenerique(Branche):
     """

@@ -74,7 +74,11 @@ class Study:
         # Study metadata
         self.metadata = {}
         for field in Study.METADATA_FIELDS:
-            self.metadata[field] = root.find(PREFIX + field).text
+            text = root.find(PREFIX + field).text
+            self.metadata[field] = '' if text is None else text
+
+        if root.find(PREFIX + 'ScenarioCourant'):
+            self.current_scenario = root.find(PREFIX + 'ScenarioCourant').get('NomRef')
 
         # Repertoires
         repertoires = root.find(PREFIX + 'Repertoires')
@@ -97,7 +101,8 @@ class Study:
 
             metadata = {}
             for field in SubModel.METADATA_FIELDS:
-                metadata[field] = sous_modele.find(PREFIX + field).text
+                text = sous_modele.find(PREFIX + field).text
+                metadata[field] = '' if text is None else text
 
             fichiers = sous_modele.find(PREFIX + 'SousModele-FichEtudes')
             for ext in SubModel.FILES_XML:
@@ -130,7 +135,8 @@ class Study:
 
                 metadata = {}
                 for field in Model.METADATA_FIELDS:
-                    metadata[field] = scenario.find(PREFIX + field).text
+                    text = scenario.find(PREFIX + field).text
+                    metadata[field] = '' if text is None else text
 
                 fichiers = scenario.find(PREFIX + 'Modele-FichEtudes')
                 for ext in Model.FILES_XML:
@@ -166,7 +172,8 @@ class Study:
 
                 metadata = {}
                 for field in Scenario.METADATA_FIELDS:
-                    metadata[field] = scenario.find(PREFIX + field).text
+                    text = scenario.find(PREFIX + field).text
+                    metadata[field] = '' if text is None else text
 
                 fichiers = scenario.find(PREFIX + 'Scenario-FichEtudes')
                 for ext in Scenario.FILES_XML:
@@ -204,7 +211,7 @@ class Study:
             folders=[(name, folder) for name, folder in self.folders.items()],
             metadata=self.metadata,
             current_scenario=self.current_scenario,
-            files=[(file, file[-8:-4].upper()) for file in sorted(self.filename_list)],
+            files=[(os.path.basename(file), file[-8:-4].upper()) for file in sorted(self.filename_list)],
             models=[mo for _, mo in self.models.items()],
             submodels=[sm for _, sm in self.submodels.items()],
             scenarios=[sc for _, sc in self.scenarios.items()],
@@ -212,7 +219,8 @@ class Study:
         with open(os.path.join(folder, os.path.basename(self.etu_path)), 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
 
-    def write_all(self, folder):
+    def write_all(self, folder=None):
+        folder = self.folder if folder is None else folder
         logger.debug("Writing %s in %s" % (self, folder))
 
         # Create folder if not existing
@@ -225,7 +233,8 @@ class Study:
 
     def add_files(self, file_list):
         for file in file_list:
-            self.filename_list.append(file)
+            if file not in self.filename_list:
+                self.filename_list.append(file)
 
     def add_model(self, model):
         check_isinstance(model, Model)
@@ -246,10 +255,10 @@ class Study:
         self.scenarios[scenario.id] = scenario
 
     def create_empty_scenario(self, scenario_name, model_name, submodel_name, comment=''):
-        submodel = SubModel(submodel_name, access=self.access, comment=comment)
-        model = Model(model_name, access=self.access, comment=comment)
+        submodel = SubModel(submodel_name, access=self.access, metadata={'Commentaire': comment})
+        model = Model(model_name, access=self.access, metadata={'Commentaire': comment})
         model.add_submodel(submodel)
-        scenario = Scenario(scenario_name, model, access=self.access, comment=comment)
+        scenario = Scenario(scenario_name, model, access=self.access, metadata={'Commentaire': comment})
         self.add_scenario(scenario)
         if not self.current_scenario:
             self.current_scenario = scenario.id

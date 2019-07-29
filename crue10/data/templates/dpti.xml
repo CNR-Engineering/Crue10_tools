@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dpti-1.2.xsd">
+  <Commentaire>{{ comment }}</Commentaire>
+  <DonPrtCIniNoeuds>
+    {%- for noeud_id, z_ini in noeuds_ci.items() %}
+    <DonPrtCIniNoeudNiveauContinu NomRef="{{ noeud_id }}">
+      <Zini>{{ z_ini }}</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    {%- endfor %}
+  </DonPrtCIniNoeuds>
+  <DonPrtCIniCasiers>
+    {%- for casier_id, q_ruis in casiers_ci.items() %}
+    <DonPrtCIniCasierProfil NomRef="{{ casier_id }}">
+      <Qruis>{{ q_ruis }}</Qruis>
+    </DonPrtCIniCasierProfil>
+    {%- endfor %}
+  </DonPrtCIniCasiers>
+  <DonPrtCIniSections/>
+  <DonPrtCIniBranches>
+    {%- for branche_id, ci in branches_ci.items() %}
+    {%- set values = ci['values'] -%}
+    {%- if ci.type == 5 %}
+    <DonPrtCIniBrancheOrifice NomRef="{{ branche_id }}">
+      <Qini>{{ values.Qini }}</Qini>
+      <Ouv>{{ values.Ouv }}</Ouv>
+      <SensOuv>{{ values.SensOuv }}</SensOuv>
+    </DonPrtCIniBrancheOrifice>
+    {%- elif ci.type == 20 %}
+    <DonPrtCIniBrancheSaintVenant NomRef="{{ branche_id }}">
+      <Qini>{{ values.Qini }}</Qini>
+      <Qruis>{{ values.Qruis }}</Qruis>
+    </DonPrtCIniBrancheSaintVenant>
+    {%- else %}
+    <DonPrtCIniBranche NomRef="{{ branche_id }}">
+      <Qini>{{ values.Qini }}</Qini>
+    </DonPrtCIniBranche>
+    {%- endif %}
+    {%- endfor %}
+  </DonPrtCIniBranches>
+</DPTI>

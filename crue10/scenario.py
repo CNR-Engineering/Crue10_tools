@@ -11,7 +11,6 @@ class Scenario:
     - id <str>: scenario identifier
     - files <{str}>: dict with path to xml files (keys correspond to `FILES_XML` list)
     - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    - comment <str>: information describing current scenario
     - model <[Model]>: model
     """
 
@@ -19,19 +18,17 @@ class Scenario:
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, scenario_name, model, access='r', files=None, metadata=None, comment=''):
+    def __init__(self, scenario_name, model, access='r', files=None, metadata=None):
         check_preffix(scenario_name, 'Sc_')
         self.id = scenario_name
         self.files = files
         self.metadata = {} if metadata is None else metadata
-        self.comment = comment
         self.was_read = False
 
         self.model = None
         self.set_model(model)
 
-        if 'Type' not in self.metadata:
-            self.metadata['Type'] = 'Crue10'
+        self.metadata['Type'] = 'Crue10'
         self.metadata = add_default_missing_metadata(self.metadata, Scenario.METADATA_FIELDS)
 
         if access == 'r':
@@ -51,6 +48,14 @@ class Scenario:
     @property
     def is_active(self):
         return self.metadata['IsActive'] == 'true'
+
+    @property
+    def comment(self):
+        return self.metadata['Commentaire']
+
+    @property
+    def file_basenames(self):
+        return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
     def set_model(self, model):
         check_isinstance(model, Model)

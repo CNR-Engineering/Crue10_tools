@@ -5,7 +5,9 @@
   <DateCreation>{{ metadata.DateCreation }}</DateCreation>
   <AuteurDerniereModif>{{ metadata.AuteurDerniereModif }}</AuteurDerniereModif>
   <DateDerniereModif>{{ metadata.DateDerniereModif }}</DateDerniereModif>
+  {%- if current_scenario %}
   <ScenarioCourant NomRef="{{ current_scenario }}"/>
+  {%- endif %}
   <Repertoires>
     {%- for name, folder in folders %}
     <Repertoire Nom="{{ name }}">
@@ -29,10 +31,10 @@
       <AuteurDerniereModif>{{ submodel.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
       <DateDerniereModif>{{ submodel.metadata.DateDerniereModif }}</DateDerniereModif>
       <SousModele-FichEtudes>
-        <DRSO NomRef="{{ submodel.files.drso }}"/>
-        <DCSP NomRef="{{ submodel.files.dcsp }}"/>
-        <DPTG NomRef="{{ submodel.files.dptg }}"/>
-        <DFRT NomRef="{{ submodel.files.dfrt }}"/>
+        <DRSO NomRef="{{ submodel.file_basenames.drso }}"/>
+        <DCSP NomRef="{{ submodel.file_basenames.dcsp }}"/>
+        <DPTG NomRef="{{ submodel.file_basenames.dptg }}"/>
+        <DFRT NomRef="{{ submodel.file_basenames.dfrt }}"/>
       </SousModele-FichEtudes>
     </SousModele>
 	{%- endfor %}
@@ -48,11 +50,11 @@
       <AuteurDerniereModif>{{ model.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
       <DateDerniereModif>{{ model.metadata.DateDerniereModif }}</DateDerniereModif>
       <Modele-FichEtudes>
-        <OPTR NomRef="{{ model.files.optr }}"/>
-        <OPTG NomRef="{{ model.files.optg }}"/>
-        <OPTI NomRef="{{ model.files.opti }}"/>
-        <PNUM NomRef="{{ model.files.pnum }}"/>
-        <DPTI NomRef="{{ model.files.dpti }}"/>
+        <OPTR NomRef="{{ model.file_basenames.optr }}"/>
+        <OPTG NomRef="{{ model.file_basenames.optg }}"/>
+        <OPTI NomRef="{{ model.file_basenames.opti }}"/>
+        <PNUM NomRef="{{ model.file_basenames.pnum }}"/>
+        <DPTI NomRef="{{ model.file_basenames.dpti }}"/>
       </Modele-FichEtudes>
       <Modele-SousModeles>
 		{%- for submodel in model.submodels %}
@@ -73,11 +75,11 @@
       <AuteurDerniereModif>{{ scenario.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
       <DateDerniereModif>{{ scenario.metadata.DateDerniereModif }}</DateDerniereModif>
       <Scenario-FichEtudes>
-        <OCAL NomRef="{{ scenario.files.ocal }}"/>
-        <ORES NomRef="{{ scenario.files.ores }}"/>
-        <PCAL NomRef="{{ scenario.files.pcal }}"/>
-        <DCLM NomRef="{{ scenario.files.dclm }}"/>
-        <DLHY NomRef="{{ scenario.files.dlhy }}"/>
+        <OCAL NomRef="{{ scenario.file_basenames.ocal }}"/>
+        <ORES NomRef="{{ scenario.file_basenames.ores }}"/>
+        <PCAL NomRef="{{ scenario.file_basenames.pcal }}"/>
+        <DCLM NomRef="{{ scenario.file_basenames.dclm }}"/>
+        <DLHY NomRef="{{ scenario.file_basenames.dlhy }}"/>
       </Scenario-FichEtudes>
       <Scenario-Modeles>
         <Scenario-Modele NomRef="{{ scenario.model.id }}"/>

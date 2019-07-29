@@ -16,13 +16,38 @@ from mascaret.mascaret_file import Reach, Section
 from mascaret.mascaretgeo_file import MascaretGeoFile
 
 
+def parse_loi(elt, group='EvolutionFF', line='PointFF'):
+    elt_group = elt.find(PREFIX + group)
+    values = []
+    for point_ff in elt_group.findall(PREFIX + line):
+        values.append([float(v) for v in point_ff.text.split()])
+    return np.array(values)
+
+
+def parse_elem_seuil(elt, with_pdc=False):
+    length = 4 if with_pdc else 3
+    elt_group = elt.findall(PREFIX + ('ElemSeuilAvecPdc' if with_pdc else 'ElemSeuil'))
+    values = []
+    for elem in elt_group:
+        row = [
+            float(elem.find(PREFIX + 'Largeur').text),
+            float(elem.find(PREFIX + 'Zseuil').text),
+            float(elem.find(PREFIX + 'CoefD').text),
+        ]
+        if with_pdc:
+            row.append(float(elem.find(PREFIX + 'CoefPdc').text))
+        if len(row) != length:
+            raise RuntimeError
+        values.append(row)
+    return np.array(values)
+
+
 class SubModel:
     """
     Crue10 sub-model
     - id <str>: submodel identifier
     - files <{str}>: dict with path to xml and shp files (keys correspond to `FILES_SHP` and `FILES_XML` lists)
     - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    - comment <str>: information describing current submodel
     - noeuds <{crue10.emh.noeud.Noeud}>: nodes
     - sections <{crue10.emh.section.Section}>: sections
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
@@ -37,7 +62,7 @@ class SubModel:
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, submodel_name, access='r', files=None, metadata=None, comment=''):
+    def __init__(self, submodel_name, access='r', files=None, metadata=None):
         """
         :param submodel_name: submodel name
         :param files: dict with xml and shp path files
@@ -46,7 +71,6 @@ class SubModel:
         check_preffix(submodel_name, 'Sm_')
         self.id = submodel_name
         self.metadata = {} if metadata is None else metadata
-        self.comment = comment
         self.was_read = False
 
         self.noeuds = OrderedDict()
@@ -56,6 +80,9 @@ class SubModel:
         self.profils_casier = OrderedDict()
         self.friction_laws = OrderedDict()
 
+        self.metadata = {'Type': 'Crue10'}
+        self.metadata = add_default_missing_metadata(self.metadata, SubModel.METADATA_FIELDS)
+
         if access == 'r':
             if files is None:
                 raise RuntimeError
@@ -63,10 +90,6 @@ class SubModel:
                 raise RuntimeError
             self.files = files
         elif access == 'w':
-            if not metadata:
-                self.metadata = {'Type': 'Crue10'}
-            self.metadata = add_default_missing_metadata(self.metadata, SubModel.METADATA_FIELDS)
-
             self.files = {}
             if files is None:
                 for xml_type in SubModel.FILES_XML:
@@ -77,6 +100,14 @@ class SubModel:
     @property
     def is_active(self):
         return self.metadata['IsActive'] == 'true'
+
+    @property
+    def comment(self):
+        return self.metadata['Commentaire']
+
+    @property
+    def file_basenames(self):
+        return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
     def add_noeud(self, noeud):
         check_isinstance(noeud, Noeud)
@@ -135,6 +166,28 @@ class SubModel:
         self.add_friction_law(FrictionLaw('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)])))
         self.add_friction_law(FrictionLaw('Fk_DefautMin', 'Fk', np.array([(-15.0, 8.0)])))
 
+    def rename_emh(self, suffix, emh_list=['Fk', 'Nd', 'Cd', 'St', 'Br']):
+        if 'Fk' in emh_list:
+            for _, fk in self.friction_laws.items():
+                fk.id = fk.id + suffix  # FIXME: rename keys!
+        if 'Nd' in emh_list:
+            for _, nd in self.noeuds.items():
+                nd.id = nd.id + suffix  # FIXME: rename keys!
+        if 'Cd' in emh_list:
+            for _, cd in self.casiers.items():
+                cd.id = cd.id + suffix  # FIXME: rename keys!
+                for pc in cd.profils_casier:
+                    pc_id, pc_nb = pc.id.rsplit('_', 1)
+                    pc.id = pc_id + suffix + '_' + pc_nb
+        if 'St' in emh_list:
+            for _, st in self.sections.items():
+                st.id = st.id + suffix  # FIXME: rename keys!
+                if isinstance(st, SectionProfil):
+                    st.nom_profilsection = st.nom_profilsection + suffix
+        if 'Br' in emh_list:
+            for _, br in self.branches.items():
+                br.id = br.id + suffix  # FIXME: rename keys!
+
     def get_noeud(self, nom_noeud):
         try:
             return self.noeuds[nom_noeud]
@@ -176,10 +229,7 @@ class SubModel:
         Read dfrt.xml file
         """
         for loi in ET.parse(self.files['dfrt']).getroot().find(PREFIX + 'LoiFFs'):
-            xk_list = []
-            for xk in loi.find(PREFIX + 'EvolutionFF'):
-                xk_list.append(tuple(float(x) for x in xk.text.split()))
-            friction_law = FrictionLaw(loi.get('Nom'), loi.get('Type'), np.array(xk_list))
+            friction_law = FrictionLaw(loi.get('Nom'), loi.get('Type'), parse_loi(loi))
             self.add_friction_law(friction_law)
 
     def _read_drso(self, filter_branch_types=None):
@@ -324,15 +374,11 @@ class SubModel:
                             profil_casier.comment = emh.find(PREFIX + 'Commentaire').text
                     profil_casier.distance = float(emh.find(PREFIX + 'Longueur').text)
 
-                    xz = []
-                    for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
-                        xz.append([float(v) for v in pointff.text.split()])
+                    profil_casier.set_xz(parse_loi(emh))
 
                     lit_num_elt = emh.find(PREFIX + 'LitUtile')
                     profil_casier.xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
                     profil_casier.xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
-
-                    profil_casier.set_xz(np.array(xz))
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
@@ -357,7 +403,7 @@ class SubModel:
                             limite = LimiteGeom(etiquette.get('Nom'), xt)
                             section.add_limite_geom(limite)
 
-                    xz = []
+                    xz = []  # FIXME
                     for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
                         x, z = [float(v) for v in pointff.text.split()]
                         if section_xt_min <= x <= section_xt_max:
@@ -368,8 +414,63 @@ class SubModel:
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
                     self.sections[emh.get('NomRef')].dz = float(emh.find(PREFIX + 'Dz').text)
 
+            if emh_group.tag == (PREFIX + 'DonPrtGeoBranches'):
+                for emh in emh_group.findall(PREFIX + 'DonPrtGeoBrancheSaintVenant'):
+                    nom_branche = emh.get('NomRef')
+                    self.branches[nom_branche].CoefSinuo = float(emh.find(PREFIX + 'CoefSinuo').text)
+
     def _read_dcsp(self):
-        pass  #TODO
+        for emh_group in ET.parse(self.files['dcsp']).getroot():
+
+            if emh_group.tag == (PREFIX + 'DonCalcSansPrtBranches'):
+                for emh in emh_group:
+                    emh_name = emh.get('NomRef')
+                    branche = self.branches[emh_name]
+
+                    if emh.tag == PREFIX + 'DonCalcSansPrtBranchePdc':
+                        branche.loi_QPdc = parse_loi(emh.find(PREFIX + 'Pdc'))
+
+                    elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilTransversal':
+                        branche.formule_pdc = emh.find(PREFIX + 'FormulePdc').text
+                        branche.elts_seuil = parse_elem_seuil(emh, with_pdc=True)
+
+                    elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilLateral':
+                        branche.formule_pdc = emh.find(PREFIX + 'FormulePdc').text
+                        branche.elts_seuil = parse_elem_seuil(emh, with_pdc=True)
+
+                    elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheOrifice':
+                        elem_orifice = emh.find(PREFIX + 'ElemOrifice')
+                        branche.CoefCtrLim = float(elem_orifice.find(PREFIX + 'CoefCtrLim').text)
+                        branche.Largeur = float(elem_orifice.find(PREFIX + 'Largeur').text)
+                        branche.Zseuil = float(elem_orifice.find(PREFIX + 'Zseuil').text)
+                        branche.Haut = float(elem_orifice.find(PREFIX + 'Haut').text)
+                        branche.CoefD = float(elem_orifice.find(PREFIX + 'CoefD').text)
+                        branche.SensOrifice = elem_orifice.find(PREFIX + 'SensOrifice').text
+
+                    elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheNiveauxAssocies':
+                        branche.QLimInf = float(emh.find(PREFIX + 'QLimInf').text)
+                        branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
+                        branche.loi_ZavZam = parse_loi(emh.find(PREFIX + 'Zasso'))
+
+                    elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheBarrageGenerique':
+                        branche.QLimInf = float(emh.find(PREFIX + 'QLimInf').text)
+                        branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
+                        branche.loi_QDz = parse_loi(emh.find(PREFIX + 'RegimeNoye'))
+                        branche.loi_QpilZam = parse_loi(emh.find(PREFIX + 'RegimeDenoye'))
+
+                    elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheBarrageFilEau':
+                        branche.QLimInf = float(emh.find(PREFIX + 'QLimInf').text)
+                        branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
+                        branche.elts_seuil = parse_elem_seuil(emh, with_pdc=False)
+                        branche.loi_QZam = parse_loi(emh.find(PREFIX + 'RegimeDenoye'))
+
+                    elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSaintVenant':
+                        branche.CoefBeta = float(emh.find(PREFIX + 'CoefBeta').text)
+                        branche.CoefRuis = float(emh.find(PREFIX + 'CoefRuis').text)
+                        branche.CoefRuisQdm = float(emh.find(PREFIX + 'CoefRuisQdm').text)
+
+                    else:
+                        raise NotImplementedError
 
     def _read_shp_noeuds(self):
         with fiona.open(self.files['noeuds'], 'r') as src:
@@ -521,8 +622,11 @@ class SubModel:
             i = 0
             for section in self.iter_on_sections_profil():
                 if section.is_active:
-                    if section.geom_trace is None:
-                        raise CrueErrorGeometryNotFound(section)
+                    if section.geom_trace is None:  # Try to rebuild a theoretical geometry (it may crash easily!)
+                        branche = self.get_connected_branche(section.id)
+                        if branche is None:
+                            raise RuntimeError
+                        section.build_orthogonal_trace(branche.geom)
                     elem = {
                         'geometry': mapping(section.geom_trace),
                         'properties': {'EMH_NAME': section.id, 'ATTRIBUTE_': i,
@@ -625,6 +729,15 @@ class SubModel:
             for section in branche.sections:
                 section.is_active = True
 
+    def get_connected_branche(self, nom_section):
+        """
+        Returns the connected branche if found, else returns None
+        """
+        for branche in self.iter_on_branches():
+            if nom_section in [section.id for section in branche.sections]:
+                return branche
+        return None
+
     def get_connected_branches(self, nom_noeud):
         """
         Returns the list of the branches connected to requested node
@@ -635,12 +748,12 @@ class SubModel:
                 branches.append(branche)
         return branches
 
-    def get_connected_casier(self, nom_noeud):
+    def get_connected_casier(self, noeud):
         """
         Returns the connected casier if found, else returns None
         """
         for _, casier in self.casiers.items():
-            if casier.nom_noeud == nom_noeud:
+            if casier.noeud == noeud:
                 return casier
         return None
 
