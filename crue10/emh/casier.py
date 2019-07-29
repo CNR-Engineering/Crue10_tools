@@ -66,14 +66,11 @@ class Casier:
     - comment <str>: optional text explanation
     """
 
-    def __init__(self, nom_casier, noeud, is_active=None):
+    def __init__(self, nom_casier, noeud, is_active=True):
         check_preffix(nom_casier, 'Ca_')
         check_isinstance(noeud, Noeud)
         self.id = nom_casier
-        if is_active is None:
-            self.is_active = noeud.is_active
-        else:
-            self.is_active = is_active
+        self.is_active = is_active
         self.geom = None
         self.noeud = noeud
         self.profils_casier = []
