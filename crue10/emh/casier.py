@@ -25,6 +25,7 @@ class ProfilCasier:
     - xt_max <float>: last curvilinear abscissa (for LitUtile)
     - comment <str>: optional text explanation
     """
+
     DEFAULT_COORDS = np.array([(0, 0), (50, 0), (100, 0)])
 
     def __init__(self, nom_profil_casier):
@@ -64,12 +65,13 @@ class Casier:
     - CoefRuis <float>: "coefficient modulation du débit linéique de ruissellement"
     - comment <str>: optional text explanation
     """
+
     def __init__(self, nom_casier, noeud, is_active=None):
         check_preffix(nom_casier, 'Ca_')
         check_isinstance(noeud, Noeud)
         self.id = nom_casier
         if is_active is None:
-            pass  # TODO self.is_active = self.noeud.is_active
+            self.is_active = noeud.is_active
         else:
             self.is_active = is_active
         self.geom = None

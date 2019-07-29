@@ -12,7 +12,7 @@ Classes for cross-section in minor and major beds:
 
 Not supported yet:
 - Fente (dptg.xml)
-- SectionProfil is truncated on "usefull width" (TODO)
+- SectionProfil is truncated on "useful width" (TODO)
 """
 import abc
 from builtins import super  # python2 compatibility, requires module `future`
@@ -121,6 +121,7 @@ class Section(ABC):
     - CoefDiv <float>: "coefficient de perte de charge ponctuelle en cas de divergence entre la section et sa suivante"
     - comment <str>: optional text explanation
     """
+
     def __init__(self, nom_section):
         self.id = nom_section
         self.is_active = False
@@ -280,6 +281,7 @@ class SectionIdem(Section):
     - parent_section <SectionProfil>: parent (= initial/reference) section
     - dz <float>: vertical shift (in meters)
     """
+
     def __init__(self, nom_section, parent_section, dz=0.0):
         super().__init__(nom_section)
         check_isinstance(parent_section, SectionProfil)

@@ -51,6 +51,7 @@ class Branche(ABC):
     - sections <[crue10.emh.section.Section]>: list of sections
     - comment <str>: optional text explanation
     """
+
     TYPES = {
         1: 'BranchePdc',
         2: 'BrancheSeuilTransversal',
@@ -165,6 +166,7 @@ class BranchePdC(Branche):
     BrancheSaintVenant - #1
     - loi_QPdc
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 1, is_active)
         self.loi_QPdc = np.array([(-15000.0, 0.0)])
@@ -180,6 +182,7 @@ class BrancheSeuilTransversal(Branche):
     - formule_pdc <str>: 'Borda' or 'Divergent'
     - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 2, is_active)
         self.formule_pdc = DEFAULT_FORMULE_PDC
@@ -192,6 +195,7 @@ class BrancheSeuilLateral(Branche):
     - formule_pdc <str>: 'Borda' or 'Divergent'
     - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 4, is_active)
         self.formule_pdc = DEFAULT_FORMULE_PDC
@@ -208,6 +212,7 @@ class BrancheOrifice(Branche):
     - Haut <float>: "Hauteur du clapet à pleine ouverture"
     - SensOrifice <str>: "Sens de l'écoulement"
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 5, is_active)
         self.CoefCtrLim = 0.65
@@ -222,6 +227,7 @@ class BrancheStrickler(Branche):
     """
     BrancheStrickler - #6
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 6, is_active)
 
@@ -233,6 +239,7 @@ class BrancheNiveauxAssocies(Branche):
     - QLimSup: "Débit maximum admis dans la branche"
     - loi_ZavZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 12, is_active)
         self.QLimInf = DEFAULT_QLIMINF
@@ -249,6 +256,7 @@ class BrancheBarrageGenerique(Branche):
     - loi_QDz <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
     - loi_QpilZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 14, is_active)
         self.section_pilotage = None
@@ -298,6 +306,7 @@ class BrancheSaintVenant(Branche):
     - CoefRuis <float>: "coefficient modulation du débit linéique de ruissellement"
     - CoefRuisQdm <float>: "coefficient de prise en compte du débit de ruissellement dans la QdM de l'écoulement"
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 20, is_active)
         self.CoefSinuo = 1.0

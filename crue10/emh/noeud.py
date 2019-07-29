@@ -15,6 +15,7 @@ class Noeud:
     - geom <shapely.geometry.Point>: node position
     - comment <str>: optional text explanation
     """
+
     def __init__(self, nom_noeud):
         check_preffix(nom_noeud, 'Nd_')
         self.id = nom_noeud
