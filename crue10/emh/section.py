@@ -50,17 +50,17 @@ class FrictionLaw:
 
 
 DEFAULT_FK_STO = FrictionLaw('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)]))
-DEFAULT_FK_MAJ = FrictionLaw('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)]))
+DEFAULT_FK_MAX = FrictionLaw('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)]))
 DEFAULT_FK_MIN = FrictionLaw('Fk_DefautMin', 'Fk', np.array([(-15.0, 8.0)]))
 
 
 class LitNumerote:
     """
-    Lit numéroté
-    - id <str>: bed identifier
+    Lit numéroté (= intervalle entre 2 limites de lit)
+    - id <str>: bed identifier (a key of `BED_NAMES`)
     - xt_min <str>: first curvilinear abscissa
     - xt_max <str>: first curvilinear abscissa
-    - friction_law <FrictionLaw>: friction law
+    - friction_law <FrictionLaw>: friction law (take the associated default law if it is not given)
     """
 
     BED_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
@@ -76,7 +76,7 @@ class LitNumerote:
             if 'Sto' in nom_lit:
                 friction_law = DEFAULT_FK_STO
             elif 'Maj' in nom_lit:
-                friction_law = DEFAULT_FK_MAJ
+                friction_law = DEFAULT_FK_MAX
             else:
                 friction_law = DEFAULT_FK_MIN
         self.friction_law = friction_law
@@ -185,6 +185,15 @@ class SectionProfil(Section):
         diff_xt = range_xt - self.geom_trace.length
         if abs(diff_xt) > 1e-2:
             logger.warn("Écart de longueur pour la section %s: %s" % (self, diff_xt))
+
+    def set_lits_numerotes(self, xt_list):
+        if len(xt_list) != 6:
+            raise RuntimeError
+        if any(x > y for x, y in zip(xt_list, xt_list[1:])):
+            raise CrueError("Les valeurs de xt ne sont pas croissantes")
+        for bed_name, xt_min, xt_max,  in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
+            lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
+            self.lits_numerotes.append(lit_numerote)
 
     def add_lit_numerote(self, lit_numerote):
         check_isinstance(lit_numerote, LitNumerote)

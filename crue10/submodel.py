@@ -1,5 +1,6 @@
 # coding: utf-8
 from collections import OrderedDict
+from copy import deepcopy
 import fiona
 import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
@@ -10,8 +11,8 @@ from crue10.utils import add_default_missing_metadata, check_preffix, CrueError,
 from crue10.emh.branche import *
 from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
-from crue10.emh.section import FrictionLaw, LimiteGeom, LitNumerote, SectionIdem, SectionInterpolee, \
-    SectionProfil, SectionSansGeometrie
+from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, FrictionLaw, LimiteGeom, LitNumerote, \
+    SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 from mascaret.mascaret_file import Reach, Section
 from mascaret.mascaretgeo_file import MascaretGeoFile
 
@@ -123,6 +124,11 @@ class SubModel:
             if section.parent_section.id not in self.sections:
                 raise CrueError("La SectionIdem `%s` fait référence à une SectionProfil inexistante `%s`"
                                 % (section.id, section.section_ori.id))
+        if isinstance(section, SectionProfil):
+            for lit in section.lits_numerotes:
+                if lit.friction_law.id not in self.friction_laws:
+                    raise CrueError("La loi de frottement %s de la section `%s` doit être ajoutée au sous-modèle avant"
+                                    % (lit.friction_law.id, section.id))
         self.sections[section.id] = section
 
     def add_branche(self, branche):
@@ -162,31 +168,35 @@ class SubModel:
         self.friction_laws[friction_law.id] = friction_law
 
     def add_default_friction_laws(self):
-        self.add_friction_law(FrictionLaw('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)])))
-        self.add_friction_law(FrictionLaw('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)])))
-        self.add_friction_law(FrictionLaw('Fk_DefautMin', 'Fk', np.array([(-15.0, 8.0)])))
+        self.add_friction_law(DEFAULT_FK_STO)
+        self.add_friction_law(DEFAULT_FK_MAX)
+        self.add_friction_law(DEFAULT_FK_MIN)
 
     def rename_emh(self, suffix, emh_list=['Fk', 'Nd', 'Cd', 'St', 'Br']):
+        def rename_key_and_obj(dictionary, insert_before_last_split=False):
+            """Add suffix to all keys of dictionary and `id` attribute of objects"""
+            for old_id in deepcopy(list(dictionary.keys())):
+                if insert_before_last_split:
+                    new_left_id, new_right_id = old_id.rsplit('_', 1)
+                    new_id = new_left_id + suffix + '_' + new_right_id
+                else:
+                    new_id = old_id + suffix
+                dictionary[new_id] = dictionary.pop(old_id)
+                dictionary[new_id].id = new_id
+
         if 'Fk' in emh_list:
-            for _, fk in self.friction_laws.items():
-                fk.id = fk.id + suffix  # FIXME: rename keys!
+            rename_key_and_obj(self.friction_laws)
         if 'Nd' in emh_list:
-            for _, nd in self.noeuds.items():
-                nd.id = nd.id + suffix  # FIXME: rename keys!
+            rename_key_and_obj(self.noeuds)
         if 'Cd' in emh_list:
-            for _, cd in self.casiers.items():
-                cd.id = cd.id + suffix  # FIXME: rename keys!
-                for pc in cd.profils_casier:
-                    pc_id, pc_nb = pc.id.rsplit('_', 1)
-                    pc.id = pc_id + suffix + '_' + pc_nb
+            rename_key_and_obj(self.casiers)
+            rename_key_and_obj(self.profils_casier, True)
         if 'St' in emh_list:
-            for _, st in self.sections.items():
-                st.id = st.id + suffix  # FIXME: rename keys!
-                if isinstance(st, SectionProfil):
-                    st.nom_profilsection = st.nom_profilsection + suffix
+            rename_key_and_obj(self.sections)
+            for st in self.iter_on_sections_profil():
+                st.nom_profilsection = st.nom_profilsection + suffix
         if 'Br' in emh_list:
-            for _, br in self.branches.items():
-                br.id = br.id + suffix  # FIXME: rename keys!
+            rename_key_and_obj(self.branches)
 
     def get_noeud(self, nom_noeud):
         try:

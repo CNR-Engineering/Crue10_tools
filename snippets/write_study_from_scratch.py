@@ -18,8 +18,8 @@ if True:
     from snippets.write_submodel_from_scratch import submodel
     submodel_out.add_emh_from_submodel(submodel)
 
-print(study_out.summary())
-print(study_out.get_submodel('Sm_vierge').summary())
+logger.info(study_out.summary())
+logger.info(study_out.get_submodel('Sm_vierge').summary())
 study_out.get_model('Mo_vierge').reset_initial_conditions()
 study_out.write_all('../tmp/Etu_vierge')
 
@@ -27,5 +27,5 @@ study_out.write_all('../tmp/Etu_vierge')
 # Read this new study to check its integrity
 study_in = Study(etu_path, access='r')
 study_in.read_all()
-print(study_in.summary())
-print(study_in.get_submodel('Sm_vierge').summary())
+logger.info(study_in.summary())
+logger.info(study_in.get_submodel('Sm_vierge').summary())

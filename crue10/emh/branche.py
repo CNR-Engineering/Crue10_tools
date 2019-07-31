@@ -76,7 +76,10 @@ class Branche(ABC):
         self.id = nom_branche
         self.type = branch_type
         self.is_active = is_active
-        self.geom = None
+        if noeud_amont.geom is not None and noeud_aval.geom is not None:
+            self.geom = LineString([(noeud_amont.geom.x, noeud_amont.geom.y), (noeud_aval.geom.x, noeud_aval.geom.y)])
+        else:
+            self.geom = None
         self.noeud_amont = noeud_amont
         self.noeud_aval = noeud_aval
         self.sections = []
@@ -114,7 +117,7 @@ class Branche(ABC):
                 raise CrueError("La %s ne peut porter que des SectionProfil ou SectionIdem" % self)
         else:
             if not isinstance(section, SectionSansGeometrie):
-                raise CrueError("La %s ne peut porter que des SectionSansGeometrie")
+                raise CrueError("La %s ne peut porter que des SectionSansGeometrie" % self)
         section.xp = xp
         self.sections.append(section)
 
