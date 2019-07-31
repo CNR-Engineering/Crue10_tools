@@ -224,8 +224,9 @@ class Study:
         logger.debug("Writing %s in %s" % (self, folder))
 
         # Create folder if not existing
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+        if folder:
+            if not os.path.exists(folder):
+                os.makedirs(folder)
 
         self._write_etu(folder)
         for _, scenario in self.scenarios.items():

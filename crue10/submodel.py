@@ -668,8 +668,9 @@ class SubModel:
 
         # Create folder if not existing
         sm_folder = os.path.join(folder, folder_config, self.id.upper())
-        if not os.path.exists(sm_folder):
-            os.makedirs(sm_folder)
+        if folder:
+            if not os.path.exists(sm_folder):
+                os.makedirs(sm_folder)
 
         # Write xml files
         self._write_dfrt(folder)
