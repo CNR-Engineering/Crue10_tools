@@ -4,7 +4,7 @@
   <AuteurCreation>duron</AuteurCreation>
   <DateCreation>2019-07-31T16:50:55.000</DateCreation>
   <AuteurDerniereModif>duron</AuteurDerniereModif>
-  <DateDerniereModif>2019-07-31T16:50:55.000</DateDerniereModif>
+  <DateDerniereModif>2019-07-31T16:57:16.136</DateDerniereModif>
   <ScenarioCourant NomRef="Sc_from_scratch"/>
   <Repertoires>
     <Repertoire Nom="CONFIG">
@@ -44,7 +44,7 @@
       <AuteurCreation>duron</AuteurCreation>
       <DateCreation>2019-07-31T16:50:55.000</DateCreation>
       <AuteurDerniereModif>duron</AuteurDerniereModif>
-      <DateDerniereModif>2019-07-31T16:50:55.000</DateDerniereModif>
+      <DateDerniereModif>2019-07-31T16:57:16.131</DateDerniereModif>
       <SousModele-FichEtudes>
         <DRSO NomRef="from_scratch.drso.xml"/>
         <DCSP NomRef="from_scratch.dcsp.xml"/>
@@ -61,7 +61,7 @@
       <AuteurCreation>duron</AuteurCreation>
       <DateCreation>2019-07-31T16:50:55.000</DateCreation>
       <AuteurDerniereModif>duron</AuteurDerniereModif>
-      <DateDerniereModif>2019-07-31T16:50:55.000</DateDerniereModif>
+      <DateDerniereModif>2019-07-31T16:57:16.131</DateDerniereModif>
       <Modele-FichEtudes>
         <OPTR NomRef="from_scratch.optr.xml"/>
         <OPTG NomRef="from_scratch.optg.xml"/>
@@ -82,7 +82,7 @@
       <AuteurCreation>duron</AuteurCreation>
       <DateCreation>2019-07-31T16:50:55.000</DateCreation>
       <AuteurDerniereModif>duron</AuteurDerniereModif>
-      <DateDerniereModif>2019-07-31T16:50:55.000</DateDerniereModif>
+      <DateDerniereModif>2019-07-31T16:57:16.131</DateDerniereModif>
       <Scenario-FichEtudes>
         <OCAL NomRef="from_scratch.ocal.xml"/>
         <ORES NomRef="from_scratch.ores.xml"/>

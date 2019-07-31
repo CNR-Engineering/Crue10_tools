@@ -4,14 +4,14 @@
   <DonPrtCIniNoeuds>
     {%- for noeud_id, z_ini in noeuds_ci.items() %}
     <DonPrtCIniNoeudNiveauContinu NomRef="{{ noeud_id }}">
-      <Zini>{{ z_ini }}</Zini>
+      <Zini>{{ z_ini|float2str }}</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     {%- endfor %}
   </DonPrtCIniNoeuds>
   <DonPrtCIniCasiers>
     {%- for casier_id, q_ruis in casiers_ci.items() %}
     <DonPrtCIniCasierProfil NomRef="{{ casier_id }}">
-      <Qruis>{{ q_ruis }}</Qruis>
+      <Qruis>{{ q_ruis|float2str }}</Qruis>
     </DonPrtCIniCasierProfil>
     {%- endfor %}
   </DonPrtCIniCasiers>
@@ -21,18 +21,18 @@
     {%- set values = ci['values'] -%}
     {%- if ci.type == 5 %}
     <DonPrtCIniBrancheOrifice NomRef="{{ branche_id }}">
-      <Qini>{{ values.Qini }}</Qini>
+      <Qini>{{ values.Qini|float2str }}</Qini>
       <Ouv>{{ values.Ouv }}</Ouv>
       <SensOuv>{{ values.SensOuv }}</SensOuv>
     </DonPrtCIniBrancheOrifice>
     {%- elif ci.type == 20 %}
     <DonPrtCIniBrancheSaintVenant NomRef="{{ branche_id }}">
-      <Qini>{{ values.Qini }}</Qini>
-      <Qruis>{{ values.Qruis }}</Qruis>
+      <Qini>{{ values.Qini|float2str }}</Qini>
+      <Qruis>{{ values.Qruis|float2str }}</Qruis>
     </DonPrtCIniBrancheSaintVenant>
     {%- else %}
     <DonPrtCIniBranche NomRef="{{ branche_id }}">
-      <Qini>{{ values.Qini }}</Qini>
+      <Qini>{{ values.Qini|float2str }}</Qini>
     </DonPrtCIniBranche>
     {%- endif %}
     {%- endfor %}

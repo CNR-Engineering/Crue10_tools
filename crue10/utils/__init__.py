@@ -70,7 +70,7 @@ def check_preffix(name, preffix):
 
 
 def float2str(value):
-    return str(value).replace('e', 'E')
+    return str(value).replace('e+', 'E').replace('.0E', 'E')
 
 
 HTML_ESCAPE_TABLE = {

@@ -1,18 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ORES xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/ores-1.2.xsd">
-	<!--
-		Le fichier ORES rassemble les demandes de résultats.
-		Son périmètre est le scénario
-		Ce fichier en particulier est celui qui doit être l'équivalent Crue10 de tout chargement de scénario Crue9,
-		parce que les résultats demandés (Dde à true) correspondent aux varaibles de sortie fixes du fichier FCB
-
-		Les variables demandées par ORES sont sorties dans le RCAL pour tous les calculs demandés dans le OCAL.
-		
-		Aucune Dde n'est obligatoirement à true.
-		Aucune Dde n'est obligatoire du point de vue de la xsd.
-		FC contrôle que la liste des Dde du ORES correspond exactement à la liste des Dde du default.ores.xml
-		et sort une erreur bloquante sinon.
-	-->
   <Commentaire></Commentaire>
   <OrdResNoeuds>
     <OrdResNoeudNiveauContinu>
@@ -29,15 +16,26 @@
   </OrdResCasiers>
   <OrdResSections>
     <OrdResSection>
+      <Dde NomRef="Cr">false</Dde>
       <Dde NomRef="Dact">false</Dde>
       <Dde NomRef="Fr">false</Dde>
       <Dde NomRef="H">false</Dde>
       <Dde NomRef="Hs">false</Dde>
+      <Dde NomRef="J">false</Dde>
+      <Dde NomRef="Jf">false</Dde>
+      <Dde NomRef="Kact_eq">false</Dde>
+      <Dde NomRef="KmajD">false</Dde>
+      <Dde NomRef="KmajG">false</Dde>
+      <Dde NomRef="Kmin">false</Dde>
       <Dde NomRef="Lact">false</Dde>
       <Dde NomRef="Ltot">false</Dde>
+      <Dde NomRef="Pact">false</Dde>
       <Dde NomRef="Q">true</Dde>
+      <Dde NomRef="Rhact">false</Dde>
       <Dde NomRef="Sact">false</Dde>
       <Dde NomRef="Stot">true</Dde>
+      <Dde NomRef="Tauact">false</Dde>
+      <Dde NomRef="Ustaract">false</Dde>
       <Dde NomRef="Vact">true</Dde>
       <Dde NomRef="Vc">true</Dde>
       <Dde NomRef="Vtot">false</Dde>
