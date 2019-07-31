@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ETU xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/etu-1.2.xsd">
+  <Commentaire></Commentaire>
+  <AuteurCreation>duron</AuteurCreation>
+  <DateCreation>2019-07-31T16:50:55.000</DateCreation>
+  <AuteurDerniereModif>duron</AuteurDerniereModif>
+  <DateDerniereModif>2019-07-31T16:50:55.000</DateDerniereModif>
+  <ScenarioCourant NomRef="Sc_from_scratch"/>
+  <Repertoires>
+    <Repertoire Nom="CONFIG">
+      <path>Config</path>
+    </Repertoire>
+    <Repertoire Nom="FICHETUDES">
+      <path>.</path>
+    </Repertoire>
+    <Repertoire Nom="RAPPORTS">
+      <path>Rapports</path>
+    </Repertoire>
+    <Repertoire Nom="RUNS">
+      <path>Runs</path>
+    </Repertoire>
+  </Repertoires>
+  <FichEtudes>
+    <FichEtude Nom="from_scratch.dclm.xml" Chemin=".\" Type="DCLM"/>
+    <FichEtude Nom="from_scratch.dcsp.xml" Chemin=".\" Type="DCSP"/>
+    <FichEtude Nom="from_scratch.dfrt.xml" Chemin=".\" Type="DFRT"/>
+    <FichEtude Nom="from_scratch.dlhy.xml" Chemin=".\" Type="DLHY"/>
+    <FichEtude Nom="from_scratch.dptg.xml" Chemin=".\" Type="DPTG"/>
+    <FichEtude Nom="from_scratch.dpti.xml" Chemin=".\" Type="DPTI"/>
+    <FichEtude Nom="from_scratch.drso.xml" Chemin=".\" Type="DRSO"/>
+    <FichEtude Nom="from_scratch.ocal.xml" Chemin=".\" Type="OCAL"/>
+    <FichEtude Nom="from_scratch.optg.xml" Chemin=".\" Type="OPTG"/>
+    <FichEtude Nom="from_scratch.opti.xml" Chemin=".\" Type="OPTI"/>
+    <FichEtude Nom="from_scratch.optr.xml" Chemin=".\" Type="OPTR"/>
+    <FichEtude Nom="from_scratch.ores.xml" Chemin=".\" Type="ORES"/>
+    <FichEtude Nom="from_scratch.pcal.xml" Chemin=".\" Type="PCAL"/>
+    <FichEtude Nom="from_scratch.pnum.xml" Chemin=".\" Type="PNUM"/>
+  </FichEtudes>
+  <SousModeles>
+    <SousModele Nom="Sm_from_scratch">
+      <Type>Crue10</Type>
+      <IsActive>true</IsActive>
+      <Commentaire></Commentaire>
+      <AuteurCreation>duron</AuteurCreation>
+      <DateCreation>2019-07-31T16:50:55.000</DateCreation>
+      <AuteurDerniereModif>duron</AuteurDerniereModif>
+      <DateDerniereModif>2019-07-31T16:50:55.000</DateDerniereModif>
+      <SousModele-FichEtudes>
+        <DRSO NomRef="from_scratch.drso.xml"/>
+        <DCSP NomRef="from_scratch.dcsp.xml"/>
+        <DPTG NomRef="from_scratch.dptg.xml"/>
+        <DFRT NomRef="from_scratch.dfrt.xml"/>
+      </SousModele-FichEtudes>
+    </SousModele>
+  </SousModeles>
+  <Modeles>
+    <Modele Nom="Mo_from_scratch">
+      <Type>Crue10</Type>
+      <IsActive>true</IsActive>
+      <Commentaire></Commentaire>
+      <AuteurCreation>duron</AuteurCreation>
+      <DateCreation>2019-07-31T16:50:55.000</DateCreation>
+      <AuteurDerniereModif>duron</AuteurDerniereModif>
+      <DateDerniereModif>2019-07-31T16:50:55.000</DateDerniereModif>
+      <Modele-FichEtudes>
+        <OPTR NomRef="from_scratch.optr.xml"/>
+        <OPTG NomRef="from_scratch.optg.xml"/>
+        <OPTI NomRef="from_scratch.opti.xml"/>
+        <PNUM NomRef="from_scratch.pnum.xml"/>
+        <DPTI NomRef="from_scratch.dpti.xml"/>
+      </Modele-FichEtudes>
+      <Modele-SousModeles>
+        <Modele-SousModele NomRef="Sm_from_scratch"/>
+      </Modele-SousModeles>
+    </Modele>
+  </Modeles>
+  <Scenarios>
+    <Scenario Nom="Sc_from_scratch">
+      <Type>Crue10</Type>
+      <IsActive>true</IsActive>
+      <Commentaire></Commentaire>
+      <AuteurCreation>duron</AuteurCreation>
+      <DateCreation>2019-07-31T16:50:55.000</DateCreation>
+      <AuteurDerniereModif>duron</AuteurDerniereModif>
+      <DateDerniereModif>2019-07-31T16:50:55.000</DateDerniereModif>
+      <Scenario-FichEtudes>
+        <OCAL NomRef="from_scratch.ocal.xml"/>
+        <ORES NomRef="from_scratch.ores.xml"/>
+        <PCAL NomRef="from_scratch.pcal.xml"/>
+        <DCLM NomRef="from_scratch.dclm.xml"/>
+        <DLHY NomRef="from_scratch.dlhy.xml"/>
+      </Scenario-FichEtudes>
+      <Scenario-Modeles>
+        <Scenario-Modele NomRef="Mo_from_scratch"/>
+      </Scenario-Modeles>
+    </Scenario>
+  </Scenarios>
+</ETU>

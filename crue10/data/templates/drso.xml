@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.2.xsd">
-  <Commentaire>{{ comment }}</Commentaire>
+  <Commentaire>{{ comment|html_escape }}</Commentaire>
   <Noeuds>
     {%- for noeud in noeud_list %}
     <NoeudNiveauContinu Nom="{{ noeud.id }}">
-      <Commentaire>{{ noeud.comment }}</Commentaire>
+      <Commentaire>{{ noeud.comment|html_escape }}</Commentaire>
     </NoeudNiveauContinu>
     {%- endfor %}
   </Noeuds>
   <Casiers>
     {%- for casier in casier_list %}
     <CasierProfil Nom="{{ casier.id }}">
-      <Commentaire>{{ casier.comment }}</Commentaire>
+      <Commentaire>{{ casier.comment|html_escape }}</Commentaire>
       <IsActive>{% if casier.is_active %}true{% else %}false{% endif %}</IsActive>
       <Noeud NomRef="{{ casier.noeud.id }}"/>
       {%- for profil_casier in casier.profils_casier %}
@@ -24,24 +24,24 @@
     {%- for section in section_list %}
     {%- if isinstance(section, SectionProfil) %}
     <SectionProfil Nom="{{ section.id }}">
-      <Commentaire>{{ section.comment }}</Commentaire>
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
       <ProfilSection NomRef="{{ section.nom_profilsection }}"/>
     </SectionProfil>
     {%- endif %}
     {%- if isinstance(section, SectionIdem) %}
     <SectionIdem Nom="{{ section.id }}">
-      <Commentaire>{{ section.comment }}</Commentaire>
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
       <Section NomRef="{{ section.parent_section.id }}"/>
     </SectionIdem>
     {%- endif %}
     {%- if isinstance(section, SectionInterpolee) %}
     <SectionInterpolee Nom="{{ section.id }}">
-      <Commentaire>{{ section.comment }}</Commentaire>
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
     </SectionInterpolee>
     {%- endif %}
     {%- if isinstance(section, SectionSansGeometrie) %}
     <SectionSansGeometrie Nom="{{ section.id }}">
-      <Commentaire>{{ section.comment }}</Commentaire>
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
     </SectionSansGeometrie>
     {%- endif %}
     {%- endfor %}
@@ -50,7 +50,7 @@
     {%- for branche in branche_list %}
     {%- if branche.type == 20 %}
     <BrancheSaintVenant Nom="{{ branche.id }}">
-      <Commentaire>{{ branche.comment }}</Commentaire>
+      <Commentaire>{{ branche.comment|html_escape }}</Commentaire>
       <IsActive>{% if branche.is_active %}true{% else %}false{% endif %}</IsActive>
       <NdAm NomRef="{{ branche.noeud_amont.id }}"/>
       <NdAv NomRef="{{ branche.noeud_aval.id }}"/>
@@ -68,7 +68,7 @@
     </BrancheSaintVenant>
     {%- else %}
     <{{branche.type_name}} Nom="{{ branche.id }}">
-      <Commentaire>{{ branche.comment }}</Commentaire>
+      <Commentaire>{{ branche.comment|html_escape }}</Commentaire>
       <IsActive>{% if branche.is_active %}true{% else %}false{% endif %}</IsActive>
       <NdAm NomRef="{{ branche.noeud_amont.id }}"/>
       <NdAv NomRef="{{ branche.noeud_aval.id }}"/>

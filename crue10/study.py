@@ -77,7 +77,7 @@ class Study:
             text = root.find(PREFIX + field).text
             self.metadata[field] = '' if text is None else text
 
-        if root.find(PREFIX + 'ScenarioCourant'):
+        if root.find(PREFIX + 'ScenarioCourant') is not None:
             self.current_scenario = root.find(PREFIX + 'ScenarioCourant').get('NomRef')
 
         # Repertoires

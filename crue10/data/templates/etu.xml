@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ETU xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/etu-1.2.xsd">
-  <Commentaire>{{ metadata.Commentaire }}</Commentaire>
+  <Commentaire>{{ metadata.Commentaire|html_escape }}</Commentaire>
   <AuteurCreation>{{ metadata.AuteurCreation }}</AuteurCreation>
   <DateCreation>{{ metadata.DateCreation }}</DateCreation>
   <AuteurDerniereModif>{{ metadata.AuteurDerniereModif }}</AuteurDerniereModif>
@@ -25,7 +25,7 @@
     <SousModele Nom="{{ submodel.id }}">
       <Type>{{ submodel.metadata.Type }}</Type>
       <IsActive>{{ submodel.metadata.IsActive }}</IsActive>
-      <Commentaire>{{ submodel.metadata.Commentaire }}</Commentaire>
+      <Commentaire>{{ submodel.metadata.Commentaire|html_escape }}</Commentaire>
       <AuteurCreation>{{ submodel.metadata.AuteurCreation }}</AuteurCreation>
       <DateCreation>{{ submodel.metadata.DateCreation }}</DateCreation>
       <AuteurDerniereModif>{{ submodel.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
@@ -44,7 +44,7 @@
     <Modele Nom="{{ model.id }}">
       <Type>{{ model.metadata.Type }}</Type>
       <IsActive>{{ model.metadata.IsActive }}</IsActive>
-      <Commentaire>{{ model.metadata.Commentaire }}</Commentaire>
+      <Commentaire>{{ model.metadata.Commentaire|html_escape }}</Commentaire>
       <AuteurCreation>{{ model.metadata.AuteurCreation }}</AuteurCreation>
       <DateCreation>{{ model.metadata.DateCreation }}</DateCreation>
       <AuteurDerniereModif>{{ model.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
@@ -69,7 +69,7 @@
     <Scenario Nom="{{ scenario.id }}">
       <Type>{{ scenario.metadata.Type }}</Type>
       <IsActive>{{ scenario.metadata.IsActive }}</IsActive>
-      <Commentaire>{{ scenario.metadata.Commentaire }}</Commentaire>
+      <Commentaire>{{ scenario.metadata.Commentaire|html_escape }}</Commentaire>
       <AuteurCreation>{{ scenario.metadata.AuteurCreation }}</AuteurCreation>
       <DateCreation>{{ scenario.metadata.DateCreation }}</DateCreation>
       <AuteurDerniereModif>{{ scenario.metadata.AuteurDerniereModif }}</AuteurDerniereModif>

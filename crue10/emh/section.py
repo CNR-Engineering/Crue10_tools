@@ -156,6 +156,7 @@ class SectionProfil(Section):
             self.nom_profilsection = nom_profilsection
         self.xz = None
         self.geom_trace = None
+        self.fente = None
         self.lits_numerotes = []
         self.limites_geom = []
 
@@ -166,6 +167,10 @@ class SectionProfil(Section):
             if limite.id == 'Et_AxeHyd':
                 return limite.xt
         raise CrueError("Limite 'Et_AxeHyd' could not be found for %s" % self)
+
+    @property
+    def has_fente(self):
+        return self.fente is not None
 
     def set_xz(self, array):
         check_isinstance(array, np.ndarray)
@@ -185,6 +190,9 @@ class SectionProfil(Section):
         diff_xt = range_xt - self.geom_trace.length
         if abs(diff_xt) > 1e-2:
             logger.warn("Écart de longueur pour la section %s: %s" % (self, diff_xt))
+
+    def set_fente(self, largeur, profondeur):
+        self.fente = (largeur, profondeur)
 
     def set_lits_numerotes(self, xt_list):
         if len(xt_list) != 6:

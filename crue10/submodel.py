@@ -81,7 +81,7 @@ class SubModel:
         self.profils_casier = OrderedDict()
         self.friction_laws = OrderedDict()
 
-        self.metadata = {'Type': 'Crue10'}
+        self.metadata['Type'] = 'Crue10'
         self.metadata = add_default_missing_metadata(self.metadata, SubModel.METADATA_FIELDS)
 
         if access == 'r':
@@ -394,6 +394,11 @@ class SubModel:
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
                     nom_section = emh.get('Nom').replace('Ps_', 'St_')  #FIXME: not necessary consistant
                     section = self.sections[nom_section]
+
+                    fente = emh.find(PREFIX + 'Fente')
+                    if fente is not None:
+                        section.set_fente(float(fente.find(PREFIX + 'LargeurFente').text),
+                                          float(fente.find(PREFIX + 'ProfondeurFente').text))
 
                     for lit_num_elt in emh.find(PREFIX + 'LitNumerotes').findall(PREFIX + 'LitNumerote'):
                         lit_id = lit_num_elt.find(PREFIX + 'LitNomme').text

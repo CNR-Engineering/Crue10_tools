@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DPTG xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dptg-1.2.xsd">
-  <Commentaire>{{ comment }}</Commentaire>
+  <Commentaire>{{ comment|html_escape }}</Commentaire>
   <DonPrtGeoProfilCasiers>
     {%- for profil_casier in profil_casier_list %}
     <ProfilCasier Nom="{{ profil_casier.id }}">
-      <Commentaire></Commentaire>
+      <Commentaire>{# Not supported #}</Commentaire>
       <Longueur>{{ profil_casier.distance }}</Longueur>
       <EvolutionFF>
         {%- for xt, z in profil_casier.xz %}
@@ -21,7 +21,13 @@
   <DonPrtGeoProfilSections>
     {%- for section in section_profil_list %}
     <ProfilSection Nom="{{ section.nom_profilsection }}">
-      <Commentaire>{{ section.comment }}</Commentaire>
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
+      {% if section.has_fente %}
+      <Fente>
+        <LargeurFente>{{ section.fente[0] }}</LargeurFente>
+        <ProfondeurFente>{{ section.fente[1] }}</ProfondeurFente>
+      </Fente>
+      {% endif %}
       <EvolutionFF>
         {%- for xt, z in section.xz %}
         <PointFF>{{ xt }} {{ z }}</PointFF>

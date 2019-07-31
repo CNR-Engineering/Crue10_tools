@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dpti-1.2.xsd">
+  <Commentaire></Commentaire>
+  <DonPrtCIniNoeuds>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_1">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_2">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_4">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_5">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_6">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_12">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_14">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_15">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_20">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_aval">
+      <Zini>1e+30</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+  </DonPrtCIniNoeuds>
+  <DonPrtCIniCasiers>
+    <DonPrtCIniCasierProfil NomRef="Ca_1">
+      <Qruis>0.0</Qruis>
+    </DonPrtCIniCasierProfil>
+  </DonPrtCIniCasiers>
+  <DonPrtCIniSections/>
+  <DonPrtCIniBranches>
+    <DonPrtCIniBranche NomRef="Br_1-PdC">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBranche NomRef="Br_2-SeuilTransversal">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBranche NomRef="Br_4-SeuilLateral">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBrancheOrifice NomRef="Br_5-Orifice">
+      <Qini>0.0</Qini>
+      <Ouv>100.0</Ouv>
+      <SensOuv>OuvVersHaut</SensOuv>
+    </DonPrtCIniBrancheOrifice>
+    <DonPrtCIniBranche NomRef="Br_6-Strickler">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBranche NomRef="Br_12-NiveauxAssocies">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBranche NomRef="Br_14-BarrageGenerique">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBranche NomRef="Br_15-BarrageFilEau">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBrancheSaintVenant NomRef="Br_20-SaintVenant">
+      <Qini>0.0</Qini>
+      <Qruis>0.0</Qruis>
+    </DonPrtCIniBrancheSaintVenant>
+  </DonPrtCIniBranches>
+</DPTI>

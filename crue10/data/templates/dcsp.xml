@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DCSP xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dcsp-1.2.xsd">
-  <Commentaire>{{ comment }}</Commentaire>
+  <Commentaire>{{ comment|html_escape }}</Commentaire>
   <DonCalcSansPrtBranches>
     {%- for branche in branche_list %}
     {%- if branche.type == 1 %}
@@ -51,8 +51,8 @@
     </DonCalcSansPrtBrancheOrifice>
     {%- elif branche.type == 12 %}
     <DonCalcSansPrtBrancheNiveauxAssocies NomRef="{{ branche.id }}">
-      <QLimInf>{{ branche.QLimInf }}</QLimInf>
-      <QLimSup>{{ branche.QLimSup }}</QLimSup>
+      <QLimInf>{{ branche.QLimInf|float2str }}</QLimInf>
+      <QLimSup>{{ branche.QLimSup|float2str }}</QLimSup>
       <Zasso Nom="{{ branche.name_loi_ZavZam }}" Type="LoiZavZam">
         <Commentaire>{# Not supported #}</Commentaire>
         <EvolutionFF>
@@ -64,8 +64,8 @@
     </DonCalcSansPrtBrancheNiveauxAssocies>
     {%- elif branche.type == 14 %}
     <DonCalcSansPrtBrancheBarrageGenerique NomRef="{{ branche.id }}">
-      <QLimInf>{{ branche.QLimInf }}</QLimInf>
-      <QLimSup>{{ branche.QLimSup }}</QLimSup>
+      <QLimInf>{{ branche.QLimInf|float2str }}</QLimInf>
+      <QLimSup>{{ branche.QLimSup|float2str }}</QLimSup>
       <RegimeNoye Nom="{{ branche.name_loi_QDz }}" Type="LoiQDz">
         <Commentaire>{# Not supported #}</Commentaire>
         <EvolutionFF>
@@ -86,8 +86,8 @@
     {%- endif %}
     {%- if branche.type == 15 %}
     <DonCalcSansPrtBrancheBarrageFilEau NomRef="{{ branche.id }}">
-      <QLimInf>{{ branche.QLimInf }}</QLimInf>
-      <QLimSup>{{ branche.QLimSup }}</QLimSup>
+      <QLimInf>{{ branche.QLimInf|float2str }}</QLimInf>
+      <QLimSup>{{ branche.QLimSup|float2str }}</QLimSup>
       {%- for larg, z_seuil, coeff_d in branche.elts_seuil %}
       <ElemSeuil>
         <Largeur>{{ larg }}</Largeur>

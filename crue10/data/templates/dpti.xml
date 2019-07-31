@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dpti-1.2.xsd">
-  <Commentaire>{{ comment }}</Commentaire>
+  <Commentaire>{{ comment|html_escape }}</Commentaire>
   <DonPrtCIniNoeuds>
     {%- for noeud_id, z_ini in noeuds_ci.items() %}
     <DonPrtCIniNoeudNiveauContinu NomRef="{{ noeud_id }}">

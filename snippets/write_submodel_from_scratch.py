@@ -120,6 +120,7 @@ submodel.add_section(section20_am)
 
 section20_middle = SectionProfil('St_20_middle')
 section20_middle.set_xz(np.array([(0, 3), (1, 0.5), (5, 0), (9, 0.5), (10, 3)]))
+section20_middle.set_fente(0.15, 15)
 section20_middle.add_limite_geom(LimiteGeom('Et_AxeHyd', 5.0))
 section20_middle.set_lits_numerotes((0.0, 0.0, 1.0, 9.0, 10.0, 10.0))
 section20_middle.build_orthogonal_trace(axe_geom)
@@ -182,4 +183,4 @@ submodel.add_branche(branche20)
 
 if __name__ == "__main__":
     # Write all submodel files
-    submodel.write_all('../tmp/Sm_from_scratch', 'Config')
+    submodel.write_all('out/Sm_from_scratch', 'Config')

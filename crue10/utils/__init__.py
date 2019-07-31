@@ -12,8 +12,6 @@ XML_TEMPLATES_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 
 
 XSD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'xsd')
 
-JINJA_ENV = Environment(loader=FileSystemLoader(XML_TEMPLATES_FOLDER))
-
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000")  # example: 2019-01-23T16:59:16.000
 
 USERNAME = os.getlogin()
@@ -38,7 +36,6 @@ logger.setLevel(logging.DEBUG)
 
 
 def add_default_missing_metadata(metadata, fields):
-    metadata = {} if metadata is None else metadata
     metadata_out = {}
     for field in fields:
         if field not in metadata:
@@ -70,6 +67,31 @@ def check_isinstance(obj, type):
 def check_preffix(name, preffix):
     if not name.startswith(preffix):
         raise CrueError("Le nom `%s` ne commence pas par `%s`" % (name, preffix))
+
+
+def float2str(value):
+    return str(value).replace('e', 'E')
+
+
+HTML_ESCAPE_TABLE = {
+    "&": "&amp;",
+    '"': "&quot;",
+    "'": "&apos;",
+    ">": "&gt;",
+    "<": "&lt;",
+}
+
+
+def html_escape(text):
+    """Produce entities within text."""
+    return "".join(HTML_ESCAPE_TABLE.get(c, c) for c in text)
+
+
+JINJA_ENV = Environment(loader=FileSystemLoader(XML_TEMPLATES_FOLDER))
+JINJA_ENV.filters = {
+    'float2str': float2str,
+    'html_escape': html_escape
+}
 
 
 class CrueError(Exception):

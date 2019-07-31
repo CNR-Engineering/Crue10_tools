@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DPTG xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dptg-1.2.xsd">
+  <Commentaire></Commentaire>
+  <DonPrtGeoProfilCasiers>
+    <ProfilCasier Nom="Pc_1_001">
+      <Commentaire></Commentaire>
+      <Longueur>0.0</Longueur>
+      <EvolutionFF>
+        <PointFF>0 0</PointFF>
+        <PointFF>50 0</PointFF>
+        <PointFF>100 0</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0 0.0</LimDeb>
+        <LimFin>100 0.0</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+  </DonPrtGeoProfilCasiers>
+  <DonPrtGeoProfilSections>
+    <ProfilSection Nom="Ps_20_middle">
+      <Commentaire></Commentaire>
+      
+      <Fente>
+        <LargeurFente>0.15</LargeurFente>
+        <ProfondeurFente>15</ProfondeurFente>
+      </Fente>
+      
+      <EvolutionFF>
+        <PointFF>0.0 3.0</PointFF>
+        <PointFF>1.0 0.5</PointFF>
+        <PointFF>5.0 0.0</PointFF>
+        <PointFF>9.0 0.5</PointFF>
+        <PointFF>10.0 3.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>0.0 3.0</LimDeb>
+          <LimFin>0.0 3.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>0.0 3.0</LimDeb>
+          <LimFin>1.0 0.5</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>1.0 0.5</LimDeb>
+          <LimFin>9.0 0.5</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>9.0 0.5</LimDeb>
+          <LimFin>10.0 3.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>10.0 3.0</LimDeb>
+          <LimFin>10.0 3.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>5.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+    <ProfilSection Nom="Ps_2_Am">
+      <Commentaire></Commentaire>
+      
+      <EvolutionFF>
+        <PointFF>0.0 3.0</PointFF>
+        <PointFF>1.0 0.5</PointFF>
+        <PointFF>5.0 0.0</PointFF>
+        <PointFF>9.0 0.5</PointFF>
+        <PointFF>10.0 3.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>0.0 3.0</LimDeb>
+          <LimFin>0.0 3.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>0.0 3.0</LimDeb>
+          <LimFin>1.0 0.5</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>1.0 0.5</LimDeb>
+          <LimFin>9.0 0.5</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>9.0 0.5</LimDeb>
+          <LimFin>10.0 3.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>10.0 3.0</LimDeb>
+          <LimFin>10.0 3.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>5.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+  </DonPrtGeoProfilSections>
+  <DonPrtGeoCasiers/>
+  <DonPrtGeoSections>
+    <DonPrtGeoSectionIdem NomRef="St_15_Am">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_15_Av">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_20_Am">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_20_Av">
+      <Dz>-1.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_2_Av">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_6_Am">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_6_Av">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+  </DonPrtGeoSections>
+  <DonPrtGeoBranches>
+    <DonPrtGeoBrancheSaintVenant NomRef="Br_20-SaintVenant">
+      <CoefSinuo>1.0</CoefSinuo>
+    </DonPrtGeoBrancheSaintVenant>
+  </DonPrtGeoBranches>
+</DPTG>
