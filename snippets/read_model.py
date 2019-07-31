@@ -9,8 +9,8 @@ from crue10.study import Study
 
 try:
     # Get model
-    study = Study('../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc/Etu_VS2003_Conc.etu.xml')
-    model = study.get_model('Mo_VS2013_c10_octobre_2014')
+    study = Study('../crue10_examples/Etudes-tests/Etu_BE2016_conc/Etu_BE2016_conc.etu.xml')
+    model = study.get_model('Mo_BE2016_etatref')
     model.read_all()
 
     print(model)

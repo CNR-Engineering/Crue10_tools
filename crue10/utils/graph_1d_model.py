@@ -22,13 +22,16 @@ BRANCHE_ARROWSTYLE = {  # depends if is active
     False: 'dashed',
 }
 
-BRANCHE_COLORS = {  # depends on branch type
-    1: 'red',
-    4: 'darkgreen',
-    5: 'green',
-    6: 'purple',
-    9: 'navy',
-    20: 'blue',
+BRANCHE_COLORS = {  # depends on branch type (taken from Fudaa-Crue rendering)
+    1: '#ff0031',
+    2: '#ce009c',
+    4: '#ff9a00',
+    5: '#00ffff',
+    6: '#31cb00',
+    12: '#ffff00',
+    14: '#319aff',
+    15: '#319aff',
+    20: '#0030ff',
     'default': 'black'
 }
 

@@ -4,6 +4,7 @@ import os.path
 import shutil
 import xml.etree.ElementTree as ET
 
+from crue10.emh.branche import BrancheOrifice
 from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, JINJA_ENV, logger, \
     PREFIX, XML_DEFAULT_FOLDER, XML_ENCODING
 from crue10.utils.graph_1d_model import *
@@ -234,12 +235,17 @@ class Model:
 
             # Add branches
             for branche in submodel.iter_on_branches():
+                direction = 'forward'
+                if isinstance(branche, BrancheOrifice):
+                    if branche.SensOrifice == 'Bidirect':
+                        direction= 'both'
+                    elif branche.SensOrifice == 'Indirect':
+                        direction = 'back'
                 edge = pydot.Edge(
                     branche.noeud_amont.id, branche.noeud_aval.id, label=branche.id, fontsize=EMH_FONTSIZE,
                     arrowhead=key_from_constant(branche.type, BRANCHE_ARROWHEAD),
                     arrowtail=key_from_constant(branche.type, BRANCHE_ARROWHEAD),
-                    # arrowtail="inv",
-                    dir="forward",  # "both" or "back"
+                    dir=direction,
                     style=key_from_constant(branche.is_active, BRANCHE_ARROWSTYLE),
                     color=key_from_constant(branche.type, BRANCHE_COLORS),
                     fontcolor=key_from_constant(branche.type, BRANCHE_COLORS),
