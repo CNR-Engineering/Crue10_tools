@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding: utf-8
 """
 Fusionner des sous-modèles dans un même sous-modèle
 Pour l'instant, seules les lois de frottement sont suffixées

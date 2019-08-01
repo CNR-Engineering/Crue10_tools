@@ -22,12 +22,12 @@
     {%- for section in section_profil_list %}
     <ProfilSection Nom="{{ section.nom_profilsection }}">
       <Commentaire>{{ section.comment|html_escape }}</Commentaire>
-      {% if section.has_fente %}
+      {%- if section.has_fente %}
       <Fente>
         <LargeurFente>{{ section.fente[0] }}</LargeurFente>
         <ProfondeurFente>{{ section.fente[1] }}</ProfondeurFente>
       </Fente>
-      {% endif %}
+      {%- endif %}
       <EvolutionFF>
         {%- for xt, z in section.xz %}
         <PointFF>{{ xt }} {{ z }}</PointFF>

@@ -24,11 +24,10 @@ VARIABLES = ['Z', 'H', 'Fr']
 
 model_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
-    # Get submodel
+    # Get model
     study = Study(os.path.join(model_folder, 'Etu_VS2003_Conc.etu.xml'))
     model = study.get_model('Mo_VS2013_c10_octobre_2014')
     model.read_all()
-
     for submodel in model.submodels:
         submodel.convert_sectionidem_to_sectionprofil()
         print(submodel.summary())

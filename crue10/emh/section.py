@@ -9,10 +9,6 @@ Classes for cross-section in minor and major beds:
     - SectionIdem
     - SectionInterpolee
     - SectionSansGeometrie
-
-Not supported yet:
-- Fente (dptg.xml)
-- SectionProfil is truncated on "useful width" (TODO)
 """
 import abc
 from builtins import super  # python2 compatibility, requires module `future`
@@ -257,7 +253,7 @@ class SectionProfil(Section):
                 bed_pos = np.logical_and(lit.xt_min < xt, xt < lit.xt_max)
             else:
                 bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
-            coeff[bed_pos] = lit.friction_law.array[:, 1].mean()
+            coeff[bed_pos] = lit.friction_law.loi_Fk[:, 1].mean()
         return coeff
 
     def has_xz(self):

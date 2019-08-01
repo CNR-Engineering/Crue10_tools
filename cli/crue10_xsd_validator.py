@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# coding: utf-8
 """
 Check against XSD validation every crue10 xml files included in the target study (etu.xml file)
 """

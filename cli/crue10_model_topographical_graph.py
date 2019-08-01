@@ -6,9 +6,6 @@ Générer un schéma topologique sous forme d'image png/svg à partir d'un modè
 
 @warnings:
 Les fichiers de sortie sont écrasés s'ils existent
-
-FIXME:
-* les orifices ne sont pas orientés en réalité (Pb: avec le type de graph 'digraph' (DIrected graph) cela ne semble pas possible d'avoir les deux sur la double flèche)
 """
 import argparse
 

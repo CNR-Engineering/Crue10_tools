@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding: utf-8
 """
 Ecriture dans un unique modèle Crue10 (dans une étude vierge avec ce modèle) à partir de modèles de différentes études
 La liste des suffixes permet de renommer les lois de frottement pour éviter les conflits
@@ -46,7 +48,7 @@ try:
 
     model_out.reset_initial_conditions()
 
-    logger.info("~> Etude en sortie:")
+    logger.info("~> Étude en sortie:")
     logger.info(study_out)
     logger.info(model_out.summary())
     model_out.log_duplicated_emh()

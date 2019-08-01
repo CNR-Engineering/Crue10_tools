@@ -266,7 +266,9 @@ class SubModel:
                     if section_type == 'SectionProfil':
                         section = SectionProfil(nom_section, emh_section.find(PREFIX + 'ProfilSection').get('NomRef'))
                     elif section_type == 'SectionIdem':
-                        continue  # they are considered below
+                        # Only to preserve order of sections, the SectionIdem instance is set below
+                        self.sections[nom_section] = None
+                        continue
                     elif section_type == 'SectionInterpolee':
                         section = SectionInterpolee(nom_section)
                     elif section_type == 'SectionSansGeometrie':
@@ -279,7 +281,7 @@ class SubModel:
                             section.comment = emh_section.find(PREFIX + 'Commentaire').text
                     self.add_section(section)
 
-                # SectionIdem read after SectionProfil to define its parent section
+                # SectionIdem set after SectionProfil to define its parent section properly
                 for emh_section in emh_group:
                     section_type = emh_section.tag[len(PREFIX):]
                     nom_section = emh_section.get('Nom')
@@ -291,7 +293,7 @@ class SubModel:
                         if emh_section.find(PREFIX + 'Commentaire') is not None:
                             if emh_section.find(PREFIX + 'Commentaire').text is not None:
                                 section.comment = emh_section.find(PREFIX + 'Commentaire').text
-                        self.add_section(section)
+                        self.sections[nom_section] = section
 
             elif emh_group.tag == (PREFIX + 'Branches'):
                 if filter_branch_types is None:
@@ -350,6 +352,10 @@ class SubModel:
                         for emh_section in emh_sections:
                             section = self.sections[emh_section.get('NomRef')]
                             xp = float(emh_section.find(PREFIX + 'Xp').text)
+                            if isinstance(branche, BrancheSaintVenant):
+                                section.CoefPond = float(emh_section.find(PREFIX + 'CoefPond').text)
+                                section.CoefConv = float(emh_section.find(PREFIX + 'CoefConv').text)
+                                section.CoefDiv = float(emh_section.find(PREFIX + 'CoefDiv').text)
                             branche.add_section(section, xp)
                         self.add_branche(branche)
 
@@ -371,7 +377,6 @@ class SubModel:
         """
         Read dptg.xml file
         FIXME: Le profil est tronqué sur le lit utile (ie. entre les limites RD et RG)
-        TODO: Support Fente!
         """
         for emh_group in ET.parse(self.files['dptg']).getroot():
 
@@ -392,7 +397,7 @@ class SubModel:
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
-                    nom_section = emh.get('Nom').replace('Ps_', 'St_')  #FIXME: not necessary consistant
+                    nom_section = emh.get('Nom').replace('Ps_', 'St_')  # Not necessary consistant
                     section = self.sections[nom_section]
 
                     fente = emh.find(PREFIX + 'Fente')
@@ -418,7 +423,7 @@ class SubModel:
                             limite = LimiteGeom(etiquette.get('Nom'), xt)
                             section.add_limite_geom(limite)
 
-                    xz = []  # FIXME
+                    xz = []
                     for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
                         x, z = [float(v) for v in pointff.text.split()]
                         if section_xt_min <= x <= section_xt_max:

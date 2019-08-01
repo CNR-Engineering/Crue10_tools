@@ -50,6 +50,8 @@ def add_default_missing_metadata(metadata, fields):
 
 
 def check_isinstance(obj, type):
+    if obj is None:
+        return
     if isinstance(type, list):
         has_error = True
         for subtype in type:
