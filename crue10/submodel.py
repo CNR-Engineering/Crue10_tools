@@ -376,7 +376,6 @@ class SubModel:
     def _read_dptg(self):
         """
         Read dptg.xml file
-        FIXME: Le profil est tronqué sur le lit utile (ie. entre les limites RD et RG)
         """
         for emh_group in ET.parse(self.files['dptg']).getroot():
 
@@ -411,8 +410,6 @@ class SubModel:
                         xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
                         friction_law = self.friction_laws[lit_num_elt.find(PREFIX + 'Frot').get('NomRef')]
                         section.add_lit_numerote(LitNumerote(lit_id, xt_min, xt_max, friction_law))
-                    section_xt_min = section.lits_numerotes[0].xt_min
-                    section_xt_max = section.lits_numerotes[-1].xt_max
 
                     etiquettes = emh.find(PREFIX + 'Etiquettes')
                     if etiquettes is None:
@@ -423,12 +420,7 @@ class SubModel:
                             limite = LimiteGeom(etiquette.get('Nom'), xt)
                             section.add_limite_geom(limite)
 
-                    xz = []
-                    for pointff in emh.find(PREFIX + 'EvolutionFF').findall(PREFIX + 'PointFF'):
-                        x, z = [float(v) for v in pointff.text.split()]
-                        if section_xt_min <= x <= section_xt_max:
-                            xz.append([x, z])
-                    section.set_xz(np.array(xz))
+                    section.set_xz(parse_loi(emh))
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoSections'):
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
@@ -673,8 +665,10 @@ class SubModel:
     def write_all(self, folder, folder_config):
         logger.debug("Writing %s in %s" % (self, folder))
 
-        # TO CHECK
-        # Casier has at least one ProfilCasier
+        # TO CHECK:
+        # - Casier has at least one ProfilCasier
+        # - BrancheSaintVenant has a section_pilotage
+        # ...
 
         # Create folder if not existing
         sm_folder = os.path.join(folder, folder_config, self.id.upper())
@@ -696,6 +690,15 @@ class SubModel:
             self._write_shp_traces_sections(sm_folder)
         if self.casiers:
             self._write_shp_casiers(sm_folder)
+
+    def write_shp_sectionprofil_as_points(self, shp_path):
+        schema = {'geometry': '3D Point', 'properties': {'id_section': 'str', 'Z': 'float'}}
+        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
+            for section in self.iter_on_sections(SectionProfil, ignore_inactive=True):
+                coords = section.get_coord(add_z=True)
+                for coord in coords:
+                    out_shp.write({'geometry': mapping(Point(coord)),
+                                   'properties': {'id_section': section.id, 'Z': coord[-1]}})
 
     def write_shp_limites_lits_numerotes(self, shp_path):
         schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}

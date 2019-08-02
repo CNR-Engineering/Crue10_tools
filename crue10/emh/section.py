@@ -24,6 +24,8 @@ ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 DIFF_XP = 0.1  # m
 
+DISTANCE_TOL = 0.01  # m
+
 
 class FrictionLaw:
     """
@@ -138,7 +140,7 @@ class SectionProfil(Section):
     - xt_axe <float>: transversal position of hydraulic axis
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
-    - geom_trace <LineString>: polyline section trace
+    - geom_trace <LineString>: polyline section trace (/!\ only between left and right bank)
     - lits_numerotes <[LitNumerote]>: lits numérotés
     - limites_geom <[LimiteGeom]>: limites géométriques (thalweg, axe hydraulique...)
     """
@@ -168,6 +170,11 @@ class SectionProfil(Section):
     def has_fente(self):
         return self.fente is not None
 
+    @property
+    def xz_filtered(self):
+        return self.xz[np.logical_and(self.lits_numerotes[0].xt_min <= self.xz[:, 0],
+                                      self.xz[:, 0] <= self.lits_numerotes[-1].xt_max), :]
+
     def set_xz(self, array):
         check_isinstance(array, np.ndarray)
         self.xz = array
@@ -177,12 +184,11 @@ class SectionProfil(Section):
         if trace.has_z:
             raise CrueError("La trace de la %s ne doit pas avoir de Z !" % self)
         if not self.lits_numerotes:
-            raise CrueError('xz has to be set before (to check consistancy)')
+            raise CrueError('xz has to be set before (to check consistency)')
         self.geom_trace = trace
 
         # Display a warning if geometry is not consistent with self.xz array
-        min_xt = self.xz[:, 0].min()
-        range_xt = self.xz[:, 0].max() - min_xt
+        range_xt = self.xz_filtered[:, 0].max() - self.xz_filtered[:, 0].min()
         diff_xt = range_xt - self.geom_trace.length
         if abs(diff_xt) > 1e-2:
             logger.warn("Écart de longueur pour la section %s: %s" % (self, diff_xt))
@@ -191,11 +197,12 @@ class SectionProfil(Section):
         self.fente = (largeur, profondeur)
 
     def set_lits_numerotes(self, xt_list):
+        """Add directly the 5 beds from a list of 6 ordered xt values"""
         if len(xt_list) != 6:
             raise RuntimeError
         if any(x > y for x, y in zip(xt_list, xt_list[1:])):
             raise CrueError("Les valeurs de xt ne sont pas croissantes")
-        for bed_name, xt_min, xt_max,  in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
+        for bed_name, xt_min, xt_max in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
             lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
             self.lits_numerotes.append(lit_numerote)
 
@@ -217,7 +224,13 @@ class SectionProfil(Section):
     def interp_point(self, xt):
         if not self.lits_numerotes:
             raise CrueError('lits_numerotes has to be set before')
-        return self.geom_trace.interpolate(xt - self.lits_numerotes[0].xt_min)
+        xt_line = xt - self.lits_numerotes[0].xt_min
+        diff = xt_line - self.geom_trace.length
+        if diff > DISTANCE_TOL:
+            logger.warn("Interpolation d'un point au-delà de la trace (écart=%sm) pour la %s" % (diff, self))
+        if xt_line < -DISTANCE_TOL:
+            logger.warn("Interpolation d'un point en-deça de la trace (écart=%sm) pour la %s" % (xt_line, self))
+        return self.geom_trace.interpolate(xt_line)
 
     def get_coord(self, add_z=False):
         if self.xz is None:
@@ -225,8 +238,8 @@ class SectionProfil(Section):
         if self.geom_trace is None:
             raise CrueError("`%s`: 3D trace could not be computed (trace is missing)!" % self)
         coords = []
-        for x, z in self.xz:
-            point = self.interp_point(x)
+        for xt, z in self.xz_filtered:
+            point = self.interp_point(xt)
             if add_z:
                 coords.append((point.x, point.y, z))
             else:
@@ -235,22 +248,23 @@ class SectionProfil(Section):
 
     def get_is_bed_active_array(self):
         """/!\ Overestimation of active bed width"""
-        xt = self.xz[:, 0]
+        xt = self.xz_filtered[:, 0]
         is_active = np.zeros(len(xt), dtype=bool)
         for lit in self.lits_numerotes:
             if 'G' in lit.id:
-                bed_pos = np.logical_and(lit.xt_min < xt, xt < lit.xt_max)
+                bed_pos = np.logical_and(lit.xt_min < xt, xt <= lit.xt_max)
             else:
                 bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
             is_active[bed_pos] = lit.is_active
         return is_active
 
     def get_friction_coeff_array(self):
-        xt = self.xz[:, 0]
-        coeff = np.zeros(self.xz.shape[0], dtype=np.float)
+        """/!\ Overestimation of internal beds width"""
+        xt = self.xz_filtered[:, 0]
+        coeff = np.zeros(xt.shape[0], dtype=np.float)
         for lit in self.lits_numerotes:
             if 'G' in lit.id:
-                bed_pos = np.logical_and(lit.xt_min < xt, xt < lit.xt_max)
+                bed_pos = np.logical_and(lit.xt_min < xt, xt <= lit.xt_max)
             else:
                 bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
             coeff[bed_pos] = lit.friction_law.loi_Fk[:, 1].mean()
@@ -272,7 +286,7 @@ class SectionProfil(Section):
         point_apres = axe_geom.interpolate(min(self.xp + DIFF_XP, axe_geom.length))
         distance = axe_geom.project(point_apres) - axe_geom.project(point_avant)
         u, v = (point_avant.y - point_apres.y) / distance, (point_apres.x - point_avant.x) / distance
-        xt_list = [self.xz[:, 0].min(), self.xz[:, 0].max()]  # only extremities are written
+        xt_list = [self.xz_filtered[0, 0], self.xz_filtered[-1, 0]]  # only extremities are written
         coords = [(point.x + (xt - self.xt_axe) * u, point.y + (xt - self.xt_axe) * v) for xt in xt_list]
         self.geom_trace = LineString(coords)
 
