@@ -22,9 +22,9 @@ class MyArgParse(argparse.ArgumentParser):
         kwargs['formatter_class'] = CustomFormatter
         new_description = '_' * LINE_WIDTH + '\n' + description + '_' * LINE_WIDTH + '\n'
         super().__init__(add_help=False, description=new_description, *args, **kwargs)
-        self._positionals.title = self._title_group('Positional and compulsory arguments')
-        self._optionals.title = self._title_group('Optional arguments')
-        self.add_argument('-v', '--verbose', help="increase output verbosity", action="store_true")
+        self._positionals.title = self._title_group('Arguments positionnels obligatoires')
+        self._optionals.title = self._title_group('Arguments optionnels')
+        self.add_argument('-v', '--verbose', help="rendre le script plus verbeux (mode debug)", action="store_true")
 
     @staticmethod
     def _title_group(label):

@@ -266,7 +266,7 @@ class Model:
                 elif out_file.endswith('.dot'):
                     graph.write_dot(out_file)
                 else:
-                    raise NotImplementedError
+                    raise CrueError("Le format de fichier de `%s` n'est pas supporté" % out_file)
 
     def log_duplicated_emh(self):
         duplicated_noeuds = self.get_duplicated_noeuds()

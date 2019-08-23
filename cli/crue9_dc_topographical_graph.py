@@ -80,7 +80,8 @@ def crue9_dc_topographical_graph(args):
                         print("Casier {} détecté".format(node))
 
     # Create a directed graph
-    graph = pydot.Dot(graph_type='digraph', nodesep=args.sep)  # vertical : rankdir='LR'
+    # prog='neato' optimizes space
+    graph = pydot.Dot(graph_type='digraph', nodesep=args.sep, prog=args.prog)  # vertical : rankdir='LR'
 
     # Add nodes
     for node in nodes:
@@ -106,22 +107,25 @@ def crue9_dc_topographical_graph(args):
         )
         graph.add_edge(edge)
 
-    # Export(s) to png and/or svg
-    # prog='neato' optimizes space
-    if args.out_png:
-        print("Génération du fichier {}".format(args.out_png))
-        graph.write_png(args.out_png)
-    if args.out_svg:
-        print("Génération du fichier {}".format(args.out_svg))
-        graph.write_svg(args.out_svg)
-    # graph.write('debug.dot')
+    # Export(s) to png, svg, dot...
+    for out_file in args.out_files:
+        if out_file:
+            logger.debug("Génération du fichier %s (nodesep=%s, prog=%s)" % (out_file, args.nodesep, args.prog))
+            if out_file.endswith('.png'):
+                graph.write_png(out_file)
+            elif out_file.endswith('.svg'):
+                graph.write_svg(out_file)
+            elif out_file.endswith('.dot'):
+                graph.write_dot(out_file)
+            else:
+                raise CrueError("Le format de fichier de `%s` n'est pas supporté" % out_file)
 
 
 parser = MyArgParse(description=__doc__)
 parser.add_argument("fichier_dc", help="fichier d'entrée dc (format géométrie Crue9)")
-parser.add_argument("--out_png", help="fichier de sortie au format png")
-parser.add_argument("--out_svg", help="fichier de sortie au format svg")
-parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2) [1 par défaut]", default=1)
+parser.add_argument("out_files", help="fichier(s) de sortie (formats possibles: png, svg, dot)", nargs='+')
+parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2)", default=0.8)
+parser.add_argument("--prog", help="outil de rendu", default='dot', choices=['dot', 'neato', 'fdp', 'sfdp'])
 
 
 if __name__ == '__main__':

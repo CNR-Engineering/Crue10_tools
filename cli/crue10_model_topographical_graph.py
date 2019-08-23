@@ -26,8 +26,8 @@ def crue10_model_topographical_graph(args):
 parser = MyArgParse(description=__doc__)
 parser.add_argument("etu_path", help="fichier d'entrée etu.xml")
 parser.add_argument("mo_name", help="nom du modèle")
-parser.add_argument("out_files", help="fichier(s) de sortie (formats possibles: png, svg, dot...)", nargs='+')
-parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2) [1 par défaut]", default=0.8)
+parser.add_argument("out_files", help="fichier(s) de sortie (formats possibles: png, svg, dot)", nargs='+')
+parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2)", default=0.8)
 parser.add_argument("--prog", help="outil de rendu", default='dot', choices=['dot', 'neato', 'fdp', 'sfdp'])
 
 
