@@ -1,33 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-Ecriture dans un unique modèle Crue10 (dans une étude vierge avec ce modèle) à partir de modèles de différentes études
+Écriture dans un unique modèle Crue10 (dans une étude vierge avec ce modèle) à partir de modèles de différentes études
 La liste des suffixes permet de renommer les lois de frottement pour éviter les conflits
+
 TODO: Copy initial conditions!
 """
-import argparse
-import logging
+import sys
 
 from crue10.study import Study
 from crue10.utils import CrueError, logger
+from crue10.utils.cli_parser import MyArgParse
 
 
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--etu_path_list', help="liste des chemins vers des fichiers etu.xml", nargs='+')
-parser.add_argument('--mo_name_list', help="liste des noms des modèles", nargs='+')
-parser.add_argument('--suffix_list', help="liste des suffixes", nargs='+')
-parser.add_argument('etu_path_out', help="chemin vers l'étude à écrire")
-parser.add_argument('out_name', help="nom des scénario, modèle et sous-modèle (sans le suffixe)")
-parser.add_argument('-v', '--verbose', help="increase output verbosity", action="store_true")
-args = parser.parse_args()
-
-
-if args.verbose:
-    logger.setLevel(logging.DEBUG)
-else:
-    logger.setLevel(logging.INFO)
-
-try:
+def crue10_merge_models(args):
     if len(args.etu_path_list) != len(args.mo_name_list) != len(args.suffix_list):
         raise CrueError("Les arguments `etu_path_list`, `suffix_list` et `mo_name_list` n'ont pas la même longueur !")
 
@@ -58,5 +44,19 @@ try:
 
     study_out.write_all()
 
-except CrueError as e:
-    logger.error(e)
+
+parser = MyArgParse(description=__doc__)
+parser.add_argument('--etu_path_list', help="liste des chemins vers les fichiers etu.xml", nargs='+')
+parser.add_argument('--mo_name_list', help="liste des noms les modèles", nargs='+')
+parser.add_argument('--suffix_list', help="liste des suffixes à ajouter", nargs='+')
+parser.add_argument('etu_path_out', help="chemin vers l'étude à écrire")
+parser.add_argument('out_name', help="nom générique pour les scénario, modèle et sous-modèle (sans le suffixe)")
+
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    try:
+        crue10_merge_models(args)
+    except CrueError as e:
+        logger.critical(e)
+        sys.exit(1)

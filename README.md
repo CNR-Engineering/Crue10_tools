@@ -15,22 +15,4 @@ Crue10 tools
 
 ## Command line scripts
 
-TODO: documentate them automatically.
-
-### XSD validator
-
-Use cli script: `cli/crue10_xsd_validator.py`:
-
-```bash
-usage: crue10_xsd_validator.py [-h] [-v] etu_path
-
-Check against XSD validation files every crue10 xml files included in the
-target study (etu.xml file)
-
-positional arguments:
-  etu_path       path to etu.xml file
-
-optional arguments:
-  -h, --help     show this help message and exit
-  -v, --verbose  increase output verbosity
-```
+See [wiki pages](https://github.com/CNR-Engineering/Crue10_tools/wiki) to learn how to use them.

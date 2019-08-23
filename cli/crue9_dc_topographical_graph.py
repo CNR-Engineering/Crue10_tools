@@ -19,102 +19,115 @@ L'image de sortie est écrasée si elle existe
 # Tout le fichier dc est lu et les variables affectées
 # Ensuite l'arbre puis le graphique sont générés
 
-import argparse
 import sys
 
+from crue10.utils import logger
+from crue10.utils.cli_parser import MyArgParse
 from crue10.utils.graph_1d_model import *
 
-
-parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter, description=__doc__)
-parser.add_argument("fichier_dc", help="fichier d'entrée dc (format géométrie Crue9)")
-parser.add_argument("--out_png", help="fichier de sortie au format png")
-parser.add_argument("--out_svg", help="fichier de sortie au format svg")
-parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2) [1 par défaut]", default=1)
-args = parser.parse_args()
-
-dc_file = args.fichier_dc
-with open(dc_file, 'r', encoding="ISO-8859-1") as filein:
-    print("Traitement du fichier {}".format(dc_file))
-    branches = {}  # dictionnaire de la forme {nom_branche: (noeud_amont, noeud_aval, type)}
-    nodes = []  # liste de noeuds
-    casiers = []  # liste de noeuds
-    label = None  # pour les goto
-
-    for line in filein:
-        line = line.replace('\n', '').strip()
-        line = line.upper()  # nom des branches/noeuds non-sensible à la casse
-
-        if not line.startswith('*'):
-            if label is not None:
-                # Il y a un goto en cours...
-                if line.startswith(label):
-                    print("/!\ Partie ignorée à cause du 'GOTO {}'".format(label))
-                    label = None
-
-            else:
-                # On est en dehors du goto
-                if line.startswith('GOTO'):
-                    # Mais on rentre dans un autre GOTO...
-                    (key, label) = line.split()
-
-                elif line.startswith('BRANCHE'):
-                    # Une nouvelle branche est trouvée
-                    (key, name, node_up, node_down, btype) = line.split()
-                    btype = int(btype)
-                    print("Ajout de la branche {} ({} -> {})".format(name, node_up, node_down))
-
-                    # Ajout des noeuds si non présents
-                    if node_up not in nodes:
-                        nodes.append(node_up)
-                    if node_down not in nodes:
-                        nodes.append(node_down)
-
-                    # Ajout de la branche
-                    branches[name] = (node_up, node_down, btype)
-
-                elif line.startswith('CASIER'):
-                    (key, node) = line.split()
-                    casiers.append(node)
-                    print("Casier {} détecté".format(node))
 
 try:
     import pydot
 except:
-    sys.exit("Le module pydot ne fonctionne pas !")
+    logger.critical("Le module pydot ne fonctionne pas !")
+    sys.exit(1)
 
-# Create a directed graph
-graph = pydot.Dot(graph_type='digraph', nodesep=args.sep)  # vertical : rankdir='LR'
 
-# Add nodes
-for node in nodes:
-    if node in casiers:
-        has_casier = True
-    else:
-        has_casier = False
-    graph.add_node(pydot.Node(node, fontsize=EMH_FONTSIZE, style="filled",
-                              fillcolor=key_from_constant(True, NODE_COLOR),
-                              shape=key_from_constant(has_casier, CASIER_SHAPE)))
+def crue9_dc_topographical_graph(args):
+    dc_file = args.fichier_dc
+    with open(dc_file, 'r', encoding="ISO-8859-1") as filein:
+        print("Traitement du fichier {}".format(dc_file))
+        branches = {}  # dictionnaire de la forme {nom_branche: (noeud_amont, noeud_aval, type)}
+        nodes = []  # liste des noeuds
+        casiers = []  # liste des casiers
+        label = None  # pour les goto
 
-# Add branches
-for nom_branche, (node_up, node_down, btype) in branches.items():
-    edge = pydot.Edge(
-        node_up, node_down, label=nom_branche, fontsize=EMH_FONTSIZE,
-        arrowhead=key_from_constant(btype, BRANCHE_ARROWHEAD),
-        arrowtail=key_from_constant(btype, BRANCHE_ARROWHEAD),
-        dir="forward",
-        style=key_from_constant(True, BRANCHE_ARROWSTYLE),
-        color=key_from_constant(btype, BRANCHE_COLORS),
-        fontcolor=key_from_constant(btype, BRANCHE_COLORS),
-        penwidth=key_from_constant(btype, BRANCHE_SIZE)
-    )
-    graph.add_edge(edge)
+        for line in filein:
+            line = line.replace('\n', '').strip()
+            line = line.upper()  # nom des branches/noeuds (non-sensible à la casse)
 
-# Export(s) to png and/or svg
-# prog='neato' optimizes space
-if args.out_png:
-    print("Génération du fichier {}".format(args.out_png))
-    graph.write_png(args.out_png)
-if args.out_svg:
-    print("Génération du fichier {}".format(args.out_svg))
-    graph.write_svg(args.out_svg)
-# graph.write('debug.dot')
+            if not line.startswith('*'):
+                if label is not None:
+                    # Il y a un goto en cours...
+                    if line.startswith(label):
+                        print("/!\ Partie ignorée à cause du 'GOTO {}'".format(label))
+                        label = None
+
+                else:
+                    # On est en dehors du goto
+                    if line.startswith('GOTO'):
+                        # Mais on rentre dans un autre GOTO...
+                        (key, label) = line.split()
+
+                    elif line.startswith('BRANCHE'):
+                        # Une nouvelle branche est trouvée
+                        (key, name, node_up, node_down, btype) = line.split()
+                        btype = int(btype)
+                        print("Ajout de la branche {} ({} -> {})".format(name, node_up, node_down))
+
+                        # Ajout des noeuds si non présents
+                        if node_up not in nodes:
+                            nodes.append(node_up)
+                        if node_down not in nodes:
+                            nodes.append(node_down)
+
+                        # Ajout de la branche
+                        branches[name] = (node_up, node_down, btype)
+
+                    elif line.startswith('CASIER'):
+                        (key, node) = line.split()
+                        casiers.append(node)
+                        print("Casier {} détecté".format(node))
+
+    # Create a directed graph
+    graph = pydot.Dot(graph_type='digraph', nodesep=args.sep)  # vertical : rankdir='LR'
+
+    # Add nodes
+    for node in nodes:
+        if node in casiers:
+            has_casier = True
+        else:
+            has_casier = False
+        graph.add_node(pydot.Node(node, fontsize=EMH_FONTSIZE, style="filled",
+                                  fillcolor=key_from_constant(True, NODE_COLOR),
+                                  shape=key_from_constant(has_casier, CASIER_SHAPE)))
+
+    # Add branches
+    for nom_branche, (node_up, node_down, btype) in branches.items():
+        edge = pydot.Edge(
+            node_up, node_down, label=nom_branche, fontsize=EMH_FONTSIZE,
+            arrowhead=key_from_constant(btype, BRANCHE_ARROWHEAD),
+            arrowtail=key_from_constant(btype, BRANCHE_ARROWHEAD),
+            dir="forward",
+            style=key_from_constant(True, BRANCHE_ARROWSTYLE),
+            color=key_from_constant(btype, BRANCHE_COLORS),
+            fontcolor=key_from_constant(btype, BRANCHE_COLORS),
+            penwidth=key_from_constant(btype, BRANCHE_SIZE)
+        )
+        graph.add_edge(edge)
+
+    # Export(s) to png and/or svg
+    # prog='neato' optimizes space
+    if args.out_png:
+        print("Génération du fichier {}".format(args.out_png))
+        graph.write_png(args.out_png)
+    if args.out_svg:
+        print("Génération du fichier {}".format(args.out_svg))
+        graph.write_svg(args.out_svg)
+    # graph.write('debug.dot')
+
+
+parser = MyArgParse(description=__doc__)
+parser.add_argument("fichier_dc", help="fichier d'entrée dc (format géométrie Crue9)")
+parser.add_argument("--out_png", help="fichier de sortie au format png")
+parser.add_argument("--out_svg", help="fichier de sortie au format svg")
+parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2) [1 par défaut]", default=1)
+
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    try:
+        crue9_dc_topographical_graph(args)
+    except CrueError as e:
+        logger.critical(e)
+        sys.exit(1)
