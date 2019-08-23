@@ -11,11 +11,6 @@ from crue10.utils.graph_1d_model import *
 
 from crue10.submodel import SubModel
 
-try:
-    import pydot
-except:
-    raise CrueError("Le module pydot ne fonctionne pas !")
-
 
 class Model:
     """
@@ -211,6 +206,11 @@ class Model:
             submodel.write_all(folder, folder_config)
 
     def write_topological_graph(self, out_files, nodesep=0.8, prog='dot'):
+        try:
+            import pydot
+        except:
+            raise CrueError("Le module pydot ne fonctionne pas !")
+
         check_isinstance(out_files, list)
         # Create a directed graph
         graph = pydot.Dot(graph_type='digraph', label=self.id, fontsize=MO_FONTSIZE,

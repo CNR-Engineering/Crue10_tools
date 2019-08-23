@@ -14,13 +14,6 @@ from crue10.utils import CrueError, logger
 from crue10.study import Study
 
 
-try:
-    import pydot
-except:
-    logger.critical("Le module pydot ne fonctionne pas !")
-    sys.exit(1)
-
-
 def crue10_model_topographical_graph(args):
     study = Study(args.etu_path)
     model = study.get_model(args.mo_name)
