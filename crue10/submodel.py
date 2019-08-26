@@ -215,16 +215,16 @@ class SubModel:
                 yield section
 
     def iter_on_sections_profil(self):
-        return self.iter_on_sections(SectionProfil)
+        return self.iter_on_sections(section_type=SectionProfil)
 
     def iter_on_sections_item(self):
-        return self.iter_on_sections(SectionIdem)
+        return self.iter_on_sections(section_type=SectionIdem)
 
     def iter_on_sections_interpolees(self):
-        return self.iter_on_sections(SectionInterpolee)
+        return self.iter_on_sections(section_type=SectionInterpolee)
 
     def iter_on_sections_sans_geometrie(self):
-        return self.iter_on_sections(SectionSansGeometrie)
+        return self.iter_on_sections(section_type=SectionSansGeometrie)
 
     def iter_on_branches(self, filter_branch_types=None):
         for _, branche in self.branches.items():
@@ -485,20 +485,21 @@ class SubModel:
                         raise NotImplementedError
 
     def _read_shp_noeuds(self):
+        """Read geometry of all `Noeuds` from current submodel (they are compulsory)"""
+        geoms = {}
         with fiona.open(self.files['noeuds'], 'r') as src:
             for obj in src:
                 nom_noeud = obj['properties']['EMH_NAME']
                 coord = obj['geometry']['coordinates'][:2]  # Ignore Z
-                self.noeuds[nom_noeud].set_geom(Point(coord))
-
-    def _read_shp_traces_sections(self):
-        with fiona.open(self.files['tracesSections'], 'r') as src:
-            for obj in src:
-                nom_section = obj['properties']['EMH_NAME']
-                coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
-                self.sections[nom_section].set_trace(LineString(coords))
+                geoms[nom_noeud] = Point(coord)
+        for _, noeud in self.noeuds.items():
+            try:
+                noeud.set_geom(geoms[noeud.id])
+            except KeyError:
+                raise CrueErrorGeometryNotFound(noeud)
 
     def _read_shp_branches(self):
+        """Read geometry of all `Branches` from current submodel (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['branches'], 'r') as src:
             for obj in src:
@@ -509,9 +510,31 @@ class SubModel:
             try:
                 branche.set_geom(geoms[branche.id])
             except KeyError:
-                raise CrueError("La géométrie de la branche %s n'est pas trouvée!" % branche.id)
+                raise CrueErrorGeometryNotFound(branche)
+
+    def _read_shp_traces_sections(self):
+        """
+        Read geometry of all `SectionProfils` from current submodel
+        Missing sections are computed orthogonally to the branch
+        """
+        geoms = {}
+        with fiona.open(self.files['tracesSections'], 'r') as src:
+            for obj in src:
+                nom_section = obj['properties']['EMH_NAME']
+                coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
+                geoms[nom_section] = LineString(coords)
+        for section in self.iter_on_sections_profil():
+            try:
+                section.set_trace(geoms[section.id])
+            except KeyError:
+                branche = self.get_connected_branche(section.id)
+                if branche is None:
+                    raise RuntimeError
+                section.build_orthogonal_trace(branche.geom)
+                logger.warn("La géométrie manquante de la section %s est reconstruite" % section.id)
 
     def _read_shp_casiers(self):
+        """Read geometry of all `Casiers` from current submodel (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['casiers'], 'r') as src:
             for obj in src:
@@ -522,7 +545,7 @@ class SubModel:
             try:
                 casier.set_geom(geoms[casier.id])
             except KeyError:
-                raise CrueError("La géométrie du casier %s n'est pas trouvée!" % casier.id)
+                raise CrueErrorGeometryNotFound(casier)
 
     def read_all(self):
         if not self.was_read:
@@ -536,10 +559,10 @@ class SubModel:
             try:
                 if self.noeuds:
                     self._read_shp_noeuds()
+                if self.branches:  # Has to be done before sections (to enable orthogonal reconstruction)
+                    self._read_shp_branches()
                 if self.sections:
                     self._read_shp_traces_sections()
-                if self.branches:
-                    self._read_shp_branches()
                 if self.casiers:
                     self._read_shp_casiers()
             except fiona.errors.DriverError as e:
@@ -634,11 +657,8 @@ class SubModel:
             i = 0
             for section in self.iter_on_sections_profil():
                 if section.is_active:
-                    if section.geom_trace is None:  # Try to rebuild a theoretical geometry (it may crash easily!)
-                        branche = self.get_connected_branche(section.id)
-                        if branche is None:
-                            raise RuntimeError
-                        section.build_orthogonal_trace(branche.geom)
+                    if section.geom is None:
+                        raise CrueErrorGeometryNotFound(section)
                     elem = {
                         'geometry': mapping(section.geom_trace),
                         'properties': {'EMH_NAME': section.id, 'ATTRIBUTE_': i,

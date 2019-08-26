@@ -281,9 +281,10 @@ class SectionProfil(Section):
         Section xp is supposed to be normalized (ie. xp is consistent with axe_geom length)
         """
         check_isinstance(axe_geom, LineString)
-        point = axe_geom.interpolate(self.xp)
-        point_avant = axe_geom.interpolate(max(self.xp - DIFF_XP, 0.0))
-        point_apres = axe_geom.interpolate(min(self.xp + DIFF_XP, axe_geom.length))
+        xp = min(self.xp, axe_geom.length)  # in case xp is not consistant
+        point = axe_geom.interpolate(xp)
+        point_avant = axe_geom.interpolate(max(xp - DIFF_XP, 0.0))
+        point_apres = axe_geom.interpolate(min(xp + DIFF_XP, axe_geom.length))
         distance = axe_geom.project(point_apres) - axe_geom.project(point_avant)
         u, v = (point_avant.y - point_apres.y) / distance, (point_apres.x - point_avant.x) / distance
         xt_list = [self.xz_filtered[0, 0], self.xz_filtered[-1, 0]]  # only extremities are written

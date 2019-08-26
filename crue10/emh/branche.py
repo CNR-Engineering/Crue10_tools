@@ -67,6 +67,9 @@ class Branche(ABC):
     # Branch types whose sections (at least 2) have a geometry (SectionProfil or SectionIdem)
     TYPES_WITH_GEOM = [2, 6, 15, 20]
 
+    # Branch types which have a non-zero length value
+    TYPES_WITH_LENGTH = [6, 20]
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, branch_type, is_active=True):
         check_preffix(nom_branche, 'Br_')
         check_isinstance(noeud_amont, Noeud)
@@ -95,7 +98,7 @@ class Branche(ABC):
     @property
     def length(self):
         """Length displayed in FC (may differ from geometry)"""
-        if self.type in (6, 20):
+        if self.type in Branche.TYPES_WITH_LENGTH:
             return self.sections[-1].xp
         else:
             return 0.0
@@ -151,8 +154,9 @@ class Branche(ABC):
         """
         xp_max = self.sections[-1].xp
         length = self.geom.length
-        if abs(xp_max - length) > DIFF_XP_TO_WARN:
-            logger.warn("La longueur de la branche `%s` est estimée à %.2fm (non pas %.2fm)." % (self.id, length, xp_max))
+        if self.type in Branche.TYPES_WITH_LENGTH and abs(xp_max - length) > DIFF_XP_TO_WARN:
+            logger.warn("La longueur de la branche `%s` est estimée à %.2fm (non pas %.2fm)."
+                        % (self.id, length, xp_max))
         for i, section in enumerate(self.sections):
             try:
                 section.xp = section.xp * length / xp_max
