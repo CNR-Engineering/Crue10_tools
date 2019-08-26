@@ -523,7 +523,7 @@ class SubModel:
                 nom_section = obj['properties']['EMH_NAME']
                 coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_section] = LineString(coords)
-        for section in self.iter_on_sections_profil():
+        for section in self.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
             try:
                 section.set_trace(geoms[section.id])
             except KeyError:
@@ -655,17 +655,16 @@ class SubModel:
                                              ('ANGLE_STAR', 'float:32'), ('ANGLE_END', 'float:32')])}
         with fiona.open(os.path.join(folder, 'tracesSections.shp'), 'w', 'ESRI Shapefile', schema) as layer:
             i = 0
-            for section in self.iter_on_sections_profil():
-                if section.is_active:
-                    if section.geom is None:
-                        raise CrueErrorGeometryNotFound(section)
-                    elem = {
-                        'geometry': mapping(section.geom_trace),
-                        'properties': {'EMH_NAME': section.id, 'ATTRIBUTE_': i,
-                                       'ANGLE_STAR': 0.0, 'ANGLE_END': 0.0}
-                    }
-                    layer.write(elem)
-                    i += 0
+            for section in self.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
+                if section.geom is None:
+                    raise CrueErrorGeometryNotFound(section)
+                elem = {
+                    'geometry': mapping(section.geom_trace),
+                    'properties': {'EMH_NAME': section.id, 'ATTRIBUTE_': i,
+                                   'ANGLE_STAR': 0.0, 'ANGLE_END': 0.0}
+                }
+                layer.write(elem)
+                i += 0
 
     def _write_shp_casiers(self, folder):
         schema = {'geometry': '3D LineString',
