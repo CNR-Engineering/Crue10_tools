@@ -562,6 +562,7 @@ class SubModel:
                 if self.branches:  # Has to be done before sections (to enable orthogonal reconstruction)
                     self._read_shp_branches()
                 if self.sections:
+                    self.set_active_sections()
                     self._read_shp_traces_sections()
                 if self.casiers:
                     self._read_shp_casiers()
@@ -569,8 +570,6 @@ class SubModel:
                 logger.warn("Un fichier shp n'a pas pu être lu, la géométrie des EMH n'est pas lisible.")
                 logger.warn(str(e))
         self.was_read = True
-
-        self.set_active_sections()
 
     def _write_dfrt(self, folder):
         xml = 'dfrt'
@@ -656,7 +655,7 @@ class SubModel:
         with fiona.open(os.path.join(folder, 'tracesSections.shp'), 'w', 'ESRI Shapefile', schema) as layer:
             i = 0
             for section in self.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
-                if section.geom is None:
+                if section.geom_trace is None:
                     raise CrueErrorGeometryNotFound(section)
                 elem = {
                     'geometry': mapping(section.geom_trace),
