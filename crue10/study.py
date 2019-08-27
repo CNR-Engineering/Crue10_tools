@@ -224,9 +224,8 @@ class Study:
         logger.debug("Writing %s in %s" % (self, folder))
 
         # Create folder if not existing
-        if folder:
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
         self._write_etu(folder)
         for _, scenario in self.scenarios.items():
@@ -255,10 +254,11 @@ class Study:
         self.add_model(scenario.model)
         self.scenarios[scenario.id] = scenario
 
-    def create_empty_scenario(self, scenario_name, model_name, submodel_name, comment=''):
-        submodel = SubModel(submodel_name, access=self.access, metadata={'Commentaire': comment})
+    def create_empty_scenario(self, scenario_name, model_name, submodel_name=None, comment=''):
         model = Model(model_name, access=self.access, metadata={'Commentaire': comment})
-        model.add_submodel(submodel)
+        if submodel_name is not None:
+            submodel = SubModel(submodel_name, access=self.access, metadata={'Commentaire': comment})
+            model.add_submodel(submodel)
         scenario = Scenario(scenario_name, model, access=self.access, metadata={'Commentaire': comment})
         self.add_scenario(scenario)
         if not self.current_scenario:

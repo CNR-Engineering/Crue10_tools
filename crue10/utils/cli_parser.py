@@ -41,6 +41,6 @@ class MyArgParse(argparse.ArgumentParser):
 
         if 'verbose' in new_args:
             # Change verbosity globally
-            logger.set_level(logging.DEBUG)
+            logger.setLevel(logging.DEBUG)
 
         return new_args

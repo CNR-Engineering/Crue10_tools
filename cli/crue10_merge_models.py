@@ -20,7 +20,7 @@ def crue10_merge_models(args):
         raise CrueError("Les arguments `etu_path_list`, `suffix_list` et `mo_name_list` n'ont pas la même longueur !")
 
     study_out = Study(args.etu_path_out, access='w')
-    study_out.create_empty_scenario('Sc_%s' % args.out_name, 'Mo_%s' % args.out_name, 'Sm_%s' % args.out_name)
+    study_out.create_empty_scenario('Sc_%s' % args.out_name, 'Mo_%s' % args.out_name, submodel_name=None)
     model_out = study_out.get_model('Mo_%s' % args.out_name)
 
     for etu_path, mo_name, suffix in zip(args.etu_path_list, args.mo_name_list, args.suffix_list):

@@ -147,16 +147,20 @@ class SectionProfil(Section):
 
     def __init__(self, nom_section, nom_profilsection=None):
         super().__init__(nom_section)
-        if nom_profilsection is None:
-            self.nom_profilsection = 'Ps_' + nom_section[3:]
-        else:
-            check_preffix(nom_profilsection, 'Ps_')
-            self.nom_profilsection = nom_profilsection
+        self.nom_profilsection = ''
+        self.set_profilsection_name(nom_profilsection)
         self.xz = None
         self.geom_trace = None
         self.fente = None
         self.lits_numerotes = []
         self.limites_geom = []
+
+    def set_profilsection_name(self, nom_profilsection=None):
+        if nom_profilsection is None:
+            self.nom_profilsection = 'Ps_' + self.id[3:]
+        else:
+            check_preffix(nom_profilsection, 'Ps_')
+            self.nom_profilsection = nom_profilsection
 
     @property
     def xt_axe(self):

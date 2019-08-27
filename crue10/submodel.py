@@ -176,7 +176,7 @@ class SubModel:
         def rename_key_and_obj(dictionary, insert_before_last_split=False):
             """Add suffix to all keys of dictionary and `id` attribute of objects"""
             for old_id in deepcopy(list(dictionary.keys())):
-                if insert_before_last_split:
+                if insert_before_last_split or old_id.endswith('_Am') or old_id.endswith('_Av'):
                     new_left_id, new_right_id = old_id.rsplit('_', 1)
                     new_id = new_left_id + suffix + '_' + new_right_id
                 else:
@@ -194,7 +194,7 @@ class SubModel:
         if 'St' in emh_list:
             rename_key_and_obj(self.sections)
             for st in self.iter_on_sections_profil():
-                st.nom_profilsection = st.nom_profilsection + suffix
+                st.set_profilsection_name()
         if 'Br' in emh_list:
             rename_key_and_obj(self.branches)
 
@@ -690,9 +690,8 @@ class SubModel:
 
         # Create folder if not existing
         sm_folder = os.path.join(folder, folder_config, self.id.upper())
-        if folder:
-            if not os.path.exists(sm_folder):
-                os.makedirs(sm_folder)
+        if not os.path.exists(sm_folder):
+            os.makedirs(sm_folder)
 
         # Write xml files
         self._write_dfrt(folder)
