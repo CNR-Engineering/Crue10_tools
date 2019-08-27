@@ -2,7 +2,8 @@
 # coding: utf-8
 """
 @brief:
-Générer un schéma topologique sous forme d'image png/svg à partir d'un modèle d'une étude Crue10
+Générer un schéma topologique sous forme d'image png/svg
+à partir d'un modèle d'une étude Crue10
 
 @warnings:
 Les fichiers de sortie sont écrasés s'ils existent

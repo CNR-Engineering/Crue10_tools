@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-Écriture dans un unique modèle Crue10 (dans une étude vierge avec ce modèle) à partir de modèles de différentes études
+Écriture dans un unique modèle Crue10 (dans une étude vierge avec ce modèle)
+à partir de modèles de différentes études.
+
 La liste des suffixes permet de renommer les lois de frottement pour éviter les conflits
 
 TODO: Copy initial conditions!

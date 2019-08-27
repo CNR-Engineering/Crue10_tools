@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-Check against XSD validation every crue10 xml files included in the target study (etu.xml file)
+Check against XSD validation every crue10 xml files
+included in the target study (etu.xml file)
 """
 import sys
 

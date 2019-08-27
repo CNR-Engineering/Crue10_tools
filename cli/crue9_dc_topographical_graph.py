@@ -2,15 +2,20 @@
 # coding: utf-8
 """
 @brief:
-Générer un schéma topologique sous forme d'image png à partir d'un fichier dc (fichier de géométrie de Crue 9)
+Générer un schéma topologique sous forme d'image png à partir d'un fichier dc
+(fichier de géométrie de Crue 9)
 
 @info:
-* il s'agit d'une vue schématique avec tous les noeuds et les branches du modèle (aucune information géographique)
-* toutes les branches sont orientées de l'amont vers aval (mais certains types de branches ne devraient pas être orientées)
-* la coloration dépent du type de branches et les casiers et noeuds ont des formes différentes
+* il s'agit d'une vue schématique avec tous les noeuds et les branches du modèle
+    (aucune information géographique)
+* toutes les branches sont orientées de l'amont vers aval
+    (mais certains types de branches ne devraient pas être orientées)
+* la coloration dépend du type de branches et les casiers et noeuds
+    ont des formes différentes
 * les parties commentées ou shunter (par un GOTO) sont ignorées
 * Les noms des branches et noeuds sont écrits en masjuscules
-* les mots-clés (BRANCHE et GOTO) peuvent être indifférement en minuscules ou en majuscules.
+* les mots-clés (BRANCHE et GOTO) peuvent être indifférement
+    en minuscules ou en majuscules.
 * l'espacement est réglable avec l'option `--sep`
 
 @warnings:
