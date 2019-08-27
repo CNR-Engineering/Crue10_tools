@@ -1,25 +1,26 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-@brief:
-Générer un schéma topologique sous forme d'image png à partir d'un fichier dc
+# Résumé
+Générer un schéma topologique sous forme d'image png/svg à partir d'un fichier dc
 (fichier de géométrie de Crue 9)
 
-@info:
-* il s'agit d'une vue schématique avec tous les noeuds et les branches du modèle
+# Détails
+* il s'agit d'une vue schématique avec tous les noeuds/casiers et les branches
     (aucune information géographique)
-* toutes les branches sont orientées de l'amont vers aval
-    (mais certains types de branches ne devraient pas être orientées)
-* la coloration dépend du type de branches et les casiers et noeuds
-    ont des formes différentes
+* l'orientation des branches correspond au sens de la ligne qui se termine par
+    une flèche (branche fluviale) ou un symbole qui est "côté noeud aval"
+* la coloration des lignes dépend du type de branches
+* la forme des noeuds et des casiers (avec leur nom associé) sont différentes
 * les parties commentées ou shunter (par un GOTO) sont ignorées
 * Les noms des branches et noeuds sont écrits en masjuscules
+    (Crue9 n'étant pas sensible à la casse)
 * les mots-clés (BRANCHE et GOTO) peuvent être indifférement
     en minuscules ou en majuscules.
-* l'espacement est réglable avec l'option `--sep`
+* le rendu du graphique est configurable avec les options `--sep` et `--prog`
 
-@warnings:
-L'image de sortie est écrasée si elle existe
+# Avertissements
+Les fichiers en sortie sont écrasés s'ils existent déjà
 """
 # Tout le fichier dc est lu et les variables affectées
 # Ensuite l'arbre puis le graphique sont générés
@@ -128,7 +129,7 @@ def crue9_dc_topographical_graph(args):
 
 parser = MyArgParse(description=__doc__)
 parser.add_argument("fichier_dc", help="fichier d'entrée dc (format géométrie Crue9)")
-parser.add_argument("out_files", help="fichier(s) de sortie (formats possibles: png, svg, dot)", nargs='+')
+parser.add_argument("out_files", help="liste des fichier(s) à écrire (formats possibles: png, svg, dot)", nargs='+')
 parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2)", default=0.8)
 parser.add_argument("--prog", help="outil de rendu", default='dot', choices=['dot', 'neato', 'fdp', 'sfdp'])
 

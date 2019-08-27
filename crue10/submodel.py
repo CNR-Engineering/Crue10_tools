@@ -500,7 +500,8 @@ class SubModel:
             try:
                 section.set_trace(geoms[section.id])
             except KeyError:
-                if self.get_connected_branche(section.id) is None:
+                branche = self.get_connected_branche(section.id)
+                if branche is None:
                     continue  # ignore current orphan section
                 section.build_orthogonal_trace(branche.geom)
                 logger.warn("La géométrie manquante de la section %s est reconstruite" % section.id)

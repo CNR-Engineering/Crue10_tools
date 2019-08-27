@@ -32,7 +32,7 @@ def crue10_xsd_validator(args):
 
 
 parser = MyArgParse(description=__doc__)
-parser.add_argument('etu_path', help="path to etu.xml file")
+parser.add_argument('etu_path', help="chemin vers l'étude Crue10 à lire (fichier etu.xml)")
 
 
 if __name__ == '__main__':

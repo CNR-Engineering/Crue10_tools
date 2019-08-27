@@ -13,6 +13,11 @@ pour éviter les conflits.
 
 Les arguments `--etu_path_list`, `--suffix_list` et `--mo_name_list`
 doivent avoir la même longueur.
+
+L'argument `--nodes_to_share` permet de définir les noeuds communs,
+qui seront renommés pour correspondre au premier noeud. Les groupes de noeuds sont
+séparés par des espaces et au sein de ceux-ci les noeuds sont séparés par des virgules.
+Les valeurs vides sont permises si le sous-modèle n'est pas concerné.
 """
 import sys
 
@@ -26,17 +31,24 @@ def crue10_merge_models(args):
         raise CrueError("Les arguments `--etu_path_list`, `--suffix_list` et `--mo_name_list`"
                         " n'ont pas la même longueur !")
 
-    # Parse argument `--nodes_to_merge`
+    # Parse argument `--nodes_to_share`
     nb_models = len(args.mo_name_list)
     noeud_id_list = [[] for _ in range(nb_models)]
-    if args.nodes_to_merge is not None:
-        for nodes_str in args.nodes_to_merge:
+    noeud_id_references = []  # list of node name used for merged nodes (first node found)
+    if args.nodes_to_share is not None:
+        for nodes_str in args.nodes_to_share:
             nodes = nodes_str.split(',')
             if len(nodes) != nb_models:
-                raise CrueError("L'argument `--nodes_to_merge ` doit être composé de groupe(s) de %i noeuds"
+                raise CrueError("L'argument `--nodes_to_share` doit être composé de groupe(s) de %i noeuds"
                                 % nb_models)
+            reference_found = False
             for i, node_id in enumerate(nodes):
                 noeud_id_list[i].append(node_id)
+                if not reference_found and node_id != '':
+                    noeud_id_references.append(node_id)
+                    reference_found = True
+            if not reference_found:
+                raise CrueError("Le noeud de référence n'a pas pu être trouvé pour : `%s`" % nodes_str)
 
     study_out = Study(args.etu_path_out, access='w')
     study_out.create_empty_scenario('Sc_%s' % args.out_name, 'Mo_%s' % args.out_name, submodel_name=None)
@@ -47,11 +59,13 @@ def crue10_merge_models(args):
         model_in = study_in.get_model(mo_name)
         model_in.read_all()
 
+        # Rename all EMHs and set optional shared nodes
         model_in.rename_emhs(suffix, emhs_to_preserve=noeud_id_list[i])
         for j, noeud_id in enumerate(noeud_id_list[i]):
-            if noeud_id not in [nd.id for nd in model_in.get_noeud_list()]:
-                raise CrueError("Le noeud %s n'est pas dans le modèle %s" % (noeud_id, model_in.id))
-            model_in.rename_noeud(noeud_id, noeud_id_list[0][j])
+            if noeud_id != '':
+                if noeud_id not in [nd.id for nd in model_in.get_noeud_list()]:
+                    raise CrueError("Le noeud %s n'est pas dans le modèle %s" % (noeud_id, model_in.id))
+                model_in.rename_noeud(noeud_id, noeud_id_references[j])
 
         model_out.append_from_model(model_in)
 
@@ -68,12 +82,19 @@ def crue10_merge_models(args):
 
 
 parser = MyArgParse(description=__doc__)
-parser.add_argument('--etu_path_list', help="liste des chemins vers les fichiers etu.xml", nargs='+', default=[])
-parser.add_argument('--mo_name_list', help="liste des noms les modèles", nargs='+', default=[])
-parser.add_argument('--suffix_list', help="liste des suffixes à ajouter", nargs='+', default=[])
-parser.add_argument('--nodes_to_merge', help="liste des noeuds à fusionner", nargs='*', default=[])
-parser.add_argument('etu_path_out', help="chemin vers l'étude à écrire")
-parser.add_argument('out_name', help="nom générique pour les scénario, modèle et sous-modèle (sans le suffixe)")
+parser_models = parser.add_argument_group("Choix des modèles à fusionner")
+parser_models.add_argument('--etu_path_list', nargs='+', default=[],
+                           help="liste des chemins vers les études Crue10 à lire (fichiers etu.xml)")
+parser_models.add_argument('--mo_name_list', nargs='+', default=[],
+                           help="liste des noms des modèles (avec le preffixe Mo_)")
+parser_models.add_argument('--suffix_list', help="liste des suffixes à ajouter aux EMHs", nargs='+', default=[])
+
+parser.add_argument('--nodes_to_share', nargs='*', default=[],
+                    help="liste des noeuds à fusionner (séparateur virgule)")
+
+parser_out = parser.add_argument_group("Paramètres des fichiers de sortie")
+parser_out.add_argument('etu_path_out', help="chemin vers l'étude Crue10 à écrire (fichier etu.xml")
+parser_out.add_argument('out_name', help="nom générique pour les scénario, modèle et sous-modèle (sans le suffixe)")
 
 
 if __name__ == '__main__':
