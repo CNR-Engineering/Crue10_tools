@@ -327,7 +327,9 @@ class SectionIdem(Section):
         new_section = deepcopy(self.parent_section)
         new_section.id = self.id
         new_section.xp = self.xp
+        new_section.is_active = self.is_active
         new_section.xz[:, 1] += self.dz
+        new_section.comment = 'Copie de la section parent %s' % self.parent_section.id
         return new_section
 
 

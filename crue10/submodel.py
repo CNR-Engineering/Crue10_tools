@@ -500,9 +500,8 @@ class SubModel:
             try:
                 section.set_trace(geoms[section.id])
             except KeyError:
-                branche = self.get_connected_branche(section.id)
-                if branche is None:
-                    raise RuntimeError
+                if self.get_connected_branche(section.id) is None:
+                    continue  # ignore current orphan section
                 section.build_orthogonal_trace(branche.geom)
                 logger.warn("La géométrie manquante de la section %s est reconstruite" % section.id)
 
@@ -528,6 +527,8 @@ class SubModel:
             self._read_dptg()
             self._read_dcsp()
 
+            self.set_active_sections()
+
             # Read shp files
             try:
                 if self.noeuds:
@@ -535,7 +536,6 @@ class SubModel:
                 if self.branches:  # Has to be done before sections (to enable orthogonal reconstruction)
                     self._read_shp_branches()
                 if self.sections:
-                    self.set_active_sections()
                     self._read_shp_traces_sections()
                 if self.casiers:
                     self._read_shp_casiers()
@@ -627,7 +627,9 @@ class SubModel:
                                              ('ANGLE_STAR', 'float:32'), ('ANGLE_END', 'float:32')])}
         with fiona.open(os.path.join(folder, 'tracesSections.shp'), 'w', 'ESRI Shapefile', schema) as layer:
             i = 0
-            for section in self.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
+            for section in self.iter_on_sections(section_type=SectionProfil):
+                if self.get_connected_branche(section.id) is None:
+                    continue  # ignore current orphan section
                 if section.geom_trace is None:
                     raise CrueErrorGeometryNotFound(section)
                 elem = {
@@ -734,14 +736,14 @@ class SubModel:
 
     def set_active_sections(self):
         """
-        Sections are set to active if they are connected to a branch
+        Sections are set to active if they are connected to an active branch
         """
         for section in self.iter_on_sections():
             section.is_active = False
 
         for branche in self.iter_on_branches():
             for section in branche.sections:
-                section.is_active = True
+                section.is_active = branche.is_active
 
     def get_connected_branche(self, nom_section):
         """

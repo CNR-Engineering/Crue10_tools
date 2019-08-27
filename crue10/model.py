@@ -92,7 +92,7 @@ class Model:
                 Model.rename_emh(dictionary, old_id, new_id, replace_obj)
 
     def rename_noeud(self, old_id, new_id):
-        logger.debug("Rename Noeud: %s -> %s" % (old_id, new_id))
+        logger.debug("Renommage Noeud: %s -> %s" % (old_id, new_id))
         for submodel in self.submodels:
             Model.rename_emh(submodel.noeuds, old_id, new_id)
             Model.rename_emh(self.noeuds_ic, old_id, new_id, replace_obj=False)
