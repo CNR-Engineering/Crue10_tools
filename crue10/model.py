@@ -1,5 +1,6 @@
 # coding: utf-8
 from collections import Counter
+from copy import deepcopy
 import os.path
 import shutil
 import xml.etree.ElementTree as ET
@@ -72,6 +73,49 @@ class Model:
     def file_basenames(self):
         return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
+    @staticmethod
+    def rename_emh(dictionary, old_id, new_id, replace_obj=True):
+        dictionary[new_id] = dictionary.pop(old_id)
+        if replace_obj:
+            dictionary[new_id].id = new_id
+
+    @staticmethod
+    def rename_key_and_obj(dictionary, suffix, replace_obj=True, insert_before=False, emhs_to_preserve=[]):
+        """Add suffix to all keys of dictionary and `id` attribute of objects"""
+        for old_id in deepcopy(list(dictionary.keys())):
+            if old_id not in emhs_to_preserve:
+                if insert_before or old_id.endswith('_Am') or old_id.endswith('_Av'):
+                    new_left_id, new_right_id = old_id.rsplit('_', 1)
+                    new_id = new_left_id + suffix + '_' + new_right_id
+                else:
+                    new_id = old_id + suffix
+                Model.rename_emh(dictionary, old_id, new_id, replace_obj)
+
+    def rename_noeud(self, old_id, new_id):
+        logger.debug("Rename Noeud: %s -> %s" % (old_id, new_id))
+        for submodel in self.submodels:
+            Model.rename_emh(submodel.noeuds, old_id, new_id)
+            Model.rename_emh(self.noeuds_ic, old_id, new_id, replace_obj=False)
+
+    def rename_emhs(self, suffix, emh_list=['Fk', 'Nd', 'Cd', 'St', 'Br'], emhs_to_preserve=[]):
+        for submodel in self.submodels:
+            if 'Fk' in emh_list:
+                Model.rename_key_and_obj(submodel.friction_laws, suffix)
+            if 'Nd' in emh_list:
+                Model.rename_key_and_obj(submodel.noeuds, suffix, emhs_to_preserve=emhs_to_preserve)
+                Model.rename_key_and_obj(self.noeuds_ic, suffix, emhs_to_preserve=emhs_to_preserve, replace_obj=False)
+            if 'Cd' in emh_list:
+                Model.rename_key_and_obj(submodel.casiers, suffix)
+                Model.rename_key_and_obj(self.casiers_ic, suffix, replace_obj=False)
+                Model.rename_key_and_obj(submodel.profils_casier, suffix, insert_before=True)
+            if 'St' in emh_list:
+                Model.rename_key_and_obj(submodel.sections, suffix)
+                for st in submodel.iter_on_sections_profil():
+                    st.set_profilsection_name()
+            if 'Br' in emh_list:
+                Model.rename_key_and_obj(submodel.branches, suffix)
+                Model.rename_key_and_obj(self.branches_ic, suffix, replace_obj=False)
+
     def get_noeud_list(self):
         noeuds = []
         for submodel in self.submodels:
@@ -122,7 +166,21 @@ class Model:
             raise CrueError("Le sous-modèle %s est déjà présent" % submodel.id)
         self.submodels.append(submodel)
 
+    def append_from_model(self, model):
+        """Add submodel in current model with the related initial conditions"""
+        for submodel in model.submodels:
+            self.add_submodel(submodel)
+
+        # Copy initial conditions
+        for noeud_id, value in model.noeuds_ic.items():
+            self.noeuds_ic[noeud_id] = value
+        for branche_id, values in model.branches_ic.items():
+            self.branches_ic[branche_id] = values
+        for casier_id, value in model.casiers_ic.items():
+            self.casiers_ic[casier_id] = value
+
     def reset_initial_conditions(self):
+        """Set initial conditions to default values"""
         self.noeuds_ic = {noeud.id: 1.0E30 for noeud in self.get_noeud_list()}
 
         self.casiers_ic = {casier.id: 0.0 for casier in self.get_casier_list()}

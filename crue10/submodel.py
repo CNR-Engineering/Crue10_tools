@@ -1,6 +1,5 @@
 # coding: utf-8
 from collections import OrderedDict
-from copy import deepcopy
 import fiona
 import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
@@ -171,32 +170,6 @@ class SubModel:
         self.add_friction_law(DEFAULT_FK_STO)
         self.add_friction_law(DEFAULT_FK_MAX)
         self.add_friction_law(DEFAULT_FK_MIN)
-
-    def rename_emh(self, suffix, emh_list=['Fk', 'Nd', 'Cd', 'St', 'Br']):
-        def rename_key_and_obj(dictionary, insert_before_last_split=False):
-            """Add suffix to all keys of dictionary and `id` attribute of objects"""
-            for old_id in deepcopy(list(dictionary.keys())):
-                if insert_before_last_split or old_id.endswith('_Am') or old_id.endswith('_Av'):
-                    new_left_id, new_right_id = old_id.rsplit('_', 1)
-                    new_id = new_left_id + suffix + '_' + new_right_id
-                else:
-                    new_id = old_id + suffix
-                dictionary[new_id] = dictionary.pop(old_id)
-                dictionary[new_id].id = new_id
-
-        if 'Fk' in emh_list:
-            rename_key_and_obj(self.friction_laws)
-        if 'Nd' in emh_list:
-            rename_key_and_obj(self.noeuds)
-        if 'Cd' in emh_list:
-            rename_key_and_obj(self.casiers)
-            rename_key_and_obj(self.profils_casier, True)
-        if 'St' in emh_list:
-            rename_key_and_obj(self.sections)
-            for st in self.iter_on_sections_profil():
-                st.set_profilsection_name()
-        if 'Br' in emh_list:
-            rename_key_and_obj(self.branches)
 
     def get_noeud(self, nom_noeud):
         try:
