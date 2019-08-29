@@ -13,7 +13,7 @@ Générer un schéma topologique sous forme d'image png/svg à partir d'un fichi
 * la coloration des lignes dépend du type de branches
 * la forme des noeuds et des casiers (avec leur nom associé) sont différentes
 * les parties commentées ou shunter (par un GOTO) sont ignorées
-* Les noms des branches et noeuds sont écrits en masjuscules
+* les noms des branches et noeuds sont écrits en masjuscules
     (Crue9 n'étant pas sensible à la casse)
 * les mots-clés (BRANCHE et GOTO) peuvent être indifférement
     en minuscules ou en majuscules.
@@ -129,7 +129,7 @@ def crue9_dc_topographical_graph(args):
 
 parser = MyArgParse(description=__doc__)
 parser.add_argument("fichier_dc", help="fichier d'entrée dc (format géométrie Crue9)")
-parser.add_argument("out_files", help="liste des fichier(s) à écrire (formats possibles: png, svg, dot)", nargs='+')
+parser.add_argument("out_files", help="liste des fichier(s) à écrire (formats possibles : png, svg, dot)", nargs='+')
 parser.add_argument("--sep", help="ratio pour modifier l'espacement (par ex. 0.5 ou 2)", default=0.8)
 parser.add_argument("--prog", help="outil de rendu", default='dot', choices=['dot', 'neato', 'fdp', 'sfdp'])
 
