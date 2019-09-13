@@ -41,7 +41,6 @@ try:
 
     # Write some output files
     submodel.write_shp_limites_lits_numerotes('../tmp/limites.shp')
-    submodel.write_mascaret_geometry('../tmp/Etu_VS2003_Conc.georef')
 
 except FileNotFoundError as e:
     logger.critical(e)

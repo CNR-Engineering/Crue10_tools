@@ -17,6 +17,8 @@ try:
     for submodel in model.submodels:
         print(submodel)
 
+    # model.write_mascaret_geometry('../tmp/Etu_VS2003_Conc.georef')
+
 except FileNotFoundError as e:
     logger.critical(e)
     sys.exit(1)
