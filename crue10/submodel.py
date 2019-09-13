@@ -12,8 +12,6 @@ from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, FrictionLaw, LimiteGeom, LitNumerote, \
     SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
-from mascaret.mascaret_file import Reach, Section
-from mascaret.mascaretgeo_file import MascaretGeoFile
 
 
 def parse_loi(elt, group='EvolutionFF', line='PointFF'):
@@ -710,41 +708,16 @@ class SubModel:
                         out_shp.write({'geometry': mapping(LineString(coords)),
                                        'properties': {'id_limite': lit_name, 'id_branche': branche.id}})
 
-    def write_mascaret_geometry(self, geo_path):
-        """
-        @brief: Convert submodel to mascaret geometry format (georef for example)
-        Only reaches with sections having elevation information are written
-        TODO: Add min/maj delimiter
-        @param geo_path <str>: output file path
-        """
-        geofile = MascaretGeoFile(geo_path, access='w')
-        i_section = 0
-        for i_branche, branche in enumerate(self.iter_on_branches()):
-            if branche.has_geom():
-                reach = Reach(i_branche, name=branche.id)
-                for section in branche.sections:
-                    if not isinstance(section, SectionProfil):
-                        raise CrueError("The ``%s, which is not a SectionProfil, could not be written" % section)
-                    masc_section = Section(i_section, section.xp, name=section.id)
-                    coord = np.array(section.get_coord(add_z=True))
-                    masc_section.set_points_from_xyz(coord[:, 0], coord[:, 1], coord[:, 2])
-                    pt_at_axis = section.interp_point(section.xt_axe)
-                    masc_section.axis = (pt_at_axis.x, pt_at_axis.y)
-                    reach.add_section(masc_section)
-                    i_section += 1
-                geofile.add_reach(reach)
-        geofile.save()
-
     def set_active_sections(self):
         """
-        Sections are set to active if they are connected to an active branch
+        Sections are set to active if they are connected to a branch (active or not!)
         """
         for section in self.iter_on_sections():
             section.is_active = False
 
         for branche in self.iter_on_branches():
             for section in branche.sections:
-                section.is_active = branche.is_active
+                section.is_active = True
 
     def get_connected_branche(self, nom_section):
         """
@@ -797,7 +770,7 @@ class SubModel:
             for j, section in enumerate(branche.sections):
                 if isinstance(section, SectionIdem):
                     # Replace current instance by its original SectionProfil
-                    new_section = section.get_as_sectionprofil()
+                    new_section = section.get_as_sectionprofil(branche.geom)
                     branche.sections[j] = new_section
                     self.sections[section.id] = new_section
 

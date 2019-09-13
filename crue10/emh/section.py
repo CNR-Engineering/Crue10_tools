@@ -320,9 +320,10 @@ class SectionIdem(Section):
         self.parent_section = parent_section
         self.dz = dz
 
-    def get_as_sectionprofil(self):
+    def get_as_sectionprofil(self, geom=None):
         """
         Return a SectionProfil instance from the original section
+        geom <LineString>: assosciated branche geometry to build orthogonal trace
         """
         new_section = deepcopy(self.parent_section)
         new_section.id = self.id
@@ -330,6 +331,8 @@ class SectionIdem(Section):
         new_section.is_active = self.is_active
         new_section.xz[:, 1] += self.dz
         new_section.comment = 'Copie de la section parent %s' % self.parent_section.id
+        if geom is not None:
+            new_section.build_orthogonal_trace(geom)
         return new_section
 
 

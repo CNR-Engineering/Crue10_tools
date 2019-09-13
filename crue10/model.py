@@ -1,16 +1,19 @@
 # coding: utf-8
 from collections import Counter
 from copy import deepcopy
+import numpy as np
 import os.path
 import shutil
 import xml.etree.ElementTree as ET
 
 from crue10.emh.branche import BrancheOrifice
+from crue10.emh.section import SectionProfil
 from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, JINJA_ENV, logger, \
     PREFIX, XML_DEFAULT_FOLDER, XML_ENCODING
 from crue10.utils.graph_1d_model import *
-
 from crue10.submodel import SubModel
+from mascaret.mascaret_file import Reach, Section
+from mascaret.mascaretgeo_file import MascaretGeoFile
 
 
 class Model:
@@ -325,6 +328,34 @@ class Model:
                     graph.write_dot(out_file)
                 else:
                     raise CrueError("Le format de fichier de `%s` n'est pas supporté" % out_file)
+
+    def write_mascaret_geometry(self, geo_path):
+        """
+        @brief: Convert model to Mascaret geometry format (extension: geo or georef)
+        Only active branche of type 20 (SaintVenant) are written
+        TODO: Add min/maj delimiter
+        @param geo_path <str>: output file path
+        /!\ Submodels branches should only contain SectionProfil
+            (call to method `convert_sectionidem_to_sectionprofil` is highly recommanded)
+        """
+        geofile = MascaretGeoFile(geo_path, access='w')
+        i_section = 0
+        for submodel in self.submodels:
+            for i_branche, branche in enumerate(submodel.iter_on_branches([20])):
+                if branche.has_geom() and branche.is_active:
+                    reach = Reach(i_branche, name=branche.id)
+                    for section in branche.sections:
+                        if not isinstance(section, SectionProfil):
+                            raise CrueError("The `%s`, which is not a SectionProfil, could not be written" % section)
+                        masc_section = Section(i_section, section.xp, name=section.id)
+                        coord = np.array(section.get_coord(add_z=True))
+                        masc_section.set_points_from_xyz(coord[:, 0], coord[:, 1], coord[:, 2])
+                        pt_at_axis = section.interp_point(section.xt_axe)
+                        masc_section.axis = (pt_at_axis.x, pt_at_axis.y)
+                        reach.add_section(masc_section)
+                        i_section += 1
+                    geofile.add_reach(reach)
+        geofile.save()
 
     def log_duplicated_emh(self):
         duplicated_noeuds = self.get_duplicated_noeuds()
