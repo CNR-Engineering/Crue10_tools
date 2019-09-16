@@ -1,7 +1,7 @@
 import os.path
 import sys
 
-from crue10.run import CrueRun
+from crue10.run import RunResults
 from crue10.utils import CrueError, logger
 
 
@@ -10,7 +10,7 @@ rcal_path = os.path.join(model_folder,
                          'Runs/Sc_EtatsRef2015/R2019-04-16-14h09m19s/Mo_VS2013_c10_octobre_2014',
                          'VS2013_c10_EtatsRef.rcal.xml')
 try:
-    run = CrueRun(rcal_path)
+    run = RunResults(rcal_path)
     print(run.summary())
 
     print(run.emh_types)  # 'Noeud', 'Casier'...

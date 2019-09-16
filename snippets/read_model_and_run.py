@@ -13,7 +13,7 @@ from shapely.geometry import mapping, Point
 import sys
 
 from crue10.emh.section import SectionProfil
-from crue10.run import CrueRun
+from crue10.run import RunResults
 from crue10.study import Study
 from crue10.utils import CrueError, logger
 
@@ -39,8 +39,8 @@ try:
             bottom[section.id] = section.get_coord(add_z=True)
 
     # Read rcal result file
-    run = CrueRun(os.path.join(model_folder, 'Runs/Sc_EtatsRef2015/R2019-04-16-14h09m19s/Mo_VS2013_c10_octobre_2014',
-                  'VS2013_c10_EtatsRef.rcal.xml'))
+    run = RunResults(os.path.join(model_folder, 'Runs/Sc_EtatsRef2015/R2019-04-16-14h09m19s/Mo_VS2013_c10_octobre_2014',
+                     'VS2013_c10_EtatsRef.rcal.xml'))
     print(run.summary())
 
     # Check result consistency

@@ -51,16 +51,16 @@ class FilePosition:
         return res
 
 
-class CalculPermanent:
+class ResSteady:
     def __init__(self, name, bin_path, byte_offset):
         self.name = name
         self.file_pos = FilePosition(bin_path, byte_offset)
 
     def __repr__(self):
-        return "CalculPermanent #%s" % self.name
+        return "Calcul permanent #%s" % self.name
 
 
-class CalculTransitoire:
+class ResUnsteady:
     def __init__(self, name):
         self.name = name
         self.frame_list = []
@@ -72,4 +72,4 @@ class CalculTransitoire:
         return [frame[0] for frame in self.frame_list]
 
     def __repr__(self):
-        return "CalculTransitoire #%s (%i frames)" % (self.name, len(self.frame_list))
+        return "Calcul non permanent #%s (%i temps)" % (self.name, len(self.frame_list))

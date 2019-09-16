@@ -4,15 +4,15 @@ import logging
 import os
 
 
-XML_ENCODING = 'utf-8'
-
 XML_DEFAULT_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'default')
 
 XML_TEMPLATES_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'templates')
 
 XSD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'xsd')
 
-CURRENT_DATE = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000")  # example: 2019-01-23T16:59:16.000
+DATE_NOW = datetime.now()
+
+CURRENT_DATE = DATE_NOW.strftime("%Y-%m-%dT%H:%M:%S.000")  # example: "2019-01-23T16:59:16.000"
 
 USERNAME = os.getlogin()
 

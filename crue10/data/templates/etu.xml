@@ -5,8 +5,8 @@
   <DateCreation>{{ metadata.DateCreation }}</DateCreation>
   <AuteurDerniereModif>{{ metadata.AuteurDerniereModif }}</AuteurDerniereModif>
   <DateDerniereModif>{{ metadata.DateDerniereModif }}</DateDerniereModif>
-  {%- if current_scenario %}
-  <ScenarioCourant NomRef="{{ current_scenario }}"/>
+  {%- if current_scenario_id %}
+  <ScenarioCourant NomRef="{{ current_scenario_id }}"/>
   {%- endif %}
   <Repertoires>
     {%- for name, folder in folders %}
@@ -84,6 +84,20 @@
       <Scenario-Modeles>
         <Scenario-Modele NomRef="{{ scenario.model.id }}"/>
       </Scenario-Modeles>
+      {%- if scenario.runs %}
+      <Runs>
+        {%- for run_id, run in scenario.runs.items() %}
+        <Run Nom="{{ run_id }}">
+          <Commentaire>{{ run.metadata.Commentaire }}</Commentaire>
+          <AuteurCreation>{{ run.metadata.AuteurCreation }}</AuteurCreation>
+          <DateCreation>{{ run.metadata.DateCreation }}</DateCreation>
+          <AuteurDerniereModif>{{ run.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+          <DateDerniereModif>{{ run.metadata.DateDerniereModif }}</DateDerniereModif>
+        </Run>
+        {%- endfor %}
+      </Runs>
+      <RunCourant NomRef="{{ scenario.current_run_id }}"/>
+      {%- endif %}
     </Scenario>
 	{%- endfor %}
   </Scenarios>

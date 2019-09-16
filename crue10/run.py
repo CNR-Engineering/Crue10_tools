@@ -4,15 +4,35 @@ import numpy as np
 import os.path
 import xml.etree.ElementTree as ET
 
-from crue10.utils import CrueError, PREFIX
+from crue10.utils import add_default_missing_metadata, check_isinstance, CrueError, DATE_NOW, PREFIX
 
-from .calculs import CalculPermanent, CalculTransitoire, FilePosition, get_time_in_seconds
+from .results import ResSteady, ResUnsteady, FilePosition, get_time_in_seconds
 
 
 FMT_FLOAT_CSV = '{:.6e}'
 
 
-class CrueRun:
+class Run:
+    """
+    Run
+    - id: run identifier corresponding to folder name
+    - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
+    """
+    METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
+
+    def __init__(self, id=None, metadata=None):
+        if id is None:
+            self.id = DATE_NOW.strftime("R%Y-%m-%d-%Hh%Mm%Ss")
+        else:
+            self.id = id
+        self.metadata = self.metadata = {} if metadata is None else metadata
+        self.metadata = add_default_missing_metadata(self.metadata, Run.METADATA_FIELDS)
+
+    def __repr__(self):
+        return "Run %s" % self.id
+
+
+class RunResults:
     EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche']
 
     def __init__(self, rcal_path):
@@ -90,12 +110,12 @@ class CrueRun:
 
     def _read_rescalc(self):
         for calc in self.rcal.find(PREFIX + 'ResCalcPerms'):
-            calc_perm = CalculPermanent(calc.get('NomRef'), os.path.join(self.rcal_folder, calc.get('Href')),
-                                        int(calc.get('OffsetMot')))
+            calc_perm = ResSteady(calc.get('NomRef'), os.path.join(self.rcal_folder, calc.get('Href')),
+                                  int(calc.get('OffsetMot')))
             self.calc_perms[calc_perm.name] = calc_perm
 
         for calc in self.rcal.find(PREFIX + 'ResCalcTranss'):
-            calc_trans = CalculTransitoire(calc.get('NomRef'))
+            calc_trans = ResUnsteady(calc.get('NomRef'))
             for pdt in calc:
                 calc_trans.add_frame(get_time_in_seconds(pdt.get('TempsSimu')),
                                      os.path.join(self.rcal_folder, pdt.get('Href')), int(pdt.get('OffsetMot')))
@@ -107,7 +127,7 @@ class CrueRun:
             emh_types_with_res.append(emh_type)
             self.res_pattern.append((emh_type, (len(self.emh[emh_type]), len(self.variables[emh_type]))))
         # Add emh_types which have no result data (because delimiter is still present)
-        for i, emh_type in enumerate(CrueRun.EMH_PRIMARY_TYPES[:-1]):
+        for i, emh_type in enumerate(RunResults.EMH_PRIMARY_TYPES[:-1]):
             if emh_type not in emh_types_with_res:
                 self.res_pattern.insert(i, (emh_type, (0, 0)))
 
@@ -211,7 +231,7 @@ class CrueRun:
 
     def export_calc_perm_as_csv(self, csv_path):
         """
-        Write CSV containing all `CalculPermanent` results
+        Write CSV containing all `ResSteady` results
         Header is calc;emh_type;emh;variable;value
         """
         with open(csv_path, 'w', newline='') as csv_file:
@@ -232,7 +252,7 @@ class CrueRun:
 
     def export_calc_trans_as_csv(self, csv_path):
         """
-        Write CSV containing all `CalculTransitoire` results
+        Write CSV containing all `ResUnsteady` results
         Header is calc;time;emh_type;emh;variable;value
         """
         with open(csv_path, 'w', newline='') as csv_file:

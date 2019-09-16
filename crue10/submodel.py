@@ -5,13 +5,14 @@ import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
 import xml.etree.ElementTree as ET
 
-from crue10.utils import add_default_missing_metadata, check_preffix, CrueError, CrueErrorGeometryNotFound, \
-    JINJA_ENV, PREFIX, XML_ENCODING
 from crue10.emh.branche import *
 from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, FrictionLaw, LimiteGeom, LitNumerote, \
     SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
+from crue10.utils import add_default_missing_metadata, check_preffix, CrueError, CrueErrorGeometryNotFound, \
+    JINJA_ENV, PREFIX
+from crue10.utils.settings import XML_ENCODING
 
 
 def parse_loi(elt, group='EvolutionFF', line='PointFF'):
@@ -654,7 +655,7 @@ class SubModel:
                 }
                 layer.write(elem)
 
-    def write_all(self, folder, folder_config):
+    def write_all(self, folder, folder_config=None):
         logger.debug("Writing %s in %s" % (self, folder))
 
         # TO CHECK:
@@ -663,9 +664,10 @@ class SubModel:
         # ...
 
         # Create folder if not existing
-        sm_folder = os.path.join(folder, folder_config, self.id.upper())
-        if not os.path.exists(sm_folder):
-            os.makedirs(sm_folder)
+        if folder_config is not None:
+            sm_folder = os.path.join(folder, folder_config, self.id.upper())
+            if not os.path.exists(sm_folder):
+                os.makedirs(sm_folder)
 
         # Write xml files
         self._write_dfrt(folder)
@@ -673,14 +675,15 @@ class SubModel:
         self._write_dptg(folder)
         self._write_dcsp(folder)
 
-        if self.noeuds:
-            self._write_shp_noeuds(sm_folder)
-        if self.branches:
-            self._write_shp_branches(sm_folder)
-        if self.sections:
-            self._write_shp_traces_sections(sm_folder)
-        if self.casiers:
-            self._write_shp_casiers(sm_folder)
+        if folder_config is not None:
+            if self.noeuds:
+                self._write_shp_noeuds(sm_folder)
+            if self.branches:
+                self._write_shp_branches(sm_folder)
+            if self.sections:
+                self._write_shp_traces_sections(sm_folder)
+            if self.casiers:
+                self._write_shp_casiers(sm_folder)
 
     def write_shp_sectionprofil_as_points(self, shp_path):
         schema = {'geometry': '3D Point', 'properties': {'id_section': 'str', 'Z': 'float'}}

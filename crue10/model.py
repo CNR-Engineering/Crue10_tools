@@ -9,8 +9,9 @@ import xml.etree.ElementTree as ET
 from crue10.emh.branche import BrancheOrifice
 from crue10.emh.section import SectionProfil
 from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, JINJA_ENV, logger, \
-    PREFIX, XML_DEFAULT_FOLDER, XML_ENCODING
+    PREFIX, XML_DEFAULT_FOLDER
 from crue10.utils.graph_1d_model import *
+from crue10.utils.settings import XML_ENCODING
 from crue10.submodel import SubModel
 from mascaret.mascaret_file import Reach, Section
 from mascaret.mascaretgeo_file import MascaretGeoFile
@@ -258,6 +259,10 @@ class Model:
 
     def write_all(self, folder, folder_config):
         logger.debug("Writing %s in %s" % (self, folder))
+
+        # Create folder if not existing
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
         for xml_type in ['optr', 'optg', 'opti', 'pnum']:
             Model._write_default_file(xml_type, os.path.join(folder, os.path.basename(self.files[xml_type])))
