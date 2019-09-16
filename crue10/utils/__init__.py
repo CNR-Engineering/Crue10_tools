@@ -10,20 +10,7 @@ XML_TEMPLATES_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 
 
 XSD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'xsd')
 
-DATE_NOW = datetime.now()
-
-CURRENT_DATE = DATE_NOW.strftime("%Y-%m-%dT%H:%M:%S.000")  # example: "2019-01-23T16:59:16.000"
-
 USERNAME = os.getlogin()
-
-DEFAULT_METADATA = {
-    'IsActive': 'true',
-    'Commentaire': '',
-    'AuteurCreation': USERNAME,
-    'DateCreation': CURRENT_DATE,
-    'AuteurDerniereModif': USERNAME,
-    'DateDerniereModif': CURRENT_DATE,
-}
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
 
@@ -35,12 +22,27 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 
+def get_default_metadata():
+    """Default metadata with updated dates"""
+    date_now = datetime.now()
+    current_date = date_now.strftime("%Y-%m-%dT%H:%M:%S.000")  # example: "2019-01-23T16:59:16.000"
+    return {
+        'IsActive': 'true',
+        'Commentaire': '',
+        'AuteurCreation': USERNAME,
+        'DateCreation': current_date,
+        'AuteurDerniereModif': USERNAME,
+        'DateDerniereModif': current_date,
+    }
+
+
 def add_default_missing_metadata(metadata, fields):
     metadata_out = {}
     for field in fields:
         if field not in metadata:
+            default_metadata = get_default_metadata()
             try:
-                metadata_out[field] = DEFAULT_METADATA[field]
+                metadata_out[field] = default_metadata[field]
             except KeyError:
                 logger.debug(metadata)
                 raise CrueError("Le champ %s n'a pas de valeur par défaut, il faut le renseigner !" % field)

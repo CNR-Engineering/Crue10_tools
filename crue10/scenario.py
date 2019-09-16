@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from copy import deepcopy
 import os.path
 import shutil
 import subprocess
@@ -85,36 +84,66 @@ class Scenario:
             raise CrueError("Le Run %s est déjà présent" % run.id)
         self.runs[run.id] = run
 
-    def create_and_launch_new_run(self, study):
+    def set_current_run_id(self, run_id):
+        if run_id not in self.runs:
+            raise CrueError("Le Run '%s' n'existe pas" % run_id)
+        self.current_run_id = run_id
+
+    def remove_run(self, run_id, run_folder):
+        del self.runs[run_id]
+        run_folder = os.path.join(run_folder, self.id, run_id)
+        if os.path.exists(run_folder):
+            shutil.rmtree(run_folder)
+
+    def create_and_launch_new_run(self, study, comment=''):
         """
         Create and launch a new run
-        # TODO: check if not already ran before?
+        /!\ The instance of `study` is modified but the original file not overwritten
+             (If necessary, it should be done after calling this method)
+
+        1) Création d'un nouveau run (sans mettre à jour le fichier etu.xml en entrée)
+        2) Ecriture des fichiers XML dans un nouveau dossier du run
+        3) Lancement de crue10.exe en ligne de commande
+
+        Même comportement que Fudaa-Crue :
+        - Dans le fichier etu.xml:
+            - on conserve la liste des Runs précédents (sans copier les fichiers)
+            - on conserve les Sm/Mo/Sc qui sont hors du Sc courant
+        - Seuls les XML du scénario courant sont écrits dans le dossier du run
+        - Les XML du modèle associés sont écrits dans un sous-dossier
+        - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
+
+        TODO: Copier proprement les fichiers du modèle/scénario sans utiliser le template!
         """
         # Create new run instance and copy the study
-        run = Run()
+        run = Run(metadata={'Commentaire': comment})
         # from datetime import datetime
         # run.id = datetime(2020, 1, 1).strftime("R%Y-%m-%d-%Hh%Mm%Ss")
-        self.add_run(run)
         run_folder = os.path.join(study.folder, study.folders['RUNS'], self.id, run.id)
-        logger.debug("Writing %s in %s" % (run, run_folder))
-        self.current_run_id = run.id
+        # if run.id in self.runs:
+        #     self.remove_run(run.id, run_folder)
+        self.add_run(run)
+        self.set_current_run_id(run.id)
 
-        # Modified copy of the study
-        out_study = deepcopy(study)
-        out_study.current_scenario_id = self.id
+        # Update study attributes
+        study.current_scenario_id = self.id
 
         # Write files and create folder is necessary
+        logger.debug("Writing %s in %s" % (run, run_folder))
         mo_folder = os.path.join(run_folder, self.model.id)
         self.write_all(run_folder, folder_config=None, write_model=False)
         self.model.write_all(mo_folder, folder_config=None)
-        out_study.write_etu(run_folder)
+        study.write_etu(run_folder)
 
         # Run crue10.exe in command line
         etu_path = os.path.join(run_folder, os.path.basename(study.etu_path))
         cmd_list = [CRUE10_EXE_PATH] + CRUE10_EXE_OPTS + [etu_path]
         logger.info('Running: %s' % ' '.join(cmd_list))
-        call = subprocess.call(cmd_list)
-        return call
+        with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
+            with open(os.path.join(run_folder, 'stderr.csv'), "w") as err_csv:
+                exit_code = subprocess.call(cmd_list, stdout=out_csv, stderr=err_csv)
+                logger.debug('Returned exit code: %i' % exit_code)
+        return run.id
 
     @staticmethod
     def _write_default_file(xml_type, file_path):

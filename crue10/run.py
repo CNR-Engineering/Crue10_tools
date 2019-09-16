@@ -1,10 +1,11 @@
 from collections import OrderedDict
 import csv
+from datetime import datetime
 import numpy as np
 import os.path
 import xml.etree.ElementTree as ET
 
-from crue10.utils import add_default_missing_metadata, check_isinstance, CrueError, DATE_NOW, PREFIX
+from crue10.utils import add_default_missing_metadata, CrueError, PREFIX
 
 from .results import ResSteady, ResUnsteady, FilePosition, get_time_in_seconds
 
@@ -22,7 +23,7 @@ class Run:
 
     def __init__(self, id=None, metadata=None):
         if id is None:
-            self.id = DATE_NOW.strftime("R%Y-%m-%d-%Hh%Mm%Ss")
+            self.id = datetime.now().strftime("R%Y-%m-%d-%Hh%Mm%Ss")
         else:
             self.id = id
         self.metadata = self.metadata = {} if metadata is None else metadata

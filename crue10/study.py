@@ -88,30 +88,30 @@ class Study:
             self.current_scenario_id = root.find(PREFIX + 'ScenarioCourant').get('NomRef')
 
         # Repertoires
-        repertoires = root.find(PREFIX + 'Repertoires')
-        for repertoire in repertoires:
+        elt_repertoires = root.find(PREFIX + 'Repertoires')
+        for repertoire in elt_repertoires:
             self.folders[repertoire.get('Nom')] = repertoire.find(PREFIX + 'path').text
 
         # FichEtudes
-        fichiers = root.find(PREFIX + 'FichEtudes')
-        for fichier in fichiers:
-            if fichier.get('Type').lower() in Study.XML_FILES:  # Ignore Crue9 files
-                if fichier.get('Chemin') != '.\\':
+        elt_fichiers = root.find(PREFIX + 'FichEtudes')
+        for elt_fichier in elt_fichiers:
+            if elt_fichier.get('Type').lower() in Study.XML_FILES:  # Ignore Crue9 files
+                if elt_fichier.get('Chemin') != '.\\':
                     raise NotImplementedError
-                self.filename_list.append(os.path.join(folder, fichier.get('Nom')))
+                self.filename_list.append(os.path.join(folder, elt_fichier.get('Nom')))
 
         # SousModeles
-        sous_modeles = root.find(PREFIX + 'SousModeles')
-        for sous_modele in sous_modeles:
+        elt_sous_modeles = root.find(PREFIX + 'SousModeles')
+        for elt_sm in elt_sous_modeles:
             files = {}
-            submodel_name = sous_modele.get('Nom')
+            submodel_name = elt_sm.get('Nom')
 
-            metadata = read_metadata(sous_modele, SubModel.METADATA_FIELDS)
+            metadata = read_metadata(elt_sm, SubModel.METADATA_FIELDS)
 
-            fichiers = sous_modele.find(PREFIX + 'SousModele-FichEtudes')
+            elt_fichiers = elt_sm.find(PREFIX + 'SousModele-FichEtudes')
             for ext in SubModel.FILES_XML:
                 try:
-                    filename = fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
+                    filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                 except AttributeError:
                     raise CrueError("Le fichier %s n'est pas renseigné dans le sous-modèle !" % ext)
                 if filename is None:
@@ -131,18 +131,18 @@ class Study:
             raise CrueError("Il faut au moins un sous-modèle !")
 
         # Modele
-        modeles = root.find(PREFIX + 'Modeles')
-        for modele in modeles:
-            if modele.tag == PREFIX + 'Modele':  # Ignore Crue9 models
+        elt_models = root.find(PREFIX + 'Modeles')
+        for elt_modele in elt_models:
+            if elt_modele.tag == PREFIX + 'Modele':  # Ignore Crue9 models
                 files = {}
-                model_name = modele.get('Nom')
+                model_name = elt_modele.get('Nom')
 
-                metadata = read_metadata(modele, Model.METADATA_FIELDS)
+                metadata = read_metadata(elt_modele, Model.METADATA_FIELDS)
 
-                fichiers = modele.find(PREFIX + 'Modele-FichEtudes')
+                elt_fichiers = elt_modele.find(PREFIX + 'Modele-FichEtudes')
                 for ext in Model.FILES_XML:
                     try:
-                        filename = fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
+                        filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                     except AttributeError:
                         raise CrueError("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
                     if filename is None:
@@ -154,9 +154,9 @@ class Study:
 
                 model = Model(model_name, files=files, metadata=metadata)
 
-                sous_modeles = modele.find(PREFIX + 'Modele-SousModeles')
-                for sous_modele in sous_modeles:
-                    submodel_name = sous_modele.get('NomRef')
+                elt_sous_modeles = elt_modele.find(PREFIX + 'Modele-SousModeles')
+                for elt_sm in elt_sous_modeles:
+                    submodel_name = elt_sm.get('NomRef')
                     submodel = self.submodels[submodel_name]
                     model.add_submodel(submodel)
 
@@ -165,18 +165,16 @@ class Study:
             raise CrueError("Il faut au moins un modèle !")
 
         # Scenarios
-        scenarios = root.find(PREFIX + 'Scenarios')
-        for scenario in scenarios:
-            if scenario.tag == PREFIX + 'Scenario':
+        elt_scenarios = root.find(PREFIX + 'Scenarios')
+        for elt_scenario in elt_scenarios:
+            if elt_scenario.tag == PREFIX + 'Scenario':
                 files = {}
-                scenario_name = scenario.get('Nom')
+                scenario_name = elt_scenario.get('Nom')
 
-                metadata = read_metadata(scenario, Scenario.METADATA_FIELDS)
-
-                fichiers = scenario.find(PREFIX + 'Scenario-FichEtudes')
+                elt_fichiers = elt_scenario.find(PREFIX + 'Scenario-FichEtudes')
                 for ext in Scenario.FILES_XML:
                     try:
-                        filename = fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
+                        filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                     except AttributeError:
                         raise CrueError("Le fichier %s n'est pas renseigné dans le scénario !" % ext)
                     if filename is None:
@@ -186,23 +184,28 @@ class Study:
                         raise CrueError("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
                     files[ext] = filepath
 
-                modeles = scenario.find(PREFIX + 'Scenario-Modeles')
+                elt_models = elt_scenario.find(PREFIX + 'Scenario-Modeles')
                 model = None
-                for i, modele in enumerate(modeles):
-                    model = self.models[modele.get('NomRef')]
+                for i, elt_modele in enumerate(elt_models):
+                    model = self.models[elt_modele.get('NomRef')]
                     if i != 0:
                         raise NotImplementedError  # A single Model for a Scenario!
 
-                sc = Scenario(scenario_name, model, files=files, metadata=metadata)
+                metadata = read_metadata(elt_scenario, Scenario.METADATA_FIELDS)
+                scenario = Scenario(scenario_name, model, files=files, metadata=metadata)
 
-                runs = scenario.find(PREFIX + 'Runs')
+                runs = elt_scenario.find(PREFIX + 'Runs')
                 if runs is not None:
                     for run_elt in runs:
                         run_id = run_elt.get('Nom')
                         metadata = read_metadata(run_elt, Run.METADATA_FIELDS)
-                        sc.add_run(Run(id=run_id, metadata=metadata))
+                        scenario.add_run(Run(id=run_id, metadata=metadata))
 
-                self.add_scenario(sc)
+                elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')
+                if elt_current_run is not None:
+                    scenario.set_current_run_id(elt_current_run.get('NomRef'))
+
+                self.add_scenario(scenario)
 
         if not self.scenarios:
             raise CrueError("Il faut au moins un scénario !")
@@ -212,7 +215,12 @@ class Study:
         for _, scenario in self.scenarios.items():
             scenario.read_all()
 
-    def write_etu(self, folder):
+    def write_etu(self, folder=None):
+        """If folder is not given, the file is overwritten"""
+        if folder is None:
+            etu_path = os.path.join(self.folder, os.path.basename(self.etu_path))
+        else:
+            etu_path = os.path.join(folder, os.path.basename(self.etu_path))
         xml = 'etu'
         template_render = JINJA_ENV.get_template(xml + '.xml').render(
             folders=[(name, folder) for name, folder in self.folders.items()],
@@ -223,7 +231,7 @@ class Study:
             submodels=[sm for _, sm in self.submodels.items()],
             scenarios=[sc for _, sc in self.scenarios.items()],
         )
-        with open(os.path.join(folder, os.path.basename(self.etu_path)), 'w', encoding=XML_ENCODING) as out:
+        with open(etu_path, 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
 
     def write_all(self, folder=None):
