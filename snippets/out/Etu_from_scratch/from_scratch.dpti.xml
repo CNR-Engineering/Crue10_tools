@@ -3,34 +3,34 @@
   <Commentaire></Commentaire>
   <DonPrtCIniNoeuds>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_1">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_2">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_4">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_5">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_6">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_12">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_14">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_15">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_20">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_aval">
-      <Zini>1.0E30</Zini>
+      <Zini>1E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
   </DonPrtCIniNoeuds>
   <DonPrtCIniCasiers>

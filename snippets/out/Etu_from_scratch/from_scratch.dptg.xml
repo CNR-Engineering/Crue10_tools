@@ -6,13 +6,13 @@
       <Commentaire></Commentaire>
       <Longueur>0.0</Longueur>
       <EvolutionFF>
-        <PointFF>0.0 0.0</PointFF>
-        <PointFF>50.0 0.0</PointFF>
-        <PointFF>100.0 0.0</PointFF>
+        <PointFF>0 0</PointFF>
+        <PointFF>50 0</PointFF>
+        <PointFF>100 0</PointFF>
       </EvolutionFF>
       <LitUtile>
-        <LimDeb>0.0 0.0</LimDeb>
-        <LimFin>100.0 0.0</LimFin>
+        <LimDeb>0 0.0</LimDeb>
+        <LimFin>100 0.0</LimFin>
       </LitUtile>
     </ProfilCasier>
   </DonPrtGeoProfilCasiers>
@@ -21,7 +21,7 @@
       <Commentaire></Commentaire>
       <Fente>
         <LargeurFente>0.15</LargeurFente>
-        <ProfondeurFente>15.0</ProfondeurFente>
+        <ProfondeurFente>15</ProfondeurFente>
       </Fente>
       <EvolutionFF>
         <PointFF>0.0 3.0</PointFF>
@@ -73,9 +73,6 @@
         </LitNumerote>
       </LitNumerotes>
       <Etiquettes>
-        <Etiquette Nom="Et_Thalweg">
-          <PointFF>5.0 0.0</PointFF>
-        </Etiquette>
         <Etiquette Nom="Et_AxeHyd">
           <PointFF>5.0 0.0</PointFF>
         </Etiquette>
@@ -133,9 +130,6 @@
         </LitNumerote>
       </LitNumerotes>
       <Etiquettes>
-        <Etiquette Nom="Et_Thalweg">
-          <PointFF>5.0 0.0</PointFF>
-        </Etiquette>
         <Etiquette Nom="Et_AxeHyd">
           <PointFF>5.0 0.0</PointFF>
         </Etiquette>

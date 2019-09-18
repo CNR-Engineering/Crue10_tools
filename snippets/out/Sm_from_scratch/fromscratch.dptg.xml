@@ -19,12 +19,10 @@
   <DonPrtGeoProfilSections>
     <ProfilSection Nom="Ps_20_middle">
       <Commentaire></Commentaire>
-      
       <Fente>
         <LargeurFente>0.15</LargeurFente>
         <ProfondeurFente>15</ProfondeurFente>
       </Fente>
-      
       <EvolutionFF>
         <PointFF>0.0 3.0</PointFF>
         <PointFF>1.0 0.5</PointFF>
@@ -82,7 +80,6 @@
     </ProfilSection>
     <ProfilSection Nom="Ps_2_Am">
       <Commentaire></Commentaire>
-      
       <EvolutionFF>
         <PointFF>0.0 3.0</PointFF>
         <PointFF>1.0 0.5</PointFF>

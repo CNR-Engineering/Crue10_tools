@@ -39,8 +39,8 @@
       </ElemOrifice>
     </DonCalcSansPrtBrancheOrifice>
     <DonCalcSansPrtBrancheNiveauxAssocies NomRef="Br_12-NiveauxAssocies">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
+      <QLimInf>-1E30</QLimInf>
+      <QLimSup>1E30</QLimSup>
       <Zasso Nom="LoiZavZam_12-NiveauxAssocies" Type="LoiZavZam">
         <Commentaire></Commentaire>
         <EvolutionFF>
@@ -49,12 +49,12 @@
       </Zasso>
     </DonCalcSansPrtBrancheNiveauxAssocies>
     <DonCalcSansPrtBrancheBarrageGenerique NomRef="Br_14-BarrageGenerique">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
+      <QLimInf>-1E30</QLimInf>
+      <QLimSup>1E30</QLimSup>
       <RegimeNoye Nom="LoiQDz_14-BarrageGenerique" Type="LoiQDz">
         <Commentaire></Commentaire>
         <EvolutionFF>
-          <PointFF>-15000.0 -1.0E30</PointFF>
+          <PointFF>-15000.0 -1e+30</PointFF>
         </EvolutionFF>
       </RegimeNoye>
       <RegimeDenoye Nom="LoiQpilZam_14-BarrageGenerique" Type="LoiQpilZam">
@@ -65,8 +65,8 @@
       </RegimeDenoye>
     </DonCalcSansPrtBrancheBarrageGenerique>
     <DonCalcSansPrtBrancheBarrageFilEau NomRef="Br_15-BarrageFilEau">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
+      <QLimInf>-1E30</QLimInf>
+      <QLimSup>1E30</QLimSup>
       <ElemSeuil>
         <Largeur>1.0</Largeur>
         <Zseuil>0.0</Zseuil>
