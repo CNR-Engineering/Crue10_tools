@@ -772,11 +772,6 @@ class SubModel:
             branche.normalize_sections_xp()
             for j, section in enumerate(branche.sections):
                 if isinstance(section, SectionIdem):
-                    # Replace current instance by its original SectionProfil
-                    new_section = section.get_as_sectionprofil(branche.geom)
-                    branche.sections[j] = new_section
-                    self.sections[section.id] = new_section
-
                     # Find if current SectionIdem is located at geographic position of its original SectionProfil
                     located_at_parent_section = False
                     if j == 0 or j == len(branche.sections) - 1:
@@ -792,9 +787,14 @@ class SubModel:
                             if section_at_node is section.parent_section:
                                 located_at_parent_section = True
                                 break
+
+                    # Replace current instance by its original SectionProfil
+                    new_section = section.get_as_sectionprofil()
                     if not located_at_parent_section:
                         # Overwrite SectionProfil original trace by the orthogonal trace because their location differ
-                        branche.sections[j].build_orthogonal_trace(branche.geom)
+                        new_section.build_orthogonal_trace(branche.geom)
+                    self.sections[section.id] = new_section
+                    branche.sections[j] = new_section
 
     def normalize_geometry(self):
         for branche in self.iter_on_branches():
