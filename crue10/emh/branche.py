@@ -70,6 +70,9 @@ class Branche(ABC):
     # Branch types which have a non-zero length value
     TYPES_WITH_LENGTH = [6, 20]
 
+    # Branch types which should be located in the river bed (and not the floodplain)
+    TYPES_IN_MINOR_BED = [1, 2, 20]
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, branch_type, is_active=True):
         check_preffix(nom_branche, 'Br_')
         check_isinstance(noeud_amont, Noeud)
