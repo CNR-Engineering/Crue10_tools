@@ -69,9 +69,6 @@ class RunResults:
             for sub_elt in elt:
                 if not sub_elt.tag.endswith('VariableRes'):
                     emh_name = sub_elt.get('NomRef')
-                    if emh_name.startswith('Ca_'):
-                        # Replace `Ca_` prefix by `Cd_`
-                        emh_name = 'Cd_' + emh_name[3:]
                     self.emh[emh_sec].append(emh_name)
 
     def _read_parametrage(self):
