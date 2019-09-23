@@ -243,8 +243,7 @@ class MascaretFileParent:
         - file_name: file name
         - nreach: number of reaches
         - nvar: number of variables
-        - varnames: variable names
-        - varunits: unit of variables
+        - varnames_dict: variable names
         - times: list of time in seconds
         - _times_pos: starting position of frame in file
         """
@@ -585,7 +584,7 @@ class Opthyca(MascaretFileParent):
         if len(values) != self.nvar:
             self.error('Number of values not coherent: %i instead of %i' % (len(values), self.nvar))
 
-        return time, int(bief_name.strip().strip('\"')), section_pk, values
+        return time, int(float(bief_name.strip().strip('\"'))), section_pk, values
 
     def get_reaches(self):
         """Read geometry"""
@@ -606,6 +605,7 @@ class Opthyca(MascaretFileParent):
 
             prev_bief_id = reach_id
             reach.add_section(Section(section_id, pk))
+            self.nsections += 1
             section_id += 1
             time, reach_id, pk, _ = self._read_line_resultat()
         self.nreaches += 1

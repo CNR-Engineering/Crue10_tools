@@ -38,7 +38,11 @@ class MascaretGeoFile:
 
         # File format information
         if fformat is None:
-            self.fformat = os.path.splitext(file_name)[1][1:]
+            extension = os.path.splitext(file_name)[1]
+            if extension:
+                self.fformat = extension[1:]  # Ignore dot
+            else:
+                self.fformat = 'geo'  # default format
         else:
             self.fformat = fformat.lower().strip()
         if self.fformat not in ('geo', 'georef'):
@@ -54,6 +58,13 @@ class MascaretGeoFile:
         # Load file content
         if access == 'r':
             self.load()
+
+    @property
+    def nsections(self):
+        count = 0
+        for _, reach in self.reaches.items():
+            count += reach.nsections
+        return count
 
     def load(self):
         """
@@ -208,6 +219,19 @@ class MascaretGeoFile:
         for _, reach in self.reaches.items():
             for section in reach:
                 section.add_layer(thickness)
+
+    def export_shp_lines(self, filename):
+        if not self.has_ref:
+            raise MascaretException("export_shp_lines requires a geometry file with x and y coordinates")
+        import shapefile  # inside `pyshp` package
+        w = shapefile.Writer(filename, shapeType=shapefile.POLYLINEZ)
+        w.field('profil', 'C', '32')
+        w.field('PK', 'N', decimal=6)
+        for _, reach in self.reaches.items():
+            for section in reach:
+                coords = [(x, y, z) for x, y, z in zip(section.x, section.y, section.z)]
+                w.linez([coords])
+                w.record(section.name, section.pk)
 
     def summary(self):
         txt = '~> %s\n' % self
