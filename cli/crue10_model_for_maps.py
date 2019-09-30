@@ -1,5 +1,12 @@
 """
 Exporter les EMHs dans des fichiers shp pour CNR Maps
+Les fichiers suivants sont créés :
+- noeuds.shp
+- casiers.shp
+- branches.shp
+- sections.shp
+- sous-modeles.shp
+- modele.shp
 
 Remarques :
 - Les EMHs inactives sont exportées
@@ -160,7 +167,7 @@ def crue10_model_for_maps(args):
     # Model
     schema = {
         'geometry': 'Polygon',
-        'properties': OrderedDict([('NOM', 'str'), ('bief', 'str'), ('modelisateur', 'str'), ('date', 'str')]),
+        'properties': OrderedDict([('NOM', 'str'), ('bief', 'str'), ('auteurs', 'str'), ('date', 'str')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'modele.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         mo_zone = cascaded_union(mo_geom_list).buffer(args.mo_buffer).simplify(args.dist_simplify)
@@ -170,7 +177,7 @@ def crue10_model_for_maps(args):
             'properties': {
                 'NOM': model.id,
                 'bief': '',
-                'modelisateur': '',
+                'auteurs': '',
                 'date': '',
             }
         }
