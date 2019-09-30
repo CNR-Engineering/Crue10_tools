@@ -13,7 +13,6 @@ from shapely.geometry import mapping, Point
 import sys
 
 from crue10.emh.section import SectionProfil
-from crue10.run import RunResults
 from crue10.study import Study
 from crue10.utils import CrueError, logger
 
@@ -22,10 +21,10 @@ ADD_BOTTOM = True
 VARIABLES = ['Z', 'H', 'Fr']
 
 
-model_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
+etu_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
     # Get model
-    study = Study(os.path.join(model_folder, 'Etu_VS2003_Conc.etu.xml'))
+    study = Study(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
     model = study.get_model('Mo_VS2013_c10_octobre_2014')
     model.read_all()
     for submodel in model.submodels:
@@ -39,22 +38,23 @@ try:
             bottom[section.id] = section.get_coord(add_z=True)
 
     # Read rcal result file
-    run = RunResults(os.path.join(model_folder, 'Runs/Sc_EtatsRef2015/R2019-04-16-14h09m19s/Mo_VS2013_c10_octobre_2014',
-                     'VS2013_c10_EtatsRef.rcal.xml'))
-    print(run.summary())
+    scenario = study.get_scenario('Sc_EtatsRef2015')
+    run = scenario.get_run('R2019-04-16-14h09m19s')
+    results = run.get_results()
+    print(results.summary())
 
     # Check result consistency
-    missing_sections = model.get_missing_active_sections(run.emh['Section'])
+    missing_sections = model.get_missing_active_sections(results.emh['Section'])
     if missing_sections:
         print("Missing sections:\n%s" % missing_sections)
 
     # Read a single *steady* calculation
-    res_perm = run.get_res_perm('Cc_360m3-s')
+    res_perm = results.get_res_steady('Cc_360m3-s')
     res = res_perm['Section']
 
     # Subset results to get requested variables at active sections
-    pos_variables = [run.variables['Section'].index(var) for var in VARIABLES]
-    pos_sections = [run.emh['Section'].index(section_name) for section_name in bottom.keys()]
+    pos_variables = [results.variables['Section'].index(var) for var in VARIABLES]
+    pos_sections = [results.emh['Section'].index(section_name) for section_name in bottom.keys()]
     array = res[pos_sections, :][:, pos_variables]
 
     # Correct some variables (transversal profile)

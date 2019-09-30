@@ -15,7 +15,7 @@ Crue10 tools
 - Calcul (= lancer un run)
     - [Créer et lancer une série de runs](snippets/run_calculations.py)
 - Post-traitement de résultats (d'un run)
-  - [Lire un run](snippets/read_run.py)
+  - [Lire un run avec ses résultats](snippets/read_run_and_results.py)
   - [Lire un modèle et les résultats d'un run associé](snippets/read_model_and_run.py)
 
 ## Scripts en ligne de commande

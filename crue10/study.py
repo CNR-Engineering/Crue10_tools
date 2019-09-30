@@ -199,7 +199,9 @@ class Study:
                     for run_elt in runs:
                         run_id = run_elt.get('Nom')
                         metadata = read_metadata(run_elt, Run.METADATA_FIELDS)
-                        scenario.add_run(Run(id=run_id, metadata=metadata))
+                        run_mo_folder = os.path.join(self.folder, self.folders['RUNS'], scenario.id,
+                                                     run_id, scenario.model.id)
+                        scenario.add_run(Run(run_mo_folder, metadata=metadata))
 
                 elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')
                 if elt_current_run is not None:

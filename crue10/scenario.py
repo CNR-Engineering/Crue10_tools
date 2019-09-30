@@ -4,7 +4,7 @@ import shutil
 import subprocess
 
 from crue10.model import Model
-from crue10.run import Run
+from crue10.run import get_run_identifier, Run
 from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, \
     logger, XML_DEFAULT_FOLDER
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
@@ -67,6 +67,15 @@ class Scenario:
     def file_basenames(self):
         return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
+    def get_run(self, run_id):
+        if not self.runs:
+            raise CrueError("Aucun run n'existe pour ce scénario")
+        try:
+            return self.runs[run_id]
+        except KeyError:
+            raise CrueError("Le run %s n'existe pas !\nLes noms possibles sont: %s"
+                            % (run_id, list(self.runs.keys())))
+
     def set_model(self, model):
         check_isinstance(model, Model)
         self.model = model
@@ -95,7 +104,7 @@ class Scenario:
         if os.path.exists(run_folder):
             shutil.rmtree(run_folder)
 
-    def create_and_launch_new_run(self, study, comment=''):
+    def create_and_launch_new_run(self, study, run_id=None, comment=''):
         """
         Create and launch a new run
         /!\ The instance of `study` is modified but the original file not overwritten
@@ -116,10 +125,12 @@ class Scenario:
         TODO: Copier proprement les fichiers du modèle/scénario sans utiliser le template!
         """
         # Create new run instance and copy the study
-        run = Run(metadata={'Commentaire': comment})
-        # from datetime import datetime
-        # run.id = datetime(2020, 1, 1).strftime("R%Y-%m-%d-%Hh%Mm%Ss")
-        run_folder = os.path.join(study.folder, study.folders['RUNS'], self.id, run.id)
+        # from datetime import detatime
+        # run_id = get_run_identifier(datetime(2020, 1, 1))
+        if run_id is None:
+            run_id = get_run_identifier()
+        run_folder = os.path.join(study.folder, study.folders['RUNS'], self.id, run_id)
+        run = Run(os.path.join(run_folder, self.model.id), metadata={'Commentaire': comment})
         # if run.id in self.runs:
         #     self.remove_run(run.id, run_folder)
         self.add_run(run)

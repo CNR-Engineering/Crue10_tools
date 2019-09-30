@@ -25,9 +25,14 @@ for delta_strickler in np.arange(-20.0, 20.0, step=5.0):
                 friction_law_ori = scenario_ori.model.submodels[idx_sm].friction_laws[fk_id]
                 new_strickler = friction_law_ori.loi_Fk[:, 1] + delta_strickler
                 friction_law.loi_Fk[:, 1] = new_strickler.clip(min=10.0)
-                print("Nouvelles valeurs de Strickler pour %s: %s" % (fk_id, friction_law.loi_Fk[:, 1]))
+                # print("Nouvelles valeurs de Strickler pour %s: %s" % (fk_id, friction_law.loi_Fk[:, 1]))
 
-    run_id = scenario.create_and_launch_new_run(study, comment='Modif Strickler %f points' % delta_strickler)
+    # With regular run identifiers
+    # run_id = scenario.create_and_launch_new_run(study, comment='Modif Strickler %f points' % delta_strickler)
+
+    # With custom run identifiers
+    run_id = 'Strickler_%i' % delta_strickler
+    scenario.create_and_launch_new_run(study, run_id=run_id, comment='Modif Strickler %f points' % delta_strickler)
     print(run_id)
 
 study.write_etu()
