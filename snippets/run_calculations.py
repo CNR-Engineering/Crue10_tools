@@ -5,14 +5,17 @@ de -20 à 20 points par pas de 5 points (seula la loi de type `FkSto` n'est pas 
 
 Les lois de Strickler initiales sont stockés dans le scénario `scenario_ori`.
 Le fichier etu.xml initial est écrasé à la fin de tous les traitements
+
+Un graphique superposant les niveaux calculés au PR1 pour tous ces calculs permanent est réalisé à la fin du script.
 """
 from copy import deepcopy
+import matplotlib.pyplot as plt
 import numpy as np
 
 from crue10.study import Study
 
 
-study = Study('../crue10_examples/Etudes-tests/Etu_BE2016_conc/Etu_BE2016_conc.etu.xml')
+study = Study('../../Crue10_examples/Etudes-tests/Etu_BE2016_conc/Etu_BE2016_conc.etu.xml')
 study.read_all()
 
 scenario = study.get_scenario('Sc_BE2016_etatref')
@@ -33,6 +36,22 @@ for delta_strickler in np.arange(-20.0, 20.0, step=5.0):
     # With custom run identifiers
     run_id = 'Strickler_%i' % delta_strickler
     scenario.create_and_launch_new_run(study, run_id=run_id, comment='Modif Strickler %f points' % delta_strickler)
+
     print(run_id)
 
 study.write_etu()
+
+# Plot Z at PR1
+for _, run in scenario.runs.items():
+    results = run.get_results()
+    print(results)
+    values = results.get_res_all_steady_var_at_emhs('Z', ['St_RET113.600'])
+    nb_calc_steady = values.shape[0]
+    time_serie = np.arange(0, nb_calc_steady*3600, step=3600)
+
+    plt.plot(time_serie, values[:, 0], label=run.id)
+
+plt.xlabel("Temps (s)")
+plt.ylabel("Niveau d'eau au PR1 (mNGFO)")
+plt.legend(loc='upper left')
+plt.show()

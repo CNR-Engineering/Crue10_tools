@@ -1,3 +1,4 @@
+# coding: utf-8
 from collections import OrderedDict
 import os.path
 import shutil
@@ -6,7 +7,7 @@ import subprocess
 from crue10.model import Model
 from crue10.run import get_run_identifier, Run
 from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, \
-    logger, XML_DEFAULT_FOLDER
+    get_xml_root_from_file, logger, write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 
 
@@ -15,6 +16,7 @@ class Scenario:
     Crue10 scenario
     - id <str>: scenario identifier
     - files <{str}>: dict with path to xml files (keys correspond to `FILES_XML` list)
+    - xml_trees <{ET.ElementTree}>: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
     - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
     - model <[Model]>: model
     - runs <[Runs]>: runs
@@ -22,6 +24,7 @@ class Scenario:
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
+    FILES_XML_WITHOUT_TEMPLATE = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
@@ -29,6 +32,7 @@ class Scenario:
         check_preffix(scenario_name, 'Sc_')
         self.id = scenario_name
         self.files = files
+        self.xml_trees = {}
         self.metadata = {} if metadata is None else metadata
         self.was_read = False
 
@@ -80,10 +84,13 @@ class Scenario:
         check_isinstance(model, Model)
         self.model = model
 
+    def _set_xml_trees(self):
+        for xml_type in Scenario.FILES_XML_WITHOUT_TEMPLATE:
+            self.xml_trees[xml_type] = get_xml_root_from_file(self.files[xml_type])
+
     def read_all(self):
         if not self.was_read:
-            # TODO: Reading of ['ocal', 'ores', 'pcal', 'dclm', 'dlhy'] is not supported yet!
-
+            self._set_xml_trees()
             self.model.read_all()
         self.was_read = True
 
@@ -107,7 +114,7 @@ class Scenario:
     def create_and_launch_new_run(self, study, run_id=None, comment=''):
         """
         Create and launch a new run
-        /!\ The instance of `study` is modified but the original file not overwritten
+        /!\ The instance of `study` is modified but the original etu file not overwritten
              (If necessary, it should be done after calling this method)
 
         1) Création d'un nouveau run (sans mettre à jour le fichier etu.xml en entrée)
@@ -121,18 +128,14 @@ class Scenario:
         - Seuls les XML du scénario courant sont écrits dans le dossier du run
         - Les XML du modèle associés sont écrits dans un sous-dossier
         - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
-
-        TODO: Copier proprement les fichiers du modèle/scénario sans utiliser le template!
         """
-        # Create new run instance and copy the study
-        # from datetime import detatime
-        # run_id = get_run_identifier(datetime(2020, 1, 1))
+        # Create a Run instance
         if run_id is None:
             run_id = get_run_identifier()
         run_folder = os.path.join(study.folder, study.folders['RUNS'], self.id, run_id)
         run = Run(os.path.join(run_folder, self.model.id), metadata={'Commentaire': comment})
-        # if run.id in self.runs:
-        #     self.remove_run(run.id, run_folder)
+        if run.id in self.runs:
+            self.remove_run(run.id, run_folder)
         self.add_run(run)
         self.set_current_run_id(run.id)
 
@@ -140,33 +143,35 @@ class Scenario:
         study.current_scenario_id = self.id
 
         # Write files and create folder is necessary
-        logger.debug("Writing %s in %s" % (run, run_folder))
+        logger.debug("Écriture de %s dans %s" % (run, run_folder))
         mo_folder = os.path.join(run_folder, self.model.id)
         self.write_all(run_folder, folder_config=None, write_model=False)
         self.model.write_all(mo_folder, folder_config=None)
         study.write_etu(run_folder)
 
-        # Run crue10.exe in command line
+        # Run crue10.exe in command line and redirect stdout and stderr in csv files
         etu_path = os.path.join(run_folder, os.path.basename(study.etu_path))
         cmd_list = [CRUE10_EXE_PATH] + CRUE10_EXE_OPTS + [etu_path]
-        logger.info('Running: %s' % ' '.join(cmd_list))
+        logger.info("Éxécution : %s" % ' '.join(cmd_list))
         with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
             with open(os.path.join(run_folder, 'stderr.csv'), "w") as err_csv:
                 exit_code = subprocess.call(cmd_list, stdout=out_csv, stderr=err_csv)
-                logger.debug('Returned exit code: %i' % exit_code)
+                logger.debug("Exit status = %i" % exit_code)
         return run.id
 
-    @staticmethod
-    def _write_default_file(xml_type, file_path):
-        shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
-
     def write_all(self, folder, folder_config=None, write_model=True):
-        logger.debug("Writing %s in %s" % (self, folder))
+        logger.debug("Écriture de %s dans %s" % (self, folder))
 
+        # Create folder if not existing
         if not os.path.exists(folder):
             os.makedirs(folder)
-        for xml_type in Scenario.FILES_XML:
-            Scenario._write_default_file(xml_type, os.path.join(folder, os.path.basename(self.files[xml_type])))
+
+        for xml_type in Scenario.FILES_XML_WITHOUT_TEMPLATE:
+            xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
+            if self.xml_trees:
+                write_xml_from_tree(self.xml_trees[xml_type],  xml_path)
+            else:
+                write_default_xml_file(xml_type, xml_path)
 
         if write_model:
             self.model.write_all(folder, folder_config)

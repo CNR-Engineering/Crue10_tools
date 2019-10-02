@@ -1,3 +1,4 @@
+# coding: utf-8
 from datetime import datetime
 from glob import glob
 import os.path

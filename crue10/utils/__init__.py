@@ -1,7 +1,12 @@
+# coding: utf-8
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 import logging
 import os
+import shutil
+from lxml import etree
+
+from crue10.utils.settings import XML_ENCODING
 
 
 XML_DEFAULT_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'default')
@@ -11,6 +16,8 @@ XML_TEMPLATES_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 
 XSD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'xsd')
 
 USERNAME = os.getlogin()
+
+SELF_CLOSING_TAGS = ['IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'OrdreDRSO']
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
 
@@ -75,6 +82,34 @@ def check_preffix(name, preffix):
 
 def float2str(value):
     return str(value).replace('e+', 'E').replace('.0E', 'E')
+
+
+def write_default_xml_file(xml_type, file_path):
+    shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
+
+
+def get_xml_root_from_file(file_path):
+    with open(file_path, 'r', encoding=XML_ENCODING) as in_xml:
+        content = ''.join(in_xml.readlines())
+        return etree.fromstring(content)
+
+
+def write_xml_from_tree(xml_tree, file_path):
+    def avoid_self_closing_tags(elt):
+        """Avoid some elements to be not self-closing"""
+        if elt.tag.replace(PREFIX, '') not in SELF_CLOSING_TAGS:
+            if elt.text is None:
+                elt.text = ''
+        for sub_elt in elt:
+            avoid_self_closing_tags(sub_elt)
+        return elt
+
+    with open(file_path, 'w', encoding=XML_ENCODING) as out_xml:
+        text = '\ufeff'  # Add BOM for utf-8
+        text += '<?xml version="1.0" encoding="UTF-8"?>\n'  # hardcoded xml declaration to control case and quotation marks
+        text += etree.tostring(avoid_self_closing_tags(xml_tree), method='xml', encoding=XML_ENCODING,
+                               pretty_print=False, xml_declaration=False).decode(XML_ENCODING)
+        out_xml.write(text)
 
 
 HTML_ESCAPE_TABLE = {

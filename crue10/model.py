@@ -8,8 +8,8 @@ import xml.etree.ElementTree as ET
 
 from crue10.emh.branche import BrancheOrifice
 from crue10.emh.section import SectionProfil
-from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, JINJA_ENV, logger, \
-    PREFIX, XML_DEFAULT_FOLDER
+from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, \
+    get_xml_root_from_file, JINJA_ENV, logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
 from crue10.utils.settings import XML_ENCODING
 from crue10.submodel import SubModel
@@ -22,11 +22,14 @@ class Model:
     Crue10 model
     - id <str>: model identifier
     - files <{str}>: dict with path to xml files (keys correspond to `FILES_XML` list)
+    - xml_trees <{ET.ElementTree}>: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
     - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
     - submodels <[SubModel]>: list of submodels
     """
 
     FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti']
+    FILES_XML_WITHOUT_TEMPLATE = ['optr', 'optg', 'opti', 'pnum']
+
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
@@ -38,6 +41,7 @@ class Model:
         """
         check_preffix(model_name, 'Mo_')
         self.id = model_name
+        self.xml_trees = {}
         self.metadata = {} if metadata is None else metadata
         self.was_read = False
 
@@ -232,9 +236,13 @@ class Model:
                         self.branches_ic[branche_id]['type'] = 20
                         self.branches_ic[branche_id]['values']['Qruis'] = float(emh_ci.find(PREFIX + 'Qruis').text)
 
+    def _set_xml_trees(self):
+        for xml_type in Model.FILES_XML_WITHOUT_TEMPLATE:
+            self.xml_trees[xml_type] = get_xml_root_from_file(self.files[xml_type])
+
     def read_all(self):
         if not self.was_read:
-            # TODO: Reading of ['optr', 'optg', 'opti', 'pnum'] is not supported yet!
+            self._set_xml_trees()
 
             for submodel in self.submodels:
                 submodel.read_all()
@@ -253,19 +261,20 @@ class Model:
         with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
 
-    @staticmethod
-    def _write_default_file(xml_type, file_path):
-        shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
-
     def write_all(self, folder, folder_config):
-        logger.debug("Writing %s in %s" % (self, folder))
+        logger.debug("Écriture de %s dans %s" % (self, folder))
 
         # Create folder if not existing
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        for xml_type in ['optr', 'optg', 'opti', 'pnum']:
-            Model._write_default_file(xml_type, os.path.join(folder, os.path.basename(self.files[xml_type])))
+        for xml_type in Model.FILES_XML_WITHOUT_TEMPLATE:
+            xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
+            if self.xml_trees:
+                write_xml_from_tree(self.xml_trees[xml_type],  xml_path)
+            else:
+                write_default_xml_file(xml_type, xml_path)
+
         self._write_dpti(folder)
 
         for submodel in self.submodels:

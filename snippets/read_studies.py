@@ -8,7 +8,7 @@ from crue10.study import Study
 from crue10.utils import CrueError, logger
 
 
-for folder in glob(os.path.join('..', 'crue10_examples', 'Cas-tests', '*')):
+for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'Cas-tests', '*')):
     for etu_path in glob(os.path.join(folder, '*.etu.xml')):
         logger.info(etu_path)
         try:

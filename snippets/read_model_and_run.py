@@ -92,5 +92,3 @@ try:
 except CrueError as e:
     logger.critical(e)
     sys.exit(1)
-
-print('END')

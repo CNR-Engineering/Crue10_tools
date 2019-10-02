@@ -1,3 +1,4 @@
+# coding: utf-8
 from collections import OrderedDict
 import csv
 import numpy as np
@@ -92,6 +93,8 @@ class RunResults:
     Results data for a single Run
     - rcal_root <ET..Element>: rcal XML element
     - rcal_folder <str>: folder path to rcal file
+    - nb_errors <int>: number of errors in ccal.csv
+    - nb_warnings <int>: number of warnings in ccal.csv
     - self.emh_types <list>: list of "secondary" EMH types
         for example: ['Noeud', 'Casier', 'Section', 'BrancheBarrageFilEau', 'BrancheOrifice', 'BrancheSaintVenant'...]
     - emh <OrderedDict>: dictionary with secondary types as keys giving a list of EMH names
@@ -107,6 +110,8 @@ class RunResults:
     def __init__(self, rcal_path):
         self.rcal_root = ET.parse(rcal_path).getroot()
         self.rcal_folder = os.path.dirname(rcal_path)
+        self.nb_errors = -1
+        self.nb_warnings = -1
         self.emh_types = []
         self.emh = OrderedDict()
         self.variables = OrderedDict()
@@ -115,10 +120,21 @@ class RunResults:
 
         self._emh_type_first_branche = None
         self._res_pattern = []
+
+        self._read_ccal()
         self._read_parametrage()
         self._read_structure()
         self._read_rescalc()
         self._set_res_pattern()
+
+    @property
+    def model_name(self):
+        """Model name with 'Mo_' preffix"""
+        return os.path.basename(self.rcal_folder)
+
+    @property
+    def run_id(self):
+        return os.path.basename(os.path.normpath(os.path.join(self.rcal_folder, '..')))
 
     def _add_variables_names(self, elt, emh_sec):
         if emh_sec not in self.variables:
@@ -138,6 +154,21 @@ class RunResults:
                 if not sub_elt.tag.endswith('VariableRes'):
                     emh_name = sub_elt.get('NomRef')
                     self.emh[emh_sec].append(emh_name)
+
+    def _read_ccal(self):
+        ccal_path = os.path.join(self.rcal_folder, self.model_name[3:] + '.ccal.csv')
+        if not os.path.exists(ccal_path):
+            raise CrueError("Le fichier de compte rendu de calcul `%s` est introuvable" % ccal_path)
+        self.nb_errors = 0
+        self.nb_warnings = 0
+        with open(ccal_path, newline='') as in_csv:
+            csv_reader = csv.reader(in_csv, delimiter=';')
+            for row in csv_reader:
+                criticity = row[2]
+                if criticity == 'WARN':
+                    self.nb_warnings += 1
+                elif criticity == 'ERRBLK':
+                    self.nb_errors += 1
 
     def _read_parametrage(self):
         nb_bytes = int(self.rcal_root.find(PREFIX + 'Parametrage').find(PREFIX + 'NbrOctetMot').text)
@@ -338,3 +369,7 @@ class RunResults:
                                                      'emh': emh_name,
                                                      'variable': variable,
                                                      'value': FMT_FLOAT_CSV.format(value)})
+
+    def __repr__(self):
+        return "Résultats run #%s (%i erreurs bloquantes et %i avertissements)"\
+               % (self.run_id, self.nb_errors, self.nb_warnings)

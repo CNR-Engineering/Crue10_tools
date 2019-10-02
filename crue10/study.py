@@ -238,7 +238,7 @@ class Study:
 
     def write_all(self, folder=None):
         folder = self.folder if folder is None else folder
-        logger.debug("Writing %s in %s" % (self, folder))
+        logger.debug("Écriture de %s dans %s" % (self, folder))
 
         # Create folder if not existing
         if not os.path.exists(folder):
