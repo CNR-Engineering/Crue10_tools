@@ -16,8 +16,12 @@ try:
     print(model)
     for submodel in model.submodels:
         print(submodel)
+        # submodel.convert_sectionidem_to_sectionprofil()
 
+    # Write some output files
     # model.write_mascaret_geometry('../tmp/Etu_VS2003_Conc.georef')
+    model.write_shp_limites_lits_numerotes('../tmp/limites.shp')
+    model.write_shp_sectionprofil_as_points('../tmp/sections.shp')
 
 except FileNotFoundError as e:
     logger.critical(e)

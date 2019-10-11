@@ -685,32 +685,6 @@ class SubModel:
             if self.casiers:
                 self._write_shp_casiers(sm_folder)
 
-    def write_shp_sectionprofil_as_points(self, shp_path):
-        schema = {'geometry': '3D Point', 'properties': {'id_section': 'str', 'Z': 'float'}}
-        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
-            for section in self.iter_on_sections(SectionProfil, ignore_inactive=True):
-                coords = section.get_coord(add_z=True)
-                for coord in coords:
-                    out_shp.write({'geometry': mapping(Point(coord)),
-                                   'properties': {'id_section': section.id, 'Z': coord[-1]}})
-
-    def write_shp_limites_lits_numerotes(self, shp_path):
-        schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
-        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
-            for branche in self.iter_on_branches():
-                for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
-                    coords = []
-                    for section in branche.sections:
-                        if isinstance(section, SectionProfil):
-                            if i_lit == 0:
-                                point = section.interp_point(section.lits_numerotes[0].xt_min)
-                            else:
-                                point = section.interp_point(section.lits_numerotes[i_lit - 1].xt_max)
-                            coords.append((point.x, point.y))
-                    if len(coords) > 2:
-                        out_shp.write({'geometry': mapping(LineString(coords)),
-                                       'properties': {'id_limite': lit_name, 'id_branche': branche.id}})
-
     def set_active_sections(self):
         """
         Sections are set to active if they are connected to a branch (active or not!)

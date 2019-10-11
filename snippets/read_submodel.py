@@ -39,9 +39,6 @@ try:
             point = section.interp_point(section.lits_numerotes[i_lit - 1].xt_max)
         print((point.x, point.y))
 
-    # Write some output files
-    submodel.write_shp_limites_lits_numerotes('../tmp/limites.shp')
-
 except FileNotFoundError as e:
     logger.critical(e)
     sys.exit(1)

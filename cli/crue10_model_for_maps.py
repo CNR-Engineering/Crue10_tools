@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding: utf-8
 """
 Exporter les EMHs dans des fichiers shp pour CNR Maps
 Les fichiers suivants sont créés :

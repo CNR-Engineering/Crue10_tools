@@ -1,13 +1,14 @@
 # coding: utf-8
 from collections import Counter
 from copy import deepcopy
+import fiona
 import numpy as np
 import os.path
-import shutil
+from shapely.geometry import LineString, mapping, Point
 import xml.etree.ElementTree as ET
 
 from crue10.emh.branche import BrancheOrifice
-from crue10.emh.section import SectionProfil
+from crue10.emh.section import SectionProfil, LitNumerote
 from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, \
     get_xml_root_from_file, JINJA_ENV, logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
@@ -370,6 +371,34 @@ class Model:
                         i_section += 1
                     geofile.add_reach(reach)
         geofile.save()
+
+    def write_shp_sectionprofil_as_points(self, shp_path):
+        schema = {'geometry': '3D Point', 'properties': {'id_section': 'str', 'Z': 'float'}}
+        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
+            for submodel in self.submodels:
+                for section in submodel.iter_on_sections(SectionProfil, ignore_inactive=True):
+                    coords = section.get_coord(add_z=True)
+                    for coord in coords:
+                        out_shp.write({'geometry': mapping(Point(coord)),
+                                       'properties': {'id_section': section.id, 'Z': coord[-1]}})
+
+    def write_shp_limites_lits_numerotes(self, shp_path):
+        schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
+        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
+            for submodel in self.submodels:
+                for branche in submodel.iter_on_branches():
+                    for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
+                        coords = []
+                        for section in branche.sections:
+                            if isinstance(section, SectionProfil):
+                                if i_lit == 0:
+                                    point = section.interp_point(section.lits_numerotes[0].xt_min)
+                                else:
+                                    point = section.interp_point(section.lits_numerotes[i_lit - 1].xt_max)
+                                coords.append((point.x, point.y))
+                        if len(coords) > 2:
+                            out_shp.write({'geometry': mapping(LineString(coords)),
+                                           'properties': {'id_limite': lit_name, 'id_branche': branche.id}})
 
     def log_duplicated_emh(self):
         duplicated_noeuds = self.get_duplicated_noeuds()
