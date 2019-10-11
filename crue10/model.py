@@ -374,7 +374,7 @@ class Model:
 
     def write_shp_sectionprofil_as_points(self, shp_path):
         schema = {'geometry': '3D Point', 'properties': {'id_section': 'str', 'Z': 'float'}}
-        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
+        with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
             for submodel in self.submodels:
                 for section in submodel.iter_on_sections(SectionProfil, ignore_inactive=True):
                     coords = section.get_coord(add_z=True)
@@ -384,7 +384,7 @@ class Model:
 
     def write_shp_limites_lits_numerotes(self, shp_path):
         schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
-        with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as out_shp:
+        with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
             for submodel in self.submodels:
                 for branche in submodel.iter_on_branches():
                     for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
