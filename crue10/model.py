@@ -153,7 +153,7 @@ class Model:
         """
         Returns the list of the requested sections which are not found (or not active) in the current model
             (section type is not checked)
-        :param section_id_list: list of section identifiers
+        @param section_id_list: list of section identifiers
         """
         return set([st.id for st in self.get_section_list(ignore_inactive=True)]).difference(set(section_id_list))
 

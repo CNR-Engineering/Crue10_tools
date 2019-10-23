@@ -20,7 +20,7 @@ from shapely.geometry import LineString, Point
 
 from .noeud import Noeud
 from .section import Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
-from crue10.utils import check_isinstance, check_preffix, CrueError, logger
+from crue10.utils import check_isinstance, check_preffix, CrueError, CrueErrorGeometryNotFound, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -136,6 +136,8 @@ class Branche(ABC):
         Shift first and last SectionProfil to branch extremity
         (a constant biais is introduced by Fudaa-Crue for the graphical representation)
         """
+        if self.geom is None:
+            raise CrueErrorGeometryNotFound(self)
         for pos in (0, -1):
             section = self.sections[pos]
             if isinstance(section, SectionProfil):
@@ -143,6 +145,8 @@ class Branche(ABC):
                     node = self.noeud_amont.geom
                 else:
                     node = self.noeud_aval.geom
+                if section.geom_trace is None:
+                    raise CrueErrorGeometryNotFound(section)
                 section_point = section.geom_trace.intersection(self.geom)
                 if isinstance(section_point, Point):
                     dx = node.x - section_point.x

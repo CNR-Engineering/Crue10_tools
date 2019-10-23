@@ -111,10 +111,7 @@ def crue10_model_for_maps(args):
     }
     with fiona.open(os.path.join(args.out_folder, 'sections.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for submodel in model.submodels:
-            for section in submodel.iter_on_sections(section_type=SectionProfil):
-                branche = submodel.get_connected_branche(section.id)
-                if branche is None:
-                    continue  # ignore current orphan section, geom should be None
+            for section in submodel.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
                 layer = {
                     'geometry': mapping(section.geom_trace),
                     'properties': {

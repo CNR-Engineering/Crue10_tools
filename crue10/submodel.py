@@ -495,7 +495,7 @@ class SubModel:
                 nom_section = obj['properties']['EMH_NAME']
                 coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_section] = LineString(coords)
-        for section in self.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
+        for section in self.iter_on_sections(section_type=SectionProfil):
             try:
                 section.set_trace(geoms[section.id])
             except KeyError:
@@ -694,7 +694,7 @@ class SubModel:
 
         for branche in self.iter_on_branches():
             for section in branche.sections:
-                section.is_active = True
+                section.is_active = branche.is_active
 
     def get_connected_branche(self, nom_section):
         """

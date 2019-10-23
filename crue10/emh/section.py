@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-Classes for cross-section in minor and major beds:
+Classes for cross-section with minor and major beds:
 - FrictionLaw
 - LitNumerote
 - LimiteGeom
@@ -32,7 +32,7 @@ class FrictionLaw:
     Friction law (Strickler coefficient could vary with Z elevation)
     - id <str>: friction law identifier
     - type <str>: friction law type
-    - loi_Fk <2D-array>: ndarray(dtype=float, ndim=2) with Stricker coefficient varying with elevation
+    - loi_Fk <2D-array>: ndarray(dtype=float, ndim=2) with Strickler coefficient varying with elevation
     """
 
     TYPES = ['FkSto', 'Fk']
@@ -111,7 +111,7 @@ class Section(ABC):
     Abstract class for Sections
     - id <str>: section identifier
     - xp <float>: curvilinear abscissa of section on its associated branch
-    - is_active <bool>: True if the section is active (it is associated to an active branch)
+    - is_active <bool>: True if the section is connected to an active branch => used to read rcal
     - CoefPond <float>: "coefficient de pondération amont/aval de la discrétisation de la perte de charge régulière J
         entre la section et sa suivante"
     - CoefConv <float>: "coefficient de perte de charge ponctuelle en cas de convergence entre la section et sa
