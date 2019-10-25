@@ -243,14 +243,15 @@ class MascaretGeoFile:
 
 
 if __name__ == '__main__':
+    pass
     # Parse every MascaretGeoFile in examples/mascaret and display a summary
-    import os
-    from utils.files import recursive_glob
-    try:
-        geo_files = recursive_glob(os.path.join(os.environ['HOMETEL'], 'examples', 'mascaret'), '*.geo')
-        geo_files += recursive_glob(os.path.join(os.environ['HOMETEL'], 'examples', 'mascaret'), 'geometrie')
-        for file_name in sorted(geo_files):
-            geo_file = MascaretGeoFile(file_name, 'geo')
-            print(geo_file.summary())
-    except MascaretException as e:
-        print(str(e))
+    # import os
+    # from utils.files import recursive_glob
+    # try:
+    #     geo_files = recursive_glob(os.path.join(os.environ['HOMETEL'], 'examples', 'mascaret'), '*.geo')
+    #     geo_files += recursive_glob(os.path.join(os.environ['HOMETEL'], 'examples', 'mascaret'), 'geometrie')
+    #     for file_name in sorted(geo_files):
+    #         geo_file = MascaretGeoFile(file_name, 'geo')
+    #         print(geo_file.summary())
+    # except MascaretException as e:
+    #     print(str(e))
