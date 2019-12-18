@@ -1,6 +1,7 @@
 # coding: utf-8
 from collections import OrderedDict
 import csv
+from io import open  # Python2 fix
 import numpy as np
 import os.path
 import re

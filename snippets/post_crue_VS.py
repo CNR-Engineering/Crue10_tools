@@ -1,3 +1,4 @@
+# coding: utf-8
 import fiona
 import os
 from shapely.geometry import mapping

@@ -1,6 +1,7 @@
 # coding: utf-8
 from collections import OrderedDict
 import fiona
+from io import open  # Python2 fix
 import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
 import xml.etree.ElementTree as ET

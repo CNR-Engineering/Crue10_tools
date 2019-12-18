@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Write a markdown documentation file for command line scripts.
 """

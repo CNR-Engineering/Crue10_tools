@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Lancement de calculs Crue10 en chaîne pour une analyse de sensibilité sur les coefficients de Strickler.
 Dans cet exemple, 8 calculs sont lancés en chaîne en modifiant les coefficients de Strickler de manière homogène

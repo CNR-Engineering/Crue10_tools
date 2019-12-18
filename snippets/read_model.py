@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Lecture d'un modèle Crue10
 """
@@ -6,6 +7,11 @@ import sys
 from crue10.utils import CrueError, logger
 from crue10.study import Study
 
+
+try:
+    FileNotFoundError
+except NameError:  # Python2 fix
+    FileNotFoundError = IOError
 
 try:
     # Get model

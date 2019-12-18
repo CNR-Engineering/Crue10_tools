@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Lecture d'un sous-modèle Crue10
 """

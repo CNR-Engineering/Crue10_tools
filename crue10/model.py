@@ -1,6 +1,7 @@
 # coding: utf-8
 from collections import Counter
 from copy import deepcopy
+from io import open  # Python2 fix
 import fiona
 import numpy as np
 import os.path

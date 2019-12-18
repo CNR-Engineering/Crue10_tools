@@ -25,6 +25,7 @@ Les fichiers en sortie sont écrasés s'ils existent déjà
 # Tout le fichier dc est lu et les variables affectées
 # Ensuite l'arbre puis le graphique sont générés
 
+from io import open  # Python2 fix
 import sys
 
 from crue10.utils import logger

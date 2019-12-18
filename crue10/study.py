@@ -1,5 +1,6 @@
 # coding: utf-8
 from collections import OrderedDict
+from io import open  # Python2 fix
 from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET

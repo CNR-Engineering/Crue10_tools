@@ -1,5 +1,6 @@
 # coding: utf-8
 from datetime import datetime
+from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
 import logging
 import os
@@ -15,7 +16,13 @@ XML_TEMPLATES_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 
 
 XSD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'xsd')
 
-USERNAME = os.getlogin()
+try:
+    USERNAME = os.getlogin()
+except AttributeError:
+    try:
+        USERNAME = os.environ['USERNAME']
+    except:
+        USERNAME = 'inconnu'
 
 SELF_CLOSING_TAGS = ['IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'OrdreDRSO']
 

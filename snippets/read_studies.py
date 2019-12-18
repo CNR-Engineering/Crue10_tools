@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Lecture d'études Crue10 et vérification des fichiers XML
 """
