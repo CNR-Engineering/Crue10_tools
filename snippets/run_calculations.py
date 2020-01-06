@@ -34,11 +34,13 @@ for delta_strickler in np.arange(-20.0, 20.0, step=5.0):
                 # print("Nouvelles valeurs de Strickler pour %s: %s" % (fk_id, friction_law.loi_Fk[:, 1]))
 
     # With regular run identifiers
-    # run_id = scenario.create_and_launch_new_run(study, comment='Modif Strickler %f points' % delta_strickler)
+    # run_id = scenario.create_and_launch_new_run(study, comment='Modif Strickler %f points' % delta_strickler,
+    #                                             force=True)
 
     # With custom run identifiers
     run_id = 'Strickler_%i' % delta_strickler
-    scenario.create_and_launch_new_run(study, run_id=run_id, comment='Modif Strickler %f points' % delta_strickler)
+    scenario.create_and_launch_new_run(study, run_id=run_id,
+                                       comment='Modif Strickler %f points' % delta_strickler, force=True)
 
     print(run_id)
 

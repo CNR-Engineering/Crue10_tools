@@ -105,19 +105,19 @@ class Scenario:
             raise CrueError("Le Run '%s' n'existe pas" % run_id)
         self.current_run_id = run_id
 
-    def remove_run(self, run_id, run_folder):
+    def remove_run(self, run_id, run_folder, ignore_error=False):
         del self.runs[run_id]
         run_folder = os.path.join(run_folder, self.id, run_id)
         if os.path.exists(run_folder):
             shutil.rmtree(run_folder)
 
-    def create_and_launch_new_run(self, study, run_id=None, comment=''):
+    def create_and_launch_new_run(self, study, run_id=None, comment='', force=False):
         """
         Create and launch a new run
         /!\ The instance of `study` is modified but the original etu file not overwritten
              (If necessary, it should be done after calling this method)
 
-        1) Création d'un nouveau run (sans mettre à jour le fichier etu.xml en entrée)
+        1) Création d'un nouveau run (sans enregistrer la mise à jour du fichier etu.xml en entrée)
         2) Ecriture des fichiers XML dans un nouveau dossier du run
         3) Lancement de crue10.exe en ligne de commande
 
@@ -134,6 +134,10 @@ class Scenario:
             run_id = get_run_identifier()
         run_folder = os.path.join(study.folder, study.folders['RUNS'], self.id, run_id)
         run = Run(os.path.join(run_folder, self.model.id), metadata={'Commentaire': comment})
+        if not force:
+            if os.path.exists(run_folder):
+                raise CrueError("Le dossier du run existe déjà. "
+                                "Utilisez l'argument force=True si vous souhaitez le supprimer")
         if run.id in self.runs:
             self.remove_run(run.id, run_folder)
         self.add_run(run)
