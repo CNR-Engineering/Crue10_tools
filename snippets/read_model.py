@@ -2,6 +2,7 @@
 """
 Lecture d'un modèle Crue10
 """
+import os.path
 import sys
 
 from crue10.utils import CrueError, logger
@@ -15,7 +16,8 @@ except NameError:  # Python2 fix
 
 try:
     # Get model
-    study = Study('../../Crue10_examples/Etudes-tests/Etu_BE2016_conc/Etu_BE2016_conc.etu.xml')
+    study = Study(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
+                               'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
     model = study.get_model('Mo_BE2016_etatref')
     model.read_all()
 

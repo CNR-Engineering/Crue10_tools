@@ -13,7 +13,7 @@ submodel.read_all()
 fig1, ax_xz = plt.subplots(figsize=(16, 9))
 fig2, ax_vol = plt.subplots(figsize=(16, 9))
 
-casier = submodel.casiers['Ca_N8']
+casier = submodel.get_casier('Ca_N8')
 old_casier = deepcopy(casier)
 for pc in casier.profils_casier:
     ax_xz.plot(pc.xz[:, 0], pc.xz[:, 1], marker='.', label=pc.id)

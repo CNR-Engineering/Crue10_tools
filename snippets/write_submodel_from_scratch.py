@@ -1,6 +1,7 @@
 # coding: utf-8
 import logging
 import numpy as np
+import os.path
 from shapely.geometry import Point, LinearRing, LineString
 
 from crue10.emh.branche import *
@@ -184,4 +185,4 @@ submodel.add_branche(branche20)
 
 if __name__ == "__main__":
     # Write all submodel files
-    submodel.write_all('out/Sm_from_scratch', 'Config')
+    submodel.write_all(os.path.join('out', 'Sm_from_scratch'), 'Config')

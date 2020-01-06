@@ -12,11 +12,13 @@ Un graphique superposant les niveaux calculés au PR1 pour tous ces calculs perm
 from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
+import os.path
 
 from crue10.study import Study
 
 
-study = Study('../../Crue10_examples/Etudes-tests/Etu_BE2016_conc/Etu_BE2016_conc.etu.xml')
+study = Study(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
+                           'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
 study.read_all()
 
 scenario = study.get_scenario('Sc_BE2016_etatref')

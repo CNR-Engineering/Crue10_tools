@@ -177,6 +177,24 @@ class SubModel:
         except KeyError:
             raise CrueError("Le noeud %s n'est pas dans le sous-modèle %s" % (nom_noeud, self))
 
+    def get_section(self, nom_section):
+        try:
+            return self.sections[nom_section]
+        except KeyError:
+            raise CrueError("La section %s n'est pas dans le sous-modèle %s" % (nom_section, self))
+
+    def get_branche(self, nom_branche):
+        try:
+            return self.branches[nom_branche]
+        except KeyError:
+            raise CrueError("La branche %s n'est pas dans le sous-modèle %s" % (nom_branche, self))
+
+    def get_casier(self, nom_casier):
+        try:
+            return self.casiers[nom_casier]
+        except KeyError:
+            raise CrueError("Le casier %s n'est pas dans le sous-modèle %s" % (nom_casier, self))
+
     def iter_on_sections(self, section_type=None, ignore_inactive=False):
         for _, section in self.sections.items():
             if ignore_inactive and not section.is_active:

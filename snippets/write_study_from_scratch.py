@@ -1,5 +1,6 @@
 # coding: utf-8
 import logging
+import os.path
 
 from crue10.study import Study
 from crue10.utils import logger
@@ -7,7 +8,7 @@ from crue10.utils import logger
 logger.setLevel(logging.DEBUG)
 
 
-etu_path = 'out/Etu_from_scratch/Etu_from_scratch.etu.xml'
+etu_path = os.path.join('out', 'Etu_from_scratch', 'Etu_from_scratch.etu.xml')
 
 # Write an empty study
 study_out = Study(etu_path, access='w')

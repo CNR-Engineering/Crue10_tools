@@ -2,6 +2,7 @@
 """
 Lecture d'un sous-modèle Crue10
 """
+import os.path
 import sys
 
 from crue10.utils import CrueError, logger
@@ -11,8 +12,9 @@ from crue10.study import Study
 
 try:
     # Get submodel
-    study = Study('../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc/Etu_VS2003_Conc.etu.xml')
-    submodel = study.get_submodel('Sm_VS2013_c10_octobre_2014')
+    study = Study(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
+                               'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
+    submodel = study.get_submodel('Sm_BE2016_etatref')
     submodel.read_all()
 
     # Do something with `submodel`...
@@ -21,7 +23,7 @@ try:
     submodel.convert_sectionidem_to_sectionprofil()
 
     # Select a single branch
-    branch = submodel.branches['Br_AVB5.560']
+    branch = submodel.get_branche('Br_VRH99.900')
     print(branch)
     # Sections of a single branch
     print(branch.sections)
@@ -30,7 +32,7 @@ try:
     print(section)
     print(section.get_coord(add_z=True))  # 3D coordinates
     # Select another section by its identifier
-    section = submodel.sections['St_CAF5.500']
+    section = submodel.get_section('St_KBE09_BE10_am')
     # Display coordinates of its limits
     print(section.lits_numerotes)
     for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
