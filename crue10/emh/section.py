@@ -203,9 +203,10 @@ class SectionProfil(Section):
     def set_lits_numerotes(self, xt_list):
         """Add directly the 5 beds from a list of 6 ordered xt values"""
         if len(xt_list) != 6:
-            raise RuntimeError
+            raise CrueError("Il faut exactement 5 lits numérotés pour les affecter")
         if any(x > y for x, y in zip(xt_list, xt_list[1:])):
             raise CrueError("Les valeurs de xt ne sont pas croissantes")
+        self.lits_numerotes = []
         for bed_name, xt_min, xt_max in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
             lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
             self.lits_numerotes.append(lit_numerote)
@@ -294,6 +295,16 @@ class SectionProfil(Section):
         xt_list = [self.xz_filtered[0, 0], self.xz_filtered[-1, 0]]  # only extremities are written
         coords = [(point.x + (xt - self.xt_axe) * u, point.y + (xt - self.xt_axe) * v) for xt in xt_list]
         self.geom_trace = LineString(coords)
+
+    def merge_consecutive_lit_numerotes(self):
+        """Consective LitNumerote with the same `LitNomme` are merged in single and wider bed (LitNumerote)"""
+        xt_list = [self.lits_numerotes[0].xt_min]
+        for lit1, lit2 in zip(self.lits_numerotes[:-1], self.lits_numerotes[1:]):
+            if lit1.id != lit2.id:
+                assert lit1.xt_max == lit2.xt_min
+                xt_list.append(lit1.xt_max)
+        xt_list.append(self.lits_numerotes[-1].xt_min)
+        self.set_lits_numerotes(xt_list)
 
     def summary(self):
         text = '%s:' % self

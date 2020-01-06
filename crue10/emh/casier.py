@@ -139,6 +139,7 @@ class Casier:
         return self.compute_volume(z) / self.sum_distances()
 
     def merge_profil_casiers(self):
+        """Replace multiple ProfilCasiers by a combined ProfilCasier giving a similar volume law"""
         if len(self.profils_casier) > 2:
             # Extract a sequence of bottom elevation
             z_array_combine = np.array([], dtype=np.float)
