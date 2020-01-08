@@ -4,7 +4,7 @@
   <DonPrtGeoProfilCasiers>
     {%- for profil_casier in profil_casier_list %}
     <ProfilCasier Nom="{{ profil_casier.id }}">
-      <Commentaire>{# Not supported #}</Commentaire>
+      <Commentaire>{{ profil_casier.comment }}</Commentaire>
       <Longueur>{{ profil_casier.distance }}</Longueur>
       <EvolutionFF>
         {%- for xt, z in profil_casier.xz %}
@@ -21,7 +21,7 @@
   <DonPrtGeoProfilSections>
     {%- for section in section_profil_list %}
     <ProfilSection Nom="{{ section.nom_profilsection }}">
-      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
+      <Commentaire>{{ section.comment_profilsection }}</Commentaire>
       {%- if section.has_fente %}
       <Fente>
         <LargeurFente>{{ section.fente[0] }}</LargeurFente>

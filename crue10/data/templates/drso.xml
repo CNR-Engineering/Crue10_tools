@@ -58,7 +58,7 @@
         {%- for section in branche.sections %}
         <BrancheSaintVenant-Section NomRef="{{ section.id }}">
           <Pos>{% if loop.first %}Amont{% elif loop.last %}Aval{% else %}Interne{% endif %}</Pos>
-          <Xp>{{ section.xp }}</Xp>
+          <Xp>{{ section.xp|float2str }}</Xp>
           <CoefPond>{{ section.CoefPond }}</CoefPond>
           <CoefConv>{{ section.CoefConv }}</CoefConv>
           <CoefDiv>{{ section.CoefDiv }}</CoefDiv>

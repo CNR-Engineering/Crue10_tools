@@ -40,6 +40,15 @@ def parse_elem_seuil(elt, with_pdc=False):
     return np.array(values)
 
 
+def get_optional_commentaire(elt):
+    """Returns text of Commentaire element if found, empty string else"""
+    sub_elt = elt.find(PREFIX + 'Commentaire')
+    if sub_elt is not None:
+        if sub_elt.text is not None:
+            return sub_elt.text
+    return ''
+
+
 class SubModel(CrueXMLFile):
     """
     Crue10 sub-model
@@ -208,9 +217,7 @@ class SubModel(CrueXMLFile):
             if emh_group.tag == (PREFIX + 'Noeuds'):
                 for emh_noeud in emh_group.findall(PREFIX + 'NoeudNiveauContinu'):
                     noeud = Noeud(emh_noeud.get('Nom'))
-                    if emh_noeud.find(PREFIX + 'Commentaire') is not None:
-                        if emh_noeud.find(PREFIX + 'Commentaire').text is not None:
-                            noeud.comment = emh_noeud.find(PREFIX + 'Commentaire').text
+                    noeud.comment = get_optional_commentaire(emh_noeud)
                     self.add_noeud(noeud)
 
             elif emh_group.tag == (PREFIX + 'Sections'):
@@ -233,9 +240,7 @@ class SubModel(CrueXMLFile):
                     else:
                         raise NotImplementedError
 
-                    if emh_section.find(PREFIX + 'Commentaire') is not None:
-                        if emh_section.find(PREFIX + 'Commentaire').text is not None:
-                            section.comment = emh_section.find(PREFIX + 'Commentaire').text
+                    section.comment = get_optional_commentaire(emh_section)
                     self.add_section(section)
 
                 # SectionIdem set after SectionProfil to define its parent section properly
@@ -247,9 +252,7 @@ class SubModel(CrueXMLFile):
                         parent_section = self.sections[emh_section.find(PREFIX + 'Section').get('NomRef')]
                         section = SectionIdem(nom_section, parent_section)
 
-                        if emh_section.find(PREFIX + 'Commentaire') is not None:
-                            if emh_section.find(PREFIX + 'Commentaire').text is not None:
-                                section.comment = emh_section.find(PREFIX + 'Commentaire').text
+                        section.comment = get_optional_commentaire(emh_section)
                         self.sections[nom_section] = section
 
             elif emh_group.tag == (PREFIX + 'Branches'):
@@ -291,9 +294,7 @@ class SubModel(CrueXMLFile):
                         noeud_amont = self.get_noeud(emh_branche.find(PREFIX + 'NdAm').get('NomRef'))
                         noeud_aval = self.get_noeud(emh_branche.find(PREFIX + 'NdAv').get('NomRef'))
                         branche = branche_cls(emh_branche.get('Nom'), noeud_amont, noeud_aval, is_active)
-                        if emh_branche.find(PREFIX + 'Commentaire') is not None:
-                            if emh_branche.find(PREFIX + 'Commentaire').text is not None:
-                                branche.comment = emh_branche.find(PREFIX + 'Commentaire').text
+                        branche.comment = get_optional_commentaire(emh_branche)
 
                         # Add associated sections
                         if isinstance(branche, BrancheSaintVenant):
@@ -321,9 +322,7 @@ class SubModel(CrueXMLFile):
                     is_active = emh_profils_casier.find(PREFIX + 'IsActive').text == 'true'
                     noeud = self.get_noeud(emh_profils_casier.find(PREFIX + 'Noeud').get('NomRef'))
                     casier = Casier(emh_profils_casier.get('Nom'), noeud, is_active=is_active)
-                    if emh_profils_casier.find(PREFIX + 'Commentaire') is not None:
-                        if emh_profils_casier.find(PREFIX + 'Commentaire').text is not None:
-                            casier.comment = emh_profils_casier.find(PREFIX + 'Commentaire').text
+                    casier.comment = get_optional_commentaire(emh_profils_casier)
                     for emh_pc in emh_profils_casier.findall(PREFIX + 'ProfilCasier'):
                         pc = ProfilCasier(emh_pc.get('NomRef'))
                         self.add_profil_casier(pc)
@@ -341,9 +340,7 @@ class SubModel(CrueXMLFile):
                 for emh in emh_group.findall(PREFIX + 'ProfilCasier'):
                     nom_profil_casier = emh.get('Nom')
                     profil_casier = self.profils_casier[nom_profil_casier]
-                    if emh.find(PREFIX + 'Commentaire') is not None:
-                        if emh.find(PREFIX + 'Commentaire').text is not None:
-                            profil_casier.comment = emh.find(PREFIX + 'Commentaire').text
+                    profil_casier.comment = get_optional_commentaire(emh)
                     profil_casier.distance = float(emh.find(PREFIX + 'Longueur').text)
 
                     profil_casier.set_xz(parse_loi(emh))
@@ -356,6 +353,7 @@ class SubModel(CrueXMLFile):
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
                     nom_section = emh.get('Nom').replace('Ps_', 'St_')  # Not necessary consistant
                     section = self.sections[nom_section]
+                    section.comment_profilsection = get_optional_commentaire(emh)
 
                     fente = emh.find(PREFIX + 'Fente')
                     if fente is not None:
@@ -399,7 +397,9 @@ class SubModel(CrueXMLFile):
                     branche = self.branches[emh_name]
 
                     if emh.tag == PREFIX + 'DonCalcSansPrtBranchePdc':
-                        branche.loi_QPdc = parse_loi(emh.find(PREFIX + 'Pdc'))
+                        pdc_elt = emh.find(PREFIX + 'Pdc')
+                        branche.loi_QPdc = parse_loi(pdc_elt)
+                        branche.comment_loi = get_optional_commentaire(pdc_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilTransversal':
                         branche.formule_pdc = emh.find(PREFIX + 'FormulePdc').text
@@ -421,19 +421,27 @@ class SubModel(CrueXMLFile):
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheNiveauxAssocies':
                         branche.QLimInf = float(emh.find(PREFIX + 'QLimInf').text)
                         branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
-                        branche.loi_ZavZam = parse_loi(emh.find(PREFIX + 'Zasso'))
+                        zasso_elt = emh.find(PREFIX + 'Zasso')
+                        branche.loi_ZavZam = parse_loi(zasso_elt)
+                        branche.comment_loi = get_optional_commentaire(zasso_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheBarrageGenerique':
                         branche.QLimInf = float(emh.find(PREFIX + 'QLimInf').text)
                         branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
-                        branche.loi_QDz = parse_loi(emh.find(PREFIX + 'RegimeNoye'))
-                        branche.loi_QpilZam = parse_loi(emh.find(PREFIX + 'RegimeDenoye'))
+                        regime_noye_elt = emh.find(PREFIX + 'RegimeNoye')
+                        branche.loi_QDz = parse_loi(regime_noye_elt)
+                        branche.comment_noye = get_optional_commentaire(regime_noye_elt)
+                        regime_denoye_elt = emh.find(PREFIX + 'RegimeDenoye')
+                        branche.loi_QpilZam = parse_loi(regime_denoye_elt)
+                        branche.comment_denoye = get_optional_commentaire(regime_denoye_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheBarrageFilEau':
                         branche.QLimInf = float(emh.find(PREFIX + 'QLimInf').text)
                         branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
                         branche.elts_seuil = parse_elem_seuil(emh, with_pdc=False)
-                        branche.loi_QZam = parse_loi(emh.find(PREFIX + 'RegimeDenoye'))
+                        regime_denoye_elt = emh.find(PREFIX + 'RegimeDenoye')
+                        branche.loi_QZam = parse_loi(regime_denoye_elt)
+                        branche.comment_denoye = get_optional_commentaire(regime_denoye_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSaintVenant':
                         branche.CoefBeta = float(emh.find(PREFIX + 'CoefBeta').text)

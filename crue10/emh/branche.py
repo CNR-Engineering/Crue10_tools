@@ -179,11 +179,13 @@ class BranchePdC(Branche):
     """
     BrancheSaintVenant - #1
     - loi_QPdc
+    - comment_loi <str>: commentaire loi
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 1, is_active)
         self.loi_QPdc = np.array([(-15000.0, 0.0)])
+        self.comment_loi = ''
 
     @property
     def name_loi_LoiQPdc(self):
@@ -249,9 +251,11 @@ class BrancheStrickler(Branche):
 class BrancheNiveauxAssocies(Branche):
     """
     BrancheNiveauxAssocies - #12
-    - QLimInf: "Débit  minimum admis dans la branche"
-    - QLimSup: "Débit maximum admis dans la branche"
+    - comment <str>: commentaire
+    - QLimInf <float>: "Débit  minimum admis dans la branche"
+    - QLimSup <float>: "Débit maximum admis dans la branche"
     - loi_ZavZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
+    - comment_loi <str>: commentaire loi
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
@@ -259,6 +263,7 @@ class BrancheNiveauxAssocies(Branche):
         self.QLimInf = DEFAULT_QLIMINF
         self.QLimSup = DEFAULT_QLIMSUP
         self.loi_ZavZam = np.array([(-15.0, -15.0)])
+        self.comment_loi = ''
 
     @property
     def name_loi_ZavZam(self):
@@ -273,6 +278,8 @@ class BrancheBarrageGenerique(Branche):
     - QLimSup: "Débit maximum admis dans la branche"
     - loi_QDz <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
     - loi_QpilZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
+    - comment_denoye <str>: commentaire loi dénoyée
+    - comment_noye <str>: commentaire loi noyée
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
@@ -282,6 +289,8 @@ class BrancheBarrageGenerique(Branche):
         self.QLimSup = DEFAULT_QLIMSUP
         self.loi_QDz = np.array([(-15000.0, -1.0E30)])
         self.loi_QpilZam = np.array([(0.0, -15.0)])
+        self.comment_denoye = ''
+        self.comment_noye = ''
 
     @property
     def name_loi_QDz(self):
@@ -300,6 +309,7 @@ class BrancheBarrageFilEau(Branche):
     - QLimSup: "Débit maximum admis dans la branche"
     - loi_QZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
     - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 3 columns)
+    - comment_denoye <str>: commentaire loi dénoyée
     """
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 15, is_active)
@@ -308,6 +318,7 @@ class BrancheBarrageFilEau(Branche):
         self.QLimSup = DEFAULT_QLIMSUP
         self.loi_QZam = np.array([(0.0, -15.0)])
         self.elts_seuil = DEFAULT_ELTS_SEUILS
+        self.comment_denoye = ''
 
     @property
     def name_loi_QZam(self):

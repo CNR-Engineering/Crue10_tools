@@ -137,6 +137,7 @@ class SectionProfil(Section):
     """
     SectionProfil
     - nom_profilsection <str>: profil section identifier (should start with `Ps_`)
+    - comment_profilsection <str>: commentaire du ProfilSection
     - xt_axe <float>: transversal position of hydraulic axis
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
@@ -148,6 +149,7 @@ class SectionProfil(Section):
     def __init__(self, nom_section, nom_profilsection=None):
         super().__init__(nom_section)
         self.nom_profilsection = ''
+        self.comment_profilsection = ''
         self.set_profilsection_name(nom_profilsection)
         self.xz = None
         self.geom_trace = None

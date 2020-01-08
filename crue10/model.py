@@ -1,6 +1,6 @@
 # coding: utf-8
 from builtins import super  # Python2 fix
-from collections import Counter
+from collections import Counter, OrderedDict
 from copy import deepcopy
 import fiona
 import numpy as np
@@ -47,9 +47,9 @@ class Model(CrueXMLFile):
         self.submodels = []
 
         # Initial conditions
-        self.noeuds_ic = {}
-        self.casiers_ic = {}
-        self.branches_ic = {}
+        self.noeuds_ic = OrderedDict()
+        self.casiers_ic = OrderedDict()
+        self.branches_ic = OrderedDict()
 
     @staticmethod
     def rename_emh(dictionary, old_id, new_id, replace_obj=True):
@@ -159,11 +159,11 @@ class Model(CrueXMLFile):
 
     def reset_initial_conditions(self):
         """Set initial conditions to default values"""
-        self.noeuds_ic = {noeud.id: 1.0E30 for noeud in self.get_noeud_list()}
+        self.noeuds_ic = OrderedDict([(noeud.id, 1.0E30) for noeud in self.get_noeud_list()])
 
-        self.casiers_ic = {casier.id: 0.0 for casier in self.get_casier_list()}
+        self.casiers_ic = OrderedDict([(casier.id, 0.0) for casier in self.get_casier_list()])
 
-        self.branches_ic = {}
+        self.branches_ic = OrderedDict()
         for branche in self.get_branche_list():
             self.branches_ic[branche.id] = {
                 'type': branche.type,

@@ -5,6 +5,7 @@ from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
 import logging
 import os
+import re
 import shutil
 from lxml import etree
 
@@ -25,7 +26,7 @@ except AttributeError:
     except:
         USERNAME = 'inconnu'
 
-SELF_CLOSING_TAGS = ['IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'OrdreDRSO']
+SELF_CLOSING_TAGS = ['IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'Lois', 'OrdreDRSO']
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
 
@@ -89,8 +90,19 @@ def check_preffix(name, preffix):
 
 
 def float2str(value):
-    return str(value).replace('e+', 'E').replace('.0E', 'E')
-
+    """
+    34.666664123535156 => not changed!
+    1e30 => 1.0E30
+    """
+    text = str(value).replace('e+', 'E')
+    if 'E' in text:
+        # Exponent case
+        if '.' not in text:
+            text = text.replace('E', '.0E')
+    return text
+    # # Conventional rendering
+    # text = format(value, '.15f')
+    # return re.sub(r'\.([0-9])([0]+)$', r'.\1', text) # remove ending useless zeros
 
 def write_default_xml_file(xml_type, file_path):
     shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
@@ -113,7 +125,7 @@ def write_xml_from_tree(xml_tree, file_path):
         return elt
 
     with open(file_path, 'w', encoding=XML_ENCODING) as out_xml:
-        text = '\ufeff'  # Add BOM for utf-8
+        text = u'\ufeff'  # Add BOM for utf-8
         text += '<?xml version="1.0" encoding="UTF-8"?>\n'  # hardcoded xml declaration to control case and quotation marks
         text += etree.tostring(avoid_self_closing_tags(xml_tree), method='xml', encoding=XML_ENCODING,
                                pretty_print=False, xml_declaration=False).decode(XML_ENCODING)
