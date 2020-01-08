@@ -33,6 +33,7 @@ class FrictionLaw:
     - id <str>: friction law identifier
     - type <str>: friction law type
     - loi_Fk <2D-array>: ndarray(dtype=float, ndim=2) with Strickler coefficient varying with elevation
+    - comment <str>: optional text explanation
     """
 
     TYPES = ['FkSto', 'Fk']
@@ -45,6 +46,7 @@ class FrictionLaw:
         self.id = nom_loi_frottement
         self.type = type
         self.loi_Fk = loi_Fk
+        self.comment = ''
 
 
 DEFAULT_FK_STO = FrictionLaw('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)]))

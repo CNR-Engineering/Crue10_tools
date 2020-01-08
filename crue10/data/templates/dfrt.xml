@@ -4,7 +4,7 @@
   <LoiFFs>
     {%- for friction_law in friction_law_list %}
     <LoiFF Nom="{{ friction_law.id }}" Type="{{ friction_law.type }}">
-      <Commentaire>{# Not supported #}</Commentaire>
+      <Commentaire>{{ friction_law.comment|html_escape }}</Commentaire>
       <EvolutionFF>
         {%- for z, k in friction_law.loi_Fk %}
         <PointFF>{{ z }} {{ k }}</PointFF>

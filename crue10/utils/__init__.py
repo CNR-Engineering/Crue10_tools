@@ -5,7 +5,6 @@ from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
 import logging
 import os
-import re
 import shutil
 from lxml import etree
 
@@ -26,7 +25,10 @@ except AttributeError:
     except:
         USERNAME = 'inconnu'
 
-SELF_CLOSING_TAGS = ['IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'Lois', 'OrdreDRSO']
+SELF_CLOSING_TAGS = [
+    'IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'Lois', 'OrdreDRSO',
+    'HydrogrammeQapp', 'Limnigramme'  # dclm
+]
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
 
@@ -104,6 +106,7 @@ def float2str(value):
     # text = format(value, '.15f')
     # return re.sub(r'\.([0-9])([0]+)$', r'.\1', text) # remove ending useless zeros
 
+
 def write_default_xml_file(xml_type, file_path):
     shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
 
@@ -111,6 +114,8 @@ def write_default_xml_file(xml_type, file_path):
 def get_xml_root_from_file(file_path):
     with open(file_path, 'r', encoding=XML_ENCODING) as in_xml:
         content = ''.join(in_xml.readlines())
+        if not isinstance(content, str):  # Python2 fix on Linux
+            content = content.encode(XML_ENCODING)
         return etree.fromstring(content)
 
 

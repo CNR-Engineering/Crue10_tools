@@ -88,7 +88,7 @@
       <Runs>
         {%- for run_id, run in scenario.runs.items() %}
         <Run Nom="{{ run_id }}">
-          <Commentaire>{{ run.metadata.Commentaire }}</Commentaire>
+          <Commentaire>{{ run.metadata.Commentaire|html_escape }}</Commentaire>
           <AuteurCreation>{{ run.metadata.AuteurCreation }}</AuteurCreation>
           <DateCreation>{{ run.metadata.DateCreation }}</DateCreation>
           <AuteurDerniereModif>{{ run.metadata.AuteurDerniereModif }}</AuteurDerniereModif>

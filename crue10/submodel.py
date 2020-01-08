@@ -205,6 +205,7 @@ class SubModel(CrueXMLFile):
         root = self._get_xml_root_and_set_comment('dfrt')
         for loi in root.find(PREFIX + 'LoiFFs'):
             friction_law = FrictionLaw(loi.get('Nom'), loi.get('Type'), parse_loi(loi))
+            friction_law.comment = get_optional_commentaire(loi)
             self.add_friction_law(friction_law)
 
     def _read_drso(self, filter_branch_types=None):
