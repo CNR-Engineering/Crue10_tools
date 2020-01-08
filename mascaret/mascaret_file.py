@@ -1,6 +1,7 @@
 """
 This file was copied and adapter from http://svn.opentelemac.org/svn/opentelemac/trunk/scripts/python3/data_manip/formats/mascaret_file.py
 """
+from builtins import super  # Python2 fix
 from collections import OrderedDict
 import csv
 import logging

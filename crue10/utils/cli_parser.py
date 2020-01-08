@@ -2,6 +2,7 @@
 Prepare module logger
 """
 import argparse
+from builtins import super  # Python2 fix
 import logging
 
 from . import logger

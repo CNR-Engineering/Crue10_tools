@@ -1,32 +1,31 @@
 # coding: utf-8
+from builtins import super  # Python2 fix
 from collections import Counter
 from copy import deepcopy
-from io import open  # Python2 fix
 import fiona
 import numpy as np
 import os.path
 from shapely.geometry import LineString, mapping, Point
-import xml.etree.ElementTree as ET
 
+from crue10.base import CrueXMLFile
 from crue10.emh.branche import BrancheOrifice
 from crue10.emh.section import SectionProfil, LitNumerote
-from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, \
-    get_xml_root_from_file, JINJA_ENV, logger, PREFIX, write_default_xml_file, write_xml_from_tree
+from crue10.utils import check_isinstance, check_preffix, CrueError, \
+    logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
-from crue10.utils.settings import XML_ENCODING
 from crue10.submodel import SubModel
 from mascaret.mascaret_file import Reach, Section
 from mascaret.mascaretgeo_file import MascaretGeoFile
 
 
-class Model:
+class Model(CrueXMLFile):
     """
     Crue10 model
     - id <str>: model identifier
-    - files <{str}>: dict with path to xml files (keys correspond to `FILES_XML` list)
-    - xml_trees <{ET.ElementTree}>: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
-    - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
     - submodels <[SubModel]>: list of submodels
+    - noeuds_ic <dict>: initial condition at noeuds
+    - casiers_ic <dict>: initial condition at casiers
+    - branches_ic <dict>: initial condition at branches
     """
 
     FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti']
@@ -35,7 +34,7 @@ class Model:
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, model_name, access='r', files=None, metadata=None, comment=''):
+    def __init__(self, model_name, access='r', files=None, metadata=None):
         """
         :param model_name: model name
         :param files: dict with xml path files
@@ -43,9 +42,7 @@ class Model:
         """
         check_preffix(model_name, 'Mo_')
         self.id = model_name
-        self.xml_trees = {}
-        self.metadata = {} if metadata is None else metadata
-        self.was_read = False
+        super().__init__(access, files, metadata)
 
         self.submodels = []
 
@@ -53,35 +50,6 @@ class Model:
         self.noeuds_ic = {}
         self.casiers_ic = {}
         self.branches_ic = {}
-
-        self.metadata['Type'] = 'Crue10'
-        self.metadata = add_default_missing_metadata(self.metadata, Model.METADATA_FIELDS)
-
-        if access == 'r':
-            if files is None:
-                raise RuntimeError
-            if set(files.keys()) != set(Model.FILES_XML):
-                raise RuntimeError
-            self.files = files
-        elif access == 'w':
-            self.files = {}
-            if files is None:
-                for xml_type in Model.FILES_XML:
-                    self.files[xml_type] = model_name[3:] + '.' + xml_type + '.xml'
-            else:
-                raise RuntimeError
-
-    @property
-    def is_active(self):
-        return self.metadata['IsActive'] == 'true'
-
-    @property
-    def comment(self):
-        return self.metadata['Commentaire']
-
-    @property
-    def file_basenames(self):
-        return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
     @staticmethod
     def rename_emh(dictionary, old_id, new_id, replace_obj=True):
@@ -213,7 +181,7 @@ class Model:
         """
         self.reset_initial_conditions()
 
-        for emh_group in ET.parse(self.files['dpti']).getroot():
+        for emh_group in self._get_xml_root_and_set_comment('dpti'):
 
             if emh_group.tag == (PREFIX + 'DonPrtCIniNoeuds'):
                 for emh_ci in emh_group.findall(PREFIX + 'DonPrtCIniNoeudNiveauContinu'):
@@ -238,10 +206,6 @@ class Model:
                         self.branches_ic[branche_id]['type'] = 20
                         self.branches_ic[branche_id]['values']['Qruis'] = float(emh_ci.find(PREFIX + 'Qruis').text)
 
-    def _set_xml_trees(self):
-        for xml_type in Model.FILES_XML_WITHOUT_TEMPLATE:
-            self.xml_trees[xml_type] = get_xml_root_from_file(self.files[xml_type])
-
     def read_all(self):
         if not self.was_read:
             self._set_xml_trees()
@@ -253,15 +217,12 @@ class Model:
         self.was_read = True
 
     def _write_dpti(self, folder):
-        xml = 'dpti'
-        template_render = JINJA_ENV.get_template(xml + '.xml').render(
-            comment=self.comment,
+        self._write_xml_file(
+            'dpti', folder,
             noeuds_ci=self.noeuds_ic,
             casiers_ci=self.casiers_ic,
             branches_ci=self.branches_ic,
         )
-        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
-            out.write(template_render)
 
     def write_all(self, folder, folder_config):
         logger.debug("Écriture de %s dans %s" % (self, folder))

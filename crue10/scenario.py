@@ -1,23 +1,22 @@
 # coding: utf-8
+from builtins import super  # Python2 fix
 from collections import OrderedDict
 import os.path
 import shutil
 import subprocess
 
+from crue10.base import CrueXMLFile
 from crue10.model import Model
 from crue10.run import get_run_identifier, Run
-from crue10.utils import add_default_missing_metadata, check_isinstance, check_preffix, CrueError, \
-    get_xml_root_from_file, logger, write_default_xml_file, write_xml_from_tree
+from crue10.utils import check_isinstance, check_preffix, CrueError, logger, \
+    write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 
 
-class Scenario:
+class Scenario(CrueXMLFile):
     """
     Crue10 scenario
     - id <str>: scenario identifier
-    - files <{str}>: dict with path to xml files (keys correspond to `FILES_XML` list)
-    - xml_trees <{ET.ElementTree}>: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
-    - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
     - model <[Model]>: model
     - runs <[Runs]>: runs
     - current_run_id <str>: current run identifier
@@ -29,47 +28,21 @@ class Scenario:
                        'DateDerniereModif']
 
     def __init__(self, scenario_name, model, access='r', files=None, metadata=None):
+        """
+        :param scenario_name: scenario name
+        :param model: a Model instance
+        :param files: dict with xml path files
+        :param metadata: dict containing metadata
+        """
         check_preffix(scenario_name, 'Sc_')
         self.id = scenario_name
-        self.files = files
-        self.xml_trees = {}
-        self.metadata = {} if metadata is None else metadata
-        self.was_read = False
+        super().__init__(access, files, metadata)
 
         self.model = None
         self.set_model(model)
 
         self.current_run_id = None
         self.runs = OrderedDict()
-
-        self.metadata['Type'] = 'Crue10'
-        self.metadata = add_default_missing_metadata(self.metadata, Scenario.METADATA_FIELDS)
-
-        if access == 'r':
-            if files is None:
-                raise RuntimeError
-            if set(files.keys()) != set(Scenario.FILES_XML):
-                raise RuntimeError
-            self.files = files
-        elif access == 'w':
-            self.files = {}
-            if files is None:
-                for xml_type in Scenario.FILES_XML:
-                    self.files[xml_type] = scenario_name[3:] + '.' + xml_type + '.xml'
-            else:
-                raise RuntimeError
-
-    @property
-    def is_active(self):
-        return self.metadata['IsActive'] == 'true'
-
-    @property
-    def comment(self):
-        return self.metadata['Commentaire']
-
-    @property
-    def file_basenames(self):
-        return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
     def get_run(self, run_id):
         if not self.runs:
@@ -83,10 +56,6 @@ class Scenario:
     def set_model(self, model):
         check_isinstance(model, Model)
         self.model = model
-
-    def _set_xml_trees(self):
-        for xml_type in Scenario.FILES_XML_WITHOUT_TEMPLATE:
-            self.xml_trees[xml_type] = get_xml_root_from_file(self.files[xml_type])
 
     def read_all(self):
         if not self.was_read:
@@ -105,7 +74,7 @@ class Scenario:
             raise CrueError("Le Run '%s' n'existe pas" % run_id)
         self.current_run_id = run_id
 
-    def remove_run(self, run_id, run_folder, ignore_error=False):
+    def remove_run(self, run_id, run_folder):
         del self.runs[run_id]
         run_folder = os.path.join(run_folder, self.id, run_id)
         if os.path.exists(run_folder):

@@ -1,19 +1,17 @@
 # coding: utf-8
+from builtins import super  # Python2 fix
 from collections import OrderedDict
 import fiona
-from io import open  # Python2 fix
 import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
-import xml.etree.ElementTree as ET
 
+from crue10.base import CrueXMLFile
 from crue10.emh.branche import *
 from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, FrictionLaw, LimiteGeom, LitNumerote, \
     SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
-from crue10.utils import add_default_missing_metadata, check_preffix, CrueError, CrueErrorGeometryNotFound, \
-    JINJA_ENV, PREFIX
-from crue10.utils.settings import XML_ENCODING
+from crue10.utils import check_preffix, CrueError, CrueErrorGeometryNotFound, PREFIX
 
 
 def parse_loi(elt, group='EvolutionFF', line='PointFF'):
@@ -42,12 +40,10 @@ def parse_elem_seuil(elt, with_pdc=False):
     return np.array(values)
 
 
-class SubModel:
+class SubModel(CrueXMLFile):
     """
     Crue10 sub-model
     - id <str>: submodel identifier
-    - files <{str}>: dict with path to xml and shp files (keys correspond to `FILES_SHP` and `FILES_XML` lists)
-    - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
     - noeuds <{crue10.emh.noeud.Noeud}>: nodes
     - sections <{crue10.emh.section.Section}>: sections
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
@@ -65,13 +61,10 @@ class SubModel:
     def __init__(self, submodel_name, access='r', files=None, metadata=None):
         """
         :param submodel_name: submodel name
-        :param files: dict with xml and shp path files
-        :param metadata: dict containing metadata
         """
         check_preffix(submodel_name, 'Sm_')
         self.id = submodel_name
-        self.metadata = {} if metadata is None else metadata
-        self.was_read = False
+        super().__init__(access, files, metadata)
 
         self.noeuds = OrderedDict()
         self.sections = OrderedDict()
@@ -79,35 +72,6 @@ class SubModel:
         self.casiers = OrderedDict()
         self.profils_casier = OrderedDict()
         self.friction_laws = OrderedDict()
-
-        self.metadata['Type'] = 'Crue10'
-        self.metadata = add_default_missing_metadata(self.metadata, SubModel.METADATA_FIELDS)
-
-        if access == 'r':
-            if files is None:
-                raise RuntimeError
-            if set(files.keys()) != set(SubModel.FILES_XML + SubModel.FILES_SHP):
-                raise RuntimeError
-            self.files = files
-        elif access == 'w':
-            self.files = {}
-            if files is None:
-                for xml_type in SubModel.FILES_XML:
-                    self.files[xml_type] = submodel_name[3:] + '.' + xml_type + '.xml'
-            else:
-                raise RuntimeError
-
-    @property
-    def is_active(self):
-        return self.metadata['IsActive'] == 'true'
-
-    @property
-    def comment(self):
-        return self.metadata['Commentaire']
-
-    @property
-    def file_basenames(self):
-        return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
     def add_noeud(self, noeud):
         check_isinstance(noeud, Noeud)
@@ -229,7 +193,8 @@ class SubModel:
         """
         Read dfrt.xml file
         """
-        for loi in ET.parse(self.files['dfrt']).getroot().find(PREFIX + 'LoiFFs'):
+        root = self._get_xml_root_and_set_comment('dfrt')
+        for loi in root.find(PREFIX + 'LoiFFs'):
             friction_law = FrictionLaw(loi.get('Nom'), loi.get('Type'), parse_loi(loi))
             self.add_friction_law(friction_law)
 
@@ -237,7 +202,8 @@ class SubModel:
         """
         Read drso.xml file
         """
-        for emh_group in ET.parse(self.files['drso']).getroot():
+        root = self._get_xml_root_and_set_comment('drso')
+        for emh_group in root:
 
             if emh_group.tag == (PREFIX + 'Noeuds'):
                 for emh_noeud in emh_group.findall(PREFIX + 'NoeudNiveauContinu'):
@@ -368,7 +334,8 @@ class SubModel:
         """
         Read dptg.xml file
         """
-        for emh_group in ET.parse(self.files['dptg']).getroot():
+        root = self._get_xml_root_and_set_comment('dptg')
+        for emh_group in root:
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoProfilCasiers'):
                 for emh in emh_group.findall(PREFIX + 'ProfilCasier'):
@@ -423,7 +390,8 @@ class SubModel:
                     self.branches[nom_branche].CoefSinuo = float(emh.find(PREFIX + 'CoefSinuo').text)
 
     def _read_dcsp(self):
-        for emh_group in ET.parse(self.files['dcsp']).getroot():
+        root = self._get_xml_root_and_set_comment('dcsp')
+        for emh_group in root:
 
             if emh_group.tag == (PREFIX + 'DonCalcSansPrtBranches'):
                 for emh in emh_group:
@@ -564,18 +532,14 @@ class SubModel:
         self.was_read = True
 
     def _write_dfrt(self, folder):
-        xml = 'dfrt'
-        template_render = JINJA_ENV.get_template(xml + '.xml').render(
-            comment=self.comment,
+        self._write_xml_file(
+            'dfrt', folder,
             friction_law_list=[fl for _, fl in self.friction_laws.items()],
         )
-        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
-            out.write(template_render)
 
     def _write_drso(self, folder):
-        xml = 'drso'
-        template_render = JINJA_ENV.get_template(xml + '.xml').render(
-            comment=self.comment,
+        self._write_xml_file(
+            'drso', folder,
             noeud_list=[nd for _, nd in self.noeuds.items()],
             casier_list=[ca for _, ca in self.casiers.items()],
             section_list=[st for _, st in self.sections.items()],
@@ -586,30 +550,22 @@ class SubModel:
             SectionInterpolee=SectionInterpolee,
             branche_list=self.iter_on_branches(),
         )
-        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
-            out.write(template_render)
 
     def _write_dptg(self, folder):
-        xml = 'dptg'
-        template_render = JINJA_ENV.get_template(xml + '.xml').render(
-            comment=self.comment,
+        self._write_xml_file(
+            'dptg', folder,
             profil_casier_list=[pc for _, pc in self.profils_casier.items()],
             section_profil_list=sorted(self.iter_on_sections_profil(), key=lambda st: st.id),  # alphabetic order
             section_idem_list=sorted(self.iter_on_sections_item(), key=lambda st: st.id),  # alphabetic order
             branche_saintvenant_list=sorted(self.iter_on_branches([20]), key=lambda br: br.id),  # alphabetic order
         )
-        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
-            out.write(template_render)
 
     def _write_dcsp(self, folder):
-        xml = 'dcsp'
-        template_render = JINJA_ENV.get_template(xml + '.xml').render(
-            comment=self.comment,
+        self._write_xml_file(
+            'dcsp', folder,
             branche_list=self.iter_on_branches(),
             casier_list=[ca for _, ca in self.casiers.items()],
         )
-        with open(os.path.join(folder, os.path.basename(self.files[xml])), 'w', encoding=XML_ENCODING) as out:
-            out.write(template_render)
 
     def _write_shp_noeuds(self, folder):
         schema = {'geometry': 'Point',  # Write Point without 3D not to disturb Fudaa-Crue

@@ -3,5 +3,5 @@ future  # python2 only packages
 jinja2
 lxml
 numpy
-pydot
+pydot  # only required for Model.write_topological_graph
 shapely

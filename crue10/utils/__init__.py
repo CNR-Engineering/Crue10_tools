@@ -1,4 +1,5 @@
 # coding: utf-8
+from builtins import super  # Python2 fix
 from datetime import datetime
 from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
