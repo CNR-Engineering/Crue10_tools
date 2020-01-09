@@ -1,7 +1,7 @@
 # coding: utf-8
 """
 Classes for cross-section with minor and major beds:
-- FrictionLaw
+- LoiFrottement
 - LitNumerote
 - LimiteGeom
 - Section
@@ -27,7 +27,7 @@ DIFF_XP = 0.1  # m
 DISTANCE_TOL = 0.01  # m
 
 
-class FrictionLaw:
+class LoiFrottement:
     """
     Friction law (Strickler coefficient could vary with Z elevation)
     - id <str>: friction law identifier
@@ -41,7 +41,7 @@ class FrictionLaw:
     def __init__(self, nom_loi_frottement, type, loi_Fk):
         check_preffix(nom_loi_frottement, 'Fk')
         check_isinstance(loi_Fk, np.ndarray)
-        if type not in FrictionLaw.TYPES:
+        if type not in LoiFrottement.TYPES:
             raise RuntimeError
         self.id = nom_loi_frottement
         self.type = type
@@ -49,9 +49,9 @@ class FrictionLaw:
         self.comment = ''
 
 
-DEFAULT_FK_STO = FrictionLaw('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)]))
-DEFAULT_FK_MAX = FrictionLaw('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)]))
-DEFAULT_FK_MIN = FrictionLaw('Fk_DefautMin', 'Fk', np.array([(-15.0, 8.0)]))
+DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)]))
+DEFAULT_FK_MAX = LoiFrottement('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)]))
+DEFAULT_FK_MIN = LoiFrottement('Fk_DefautMin', 'Fk', np.array([(-15.0, 8.0)]))
 
 
 class LitNumerote:
@@ -60,33 +60,33 @@ class LitNumerote:
     - id <str>: bed identifier (a key of `BED_NAMES`)
     - xt_min <str>: first curvilinear abscissa
     - xt_max <str>: first curvilinear abscissa
-    - friction_law <FrictionLaw>: friction law (take the associated default law if it is not given)
+    - loi_frottement <LoiFrottement>: friction law (take the associated default law if it is not given)
     """
 
     BED_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
     LIMIT_NAMES = ['RD', 'StoD-MajD', 'MajD-Min', 'Min-MajG', 'MajG-StoG', 'RG']
 
-    def __init__(self, nom_lit, xt_min, xt_max, friction_law=None):
+    def __init__(self, nom_lit, xt_min, xt_max, loi_frottement=None):
         if nom_lit not in LitNumerote.BED_NAMES:
             raise RuntimeError
         self.id = nom_lit
         self.xt_min = xt_min
         self.xt_max = xt_max
-        if friction_law is None:
+        if loi_frottement is None:
             if 'Sto' in nom_lit:
-                friction_law = DEFAULT_FK_STO
+                loi_frottement = DEFAULT_FK_STO
             elif 'Maj' in nom_lit:
-                friction_law = DEFAULT_FK_MAX
+                loi_frottement = DEFAULT_FK_MAX
             else:
-                friction_law = DEFAULT_FK_MIN
-        self.friction_law = friction_law
+                loi_frottement = DEFAULT_FK_MIN
+        self.loi_frottement = loi_frottement
 
     @property
     def is_active(self):
         return 'Maj' in self.id or 'Min' in self.id
 
     @property
-    def is_mineur(self):
+    def get_est_mineur(self):
         return 'Min' in self.id
 
     def __repr__(self):
@@ -144,6 +144,8 @@ class SectionProfil(Section):
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
     - geom_trace <LineString>: polyline section trace (/!\ only between left and right bank)
+    - largeur_fente <float>: largeur de la fente
+    - profondeur_fente <float>: profondeur de la fente
     - lits_numerotes <[LitNumerote]>: lits numérotés
     - limites_geom <[LimiteGeom]>: limites géométriques (thalweg, axe hydraulique...)
     """
@@ -155,7 +157,8 @@ class SectionProfil(Section):
         self.set_profilsection_name(nom_profilsection)
         self.xz = None
         self.geom_trace = None
-        self.fente = None
+        self.largeur_fente = None
+        self.profondeur_fente = None
         self.lits_numerotes = []
         self.limites_geom = []
 
@@ -175,8 +178,8 @@ class SectionProfil(Section):
         raise CrueError("Limite 'Et_AxeHyd' could not be found for %s" % self)
 
     @property
-    def has_fente(self):
-        return self.fente is not None
+    def is_avec_fente(self):
+        return self.largeur_fente is not None and self.profondeur_fente is not None
 
     @property
     def xz_filtered(self):
@@ -201,8 +204,12 @@ class SectionProfil(Section):
         if abs(diff_xt) > 1e-2:
             logger.warn("Écart de longueur pour la section %s: %s" % (self, diff_xt))
 
-    def set_fente(self, largeur, profondeur):
-        self.fente = (largeur, profondeur)
+    def ajouter_fente(self, largeur, profondeur):
+        """Adds (or replaces if already exists) fente width and depth"""
+        assert largeur > 0
+        assert profondeur > 0
+        self.largeur_fente = largeur
+        self.profondeur_fente = profondeur
 
     def set_lits_numerotes(self, xt_list):
         """Add directly the 5 beds from a list of 6 ordered xt values"""
@@ -215,7 +222,7 @@ class SectionProfil(Section):
             lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
             self.lits_numerotes.append(lit_numerote)
 
-    def add_lit_numerote(self, lit_numerote):
+    def ajouter_lit(self, lit_numerote):
         check_isinstance(lit_numerote, LitNumerote)
         if lit_numerote.id in self.lits_numerotes:
             raise CrueError("Le lit numéroté `%s` est déjà présent" % lit_numerote.id)
@@ -276,7 +283,7 @@ class SectionProfil(Section):
                 bed_pos = np.logical_and(lit.xt_min < xt, xt <= lit.xt_max)
             else:
                 bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
-            coeff[bed_pos] = lit.friction_law.loi_Fk[:, 1].mean()
+            coeff[bed_pos] = lit.loi_frottement.loi_Fk[:, 1].mean()
         return coeff
 
     def has_xz(self):
@@ -325,26 +332,26 @@ class SectionProfil(Section):
 class SectionIdem(Section):
     """
     SectionIdem
-    - parent_section <SectionProfil>: parent (= initial/reference) section
-    - dz <float>: vertical shift (in meters)
+    - section_reference <SectionProfil>: parent (= initial/reference) section
+    - dz_section_reference <float>: vertical shift (in meters)
     """
 
     def __init__(self, nom_section, parent_section, dz=0.0):
         super().__init__(nom_section)
         check_isinstance(parent_section, SectionProfil)
-        self.parent_section = parent_section
-        self.dz = dz
+        self.section_reference = parent_section
+        self.dz_section_reference = dz
 
     def get_as_sectionprofil(self):
         """
         Return a SectionProfil instance from the original section
         """
-        new_section = deepcopy(self.parent_section)
+        new_section = deepcopy(self.section_reference)
         new_section.id = self.id
         new_section.xp = self.xp
         new_section.is_active = self.is_active
-        new_section.xz[:, 1] += self.dz
-        new_section.comment = 'Copie de la section parent %s' % self.parent_section.id
+        new_section.xz[:, 1] += self.dz_section_reference
+        new_section.comment = 'Copie de la section parent %s' % self.section_reference.id
         return new_section
 
 

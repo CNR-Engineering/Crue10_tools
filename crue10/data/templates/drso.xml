@@ -13,7 +13,7 @@
     <CasierProfil Nom="{{ casier.id }}">
       <Commentaire>{{ casier.comment|html_escape }}</Commentaire>
       <IsActive>{% if casier.is_active %}true{% else %}false{% endif %}</IsActive>
-      <Noeud NomRef="{{ casier.noeud.id }}"/>
+      <Noeud NomRef="{{ casier.noeud_reference.id }}"/>
       {%- for profil_casier in casier.profils_casier %}
       <ProfilCasier NomRef="{{ profil_casier.id }}"/>
       {%- endfor %}
@@ -31,7 +31,7 @@
     {%- if isinstance(section, SectionIdem) %}
     <SectionIdem Nom="{{ section.id }}">
       <Commentaire>{{ section.comment|html_escape }}</Commentaire>
-      <Section NomRef="{{ section.parent_section.id }}"/>
+      <Section NomRef="{{ section.section_reference.id }}"/>
     </SectionIdem>
     {%- endif %}
     {%- if isinstance(section, SectionInterpolee) %}
@@ -73,7 +73,7 @@
       <NdAm NomRef="{{ branche.noeud_amont.id }}"/>
       <NdAv NomRef="{{ branche.noeud_aval.id }}"/>
       {%- if branche.type in (14, 15) %}
-      <SectionPilote NomRef="{{ branche.section_pilotage.id }}"/>
+      <SectionPilote NomRef="{{ branche.section_pilote.id }}"/>
       {%- endif %}
       <Branche-Sections>
         <Branche-Section NomRef="{{ branche.sections[0].id }}">

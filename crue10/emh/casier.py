@@ -96,7 +96,7 @@ class Casier:
     - id <str>: casier identifier
     - is_active <bool>: True if its node is active
     - geom <shapely.geometry.LinearRing>: polygon
-    - noeud <Noeud>: related node
+    - noeud_reference <Noeud>: related node
     - profils_casier <[ProfilCaser]>: profils casier (usually only one)
     - CoefRuis <float>: "coefficient modulation du débit linéique de ruissellement"
     - comment <str>: optional text explanation
@@ -108,7 +108,7 @@ class Casier:
         self.id = nom_casier
         self.is_active = is_active
         self.geom = None
-        self.noeud = noeud
+        self.noeud_reference = noeud
         self.profils_casier = []
         self.CoefRuis = 0.0
         self.comment = ''
@@ -119,7 +119,7 @@ class Casier:
             raise CrueError("La trace du %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
-    def add_profil_casier(self, profil_casier):
+    def ajouter_profil_casier(self, profil_casier):
         check_isinstance(profil_casier, ProfilCasier)
         self.profils_casier.append(profil_casier)
 
@@ -138,7 +138,7 @@ class Casier:
     def compute_surface(self, z):
         return self.compute_volume(z) / self.sum_distances()
 
-    def merge_profil_casiers(self):
+    def fusion_profil_casiers(self):
         """Replace multiple ProfilCasiers by a combined ProfilCasier giving a similar volume law"""
         if len(self.profils_casier) > 2:
             # Extract a sequence of bottom elevation
@@ -171,7 +171,7 @@ class Casier:
 
             # Clear and add ProfilCasier
             self.profils_casier = []
-            self.add_profil_casier(new_profil_casier)
+            self.ajouter_profil_casier(new_profil_casier)
         else:
             logger.debug("Le %s n'est pas fusionné car il a moins de 2 ProfilCasiers" % self)
 

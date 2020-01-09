@@ -5,11 +5,11 @@ import fiona
 import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
 
-from crue10.base import CrueXMLFile
+from crue10.base import FichierXML
 from crue10.emh.branche import *
 from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
-from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, FrictionLaw, LimiteGeom, LitNumerote, \
+from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, LimiteGeom, LitNumerote, \
     SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 from crue10.utils import check_preffix, CrueError, CrueErrorGeometryNotFound, PREFIX
 
@@ -49,17 +49,17 @@ def get_optional_commentaire(elt):
     return ''
 
 
-class SubModel(CrueXMLFile):
+class SousModele(FichierXML):
     """
-    Crue10 sub-model
-    - id <str>: submodel identifier
+    Crue10 sous_modele
+    - id <str>: sous_modele identifier
     - noeuds <{crue10.emh.noeud.Noeud}>: nodes
     - sections <{crue10.emh.section.Section}>: sections
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
     - branches <{crue10.emh.section.SectionInterpolee}>: branches (only those with geometry are considered)
     - casiers <{crue10.emh.casier.Casier}>: casiers
     - profils_casier <{crue10.emh.casier.ProfilCasier}>: profils casier
-    - friction_laws <{crue10.emh.section.FrictionLaw}>: friction laws (Strickler coefficients)
+    - lois_frottement <{crue10.emh.section.LoiFrottement}>: friction laws (Strickler coefficients)
     """
 
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
@@ -67,12 +67,12 @@ class SubModel(CrueXMLFile):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, submodel_name, access='r', files=None, metadata=None):
+    def __init__(self, nom_sous_modele, access='r', files=None, metadata=None):
         """
-        :param submodel_name: submodel name
+        :param nom_sous_modele: sous_modele name
         """
-        check_preffix(submodel_name, 'Sm_')
-        self.id = submodel_name
+        check_preffix(nom_sous_modele, 'Sm_')
+        self.id = nom_sous_modele
         super().__init__(access, files, metadata)
 
         self.noeuds = OrderedDict()
@@ -80,75 +80,75 @@ class SubModel(CrueXMLFile):
         self.branches = OrderedDict()
         self.casiers = OrderedDict()
         self.profils_casier = OrderedDict()
-        self.friction_laws = OrderedDict()
+        self.lois_frottement = OrderedDict()
 
-    def add_noeud(self, noeud):
+    def ajouter_noeud(self, noeud):
         check_isinstance(noeud, Noeud)
         if noeud.id in self.noeuds:
             raise CrueError("Le noeud %s est déjà présent" % noeud.id)
         self.noeuds[noeud.id] = noeud
 
-    def add_section(self, section):
+    def ajouter_section(self, section):
         check_isinstance(section, [SectionProfil, SectionIdem, SectionSansGeometrie, SectionInterpolee])
         if section.id in self.sections:
             raise CrueError("La Section `%s` est déjà présente" % section.id)
         if isinstance(section, SectionIdem):
-            if section.parent_section.id not in self.sections:
+            if section.section_reference.id not in self.sections:
                 raise CrueError("La SectionIdem `%s` fait référence à une SectionProfil inexistante `%s`"
                                 % (section.id, section.section_ori.id))
         if isinstance(section, SectionProfil):
             for lit in section.lits_numerotes:
-                if lit.friction_law.id not in self.friction_laws:
+                if lit.loi_frottement.id not in self.lois_frottement:
                     raise CrueError("La loi de frottement %s de la section `%s` doit être ajoutée au sous-modèle avant"
-                                    % (lit.friction_law.id, section.id))
+                                    % (lit.loi_frottement.id, section.id))
         self.sections[section.id] = section
 
-    def add_branche(self, branche):
+    def ajouter_branche(self, branche):
         check_isinstance(branche, BRANCHE_CLASSES)
         if branche.id in self.branches:
             raise CrueError("La branche `%s` est déjà présente" % branche.id)
         if branche.noeud_amont.id not in self.noeuds:
-            raise CrueError("Le noeud amont %s de la branche `%s` doit être ajouté au sous-modèle avant"
+            raise CrueError("Le noeud_reference amont %s de la branche `%s` doit être ajouté au sous-modèle avant"
                             % (branche.noeud_amont.id, branche.id))
         if branche.noeud_aval.id not in self.noeuds:
-            raise CrueError("Le noeud aval %s de la branche `%s` doit être ajouté au sous-modèle avant"
+            raise CrueError("Le noeud_reference aval %s de la branche `%s` doit être ajouté au sous-modèle avant"
                             % (branche.noeud_aval.id, branche.id))
         self.branches[branche.id] = branche
 
-    def add_casier(self, casier):
+    def ajouter_casier(self, casier):
         check_isinstance(casier, Casier)
         if casier.id in self.casiers:
             raise CrueError("Le casier %s est déjà présent" % casier.id)
-        if casier.noeud.id not in self.noeuds:
-            raise CrueError("Le noeud %s du casier `%s` doit être ajouté au sous-modèle avant"
-                            % (casier.noeud.id, casier.id))
+        if casier.noeud_reference.id not in self.noeuds:
+            raise CrueError("Le noeud_reference %s du casier `%s` doit être ajouté au sous-modèle avant"
+                            % (casier.noeud_reference.id, casier.id))
         for profilcasier in casier.profils_casier:
             if profilcasier.id not in self.profils_casier:
-                self.add_profil_casier(profilcasier)
+                self.ajouter_profil_casier(profilcasier)
         self.casiers[casier.id] = casier
 
-    def add_profil_casier(self, profil_casier):
+    def ajouter_profil_casier(self, profil_casier):
         check_isinstance(profil_casier, ProfilCasier)
         if profil_casier.id in self.profils_casier:
             raise CrueError("Le profil casier %s est déjà présent" % profil_casier.id)
         self.profils_casier[profil_casier.id] = profil_casier
 
-    def add_friction_law(self, friction_law):
-        check_isinstance(friction_law, FrictionLaw)
-        if friction_law.id in self.friction_laws:
-            raise CrueError("La loi de frottement %s est déjà présente" % friction_law.id)
-        self.friction_laws[friction_law.id] = friction_law
+    def ajouter_loi_frottement(self, loi_frottement):
+        check_isinstance(loi_frottement, LoiFrottement)
+        if loi_frottement.id in self.lois_frottement:
+            raise CrueError("La loi de frottement %s est déjà présente" % loi_frottement.id)
+        self.lois_frottement[loi_frottement.id] = loi_frottement
 
-    def add_default_friction_laws(self):
-        self.add_friction_law(DEFAULT_FK_STO)
-        self.add_friction_law(DEFAULT_FK_MAX)
-        self.add_friction_law(DEFAULT_FK_MIN)
+    def ajouter_lois_frottement_par_defaut(self):
+        self.ajouter_loi_frottement(DEFAULT_FK_STO)
+        self.ajouter_loi_frottement(DEFAULT_FK_MAX)
+        self.ajouter_loi_frottement(DEFAULT_FK_MIN)
 
     def get_noeud(self, nom_noeud):
         try:
             return self.noeuds[nom_noeud]
         except KeyError:
-            raise CrueError("Le noeud %s n'est pas dans le sous-modèle %s" % (nom_noeud, self))
+            raise CrueError("Le noeud_reference %s n'est pas dans le sous-modèle %s" % (nom_noeud, self))
 
     def get_section(self, nom_section):
         try:
@@ -204,9 +204,9 @@ class SubModel(CrueXMLFile):
         """
         root = self._get_xml_root_and_set_comment('dfrt')
         for loi in root.find(PREFIX + 'LoiFFs'):
-            friction_law = FrictionLaw(loi.get('Nom'), loi.get('Type'), parse_loi(loi))
-            friction_law.comment = get_optional_commentaire(loi)
-            self.add_friction_law(friction_law)
+            loi_frottement = LoiFrottement(loi.get('Nom'), loi.get('Type'), parse_loi(loi))
+            loi_frottement.comment = get_optional_commentaire(loi)
+            self.ajouter_loi_frottement(loi_frottement)
 
     def _read_drso(self, filter_branch_types=None):
         """
@@ -219,7 +219,7 @@ class SubModel(CrueXMLFile):
                 for emh_noeud in emh_group.findall(PREFIX + 'NoeudNiveauContinu'):
                     noeud = Noeud(emh_noeud.get('Nom'))
                     noeud.comment = get_optional_commentaire(emh_noeud)
-                    self.add_noeud(noeud)
+                    self.ajouter_noeud(noeud)
 
             elif emh_group.tag == (PREFIX + 'Sections'):
 
@@ -242,7 +242,7 @@ class SubModel(CrueXMLFile):
                         raise NotImplementedError
 
                     section.comment = get_optional_commentaire(emh_section)
-                    self.add_section(section)
+                    self.ajouter_section(section)
 
                 # SectionIdem set after SectionProfil to define its parent section properly
                 for emh_section in emh_group:
@@ -305,7 +305,7 @@ class SubModel(CrueXMLFile):
 
                         # Add section pilotage
                         if isinstance(branche, BrancheBarrageGenerique) or isinstance(branche, BrancheBarrageFilEau):
-                            branche.section_pilotage = \
+                            branche.section_pilote = \
                                 self.sections[emh_branche.find(PREFIX + 'SectionPilote').get('NomRef')]
 
                         for emh_section in emh_sections:
@@ -315,8 +315,8 @@ class SubModel(CrueXMLFile):
                                 section.CoefPond = float(emh_section.find(PREFIX + 'CoefPond').text)
                                 section.CoefConv = float(emh_section.find(PREFIX + 'CoefConv').text)
                                 section.CoefDiv = float(emh_section.find(PREFIX + 'CoefDiv').text)
-                            branche.add_section(section, xp)
-                        self.add_branche(branche)
+                            branche.ajouter_section_dans_branche(section, xp)
+                        self.ajouter_branche(branche)
 
             elif emh_group.tag == (PREFIX + 'Casiers'):
                 for emh_profils_casier in emh_group:
@@ -326,9 +326,9 @@ class SubModel(CrueXMLFile):
                     casier.comment = get_optional_commentaire(emh_profils_casier)
                     for emh_pc in emh_profils_casier.findall(PREFIX + 'ProfilCasier'):
                         pc = ProfilCasier(emh_pc.get('NomRef'))
-                        self.add_profil_casier(pc)
-                        casier.add_profil_casier(pc)
-                    self.add_casier(casier)
+                        self.ajouter_profil_casier(pc)
+                        casier.ajouter_profil_casier(pc)
+                    self.ajouter_casier(casier)
 
     def _read_dptg(self):
         """
@@ -358,15 +358,15 @@ class SubModel(CrueXMLFile):
 
                     fente = emh.find(PREFIX + 'Fente')
                     if fente is not None:
-                        section.set_fente(float(fente.find(PREFIX + 'LargeurFente').text),
-                                          float(fente.find(PREFIX + 'ProfondeurFente').text))
+                        section.ajouter_fente(float(fente.find(PREFIX + 'LargeurFente').text),
+                                              float(fente.find(PREFIX + 'ProfondeurFente').text))
 
                     for lit_num_elt in emh.find(PREFIX + 'LitNumerotes').findall(PREFIX + 'LitNumerote'):
                         lit_id = lit_num_elt.find(PREFIX + 'LitNomme').text
                         xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
                         xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
-                        friction_law = self.friction_laws[lit_num_elt.find(PREFIX + 'Frot').get('NomRef')]
-                        section.add_lit_numerote(LitNumerote(lit_id, xt_min, xt_max, friction_law))
+                        loi_frottement = self.lois_frottement[lit_num_elt.find(PREFIX + 'Frot').get('NomRef')]
+                        section.ajouter_lit(LitNumerote(lit_id, xt_min, xt_max, loi_frottement))
 
                     etiquettes = emh.find(PREFIX + 'Etiquettes')
                     if etiquettes is None:
@@ -453,7 +453,7 @@ class SubModel(CrueXMLFile):
                         raise NotImplementedError
 
     def _read_shp_noeuds(self):
-        """Read geometry of all `Noeuds` from current submodel (they are compulsory)"""
+        """Read geometry of all `Noeuds` from current sous_modele (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['noeuds'], 'r') as src:
             for obj in src:
@@ -467,7 +467,7 @@ class SubModel(CrueXMLFile):
                 raise CrueErrorGeometryNotFound(noeud)
 
     def _read_shp_branches(self):
-        """Read geometry of all `Branches` from current submodel (they are compulsory)"""
+        """Read geometry of all `Branches` from current sous_modele (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['branches'], 'r') as src:
             for obj in src:
@@ -482,7 +482,7 @@ class SubModel(CrueXMLFile):
 
     def _read_shp_traces_sections(self):
         """
-        Read geometry of all `SectionProfils` from current submodel
+        Read geometry of all `SectionProfils` from current sous_modele
         Missing sections are computed orthogonally to the branch
         """
         geoms = {}
@@ -502,7 +502,7 @@ class SubModel(CrueXMLFile):
                 logger.warn("La géométrie manquante de la section %s est reconstruite" % section.id)
 
     def _read_shp_casiers(self):
-        """Read geometry of all `Casiers` from current submodel (they are compulsory)"""
+        """Read geometry of all `Casiers` from current sous_modele (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['casiers'], 'r') as src:
             for obj in src:
@@ -543,7 +543,7 @@ class SubModel(CrueXMLFile):
     def _write_dfrt(self, folder):
         self._write_xml_file(
             'dfrt', folder,
-            friction_law_list=[fl for _, fl in self.friction_laws.items()],
+            friction_law_list=[fl for _, fl in self.lois_frottement.items()],
         )
 
     def _write_drso(self, folder):
@@ -644,7 +644,7 @@ class SubModel(CrueXMLFile):
 
         # TO CHECK:
         # - Casier has at least one ProfilCasier
-        # - BrancheSaintVenant has a section_pilotage
+        # - BrancheSaintVenant has a section_pilote
         # ...
 
         # Create folder if not existing
@@ -704,7 +704,7 @@ class SubModel(CrueXMLFile):
         Returns the connected casier if found, else returns None
         """
         for _, casier in self.casiers.items():
-            if casier.noeud == noeud:
+            if casier.noeud_reference == noeud:
                 return casier
         return None
 
@@ -742,7 +742,7 @@ class SubModel(CrueXMLFile):
                         for br in branches:
                             section_pos = 0 if br.noeud_amont.id == nom_noeud else -1
                             section_at_node = br.sections[section_pos]
-                            if section_at_node is section.parent_section:
+                            if section_at_node is section.section_reference:
                                 located_at_parent_section = True
                                 break
 
@@ -759,28 +759,28 @@ class SubModel(CrueXMLFile):
             branche.shift_sectionprofil_to_extremity()
         self.convert_sectionidem_to_sectionprofil()
 
-    def add_emh_from_submodel(self, submodel, suffix=''):
-        for _, friction_law in submodel.friction_laws.items():
-            friction_law.id = friction_law.id + suffix
-            self.add_friction_law(friction_law)
-        for _, noeud in submodel.noeuds.items():
-            self.add_noeud(noeud)
-        for _, section in submodel.sections.items():
-            self.add_section(section)
-        for branche in submodel.iter_on_branches():
-            self.add_branche(branche)
-        for _, profils_casier in submodel.profils_casier.items():
-            self.add_profil_casier(profils_casier)
-        for _, casier in submodel.casiers.items():
-            self.add_casier(casier)
+    def ajouter_emh_depuis_sous_modele(self, sous_modele, suffix=''):
+        for _, loi_frottement in sous_modele.lois_frottement.items():
+            loi_frottement.id = loi_frottement.id + suffix
+            self.ajouter_loi_frottement(loi_frottement)
+        for _, noeud in sous_modele.noeuds.items():
+            self.ajouter_noeud(noeud)
+        for _, section in sous_modele.sections.items():
+            self.ajouter_section(section)
+        for branche in sous_modele.iter_on_branches():
+            self.ajouter_branche(branche)
+        for _, profils_casier in sous_modele.profils_casier.items():
+            self.ajouter_profil_casier(profils_casier)
+        for _, casier in sous_modele.casiers.items():
+            self.ajouter_casier(casier)
 
     def summary(self):
-        return "%s: %i noeud(s), %i branche(s), %i section(s) (%i profil + %i idem + %i interpolee +" \
+        return "%s: %i noeud_reference(s), %i branche(s), %i section(s) (%i profil + %i idem + %i interpolee +" \
                " %i sans géométrie), %i casier(s) (%i profil(s) casier)" % (
-           self, len(self.noeuds), len(self.branches), len(self.sections),
-           len(list(self.iter_on_sections_profil())), len(list(self.iter_on_sections_item())),
-           len(list(self.iter_on_sections_interpolees())), len(list(self.iter_on_sections_sans_geometrie())),
-           len(self.casiers), len(self.profils_casier)
+                   self, len(self.noeuds), len(self.branches), len(self.sections),
+                   len(list(self.iter_on_sections_profil())), len(list(self.iter_on_sections_item())),
+                   len(list(self.iter_on_sections_interpolees())), len(list(self.iter_on_sections_sans_geometrie())),
+                   len(self.casiers), len(self.profils_casier)
         )
 
     def __repr__(self):

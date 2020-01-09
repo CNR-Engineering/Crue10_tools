@@ -21,7 +21,7 @@ class Reach:
 
     id (int) reach identifier
     name (str) reach name
-    section ([Section]) list of sections
+    sections ([Section]) list of sections
     """
 
     def __init__(self, id, name=None):
@@ -235,7 +235,7 @@ class MascaretFileParent:
     def __init__(self, file_name, access='r', log_lvl='INFO'):
         """
         Constructor for MascaretFile
-        /!\ Only suited for results at cross-sections (not adapted to Casier or Traceur outputs)
+        /!\ Only suited for results at cross-liste_sections (not adapted to Casier or Traceur outputs)
 
         @param file_name (str) Name of the file
         @param access (str) Access to the file ('r' for read 'w' for write, add 'b' for binary file)
@@ -534,7 +534,7 @@ class Opthyca(MascaretFileParent):
     def __init__(self, file_name, access='r', log_lvl='INFO'):
         """
         Constructor for Opthyca file
-        /!\ Only suited for results at cross-sections (not adapted to Casier or Traceur outputs)
+        /!\ Only suited for results at cross-liste_sections (not adapted to Casier or Traceur outputs)
 
         @param file_name Name of the file
         @param access Access to the file ('r' for read 'w' for write)

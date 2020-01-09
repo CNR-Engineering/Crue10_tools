@@ -21,44 +21,44 @@
     {%- endfor %}
   </FichEtudes>
   <SousModeles>
-    {%- for submodel in submodels %}
-    <SousModele Nom="{{ submodel.id }}">
-      <Type>{{ submodel.metadata.Type }}</Type>
-      <IsActive>{{ submodel.metadata.IsActive }}</IsActive>
-      <Commentaire>{{ submodel.metadata.Commentaire|html_escape }}</Commentaire>
-      <AuteurCreation>{{ submodel.metadata.AuteurCreation }}</AuteurCreation>
-      <DateCreation>{{ submodel.metadata.DateCreation }}</DateCreation>
-      <AuteurDerniereModif>{{ submodel.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
-      <DateDerniereModif>{{ submodel.metadata.DateDerniereModif }}</DateDerniereModif>
+    {%- for sous_modele in sous_modeles %}
+    <SousModele Nom="{{ sous_modele.id }}">
+      <Type>{{ sous_modele.metadata.Type }}</Type>
+      <IsActive>{{ sous_modele.metadata.IsActive }}</IsActive>
+      <Commentaire>{{ sous_modele.metadata.Commentaire|html_escape }}</Commentaire>
+      <AuteurCreation>{{ sous_modele.metadata.AuteurCreation }}</AuteurCreation>
+      <DateCreation>{{ sous_modele.metadata.DateCreation }}</DateCreation>
+      <AuteurDerniereModif>{{ sous_modele.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+      <DateDerniereModif>{{ sous_modele.metadata.DateDerniereModif }}</DateDerniereModif>
       <SousModele-FichEtudes>
-        <DRSO NomRef="{{ submodel.file_basenames.drso }}"/>
-        <DCSP NomRef="{{ submodel.file_basenames.dcsp }}"/>
-        <DPTG NomRef="{{ submodel.file_basenames.dptg }}"/>
-        <DFRT NomRef="{{ submodel.file_basenames.dfrt }}"/>
+        <DRSO NomRef="{{ sous_modele.file_basenames.drso }}"/>
+        <DCSP NomRef="{{ sous_modele.file_basenames.dcsp }}"/>
+        <DPTG NomRef="{{ sous_modele.file_basenames.dptg }}"/>
+        <DFRT NomRef="{{ sous_modele.file_basenames.dfrt }}"/>
       </SousModele-FichEtudes>
     </SousModele>
 	{%- endfor %}
   </SousModeles>
   <Modeles>
-    {%- for model in models %}
-    <Modele Nom="{{ model.id }}">
-      <Type>{{ model.metadata.Type }}</Type>
-      <IsActive>{{ model.metadata.IsActive }}</IsActive>
-      <Commentaire>{{ model.metadata.Commentaire|html_escape }}</Commentaire>
-      <AuteurCreation>{{ model.metadata.AuteurCreation }}</AuteurCreation>
-      <DateCreation>{{ model.metadata.DateCreation }}</DateCreation>
-      <AuteurDerniereModif>{{ model.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
-      <DateDerniereModif>{{ model.metadata.DateDerniereModif }}</DateDerniereModif>
+    {%- for modele in modeles %}
+    <Modele Nom="{{ modele.id }}">
+      <Type>{{ modele.metadata.Type }}</Type>
+      <IsActive>{{ modele.metadata.IsActive }}</IsActive>
+      <Commentaire>{{ modele.metadata.Commentaire|html_escape }}</Commentaire>
+      <AuteurCreation>{{ modele.metadata.AuteurCreation }}</AuteurCreation>
+      <DateCreation>{{ modele.metadata.DateCreation }}</DateCreation>
+      <AuteurDerniereModif>{{ modele.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+      <DateDerniereModif>{{ modele.metadata.DateDerniereModif }}</DateDerniereModif>
       <Modele-FichEtudes>
-        <OPTR NomRef="{{ model.file_basenames.optr }}"/>
-        <OPTG NomRef="{{ model.file_basenames.optg }}"/>
-        <OPTI NomRef="{{ model.file_basenames.opti }}"/>
-        <PNUM NomRef="{{ model.file_basenames.pnum }}"/>
-        <DPTI NomRef="{{ model.file_basenames.dpti }}"/>
+        <OPTR NomRef="{{ modele.file_basenames.optr }}"/>
+        <OPTG NomRef="{{ modele.file_basenames.optg }}"/>
+        <OPTI NomRef="{{ modele.file_basenames.opti }}"/>
+        <PNUM NomRef="{{ modele.file_basenames.pnum }}"/>
+        <DPTI NomRef="{{ modele.file_basenames.dpti }}"/>
       </Modele-FichEtudes>
       <Modele-SousModeles>
-		{%- for submodel in model.submodels %}
-        <Modele-SousModele NomRef="{{ submodel.id }}"/>
+		{%- for sous_modele in modele.liste_sous_modeles %}
+        <Modele-SousModele NomRef="{{ sous_modele.id }}"/>
 		{%- endfor %}
       </Modele-SousModeles>
     </Modele>
@@ -82,7 +82,7 @@
         <DLHY NomRef="{{ scenario.file_basenames.dlhy }}"/>
       </Scenario-FichEtudes>
       <Scenario-Modeles>
-        <Scenario-Modele NomRef="{{ scenario.model.id }}"/>
+        <Scenario-Modele NomRef="{{ scenario.modele.id }}"/>
       </Scenario-Modeles>
       {%- if scenario.runs %}
       <Runs>

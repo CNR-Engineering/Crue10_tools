@@ -14,10 +14,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os.path
 
-from crue10.study import Study
+from crue10.etude import Etude
 
 
-study = Study(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
+study = Etude(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
                            'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
 study.read_all()
 
@@ -25,16 +25,16 @@ scenario = study.get_scenario('Sc_BE2016_etatref')
 scenario_ori = deepcopy(scenario)
 
 for delta_strickler in np.arange(-20.0, 20.0, step=5.0):
-    for idx_sm, submodel in enumerate(scenario.model.submodels):
-        for fk_id, friction_law in submodel.friction_laws.items():
-            if friction_law.type != 'FkSto':
-                friction_law_ori = scenario_ori.model.submodels[idx_sm].friction_laws[fk_id]
-                new_strickler = friction_law_ori.loi_Fk[:, 1] + delta_strickler
-                friction_law.loi_Fk[:, 1] = new_strickler.clip(min=10.0)
-                # print("Nouvelles valeurs de Strickler pour %s: %s" % (fk_id, friction_law.loi_Fk[:, 1]))
+    for idx_sm, sous_modele in enumerate(scenario.modele.liste_sous_modeles):
+        for fk_id, loi_frottement in sous_modele.lois_frottement.items():
+            if loi_frottement.type != 'FkSto':
+                loi_frottement_ori = scenario_ori.modele.get_sous_modele(sous_modele.id).lois_frottement[fk_id]
+                new_strickler = loi_frottement_ori.loi_Fk[:, 1] + delta_strickler
+                loi_frottement.loi_Fk[:, 1] = new_strickler.clip(min=10.0)
+                # print("Nouvelles valeurs de Strickler pour %s: %s" % (fk_id, loi_frottement.loi_Fk[:, 1]))
 
     # With regular run identifiers
-    # run_id = scenario.create_and_launch_new_run(study, comment='Modif Strickler %f points' % delta_strickler,
+    # run_id = scenario.create_and_launch_new_run(etude, comment='Modif Strickler %f points' % delta_strickler,
     #                                             force=True)
 
     # With custom run identifiers

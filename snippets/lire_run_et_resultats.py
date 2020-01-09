@@ -2,16 +2,16 @@
 import os.path
 import sys
 
-from crue10.study import Study
+from crue10.etude import Etude
 from crue10.utils import CrueError, logger
 
 
 etu_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
-    study = Study(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
+    study = Etude(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
     run = study.get_scenario('Sc_EtatsRef2015').get_run('R2019-04-16-14h09m19s')
     results = run.get_results()
-    # It is also possible to avoid using the Study instance, in providing the path rcal to RunResults:
+    # It is also possible to avoid using the Etude instance, in providing the path rcal to RunResults:
     # from crue10.results import RunResults
     # results = RunResults(os.path.join(etu_folder, 'Runs', 'Sc_EtatsRef2015', 'R2019-04-16-14h09m19s',
     #                                   'Mo_VS2013_c10_octobre_2014', 'VS2013_c10_EtatsRef.rcal.xml'))

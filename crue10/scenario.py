@@ -5,19 +5,19 @@ import os.path
 import shutil
 import subprocess
 
-from crue10.base import CrueXMLFile
-from crue10.model import Model
+from crue10.base import FichierXML
+from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, CrueError, logger, \
     write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 
 
-class Scenario(CrueXMLFile):
+class Scenario(FichierXML):
     """
     Crue10 scenario
     - id <str>: scenario identifier
-    - model <[Model]>: model
+    - modele <[Modele]>: modele
     - runs <[Runs]>: runs
     - current_run_id <str>: current run identifier
     """
@@ -30,7 +30,7 @@ class Scenario(CrueXMLFile):
     def __init__(self, scenario_name, model, access='r', files=None, metadata=None):
         """
         :param scenario_name: scenario name
-        :param model: a Model instance
+        :param model: a Modele instance
         :param files: dict with xml path files
         :param metadata: dict containing metadata
         """
@@ -38,8 +38,8 @@ class Scenario(CrueXMLFile):
         self.id = scenario_name
         super().__init__(access, files, metadata)
 
-        self.model = None
-        self.set_model(model)
+        self.modele = None
+        self.set_modele(model)
 
         self.current_run_id = None
         self.runs = OrderedDict()
@@ -53,14 +53,14 @@ class Scenario(CrueXMLFile):
             raise CrueError("Le run %s n'existe pas !\nLes noms possibles sont: %s"
                             % (run_id, list(self.runs.keys())))
 
-    def set_model(self, model):
-        check_isinstance(model, Model)
-        self.model = model
+    def set_modele(self, model):
+        check_isinstance(model, Modele)
+        self.modele = model
 
     def read_all(self):
         if not self.was_read:
             self._set_xml_trees()
-            self.model.read_all()
+            self.modele.read_all()
         self.was_read = True
 
     def add_run(self, run):
@@ -83,7 +83,7 @@ class Scenario(CrueXMLFile):
     def create_and_launch_new_run(self, study, run_id=None, comment='', force=False):
         """
         Create and launch a new run
-        /!\ The instance of `study` is modified but the original etu file not overwritten
+        /!\ The instance of `etude` is modified but the original etu file not overwritten
              (If necessary, it should be done after calling this method)
 
         1) Création d'un nouveau run (sans enregistrer la mise à jour du fichier etu.xml en entrée)
@@ -102,7 +102,7 @@ class Scenario(CrueXMLFile):
         if run_id is None:
             run_id = get_run_identifier()
         run_folder = os.path.join(study.folder, study.folders['RUNS'], self.id, run_id)
-        run = Run(os.path.join(run_folder, self.model.id), metadata={'Commentaire': comment})
+        run = Run(os.path.join(run_folder, self.modele.id), metadata={'Commentaire': comment})
         if not force:
             if os.path.exists(run_folder):
                 raise CrueError("Le dossier du run existe déjà. "
@@ -112,14 +112,14 @@ class Scenario(CrueXMLFile):
         self.add_run(run)
         self.set_current_run_id(run.id)
 
-        # Update study attributes
+        # Update etude attributes
         study.current_scenario_id = self.id
 
         # Write files and create folder is necessary
         logger.debug("Écriture de %s dans %s" % (run, run_folder))
-        mo_folder = os.path.join(run_folder, self.model.id)
+        mo_folder = os.path.join(run_folder, self.modele.id)
         self.write_all(run_folder, folder_config=None, write_model=False)
-        self.model.write_all(mo_folder, folder_config=None)
+        self.modele.write_all(mo_folder, folder_config=None)
         study.write_etu(run_folder)
 
         # Run crue10.exe in command line and redirect stdout and stderr in csv files
@@ -147,7 +147,7 @@ class Scenario(CrueXMLFile):
                 write_default_xml_file(xml_type, xml_path)
 
         if write_model:
-            self.model.write_all(folder, folder_config)
+            self.modele.write_all(folder, folder_config)
 
     def __repr__(self):
         return "Scénario %s" % self.id

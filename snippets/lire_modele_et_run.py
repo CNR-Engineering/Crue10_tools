@@ -14,7 +14,7 @@ from shapely.geometry import mapping, Point
 import sys
 
 from crue10.emh.section import SectionProfil
-from crue10.study import Study
+from crue10.etude import Etude
 from crue10.utils import CrueError, logger
 
 
@@ -24,28 +24,28 @@ VARIABLES = ['Z', 'H', 'Fr']
 
 etu_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
-    # Get model
-    study = Study(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
-    model = study.get_model('Mo_VS2013_c10_octobre_2014')
-    model.read_all()
-    for submodel in model.submodels:
-        submodel.convert_sectionidem_to_sectionprofil()
-        print(submodel.summary())
+    # Get modele
+    etude = Etude(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
+    modele = etude.get_modele('Mo_VS2013_c10_octobre_2014')
+    modele.read_all()
+    for sous_modele in modele.liste_sous_modeles:
+        sous_modele.convert_sectionidem_to_sectionprofil()
+        print(sous_modele.summary())
 
     # Get a dict with active section bottom elevations
     bottom = OrderedDict()
-    for section in model.get_section_list():
+    for section in modele.get_liste_sections():
         if section.is_active and isinstance(section, SectionProfil):
             bottom[section.id] = section.get_coord(add_z=True)
 
     # Read rcal result file
-    scenario = study.get_scenario('Sc_EtatsRef2015')
+    scenario = etude.get_scenario('Sc_EtatsRef2015')
     run = scenario.get_run('R2019-04-16-14h09m19s')
     results = run.get_results()
     print(results.summary())
 
     # Check result consistency
-    missing_sections = model.get_missing_active_sections(results.emh['Section'])
+    missing_sections = modele.get_missing_active_sections(results.emh['Section'])
     if missing_sections:
         print("Missing sections:\n%s" % missing_sections)
 

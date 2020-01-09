@@ -48,7 +48,7 @@ class Branche(ABC):
     - geom <LineString>: polyline branch trace
     - noeud_amont <crue10.emh.noeud.Noeud>: upstream node
     - noeud_aval <crue10.emh.noeud.Noeud>: downstream node
-    - sections <[crue10.emh.section.Section]>: list of sections
+    - liste_sections <[crue10.emh.section.Section]>: list of sections
     - comment <str>: optional text explanation
     """
 
@@ -113,7 +113,7 @@ class Branche(ABC):
     def has_geom(self):
         return self.type in Branche.TYPES_WITH_GEOM
 
-    def add_section(self, section, xp):
+    def ajouter_section_dans_branche(self, section, xp):
         check_isinstance(section, Section)
         if isinstance(section, SectionInterpolee):
             if self.type != 20:
@@ -195,27 +195,27 @@ class BranchePdC(Branche):
 class BrancheSeuilTransversal(Branche):
     """
     BrancheSeuilTransversal - #2
-    - formule_pdc <str>: 'Borda' or 'Divergent'
-    - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
+    - formule_pertes_de_charge <str>: 'Borda' or 'Divergent'
+    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 2, is_active)
-        self.formule_pdc = DEFAULT_FORMULE_PDC
-        self.elts_seuil = DEFAULT_ELTS_SEUILS_AVEC_PDC
+        self.formule_pertes_de_charge = DEFAULT_FORMULE_PDC
+        self.liste_elements_seuil = DEFAULT_ELTS_SEUILS_AVEC_PDC
 
 
 class BrancheSeuilLateral(Branche):
     """
     BrancheSeuilLateral - #4
-    - formule_pdc <str>: 'Borda' or 'Divergent'
-    - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
+    - formule_pertes_de_charge <str>: 'Borda' or 'Divergent'
+    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 4, is_active)
-        self.formule_pdc = DEFAULT_FORMULE_PDC
-        self.elts_seuil = DEFAULT_ELTS_SEUILS_AVEC_PDC
+        self.formule_pertes_de_charge = DEFAULT_FORMULE_PDC
+        self.liste_elements_seuil = DEFAULT_ELTS_SEUILS_AVEC_PDC
 
 
 class BrancheOrifice(Branche):
@@ -273,7 +273,7 @@ class BrancheNiveauxAssocies(Branche):
 class BrancheBarrageGenerique(Branche):
     """
     BrancheBarrageGenerique - #14
-    - section_pilotage <crue10.emh.section.Section>: section de pilotage
+    - section_pilote <crue10.emh.section.Section>: section de pilotage
     - QLimInf: "Débit  minimum admis dans la branche"
     - QLimSup: "Débit maximum admis dans la branche"
     - loi_QDz <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
@@ -284,7 +284,7 @@ class BrancheBarrageGenerique(Branche):
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 14, is_active)
-        self.section_pilotage = None
+        self.section_pilote = None
         self.QLimInf = DEFAULT_QLIMINF
         self.QLimSup = DEFAULT_QLIMSUP
         self.loi_QDz = np.array([(-15000.0, -1.0E30)])
@@ -304,20 +304,20 @@ class BrancheBarrageGenerique(Branche):
 class BrancheBarrageFilEau(Branche):
     """
     BrancheBarrageFilEau - #15
-    - section_pilotage <crue10.emh.section.Section>: section de pilotage
+    - section_pilote <crue10.emh.section.Section>: section de pilotage
     - QLimInf: "Débit  minimum admis dans la branche"
     - QLimSup: "Débit maximum admis dans la branche"
     - loi_QZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
-    - elts_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 3 columns)
+    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 3 columns)
     - comment_denoye <str>: commentaire loi dénoyée
     """
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 15, is_active)
-        self.section_pilotage = None
+        self.section_pilote = None
         self.QLimInf = DEFAULT_QLIMINF
         self.QLimSup = DEFAULT_QLIMSUP
         self.loi_QZam = np.array([(0.0, -15.0)])
-        self.elts_seuil = DEFAULT_ELTS_SEUILS
+        self.liste_elements_seuil = DEFAULT_ELTS_SEUILS
         self.comment_denoye = ''
 
     @property

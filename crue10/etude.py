@@ -5,10 +5,10 @@ from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
 
-from crue10.model import Model
+from crue10.modele import Modele
 from crue10.run import Run
 from crue10.scenario import Scenario
-from crue10.submodel import SubModel
+from crue10.sous_modele import SousModele
 from crue10.utils import add_default_missing_metadata, check_isinstance, CrueError, JINJA_ENV, \
     logger, PREFIX, XSD_FOLDER
 from crue10.utils.settings import XML_ENCODING
@@ -22,50 +22,50 @@ def read_metadata(elt, keys):
     return metadata
 
 
-class Study:
+class Etude:
     """
-    Crue10 study
+    Crue10 etude
     - etu_path <str>: path to etu.xml file
     - access <str>: 'r' to read and 'w' to write
     - folders <{str}>: dict with folders (keys correspond to `FOLDERS` list)
     - filename_list <[str]>: list of xml file names
     - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    - current_scenario_id <str>: current scenario identifier
-    - comment <str>: information describing current study
+    - nom_scenario_courant <str>: current scenario identifier
+    - comment <str>: information describing current etude
     - scenarios <{str: Scenario}>: dict with scneario name and Scenario object
-    - models <{str: Model}>: dict with model name and Model object
-    - submodels <{str: SubModel}>: dict with submodel name and SubModel object
+    - modeles <{str: Modele}>: dict with modele name and Modele object
+    - liste_sous_modeles <{str: SousModele}>: dict with sous_modele name and SousModele object
     """
 
     FOLDERS = OrderedDict([('CONFIG', 'Config'), ('FICHETUDES', '.'),
                            ('RAPPORTS', 'Rapports'), ('RUNS', 'Runs')])
-    XML_FILES = Scenario.FILES_XML + Model.FILES_XML + SubModel.FILES_XML
+    XML_FILES = Scenario.FILES_XML + Modele.FILES_XML + SousModele.FILES_XML
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
     def __init__(self, etu_path, folders=None, access='r', metadata=None, comment=''):
         """
-        :param etu_path: Crue10 study file (etu.xml format)
+        :param etu_path: Crue10 etude file (etu.xml format)
         """
         self.etu_path = etu_path
         self.access = access
         if folders is None:
-            self.folders = Study.FOLDERS
+            self.folders = Etude.FOLDERS
         else:
-            if set(folders.keys()) != set(Study.FOLDERS.keys()):
+            if set(folders.keys()) != set(Etude.FOLDERS.keys()):
                 raise RuntimeError
             if folders['FICHETUDES'] != '.':
                 raise NotImplementedError
             self.folders = folders
         self.filename_list = []
         self.metadata = {} if metadata is None else metadata
-        self.current_scenario_id = ''
+        self.nom_scenario_courant = ''
         self.comment = comment
 
         self.scenarios = OrderedDict()
-        self.models = OrderedDict()
-        self.submodels = OrderedDict()
+        self.modeles = OrderedDict()
+        self.sous_modeles = OrderedDict()
 
-        self.metadata = add_default_missing_metadata(self.metadata, Study.METADATA_FIELDS)
+        self.metadata = add_default_missing_metadata(self.metadata, Etude.METADATA_FIELDS)
 
         if access == 'r':
             self._read_etu()
@@ -82,11 +82,11 @@ class Study:
         root = ET.parse(self.etu_path).getroot()
         folder = os.path.dirname(self.etu_path)
 
-        # Study metadata
-        self.metadata = read_metadata(root, Study.METADATA_FIELDS)
+        # Etude metadata
+        self.metadata = read_metadata(root, Etude.METADATA_FIELDS)
 
         if root.find(PREFIX + 'ScenarioCourant') is not None:
-            self.current_scenario_id = root.find(PREFIX + 'ScenarioCourant').get('NomRef')
+            self.nom_scenario_courant = root.find(PREFIX + 'ScenarioCourant').get('NomRef')
 
         # Repertoires
         elt_repertoires = root.find(PREFIX + 'Repertoires')
@@ -96,7 +96,7 @@ class Study:
         # FichEtudes
         elt_fichiers = root.find(PREFIX + 'FichEtudes')
         for elt_fichier in elt_fichiers:
-            if elt_fichier.get('Type').lower() in Study.XML_FILES:  # Ignore Crue9 files
+            if elt_fichier.get('Type').lower() in Etude.XML_FILES:  # Ignore Crue9 files
                 if elt_fichier.get('Chemin') != '.\\':
                     raise NotImplementedError
                 self.filename_list.append(os.path.join(folder, elt_fichier.get('Nom')))
@@ -105,12 +105,12 @@ class Study:
         elt_sous_modeles = root.find(PREFIX + 'SousModeles')
         for elt_sm in elt_sous_modeles:
             files = {}
-            submodel_name = elt_sm.get('Nom')
+            nom_sous_modele = elt_sm.get('Nom')
 
-            metadata = read_metadata(elt_sm, SubModel.METADATA_FIELDS)
+            metadata = read_metadata(elt_sm, SousModele.METADATA_FIELDS)
 
             elt_fichiers = elt_sm.find(PREFIX + 'SousModele-FichEtudes')
-            for ext in SubModel.FILES_XML:
+            for ext in SousModele.FILES_XML:
                 try:
                     filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                 except AttributeError:
@@ -122,26 +122,26 @@ class Study:
                     raise CrueError("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
                 files[ext] = filepath
 
-            for shp_name in SubModel.FILES_SHP:
+            for shp_name in SousModele.FILES_SHP:
                 files[shp_name] = os.path.join(folder, self.folders['CONFIG'],
-                                               submodel_name.upper(), shp_name + '.shp')
+                                               nom_sous_modele.upper(), shp_name + '.shp')
 
-            submodel = SubModel(submodel_name, files=files, metadata=metadata)
-            self.add_submodel(submodel)
-        if not self.submodels:
+            sous_modele = SousModele(nom_sous_modele, files=files, metadata=metadata)
+            self.ajouter_sous_modele(sous_modele)
+        if not self.sous_modeles:
             raise CrueError("Il faut au moins un sous-modèle !")
 
         # Modele
         elt_models = root.find(PREFIX + 'Modeles')
         for elt_modele in elt_models:
-            if elt_modele.tag == PREFIX + 'Modele':  # Ignore Crue9 models
+            if elt_modele.tag == PREFIX + 'Modele':  # Ignore Crue9 modeles
                 files = {}
                 model_name = elt_modele.get('Nom')
 
-                metadata = read_metadata(elt_modele, Model.METADATA_FIELDS)
+                metadata = read_metadata(elt_modele, Modele.METADATA_FIELDS)
 
                 elt_fichiers = elt_modele.find(PREFIX + 'Modele-FichEtudes')
-                for ext in Model.FILES_XML:
+                for ext in Modele.FILES_XML:
                     try:
                         filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                     except AttributeError:
@@ -153,16 +153,16 @@ class Study:
                         raise CrueError("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
                     files[ext] = filepath
 
-                model = Model(model_name, files=files, metadata=metadata)
+                modele = Modele(model_name, files=files, metadata=metadata)
 
                 elt_sous_modeles = elt_modele.find(PREFIX + 'Modele-SousModeles')
                 for elt_sm in elt_sous_modeles:
-                    submodel_name = elt_sm.get('NomRef')
-                    submodel = self.submodels[submodel_name]
-                    model.add_submodel(submodel)
+                    nom_sous_modele = elt_sm.get('NomRef')
+                    sous_modele = self.sous_modeles[nom_sous_modele]
+                    modele.ajouter_sous_modele(sous_modele)
 
-                self.add_model(model)
-        if not self.models:
+                self.ajouter_modele(modele)
+        if not self.modeles:
             raise CrueError("Il faut au moins un modèle !")
 
         # Scenarios
@@ -170,7 +170,7 @@ class Study:
         for elt_scenario in elt_scenarios:
             if elt_scenario.tag == PREFIX + 'Scenario':
                 files = {}
-                scenario_name = elt_scenario.get('Nom')
+                nom_scenario = elt_scenario.get('Nom')
 
                 elt_fichiers = elt_scenario.find(PREFIX + 'Scenario-FichEtudes')
                 for ext in Scenario.FILES_XML:
@@ -186,14 +186,14 @@ class Study:
                     files[ext] = filepath
 
                 elt_models = elt_scenario.find(PREFIX + 'Scenario-Modeles')
-                model = None
+                modele = None
                 for i, elt_modele in enumerate(elt_models):
-                    model = self.models[elt_modele.get('NomRef')]
+                    modele = self.modeles[elt_modele.get('NomRef')]
                     if i != 0:
-                        raise NotImplementedError  # A single Model for a Scenario!
+                        raise NotImplementedError  # A single Modele for a Scenario!
 
                 metadata = read_metadata(elt_scenario, Scenario.METADATA_FIELDS)
-                scenario = Scenario(scenario_name, model, files=files, metadata=metadata)
+                scenario = Scenario(nom_scenario, modele, files=files, metadata=metadata)
 
                 runs = elt_scenario.find(PREFIX + 'Runs')
                 if runs is not None:
@@ -201,14 +201,14 @@ class Study:
                         run_id = run_elt.get('Nom')
                         metadata = read_metadata(run_elt, Run.METADATA_FIELDS)
                         run_mo_folder = os.path.join(self.folder, self.folders['RUNS'], scenario.id,
-                                                     run_id, scenario.model.id)
+                                                     run_id, scenario.modele.id)
                         scenario.add_run(Run(run_mo_folder, metadata=metadata))
 
                 elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')
                 if elt_current_run is not None:
                     scenario.set_current_run_id(elt_current_run.get('NomRef'))
 
-                self.add_scenario(scenario)
+                self.ajouter_scenario(scenario)
 
         if not self.scenarios:
             raise CrueError("Il faut au moins un scénario !")
@@ -228,10 +228,10 @@ class Study:
         template_render = JINJA_ENV.get_template(xml + '.xml').render(
             folders=[(name, folder) for name, folder in self.folders.items()],
             metadata=self.metadata,
-            current_scenario_id=self.current_scenario_id,
+            current_scenario_id=self.nom_scenario_courant,
             files=[(os.path.basename(file), file[-8:-4].upper()) for file in sorted(self.filename_list)],
-            models=[mo for _, mo in self.models.items()],
-            submodels=[sm for _, sm in self.submodels.items()],
+            modeles=[mo for _, mo in self.modeles.items()],
+            sous_modeles=[sm for _, sm in self.sous_modeles.items()],
             scenarios=[sc for _, sc in self.scenarios.items()],
         )
         with open(etu_path, 'w', encoding=XML_ENCODING) as out:
@@ -254,33 +254,33 @@ class Study:
             if file not in self.filename_list:
                 self.filename_list.append(file)
 
-    def add_model(self, model):
-        check_isinstance(model, Model)
-        self.add_files([file for _, file in model.files.items()])
-        for submodel in model.submodels:
-            self.add_submodel(submodel)
-        self.models[model.id] = model
+    def ajouter_modele(self, modele):
+        check_isinstance(modele, Modele)
+        self.add_files([file for _, file in modele.files.items()])
+        for sous_modele in modele.liste_sous_modeles:
+            self.ajouter_sous_modele(sous_modele)
+        self.modeles[modele.id] = modele
 
-    def add_submodel(self, submodel):
-        check_isinstance(submodel, SubModel)
-        self.add_files([file for _, file in submodel.files.items() if file[-8:-4] in SubModel.FILES_XML])
-        self.submodels[submodel.id] = submodel
+    def ajouter_sous_modele(self, sous_modele):
+        check_isinstance(sous_modele, SousModele)
+        self.add_files([file for _, file in sous_modele.files.items() if file[-8:-4] in SousModele.FILES_XML])
+        self.sous_modeles[sous_modele.id] = sous_modele
 
-    def add_scenario(self, scenario):
+    def ajouter_scenario(self, scenario):
         check_isinstance(scenario, Scenario)
         self.add_files([file for _, file in scenario.files.items()])
-        self.add_model(scenario.model)
+        self.ajouter_modele(scenario.modele)
         self.scenarios[scenario.id] = scenario
 
-    def create_empty_scenario(self, scenario_name, model_name, submodel_name=None, comment=''):
-        model = Model(model_name, access=self.access, metadata={'Commentaire': comment})
-        if submodel_name is not None:
-            submodel = SubModel(submodel_name, access=self.access, metadata={'Commentaire': comment})
-            model.add_submodel(submodel)
-        scenario = Scenario(scenario_name, model, access=self.access, metadata={'Commentaire': comment})
-        self.add_scenario(scenario)
-        if not self.current_scenario_id:
-            self.current_scenario_id = scenario.id
+    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, comment=''):
+        modele = Modele(nom_modele, access=self.access, metadata={'Commentaire': comment})
+        if nom_sous_modele is not None:
+            sous_modele = SousModele(nom_sous_modele, access=self.access, metadata={'Commentaire': comment})
+            modele.ajouter_sous_modele(sous_modele)
+        scenario = Scenario(nom_scenario, modele, access=self.access, metadata={'Commentaire': comment})
+        self.ajouter_scenario(scenario)
+        if not self.nom_scenario_courant:
+            self.nom_scenario_courant = scenario.id
 
     def get_scenario(self, scenario_name):
         try:
@@ -289,19 +289,19 @@ class Study:
             raise CrueError("Le scénario %s n'existe pas  !\nLes noms possibles sont: %s"
                             % (scenario_name, list(self.scenarios.keys())))
 
-    def get_model(self, model_name):
+    def get_modele(self, nom_modele):
         try:
-            return self.models[model_name]
+            return self.modeles[nom_modele]
         except KeyError:
             raise CrueError("Le modèle %s n'existe pas  !\nLes noms possibles sont: %s"
-                            % (model_name, list(self.models.keys())))
+                            % (nom_modele, list(self.modeles.keys())))
 
-    def get_submodel(self, submodel_name):
+    def get_sous_modele(self, nom_sous_modele):
         try:
-            return self.submodels[submodel_name]
+            return self.sous_modeles[nom_sous_modele]
         except KeyError:
             raise CrueError("Le sous-modèle %s n'existe pas  !\nLes noms possibles sont: %s"
-                            % (submodel_name, list(self.submodels.keys())))
+                            % (nom_sous_modele, list(self.sous_modeles.keys())))
 
     def check_xml_files(self):
         errors = {}
@@ -327,7 +327,7 @@ class Study:
 
     def summary(self):
         return "%s: %i scénario(s) %i modèle(s), %i sous-modèle(s)" % (self, len(self.scenarios),
-                                                                       len(self.models), len(self.submodels))
+                                                                       len(self.modeles), len(self.sous_modeles))
 
     def __repr__(self):
         return "Étude %s" % os.path.basename(self.etu_path[:-8])

@@ -5,24 +5,24 @@ Exporter la géométrie d'un modèle Crue10 en shp
 """
 import sys
 
-from crue10.study import Study
+from crue10.etude import Etude
 from crue10.utils import CrueError, logger
 from crue10.utils.cli_parser import MyArgParse
 
 
 def crue10_model_extract_shp(args):
-    study = Study(args.etu_path)
-    model = study.get_model(args.mo_name)
-    model.read_all()
-    print(model.summary())
+    study = Etude(args.etu_path)
+    model = study.get_modele(args.mo_name)
+    modele.read_all()
+    print(modele.summary())
 
     if args.shp_sections:
-        model.write_shp_sectionprofil_as_points(args.shp_sections)
+        modele.write_shp_sectionprofil_as_points(args.shp_sections)
 
     if args.shp_limits:
-        for submodel in model.submodels:
-            submodel.convert_sectionidem_to_sectionprofil()
-        model.write_shp_limites_lits_numerotes(args.shp_limits)
+        for sous_modele in modele.sous_modeles:
+            sous_modele.convert_sectionidem_to_sectionprofil()
+        modele.write_shp_limites_lits_numerotes(args.shp_limits)
 
 
 parser = MyArgParse(description=__doc__)

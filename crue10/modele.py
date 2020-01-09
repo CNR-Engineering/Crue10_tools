@@ -7,22 +7,22 @@ import numpy as np
 import os.path
 from shapely.geometry import LineString, mapping, Point
 
-from crue10.base import CrueXMLFile
+from crue10.base import FichierXML
 from crue10.emh.branche import BrancheOrifice
 from crue10.emh.section import SectionProfil, LitNumerote
 from crue10.utils import check_isinstance, check_preffix, CrueError, \
     logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
-from crue10.submodel import SubModel
+from crue10.sous_modele import SousModele
 from mascaret.mascaret_file import Reach, Section
 from mascaret.mascaretgeo_file import MascaretGeoFile
 
 
-class Model(CrueXMLFile):
+class Modele(FichierXML):
     """
-    Crue10 model
-    - id <str>: model identifier
-    - submodels <[SubModel]>: list of submodels
+    Crue10 modele
+    - id <str>: modele identifier
+    - liste_sous_modeles <[SousModele]>: list of sous_modeles
     - noeuds_ic <dict>: initial condition at noeuds
     - casiers_ic <dict>: initial condition at casiers
     - branches_ic <dict>: initial condition at branches
@@ -36,7 +36,7 @@ class Model(CrueXMLFile):
 
     def __init__(self, model_name, access='r', files=None, metadata=None):
         """
-        :param model_name: model name
+        :param model_name: modele name
         :param files: dict with xml path files
         :param metadata: dict containing metadata
         """
@@ -44,7 +44,7 @@ class Model(CrueXMLFile):
         self.id = model_name
         super().__init__(access, files, metadata)
 
-        self.submodels = []
+        self.liste_sous_modeles = []
 
         # Initial conditions
         self.noeuds_ic = OrderedDict()
@@ -67,104 +67,110 @@ class Model(CrueXMLFile):
                     new_id = new_left_id + suffix + '_' + new_right_id
                 else:
                     new_id = old_id + suffix
-                Model.rename_emh(dictionary, old_id, new_id, replace_obj)
+                Modele.rename_emh(dictionary, old_id, new_id, replace_obj)
 
     def rename_noeud(self, old_id, new_id):
         logger.debug("Renommage Noeud: %s -> %s" % (old_id, new_id))
-        for submodel in self.submodels:
-            Model.rename_emh(submodel.noeuds, old_id, new_id)
-            Model.rename_emh(self.noeuds_ic, old_id, new_id, replace_obj=False)
+        for sous_modele in self.liste_sous_modeles:
+            Modele.rename_emh(sous_modele.noeuds, old_id, new_id)
+            Modele.rename_emh(self.noeuds_ic, old_id, new_id, replace_obj=False)
 
     def rename_emhs(self, suffix, emh_list=['Fk', 'Nd', 'Cd', 'St', 'Br'], emhs_to_preserve=[]):
-        for submodel in self.submodels:
+        for sous_modele in self.liste_sous_modeles:
             if 'Fk' in emh_list:
-                Model.rename_key_and_obj(submodel.friction_laws, suffix)
+                Modele.rename_key_and_obj(sous_modele.liste_lois_frottement, suffix)
             if 'Nd' in emh_list:
-                Model.rename_key_and_obj(submodel.noeuds, suffix, emhs_to_preserve=emhs_to_preserve)
-                Model.rename_key_and_obj(self.noeuds_ic, suffix, emhs_to_preserve=emhs_to_preserve, replace_obj=False)
+                Modele.rename_key_and_obj(sous_modele.noeuds, suffix, emhs_to_preserve=emhs_to_preserve)
+                Modele.rename_key_and_obj(self.noeuds_ic, suffix, emhs_to_preserve=emhs_to_preserve, replace_obj=False)
             if 'Cd' in emh_list:
-                Model.rename_key_and_obj(submodel.casiers, suffix)
-                Model.rename_key_and_obj(self.casiers_ic, suffix, replace_obj=False)
-                Model.rename_key_and_obj(submodel.profils_casier, suffix, insert_before=True)
+                Modele.rename_key_and_obj(sous_modele.casiers, suffix)
+                Modele.rename_key_and_obj(self.casiers_ic, suffix, replace_obj=False)
+                Modele.rename_key_and_obj(sous_modele.profils_casier, suffix, insert_before=True)
             if 'St' in emh_list:
-                Model.rename_key_and_obj(submodel.sections, suffix)
-                for st in submodel.iter_on_sections_profil():
+                Modele.rename_key_and_obj(sous_modele.sections, suffix)
+                for st in sous_modele.iter_on_sections_profil():
                     st.set_profilsection_name()
             if 'Br' in emh_list:
-                Model.rename_key_and_obj(submodel.branches, suffix)
-                Model.rename_key_and_obj(self.branches_ic, suffix, replace_obj=False)
+                Modele.rename_key_and_obj(sous_modele.branches, suffix)
+                Modele.rename_key_and_obj(self.branches_ic, suffix, replace_obj=False)
 
-    def get_noeud_list(self):
+    def get_sous_modele(self, nom_sous_modele):
+        for sous_modele in self.liste_sous_modeles:
+            if sous_modele.id == nom_sous_modele:
+                return sous_modele
+        raise CrueError("Le sous-modèle %s n'existe pas dans le modèle %s" % (nom_sous_modele, self.id))
+
+    def get_liste_noeuds(self):
         noeuds = []
-        for submodel in self.submodels:
-            noeuds += [noeud for _, noeud in submodel.noeuds.items()]
+        for sous_modele in self.liste_sous_modeles:
+            noeuds += [noeud for _, noeud in sous_modele.noeuds.items()]
         return noeuds
 
-    def get_casier_list(self):
+    def get_liste_casiers(self):
         casiers = []
-        for submodel in self.submodels:
-            casiers += [casier for _, casier in submodel.casiers.items()]
+        for sous_modele in self.liste_sous_modeles:
+            casiers += [casier for _, casier in sous_modele.casiers.items()]
         return casiers
 
-    def get_section_list(self, ignore_inactive=False):
+    def get_liste_sections(self, ignore_inactive=False):
         sections = []
-        for submodel in self.submodels:
-            sections += submodel.iter_on_sections(ignore_inactive=ignore_inactive)
+        for sous_modele in self.liste_sous_modeles:
+            sections += sous_modele.iter_on_sections(ignore_inactive=ignore_inactive)
         return sections
 
-    def get_branche_list(self):
+    def get_liste_branches(self):
         branches = []
-        for submodel in self.submodels:
-            branches += submodel.iter_on_branches()
+        for sous_modele in self.liste_sous_modeles:
+            branches += sous_modele.iter_on_branches()
         return branches
 
     def get_missing_active_sections(self, section_id_list):
         """
-        Returns the list of the requested sections which are not found (or not active) in the current model
+        Returns the list of the requested sections which are not found (or not active) in the current modele
             (section type is not checked)
         @param section_id_list: list of section identifiers
         """
-        return set([st.id for st in self.get_section_list(ignore_inactive=True)]).difference(set(section_id_list))
+        return set([st.id for st in self.get_liste_sections(ignore_inactive=True)]).difference(set(section_id_list))
 
     def get_duplicated_noeuds(self):
-        return [nd for nd, count in Counter([noeud.id for noeud in self.get_noeud_list()]).items() if count > 1]
+        return [nd for nd, count in Counter([noeud.id for noeud in self.get_liste_noeuds()]).items() if count > 1]
 
     def get_duplicated_casiers(self):
-        return [ca for ca, count in Counter([casier.id for casier in self.get_casier_list()]).items() if count > 1]
+        return [ca for ca, count in Counter([casier.id for casier in self.get_liste_casiers()]).items() if count > 1]
 
     def get_duplicated_sections(self):
-        return [st for st, count in Counter([section.id for section in self.get_section_list()]).items() if count > 1]
+        return [st for st, count in Counter([section.id for section in self.get_liste_sections()]).items() if count > 1]
 
     def get_duplicated_branches(self):
-        return [br for br, count in Counter([branche.id for branche in self.get_branche_list()]).items() if count > 1]
+        return [br for br, count in Counter([branche.id for branche in self.get_liste_branches()]).items() if count > 1]
 
-    def add_submodel(self, submodel):
-        check_isinstance(submodel, SubModel)
-        if submodel.id in self.submodels:
-            raise CrueError("Le sous-modèle %s est déjà présent" % submodel.id)
-        self.submodels.append(submodel)
+    def ajouter_sous_modele(self, sous_modele):
+        check_isinstance(sous_modele, SousModele)
+        if sous_modele.id in self.liste_sous_modeles:
+            raise CrueError("Le sous-modèle %s est déjà présent" % sous_modele.id)
+        self.liste_sous_modeles.append(sous_modele)
 
-    def append_from_model(self, model):
-        """Add submodel in current model with the related initial conditions"""
-        for submodel in model.submodels:
-            self.add_submodel(submodel)
+    def ajouter_depuis_modele(self, modele):
+        """Add sous_modele in current modele with the related initial conditions"""
+        for sous_modele in modele.susoubmodels:
+            self.ajouter_sous_modele(sous_modele)
 
         # Copy initial conditions
-        for noeud_id, value in model.noeuds_ic.items():
+        for noeud_id, value in modele.noeuds_ic.items():
             self.noeuds_ic[noeud_id] = value
-        for branche_id, values in model.branches_ic.items():
+        for branche_id, values in modele.branches_ic.items():
             self.branches_ic[branche_id] = values
-        for casier_id, value in model.casiers_ic.items():
+        for casier_id, value in modele.casiers_ic.items():
             self.casiers_ic[casier_id] = value
 
     def reset_initial_conditions(self):
         """Set initial conditions to default values"""
-        self.noeuds_ic = OrderedDict([(noeud.id, 1.0E30) for noeud in self.get_noeud_list()])
+        self.noeuds_ic = OrderedDict([(noeud.id, 1.0E30) for noeud in self.get_liste_noeuds()])
 
-        self.casiers_ic = OrderedDict([(casier.id, 0.0) for casier in self.get_casier_list()])
+        self.casiers_ic = OrderedDict([(casier.id, 0.0) for casier in self.get_liste_casiers()])
 
         self.branches_ic = OrderedDict()
-        for branche in self.get_branche_list():
+        for branche in self.get_liste_branches():
             self.branches_ic[branche.id] = {
                 'type': branche.type,
                 'values': {'Qini': 0.0},
@@ -210,8 +216,8 @@ class Model(CrueXMLFile):
         if not self.was_read:
             self._set_xml_trees()
 
-            for submodel in self.submodels:
-                submodel.read_all()
+            for sous_modele in self.liste_sous_modeles:
+                sous_modele.read_all()
 
             self._read_dpti()
         self.was_read = True
@@ -231,7 +237,7 @@ class Model(CrueXMLFile):
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        for xml_type in Model.FILES_XML_WITHOUT_TEMPLATE:
+        for xml_type in Modele.FILES_XML_WITHOUT_TEMPLATE:
             xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
             if self.xml_trees:
                 write_xml_from_tree(self.xml_trees[xml_type],  xml_path)
@@ -240,8 +246,8 @@ class Model(CrueXMLFile):
 
         self._write_dpti(folder)
 
-        for submodel in self.submodels:
-            submodel.write_all(folder, folder_config)
+        for sous_modele in self.liste_sous_modeles:
+            sous_modele.write_all(folder, folder_config)
 
     def write_topological_graph(self, out_files, nodesep=0.8, prog='dot'):
         try:
@@ -253,14 +259,14 @@ class Model(CrueXMLFile):
         # Create a directed graph
         graph = pydot.Dot(graph_type='digraph', label=self.id, fontsize=MO_FONTSIZE,
                           nodesep=nodesep, prog=prog)  # vertical : rankdir='LR'
-        for submodel in self.submodels:
-            subgraph = pydot.Cluster(submodel.id, label=submodel.id, fontsize=SM_FONTSIZE,
-                                     style=key_from_constant(submodel.is_active, SM_STYLE))
+        for sous_modele in self.liste_sous_modeles:
+            subgraph = pydot.Cluster(sous_modele.id, label=sous_modele.id, fontsize=SM_FONTSIZE,
+                                     style=key_from_constant(sous_modele.is_active, SM_STYLE))
 
             # Add nodes
-            for _, noeud in submodel.noeuds.items():
+            for _, noeud in sous_modele.noeuds.items():
                 name = noeud.id
-                connected_casier = submodel.get_connected_casier(noeud)
+                connected_casier = sous_modele.get_connected_casier(noeud)
                 has_casier = connected_casier is not None
                 is_active = True
                 if has_casier:
@@ -272,7 +278,7 @@ class Model(CrueXMLFile):
                 subgraph.add_node(node)
 
             # Add branches
-            for branche in submodel.iter_on_branches():
+            for branche in sous_modele.iter_on_branches():
                 direction = 'forward'
                 if isinstance(branche, BrancheOrifice):
                     if branche.SensOrifice == 'Bidirect':
@@ -308,7 +314,7 @@ class Model(CrueXMLFile):
 
     def write_mascaret_geometry(self, geo_path):
         """
-        @brief: Convert model to Mascaret geometry format (extension: geo or georef)
+        @brief: Convert modele to Mascaret geometry format (extension: geo or georef)
         Only active branche of type 20 (SaintVenant) are written
         TODO: Add min/maj delimiter
         @param geo_path <str>: output file path
@@ -317,8 +323,8 @@ class Model(CrueXMLFile):
         """
         geofile = MascaretGeoFile(geo_path, access='w')
         i_section = 0
-        for submodel in self.submodels:
-            for i_branche, branche in enumerate(submodel.iter_on_branches([20])):
+        for sous_modele in self.liste_sous_modeles:
+            for i_branche, branche in enumerate(sous_modele.iter_on_branches([20])):
                 if branche.has_geom() and branche.is_active:
                     reach = Reach(i_branche, name=branche.id)
                     for section in branche.sections:
@@ -337,8 +343,8 @@ class Model(CrueXMLFile):
     def write_shp_sectionprofil_as_points(self, shp_path):
         schema = {'geometry': '3D Point', 'properties': {'id_section': 'str', 'Z': 'float'}}
         with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
-            for submodel in self.submodels:
-                for section in submodel.iter_on_sections(SectionProfil, ignore_inactive=True):
+            for sous_modele in self.liste_sous_modeles:
+                for section in sous_modele.iter_on_sections(SectionProfil, ignore_inactive=True):
                     coords = section.get_coord(add_z=True)
                     for coord in coords:
                         out_shp.write({'geometry': mapping(Point(coord)),
@@ -347,8 +353,8 @@ class Model(CrueXMLFile):
     def write_shp_limites_lits_numerotes(self, shp_path):
         schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
         with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
-            for submodel in self.submodels:
-                for branche in submodel.iter_on_branches():
+            for sous_modele in self.liste_sous_modeles:
+                for branche in sous_modele.iter_on_branches():
                     for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
                         coords = []
                         for section in branche.sections:
@@ -380,7 +386,7 @@ class Model(CrueXMLFile):
             logger.warn("Branches dupliquées: %s" % duplicated_branches)
 
     def summary(self):
-        return "%s: %i sous-modèle(s)" % (self, len(self.submodels))
+        return "%s: %i sous-modèle(s)" % (self, len(self.liste_sous_modeles))
 
     def __repr__(self):
         return "Modèle %s" % self.id

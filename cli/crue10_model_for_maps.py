@@ -22,21 +22,21 @@ import sys
 
 from crue10.emh.branche import Branche
 from crue10.emh.section import SectionProfil
-from crue10.study import Study
+from crue10.etude import Etude
 from crue10.utils.cli_parser import MyArgParse
 from crue10.utils import CrueError, logger
 
 
 def crue10_model_for_maps(args):
-    study = Study(args.etu_path)
-    model = study.get_model(args.mo_name)
-    model.read_all()
-    logger.info(model.summary())
+    study = Etude(args.etu_path)
+    model = study.get_modele(args.mo_name)
+    modele.read_all()
+    logger.info(modele.summary())
 
     if args.model_name:
         model_name = args.model_name
     else:
-        model_name = model.id
+        model_name = modele.id
 
     if not os.path.exists(args.out_folder):
         os.makedirs(args.out_folder)
@@ -47,14 +47,14 @@ def crue10_model_for_maps(args):
         'properties': OrderedDict([('NOM', 'str'), ('modele', 'str'), ('sousmodele', 'str')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'noeuds.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for submodel in model.submodels:
-            for _, noeud in submodel.noeuds.items():
+        for sous_modele in modele.sous_modeles:
+            for _, noeud in sous_modele.noeuds.items():
                 layer = {
                     'geometry': mapping(noeud.geom),
                     'properties': {
                         'NOM': noeud.id,
                         'modele': model_name,
-                        'sousmodele': submodel.id,
+                        'sousmodele': sous_modele.id,
                     }
                 }
                 out_shp.write(layer)
@@ -63,18 +63,18 @@ def crue10_model_for_maps(args):
     schema = {
         'geometry': 'Polygon',
         'properties': OrderedDict([('NOM', 'str'), ('modele', 'str'), ('sousmodele', 'str'),
-                                   ('noeud', 'str'), ('is_active', 'bool')]),
+                                   ('noeud_reference', 'str'), ('is_active', 'bool')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'casiers.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for submodel in model.submodels:
-            for _, casier in submodel.casiers.items():
+        for sous_modele in modele.sous_modeles:
+            for _, casier in sous_modele.casiers.items():
                 layer = {
                     'geometry': mapping(Polygon(casier.geom)),
                     'properties': {
                         'NOM': casier.id,
                         'modele': model_name,
-                        'sousmodele': submodel.id,
-                        'noeud': casier.noeud.id,
+                        'sousmodele': sous_modele.id,
+                        'noeud_reference': casier.noeud_reference.id,
                         'is_active': casier.is_active,
                     }
                 }
@@ -87,14 +87,14 @@ def crue10_model_for_maps(args):
                                    ('nd_aval', 'str'), ('type', 'int'), ('is_active', 'bool')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'branches.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for submodel in model.submodels:
-            for _, branche in submodel.branches.items():
+        for sous_modele in modele.sous_modeles:
+            for _, branche in sous_modele.branches.items():
                 layer = {
                     'geometry': mapping(branche.geom),
                     'properties': {
                         'NOM': branche.id,
                         'modele': model_name,
-                        'sousmodele': submodel.id,
+                        'sousmodele': sous_modele.id,
                         'nd_amont': branche.noeud_amont.id,
                         'nd_aval': branche.noeud_aval.id,
                         'type': branche.type,
@@ -110,36 +110,36 @@ def crue10_model_for_maps(args):
                                    ('id_branche', 'str'), ('xp', 'float')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'sections.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for submodel in model.submodels:
-            for section in submodel.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
+        for sous_modele in modele.sous_modeles:
+            for section in sous_modele.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
                 layer = {
                     'geometry': mapping(section.geom_trace),
                     'properties': {
                         'NOM': section.id,
                         'modele': model_name,
-                        'sousmodele': submodel.id,
+                        'sousmodele': sous_modele.id,
                         'id_branche': branche.id,
                         'xp': section.xp,
                     }
                 }
                 out_shp.write(layer)
 
-    # Submodels
+    # sous_modeles
     mo_geom_list = []
     schema = {
         'geometry': 'Polygon',
         'properties': OrderedDict([('NOM', 'str'), ('modele', 'str')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'sous-modeles.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for submodel in model.submodels:
-            submodel.remove_sectioninterpolee()
-            submodel.normalize_geometry()  # replace SectionIdem by SectionProfil
+        for sous_modele in modele.sous_modeles:
+            sous_modele.remove_sectioninterpolee()
+            sous_modele.normalize_geometry()  # replace SectionIdem by SectionProfil
 
             sm_geom_list = []
-            for _, casier in submodel.casiers.items():
+            for _, casier in sous_modele.casiers.items():
                 sm_geom_list.append(Polygon(casier.geom).buffer(args.sm_buffer))
 
-            for branche in submodel.iter_on_branches():
+            for branche in sous_modele.iter_on_branches():
                 if branche.type in Branche.TYPES_WITH_GEOM:
                     # Build list of coordinates following upstream section, left ending points, downstream section and
                     #   right ending point
@@ -159,7 +159,7 @@ def crue10_model_for_maps(args):
                 # Add geometry of the branch (necessary for branches without geometry)
                 sm_geom_list.append(branche.geom.buffer(args.sm_buffer))
 
-            for _, noeud in submodel.noeuds.items():
+            for _, noeud in sous_modele.noeuds.items():
                 sm_geom_list.append(noeud.geom.buffer(args.sm_buffer))
 
             mo_geom_list += sm_geom_list
@@ -168,13 +168,13 @@ def crue10_model_for_maps(args):
             layer = {
                 'geometry': mapping(sm_zone),
                 'properties': {
-                    'NOM': submodel.id,
+                    'NOM': sous_modele.id,
                     'modele': model_name,
                 }
             }
             out_shp.write(layer)
 
-    # Model
+    # Modele
     schema = {
         'geometry': 'Polygon',
         'properties': OrderedDict([('NOM', 'str'), ('id_modele', 'str'), ('bief', 'str'),
@@ -187,7 +187,7 @@ def crue10_model_for_maps(args):
             'geometry': mapping(mo_zone),
             'properties': {
                 'NOM': model_name,
-                'id_modele': model.id,
+                'id_modele': modele.id,
                 'bief': args.bief,
                 'auteurs': args.auteurs,
                 'date': args.date,
@@ -202,7 +202,7 @@ parser.add_argument('mo_name', help="nom du modèle (avec le preffixe Mo_)")
 parser.add_argument('out_folder', help="chemin du dossier pour les fichiers shp de sortie")
 
 parser_attributes = parser.add_argument_group("Arguments pour écrire les méta-données")
-parser_attributes.add_argument('--model_name', help="nom du modèle", default='')
+parser_attributes.add_argument('--nom_modele', help="nom du modèle", default='')
 parser_attributes.add_argument('--bief', help="bigramme du bief", default='')
 parser_attributes.add_argument('--auteurs', help="détails des auteurs", default='')
 parser_attributes.add_argument('--date', help="date de valeur (format : JJ/MM/AAAA)", default='')

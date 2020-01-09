@@ -7,23 +7,23 @@ import sys
 
 from crue10.utils import CrueError, logger
 from crue10.emh.section import LitNumerote
-from crue10.study import Study
+from crue10.etude import Etude
 
 
 try:
-    # Get submodel
-    study = Study(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
+    # Get sous_modele
+    study = Etude(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
                                'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
-    submodel = study.get_submodel('Sm_BE2016_etatref')
-    submodel.read_all()
+    sous_modele = study.get_sous_modele('Sm_BE2016_etatref')
+    sous_modele.read_all()
 
-    # Do something with `submodel`...
+    # Do something with `sous_modele`...
     # Here is an example below:
-    submodel.remove_sectioninterpolee()
-    submodel.convert_sectionidem_to_sectionprofil()
+    sous_modele.remove_sectioninterpolee()
+    sous_modele.convert_sectionidem_to_sectionprofil()
 
     # Select a single branch
-    branch = submodel.get_branche('Br_VRH99.900')
+    branch = sous_modele.get_branche('Br_VRH99.900')
     print(branch)
     # Sections of a single branch
     print(branch.sections)
@@ -32,7 +32,7 @@ try:
     print(section)
     print(section.get_coord(add_z=True))  # 3D coordinates
     # Select another section by its identifier
-    section = submodel.get_section('St_KBE09_BE10_am')
+    section = sous_modele.get_section('St_KBE09_BE10_am')
     # Display coordinates of its limits
     print(section.lits_numerotes)
     for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):

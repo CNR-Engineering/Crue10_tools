@@ -9,19 +9,19 @@ TODO: Les transformations suivantes restent à faire :
 """
 import sys
 
-from crue10.study import Study
+from crue10.etude import Etude
 from crue10.utils.cli_parser import MyArgParse
 from crue10.utils import CrueError, logger
 
 
 def crue10_model_geom_to_mascaret(args):
-    study = Study(args.etu_path)
-    model = study.get_model(args.mo_name)
-    model.read_all()
-    for submodel in model.submodels:
-        submodel.remove_sectioninterpolee()
-        submodel.normalize_geometry()
-    model.write_mascaret_geometry(args.georef_path)
+    study = Etude(args.etu_path)
+    model = study.get_modele(args.mo_name)
+    modele.read_all()
+    for sous_modele in modele.sous_modeles:
+        sous_modele.remove_sectioninterpolee()
+        sous_modele.normalize_geometry()
+    modele.write_mascaret_geometry(args.georef_path)
 
 
 parser = MyArgParse(description=__doc__)

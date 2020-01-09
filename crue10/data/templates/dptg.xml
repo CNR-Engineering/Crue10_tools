@@ -22,10 +22,10 @@
     {%- for section in section_profil_list %}
     <ProfilSection Nom="{{ section.nom_profilsection }}">
       <Commentaire>{{ section.comment_profilsection|html_escape }}</Commentaire>
-      {%- if section.has_fente %}
+      {%- if section.is_avec_fente %}
       <Fente>
-        <LargeurFente>{{ section.fente[0] }}</LargeurFente>
-        <ProfondeurFente>{{ section.fente[1] }}</ProfondeurFente>
+        <LargeurFente>{{ section.largeur_fente }}</LargeurFente>
+        <ProfondeurFente>{{ section.profondeur_fente }}</ProfondeurFente>
       </Fente>
       {%- endif %}
       <EvolutionFF>
@@ -40,8 +40,8 @@
           <LimFin>{{ lit_numerote.xt_max }} {{ section.interp_z(lit_numerote.xt_max) }}</LimFin>
           <LitNomme>{{ lit_numerote.id }}</LitNomme>
           <IsLitActif>{% if lit_numerote.is_active %}true{% else %}false{% endif %}</IsLitActif>
-          <IsLitMineur>{% if lit_numerote.is_mineur %}true{% else %}false{% endif %}</IsLitMineur>
-          <Frot NomRef="{{ lit_numerote.friction_law.id }}"/>
+          <IsLitMineur>{% if lit_numerote.get_est_mineur %}true{% else %}false{% endif %}</IsLitMineur>
+          <Frot NomRef="{{ lit_numerote.loi_frottement.id }}"/>
         </LitNumerote>
         {%- endfor %}
       </LitNumerotes>
@@ -59,7 +59,7 @@
   <DonPrtGeoSections>
     {%- for section in section_idem_list %}
     <DonPrtGeoSectionIdem NomRef="{{ section.id }}">
-      <Dz>{{ section.dz }}</Dz>
+      <Dz>{{ section.dz_section_reference }}</Dz>
     </DonPrtGeoSectionIdem>
     {%- endfor %}
   </DonPrtGeoSections>

@@ -9,7 +9,7 @@ Générer un schéma topologique sous forme d'image png/svg
 * il s'agit d'une vue schématique avec tous les noeuds/casiers et les branches
     (aucune information géographique)
 * l'orientation des branches correspond au sens de la ligne qui se termine par
-    une flèche (branche fluviale) ou un symbole qui est "côté noeud aval"
+    une flèche (branche fluviale) ou un symbole qui est "côté noeud_reference aval"
     (la seule exception concerne les branches orifices dont la position du symbole
     tient compte du sens de l'orifice)
 * les branches ou sous-modèles inactifs sont en pointillés
@@ -24,16 +24,16 @@ import sys
 
 from crue10.utils.cli_parser import MyArgParse
 from crue10.utils import CrueError, logger
-from crue10.study import Study
+from crue10.etude import Etude
 
 
 def crue10_model_topographical_graph(args):
-    study = Study(args.etu_path)
-    model = study.get_model(args.mo_name)
-    model.read_all()
+    study = Etude(args.etu_path)
+    model = study.get_modele(args.mo_name)
+    modele.read_all()
 
     logger.info(model)
-    model.write_topological_graph(args.out_files, nodesep=args.sep, prog=args.prog)
+    modele.write_topological_graph(args.out_files, nodesep=args.sep, prog=args.prog)
 
 
 parser = MyArgParse(description=__doc__)

@@ -61,7 +61,7 @@ class FilePosition:
         return res
 
 
-class CalcSteady:
+class CalcPseudoPerm:
     """Metadata for a steady calculation"""
 
     def __init__(self, name, bin_path, byte_offset):
@@ -72,7 +72,7 @@ class CalcSteady:
         return "Calcul permanent #%s" % self.name
 
 
-class CalcUnsteady:
+class CalcTrans:
     """Metadata for an unsteady calculation"""
 
     def __init__(self, name):
@@ -130,7 +130,7 @@ class RunResults:
 
     @property
     def model_name(self):
-        """Model name with 'Mo_' preffix"""
+        """Modele name with 'Mo_' preffix"""
         return os.path.basename(self.rcal_folder)
 
     @property
@@ -208,12 +208,12 @@ class RunResults:
 
     def _read_rescalc(self):
         for calc in self.rcal_root.find(PREFIX + 'ResCalcPerms'):
-            calc_steady = CalcSteady(calc.get('NomRef'), os.path.join(self.rcal_folder, calc.get('Href')),
-                                   int(calc.get('OffsetMot')))
+            calc_steady = CalcPseudoPerm(calc.get('NomRef'), os.path.join(self.rcal_folder, calc.get('Href')),
+                                         int(calc.get('OffsetMot')))
             self.calc_steady_dict[calc_steady.name] = calc_steady
 
         for calc in self.rcal_root.find(PREFIX + 'ResCalcTranss'):
-            calc_unsteady = CalcUnsteady(calc.get('NomRef'))
+            calc_unsteady = CalcTrans(calc.get('NomRef'))
             for pdt in calc:
                 calc_unsteady.add_frame(get_time_in_seconds(pdt.get('TempsSimu')),
                                      os.path.join(self.rcal_folder, pdt.get('Href')), int(pdt.get('OffsetMot')))
@@ -329,7 +329,7 @@ class RunResults:
 
     def export_calc_steady_as_csv(self, csv_path):
         """
-        Write CSV containing all `CalcSteady` results
+        Write CSV containing all `CalcPseudoPerm` results
         Header is: "calc;emh_type;emh;variable;value"
         """
         with open(csv_path, 'w', newline='') as csv_file:
@@ -350,7 +350,7 @@ class RunResults:
 
     def export_calc_unsteady_as_csv(self, csv_path):
         """
-        Write CSV containing all `CalcUnsteady` results
+        Write CSV containing all `CalcTrans` results
         Header is: "calc;time;emh_type;emh;variable;value"
         """
         with open(csv_path, 'w', newline='') as csv_file:

@@ -16,8 +16,8 @@
     </DonCalcSansPrtBranchePdc>
     {%- elif branche.type == 2 %}
     <DonCalcSansPrtBrancheSeuilTransversal NomRef="{{ branche.id }}">
-      <FormulePdc>{{ branche.formule_pdc }}</FormulePdc>
-      {%- for larg, z_seuil, coeff_d, coeff_pdc in branche.elts_seuil %}
+      <FormulePdc>{{ branche.formule_pertes_de_charge }}</FormulePdc>
+      {%- for larg, z_seuil, coeff_d, coeff_pdc in branche.liste_elements_seuil %}
       <ElemSeuilAvecPdc>
         <Largeur>{{ larg }}</Largeur>
         <Zseuil>{{ z_seuil }}</Zseuil>
@@ -28,8 +28,8 @@
     </DonCalcSansPrtBrancheSeuilTransversal>
     {%- elif branche.type == 4 %}
     <DonCalcSansPrtBrancheSeuilLateral NomRef="{{ branche.id }}">
-      <FormulePdc>{{ branche.formule_pdc }}</FormulePdc>
-      {%- for larg, z_seuil, coeff_d, coeff_pdc in branche.elts_seuil %}
+      <FormulePdc>{{ branche.formule_pertes_de_charge }}</FormulePdc>
+      {%- for larg, z_seuil, coeff_d, coeff_pdc in branche.liste_elements_seuil %}
       <ElemSeuilAvecPdc>
         <Largeur>{{ larg }}</Largeur>
         <Zseuil>{{ z_seuil }}</Zseuil>
@@ -88,7 +88,7 @@
     <DonCalcSansPrtBrancheBarrageFilEau NomRef="{{ branche.id }}">
       <QLimInf>{{ branche.QLimInf|float2str }}</QLimInf>
       <QLimSup>{{ branche.QLimSup|float2str }}</QLimSup>
-      {%- for larg, z_seuil, coeff_d in branche.elts_seuil %}
+      {%- for larg, z_seuil, coeff_d in branche.liste_elements_seuil %}
       <ElemSeuil>
         <Largeur>{{ larg }}</Largeur>
         <Zseuil>{{ z_seuil }}</Zseuil>

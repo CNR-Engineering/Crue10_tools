@@ -13,16 +13,16 @@ OK
 
 # GE2009_Conc
 - dclm: &apos; => '
-(With Python2 on Linux: drso: some Xp are truncated)
+(Sur Windows ou Python2 sur Linux: drso: some Xp are truncated)
 
 # VA2018_Conc
 OK (sauf copie manquante des fichiers orphelins)
-(With Python2 on Linux: drso: some Xp are truncated)
+(Sur Windows ou Python2 sur Linux: drso: some Xp are truncated)
 """
 from glob import glob
 import os.path
 
-from crue10.study import Study
+from crue10.etude import Etude
 from crue10.utils import CrueError, logger
 
 
@@ -30,20 +30,20 @@ for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests', '
     for etu_path in glob(os.path.join(folder, '*.etu.xml')):
         logger.info(etu_path)
         try:
-            study = Study(etu_path)
+            study = Etude(etu_path)
             try:
                 study.check_xml_files()
             except IOError:  # avoid some Crue9 missing files in `Etu_BV2016_Conc_Etatref - ISfonds2016_K2016`
                 pass
             study.read_all()
 
-            # Write study (to check in integrity, see difference in file docstring above)
+            # Write etude (to check in integrity, see difference in file docstring above)
             out_folder = os.path.join('../tmp/Etudes-tests', os.path.basename(folder))
             study.write_all(out_folder)
 
-            # Write topographical graph for each model
-            # for _, model in study.models.items():
-            #     model.write_topological_graph([os.path.join(out_folder, model.id + '.png')])
+            # Write topographical graph for each modele
+            # for _, modele in etude.modeles.items():
+            #     modele.write_topological_graph([os.path.join(out_folder, modele.id + '.png')])
 
         except CrueError as e:
             logger.critical(e)

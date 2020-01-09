@@ -6,14 +6,14 @@ included in the target study (etu.xml file)
 """
 import sys
 
-from crue10.study import Study
+from crue10.etude import Etude
 from crue10.utils import CrueError, logger
 from crue10.utils.cli_parser import MyArgParse
 
 
 def crue10_xsd_validator(args):
     has_error = False
-    study = Study(args.etu_path)
+    study = Etude(args.etu_path)
     errors = study.check_xml_files()
 
     for file, errors in errors.items():

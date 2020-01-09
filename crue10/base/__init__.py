@@ -10,7 +10,7 @@ from crue10.utils import add_default_missing_metadata, JINJA_ENV, get_xml_root_f
 ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 
-class CrueXMLFile(ABC):
+class FichierXML(ABC):
     """
     Abstract class for Crue10 XML files
 

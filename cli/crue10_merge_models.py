@@ -21,7 +21,7 @@ Les valeurs vides sont permises si le sous-modèle n'est pas concerné.
 """
 import sys
 
-from crue10.study import Study
+from crue10.etude import Etude
 from crue10.utils import CrueError, logger
 from crue10.utils.cli_parser import MyArgParse
 
@@ -50,33 +50,33 @@ def crue10_merge_models(args):
             if not reference_found:
                 raise CrueError("Le noeud de référence n'a pas pu être trouvé pour : `%s`" % nodes_str)
 
-    study_out = Study(args.etu_path_out, access='w')
-    study_out.create_empty_scenario('Sc_%s' % args.out_name, 'Mo_%s' % args.out_name, submodel_name=None)
-    model_out = study_out.get_model('Mo_%s' % args.out_name)
+    study_out = Etude(args.etu_path_out, access='w')
+    study_out.create_empty_scenario('Sc_%s' % args.out_name, 'Mo_%s' % args.out_name, nom_sous_modele=None)
+    model_out = study_out.get_modele('Mo_%s' % args.out_name)
 
     for i, (etu_path, mo_name, suffix) in enumerate(zip(args.etu_path_list, args.mo_name_list, args.suffix_list)):
-        study_in = Study(etu_path, access='r')
-        model_in = study_in.get_model(mo_name)
+        study_in = Etude(etu_path, access='r')
+        model_in = study_in.get_modele(mo_name)
         model_in.read_all()
 
         # Rename all EMHs and set optional shared nodes
         model_in.rename_emhs(suffix, emhs_to_preserve=noeud_id_list[i])
         for j, noeud_id in enumerate(noeud_id_list[i]):
             if noeud_id != '':
-                if noeud_id not in [nd.id for nd in model_in.get_noeud_list()]:
+                if noeud_id not in [nd.id for nd in model_in.get_liste_noeuds()]:
                     raise CrueError("Le noeud %s n'est pas dans le modèle %s" % (noeud_id, model_in.id))
                 model_in.rename_noeud(noeud_id, noeud_id_references[j])
 
-        model_out.append_from_model(model_in)
+        model_out.ajouter_depuis_modele(model_in)
 
     logger.info("~> Étude en sortie:")
     logger.info(study_out)
     logger.info(model_out.summary())
     model_out.log_duplicated_emh()
 
-    for submodel in model_out.submodels:
-        study_out.add_submodel(submodel)
-        logger.info(submodel.summary())
+    for sous_modele in model_out.sous_modeles:
+        study_out.ajouter_sous_modele(sous_modele)
+        logger.info(sous_modele.summary())
 
     study_out.write_all()
 
