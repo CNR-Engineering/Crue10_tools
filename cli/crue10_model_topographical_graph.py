@@ -9,7 +9,7 @@ Générer un schéma topologique sous forme d'image png/svg
 * il s'agit d'une vue schématique avec tous les noeuds/casiers et les branches
     (aucune information géographique)
 * l'orientation des branches correspond au sens de la ligne qui se termine par
-    une flèche (branche fluviale) ou un symbole qui est "côté noeud_reference aval"
+    une flèche (branche fluviale) ou un symbole qui est "côté noeud aval"
     (la seule exception concerne les branches orifices dont la position du symbole
     tient compte du sens de l'orifice)
 * les branches ou sous-modèles inactifs sont en pointillés

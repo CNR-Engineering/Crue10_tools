@@ -48,7 +48,7 @@ class Branche(ABC):
     - geom <LineString>: polyline branch trace
     - noeud_amont <crue10.emh.noeud.Noeud>: upstream node
     - noeud_aval <crue10.emh.noeud.Noeud>: downstream node
-    - liste_sections <[crue10.emh.section.Section]>: list of sections
+    - liste_sections_dans_branche <[crue10.emh.section.Section]>: list of sections
     - comment <str>: optional text explanation
     """
 
@@ -88,7 +88,7 @@ class Branche(ABC):
             self.geom = None
         self.noeud_amont = noeud_amont
         self.noeud_aval = noeud_aval
-        self.sections = []
+        self.liste_sections_dans_branche = []
         self.comment = ''
 
     @staticmethod
@@ -98,11 +98,17 @@ class Branche(ABC):
                 return type_id
         return None
 
+    def get_section_amont(self):
+        return self.liste_sections_dans_branche[0]
+
+    def get_section_aval(self):
+        return self.liste_sections_dans_branche[-1]
+
     @property
     def length(self):
         """Length displayed in FC (may differ from geometry)"""
         if self.type in Branche.TYPES_WITH_LENGTH:
-            return self.sections[-1].xp
+            return self.get_section_aval().xp
         else:
             return 0.0
 
@@ -125,7 +131,7 @@ class Branche(ABC):
             if not isinstance(section, SectionSansGeometrie):
                 raise CrueError("La %s ne peut porter que des SectionSansGeometrie" % self)
         section.xp = xp
-        self.sections.append(section)
+        self.liste_sections_dans_branche.append(section)
 
     def set_geom(self, geom):
         check_isinstance(geom, LineString)
@@ -139,7 +145,7 @@ class Branche(ABC):
         if self.geom is None:
             raise CrueErrorGeometryNotFound(self)
         for pos in (0, -1):
-            section = self.sections[pos]
+            section = self.liste_sections_dans_branche[pos]
             if isinstance(section, SectionProfil):
                 if pos == 0:
                     node = self.noeud_amont.geom
@@ -151,7 +157,7 @@ class Branche(ABC):
                 if isinstance(section_point, Point):
                     dx = node.x - section_point.x
                     dy = node.y - section_point.y
-                    self.sections[pos].set_trace(
+                    self.liste_sections_dans_branche[pos].set_trace(
                         translate(section.geom_trace, xoff=dx, yoff=dy))
 
     def normalize_sections_xp(self):
@@ -159,20 +165,20 @@ class Branche(ABC):
         Recompute section xp to correspond to geometric distance (original values are taken from drso).
         Last section xp will correspond exactly to the branch length.
         """
-        xp_max = self.sections[-1].xp
+        xp_max = self.get_section_aval().xp
         length = self.geom.length
         if self.type in Branche.TYPES_WITH_LENGTH and abs(xp_max - length) > DIFF_XP_TO_WARN:
             logger.warn("La longueur de la branche `%s` est estimée à %.2fm (non pas %.2fm)."
                         % (self.id, length, xp_max))
-        for i, section in enumerate(self.sections):
+        for i, section in enumerate(self.liste_sections_dans_branche):
             try:
                 section.xp = section.xp * length / xp_max
             except ZeroDivisionError:
-                section.xp = (i / (len(self.sections) - 1)) * length
+                section.xp = (i / (len(self.liste_sections_dans_branche) - 1)) * length
 
     def __repr__(self):
-        return "Branche [%i] #%s: %s -> %s (%i sections)" % (self.type, self.id,
-                                                             self.noeud_amont, self.noeud_aval, len(self.sections))
+        return "Branche [%i] #%s: %s -> %s (%i sections)" % (self.type, self.id, self.noeud_amont, self.noeud_aval,
+                                                             len(self.liste_sections_dans_branche))
 
 
 class BranchePdC(Branche):

@@ -2,6 +2,7 @@ fiona
 future  # python2 only packages
 jinja2
 lxml
+matplotlib  # only required for some snippets
 numpy
 pydot  # only required for Modele.write_topological_graph
 shapely

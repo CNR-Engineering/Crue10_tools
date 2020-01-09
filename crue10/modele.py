@@ -151,7 +151,7 @@ class Modele(FichierXML):
         self.liste_sous_modeles.append(sous_modele)
 
     def ajouter_depuis_modele(self, modele):
-        """Add sous_modele in current modele with the related initial conditions"""
+        """Add modele in current modele with the related initial conditions"""
         for sous_modele in modele.susoubmodels:
             self.ajouter_sous_modele(sous_modele)
 
@@ -327,7 +327,7 @@ class Modele(FichierXML):
             for i_branche, branche in enumerate(sous_modele.iter_on_branches([20])):
                 if branche.has_geom() and branche.is_active:
                     reach = Reach(i_branche, name=branche.id)
-                    for section in branche.sections:
+                    for section in branche.liste_sections_dans_branche:
                         if not isinstance(section, SectionProfil):
                             raise CrueError("The `%s`, which is not a SectionProfil, could not be written" % section)
                         masc_section = Section(i_section, section.xp, name=section.id)
@@ -357,7 +357,7 @@ class Modele(FichierXML):
                 for branche in sous_modele.iter_on_branches():
                     for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
                         coords = []
-                        for section in branche.sections:
+                        for section in branche.liste_sections_dans_branche:
                             if isinstance(section, SectionProfil):
                                 if i_lit == 0:
                                     point = section.interp_point(section.lits_numerotes[0].xt_min)

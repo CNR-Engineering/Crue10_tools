@@ -34,7 +34,7 @@ try:
         'properties': {'id_branche': 'str', **{var: 'str' for var in variables}}
     }
     with fiona.open(os.path.join(model_folder, 'check_at_branches.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for sous_modele in modele.sous_modeles:
+        for sous_modele in modele.liste_sous_modeles:
             sous_modele.convert_sectionidem_to_sectionprofil()
             print(sous_modele.summary())
 
@@ -43,12 +43,12 @@ try:
                     values = {var: 'NA' for var in variables}
 
                     idx_section = results.emh['Section'].index(
-                        branche.sections[0].id)  # same results for upstream and downstream sections
+                        branche.get_section_amont().id)  # same results for upstream and downstream sections
                     values['Qmin'] = round(Qmin_at_sections[idx_section], 0)
                     values['Qmax'] = round(Qmax_at_sections[idx_section], 0)
 
                     if branche.type in (2, 4):
-                        values['Zseuil_min'] = branche.elts_seuil.min(axis=0)[1]
+                        values['Zseuil_min'] = branche.liste_elements_seuil.min(axis=0)[1]
 
                     layer = {
                         'geometry': mapping(branche.geom),

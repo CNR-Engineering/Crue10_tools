@@ -93,6 +93,7 @@ class RunResults:
     """
     Results data for a single Run
     - rcal_root <ET..Element>: rcal XML element
+    - rcal_path <str>: path to rcal file
     - rcal_folder <str>: folder path to rcal file
     - nb_errors <int>: number of errors in ccal.csv
     - nb_warnings <int>: number of warnings in ccal.csv
@@ -110,6 +111,7 @@ class RunResults:
 
     def __init__(self, rcal_path):
         self.rcal_root = ET.parse(rcal_path).getroot()
+        self.rcal_path = rcal_path
         self.rcal_folder = os.path.dirname(rcal_path)
         self.nb_errors = -1
         self.nb_warnings = -1
@@ -127,11 +129,6 @@ class RunResults:
         self._read_structure()
         self._read_rescalc()
         self._set_res_pattern()
-
-    @property
-    def model_name(self):
-        """Modele name with 'Mo_' preffix"""
-        return os.path.basename(self.rcal_folder)
 
     @property
     def run_id(self):
@@ -157,7 +154,8 @@ class RunResults:
                     self.emh[emh_sec].append(emh_name)
 
     def _read_ccal(self):
-        ccal_path = os.path.join(self.rcal_folder, self.model_name[3:] + '.ccal.csv')
+        ccal_path = self.rcal_path[:-9] + '.ccal.csv'  # to replace '.rcal.csv' => FIXME: it should be based on ocal
+        print(ccal_path)
         if not os.path.exists(ccal_path):
             raise CrueError("Le fichier de compte rendu de calcul `%s` est introuvable" % ccal_path)
         self.nb_errors = 0

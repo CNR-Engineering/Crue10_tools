@@ -55,7 +55,7 @@
       <NdAm NomRef="{{ branche.noeud_amont.id }}"/>
       <NdAv NomRef="{{ branche.noeud_aval.id }}"/>
       <BrancheSaintVenant-Sections>
-        {%- for section in branche.sections %}
+        {%- for section in branche.liste_sections_dans_branche %}
         <BrancheSaintVenant-Section NomRef="{{ section.id }}">
           <Pos>{% if loop.first %}Amont{% elif loop.last %}Aval{% else %}Interne{% endif %}</Pos>
           <Xp>{{ section.xp|float2str }}</Xp>
@@ -76,11 +76,11 @@
       <SectionPilote NomRef="{{ branche.section_pilote.id }}"/>
       {%- endif %}
       <Branche-Sections>
-        <Branche-Section NomRef="{{ branche.sections[0].id }}">
+        <Branche-Section NomRef="{{ branche.get_section_amont().id }}">
           <Pos>Amont</Pos>
           <Xp>0.0</Xp>
         </Branche-Section>
-        <Branche-Section NomRef="{{ branche.sections[-1].id }}">
+        <Branche-Section NomRef="{{ branche.get_section_aval().id }}">
           <Pos>Aval</Pos>
           <Xp>{{ branche.length }}</Xp>
         </Branche-Section>

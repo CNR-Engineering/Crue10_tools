@@ -29,7 +29,7 @@ from crue10.utils import CrueError, logger
 
 def crue10_model_for_maps(args):
     study = Etude(args.etu_path)
-    model = study.get_modele(args.mo_name)
+    modele = study.get_modele(args.mo_name)
     modele.read_all()
     logger.info(modele.summary())
 
@@ -63,7 +63,7 @@ def crue10_model_for_maps(args):
     schema = {
         'geometry': 'Polygon',
         'properties': OrderedDict([('NOM', 'str'), ('modele', 'str'), ('sousmodele', 'str'),
-                                   ('noeud_reference', 'str'), ('is_active', 'bool')]),
+                                   ('noeud', 'str'), ('is_active', 'bool')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'casiers.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for sous_modele in modele.sous_modeles:
@@ -74,7 +74,7 @@ def crue10_model_for_maps(args):
                         'NOM': casier.id,
                         'modele': model_name,
                         'sousmodele': sous_modele.id,
-                        'noeud_reference': casier.noeud_reference.id,
+                        'noeud': casier.noeud_reference.id,
                         'is_active': casier.is_active,
                     }
                 }
@@ -144,11 +144,11 @@ def crue10_model_for_maps(args):
                     # Build list of coordinates following upstream section, left ending points, downstream section and
                     #   right ending point
                     coords = []
-                    coords += branche.sections[0].geom_trace.coords
-                    for section in branche.sections[1:-1]:
+                    coords += branche.get_section_amont().geom_trace.coords
+                    for section in branche.liste_sections_dans_branche[1:-1]:
                         coords.append(section.geom_trace.coords[-1])
-                    coords += reversed(branche.sections[-1].geom_trace.coords)
-                    for section in reversed(branche.sections[1:-1]):
+                    coords += reversed(branche.get_section_aval().geom_trace.coords)
+                    for section in reversed(branche.liste_sections_dans_branche[1:-1]):
                         coords.append(section.geom_trace.coords[0])
 
                     polygon = Polygon(coords).buffer(args.sm_buffer)

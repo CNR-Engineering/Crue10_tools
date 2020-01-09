@@ -26,9 +26,9 @@ try:
     branch = sous_modele.get_branche('Br_VRH99.900')
     print(branch)
     # Sections of a single branch
-    print(branch.sections)
+    print(branch.liste_sections_dans_branche)
     # Select a section (the first in this case) with its index within the branch
-    section = branch.sections[0]
+    section = branch.liste_sections_dans_branche[0]
     print(section)
     print(section.get_coord(add_z=True))  # 3D coordinates
     # Select another section by its identifier

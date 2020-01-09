@@ -54,7 +54,7 @@ class SousModele(FichierXML):
     Crue10 sous_modele
     - id <str>: sous_modele identifier
     - noeuds <{crue10.emh.noeud.Noeud}>: nodes
-    - sections <{crue10.emh.section.Section}>: sections
+    - liste_sections_dans_branche <{crue10.emh.section.Section}>: list of branches
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
     - branches <{crue10.emh.section.SectionInterpolee}>: branches (only those with geometry are considered)
     - casiers <{crue10.emh.casier.Casier}>: casiers
@@ -148,25 +148,31 @@ class SousModele(FichierXML):
         try:
             return self.noeuds[nom_noeud]
         except KeyError:
-            raise CrueError("Le noeud_reference %s n'est pas dans le sous-modèle %s" % (nom_noeud, self))
+            raise CrueError("Le noeud %s n'est pas dans le %s" % (nom_noeud, self))
 
     def get_section(self, nom_section):
         try:
             return self.sections[nom_section]
         except KeyError:
-            raise CrueError("La section %s n'est pas dans le sous-modèle %s" % (nom_section, self))
+            raise CrueError("La section %s n'est pas dans le %s" % (nom_section, self))
 
     def get_branche(self, nom_branche):
         try:
             return self.branches[nom_branche]
         except KeyError:
-            raise CrueError("La branche %s n'est pas dans le sous-modèle %s" % (nom_branche, self))
+            raise CrueError("La branche %s n'est pas dans le %s" % (nom_branche, self))
 
     def get_casier(self, nom_casier):
         try:
             return self.casiers[nom_casier]
         except KeyError:
-            raise CrueError("Le casier %s n'est pas dans le sous-modèle %s" % (nom_casier, self))
+            raise CrueError("Le casier %s n'est pas dans le %s" % (nom_casier, self))
+
+    def get_loi_frottement(self, nom_loi_frottement):
+        try:
+            return self.lois_frottement[nom_loi_frottement]
+        except KeyError:
+            raise CrueError("La loi de frottement %s n'est pas dans le %s" % (nom_loi_frottement, self))
 
     def iter_on_sections(self, section_type=None, ignore_inactive=False):
         for _, section in self.sections.items():
@@ -231,8 +237,9 @@ class SousModele(FichierXML):
                     if section_type == 'SectionProfil':
                         section = SectionProfil(nom_section, emh_section.find(PREFIX + 'ProfilSection').get('NomRef'))
                     elif section_type == 'SectionIdem':
-                        # Only to preserve order of sections, the SectionIdem instance is set below
+                        # Sets temporary to None to preserve order of sections, SectionIdem instance is set below
                         self.sections[nom_section] = None
+                        # ajouter_section can not be called in this case, continue statement is mandatory!
                         continue
                     elif section_type == 'SectionInterpolee':
                         section = SectionInterpolee(nom_section)
@@ -250,11 +257,10 @@ class SousModele(FichierXML):
                     nom_section = emh_section.get('Nom')
 
                     if section_type == 'SectionIdem':
-                        parent_section = self.sections[emh_section.find(PREFIX + 'Section').get('NomRef')]
+                        parent_section = self.get_section(emh_section.find(PREFIX + 'Section').get('NomRef'))
                         section = SectionIdem(nom_section, parent_section)
-
                         section.comment = get_optional_commentaire(emh_section)
-                        self.sections[nom_section] = section
+                        self.set_section(section)
 
             elif emh_group.tag == (PREFIX + 'Branches'):
                 if filter_branch_types is None:
@@ -306,10 +312,10 @@ class SousModele(FichierXML):
                         # Add section pilotage
                         if isinstance(branche, BrancheBarrageGenerique) or isinstance(branche, BrancheBarrageFilEau):
                             branche.section_pilote = \
-                                self.sections[emh_branche.find(PREFIX + 'SectionPilote').get('NomRef')]
+                                self.get_section(emh_branche.find(PREFIX + 'SectionPilote').get('NomRef'))
 
                         for emh_section in emh_sections:
-                            section = self.sections[emh_section.get('NomRef')]
+                            section = self.get_section(emh_section.get('NomRef'))
                             xp = float(emh_section.find(PREFIX + 'Xp').text)
                             if isinstance(branche, BrancheSaintVenant):
                                 section.CoefPond = float(emh_section.find(PREFIX + 'CoefPond').text)
@@ -353,7 +359,7 @@ class SousModele(FichierXML):
             if emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
                     nom_section = emh.get('Nom').replace('Ps_', 'St_')  # Not necessary consistant
-                    section = self.sections[nom_section]
+                    section = self.get_section(nom_section)
                     section.comment_profilsection = get_optional_commentaire(emh)
 
                     fente = emh.find(PREFIX + 'Fente')
@@ -381,12 +387,12 @@ class SousModele(FichierXML):
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoSections'):
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
-                    self.sections[emh.get('NomRef')].dz = float(emh.find(PREFIX + 'Dz').text)
+                    self.get_section(emh.get('NomRef')).dz_section_reference = float(emh.find(PREFIX + 'Dz').text)
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoBranches'):
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoBrancheSaintVenant'):
                     nom_branche = emh.get('NomRef')
-                    self.branches[nom_branche].CoefSinuo = float(emh.find(PREFIX + 'CoefSinuo').text)
+                    self.get_branche(nom_branche).CoefSinuo = float(emh.find(PREFIX + 'CoefSinuo').text)
 
     def _read_dcsp(self):
         root = self._get_xml_root_and_set_comment('dcsp')
@@ -403,12 +409,12 @@ class SousModele(FichierXML):
                         branche.comment_loi = get_optional_commentaire(pdc_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilTransversal':
-                        branche.formule_pdc = emh.find(PREFIX + 'FormulePdc').text
-                        branche.elts_seuil = parse_elem_seuil(emh, with_pdc=True)
+                        branche.formule_pertes_de_charge = emh.find(PREFIX + 'FormulePdc').text
+                        branche.liste_elements_seuil = parse_elem_seuil(emh, with_pdc=True)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilLateral':
-                        branche.formule_pdc = emh.find(PREFIX + 'FormulePdc').text
-                        branche.elts_seuil = parse_elem_seuil(emh, with_pdc=True)
+                        branche.formule_pertes_de_charge = emh.find(PREFIX + 'FormulePdc').text
+                        branche.liste_elements_seuil = parse_elem_seuil(emh, with_pdc=True)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheOrifice':
                         elem_orifice = emh.find(PREFIX + 'ElemOrifice')
@@ -439,7 +445,7 @@ class SousModele(FichierXML):
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheBarrageFilEau':
                         branche.QLimInf = float(emh.find(PREFIX + 'QLimInf').text)
                         branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
-                        branche.elts_seuil = parse_elem_seuil(emh, with_pdc=False)
+                        branche.liste_elements_seuil = parse_elem_seuil(emh, with_pdc=False)
                         regime_denoye_elt = emh.find(PREFIX + 'RegimeDenoye')
                         branche.loi_QZam = parse_loi(regime_denoye_elt)
                         branche.comment_denoye = get_optional_commentaire(regime_denoye_elt)
@@ -669,6 +675,12 @@ class SousModele(FichierXML):
             if self.casiers:
                 self._write_shp_casiers(sm_folder)
 
+    def set_section(self, section):
+        check_isinstance(section, Section)
+        if section.id not in self.sections:
+            raise CrueError("La section %s n'existe pas" % section.id)
+        self.sections[section.id] = section
+
     def set_active_sections(self):
         """
         Sections are set to active if they are connected to a branch (active or not!)
@@ -677,7 +689,7 @@ class SousModele(FichierXML):
             section.is_active = False
 
         for branche in self.iter_on_branches():
-            for section in branche.sections:
+            for section in branche.liste_sections_dans_branche:
                 section.is_active = branche.is_active
 
     def get_connected_branche(self, nom_section):
@@ -685,7 +697,7 @@ class SousModele(FichierXML):
         Returns the connected branche if found, else returns None
         """
         for branche in self.iter_on_branches():
-            if nom_section in [section.id for section in branche.sections]:
+            if nom_section in [section.id for section in branche.liste_sections_dans_branche]:
                 return branche
         return None
 
@@ -711,10 +723,10 @@ class SousModele(FichierXML):
     def remove_sectioninterpolee(self):
         """Remove all `SectionInterpolee` which are internal sections"""
         for branche in self.iter_on_branches():
-            for section in branche.sections[1:-1]:
+            for section in branche.liste_sections_dans_branche[1:-1]:
                 if isinstance(section, SectionInterpolee):
-                    branche.sections.remove(section)  # remove element (current iteration)
-                    self.sections.pop(section.id)
+                    branche.liste_sections_dans_branche.remove(section)  # remove element (current iteration)
+                    self.liste_sections_dans_branche.pop(section.id)
         if len(list(self.iter_on_sections_interpolees())) != 0:
             raise CrueError("Des SectionInterpolee n'ont pas pu être supprimées : %s"
                             % list(self.iter_on_sections_interpolees()))
@@ -728,11 +740,11 @@ class SousModele(FichierXML):
         """
         for branche in self.iter_on_branches():
             branche.normalize_sections_xp()
-            for j, section in enumerate(branche.sections):
+            for j, section in enumerate(branche.liste_sections_dans_branche):
                 if isinstance(section, SectionIdem):
                     # Find if current SectionIdem is located at geographic position of its original SectionProfil
                     located_at_parent_section = False
-                    if j == 0 or j == len(branche.sections) - 1:
+                    if j == 0 or j == len(branche.liste_sections_dans_branche) - 1:
                         # Determine node name at junction
                         nom_noeud = branche.noeud_amont.id if j == 0 else branche.noeud_aval.id
 
@@ -741,7 +753,7 @@ class SousModele(FichierXML):
                         branches.remove(branche)
                         for br in branches:
                             section_pos = 0 if br.noeud_amont.id == nom_noeud else -1
-                            section_at_node = br.sections[section_pos]
+                            section_at_node = br.liste_sections_dans_branche[section_pos]
                             if section_at_node is section.section_reference:
                                 located_at_parent_section = True
                                 break
@@ -751,8 +763,8 @@ class SousModele(FichierXML):
                     if not located_at_parent_section:
                         # Overwrite SectionProfil original trace by the orthogonal trace because their location differ
                         new_section.build_orthogonal_trace(branche.geom)
-                    self.sections[section.id] = new_section
-                    branche.sections[j] = new_section
+                    self.set_section(new_section)
+                    branche.liste_sections_dans_branche[j] = new_section
 
     def normalize_geometry(self):
         for branche in self.iter_on_branches():
