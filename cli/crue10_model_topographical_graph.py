@@ -29,10 +29,10 @@ from crue10.etude import Etude
 
 def crue10_model_topographical_graph(args):
     study = Etude(args.etu_path)
-    model = study.get_modele(args.mo_name)
+    modele = study.get_modele(args.mo_name)
     modele.read_all()
 
-    logger.info(model)
+    logger.info(modele)
     modele.write_topological_graph(args.out_files, nodesep=args.sep, prog=args.prog)
 
 
