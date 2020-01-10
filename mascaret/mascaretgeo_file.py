@@ -7,8 +7,8 @@ import os.path
 # from data_manip.formats.mascaret_file import Reach, Section
 from mascaret.mascaret_file import Reach, Section
 # from utils.exceptions import MascaretException
-from crue10.utils import CrueError
-MascaretException = CrueError
+from crue10.utils import ExceptionCrue10
+MascaretException = ExceptionCrue10
 
 
 class MascaretGeoFile:

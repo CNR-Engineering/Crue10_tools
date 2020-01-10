@@ -3,7 +3,7 @@ import os.path
 import sys
 
 from crue10.etude import Etude
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 
 
 etu_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
@@ -52,6 +52,6 @@ try:
     # Export unsteady calculations data
     results.export_calc_unsteady_as_csv(os.path.join(out_folder, 'Etu_VS2015_conc_trans.csv'))
 
-except CrueError as e:
+except ExceptionCrue10 as e:
     logger.critical(e)
     sys.exit(1)

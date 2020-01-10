@@ -20,7 +20,7 @@ from shapely.geometry import LineString, Point
 
 from .noeud import Noeud
 from .section import Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
-from crue10.utils import check_isinstance, check_preffix, CrueError, CrueErrorGeometryNotFound, logger
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -123,13 +123,13 @@ class Branche(ABC):
         check_isinstance(section, Section)
         if isinstance(section, SectionInterpolee):
             if self.type != 20:
-                raise CrueError("La %s ne peut être affectée qu'à une branche Saint-Venant" % section)
+                raise ExceptionCrue10("La %s ne peut être affectée qu'à une branche Saint-Venant" % section)
         elif self.type in Branche.TYPES_WITH_GEOM:
             if not isinstance(section, SectionProfil) and not isinstance(section, SectionIdem):
-                raise CrueError("La %s ne peut porter que des SectionProfil ou SectionIdem" % self)
+                raise ExceptionCrue10("La %s ne peut porter que des SectionProfil ou SectionIdem" % self)
         else:
             if not isinstance(section, SectionSansGeometrie):
-                raise CrueError("La %s ne peut porter que des SectionSansGeometrie" % self)
+                raise ExceptionCrue10("La %s ne peut porter que des SectionSansGeometrie" % self)
         section.xp = xp
         self.liste_sections_dans_branche.append(section)
 
@@ -143,7 +143,7 @@ class Branche(ABC):
         (a constant biais is introduced by Fudaa-Crue for the graphical representation)
         """
         if self.geom is None:
-            raise CrueErrorGeometryNotFound(self)
+            raise ExceptionCrue10GeometryNotFound(self)
         for pos in (0, -1):
             section = self.liste_sections_dans_branche[pos]
             if isinstance(section, SectionProfil):
@@ -152,7 +152,7 @@ class Branche(ABC):
                 else:
                     node = self.noeud_aval.geom
                 if section.geom_trace is None:
-                    raise CrueErrorGeometryNotFound(section)
+                    raise ExceptionCrue10GeometryNotFound(section)
                 section_point = section.geom_trace.intersection(self.geom)
                 if isinstance(section_point, Point):
                     dx = node.x - section_point.x

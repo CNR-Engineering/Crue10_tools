@@ -23,7 +23,7 @@ from glob import glob
 import os.path
 
 from crue10.etude import Etude
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 
 
 for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests', '*')):
@@ -45,5 +45,5 @@ for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests', '
             # for _, modele in etude.modeles.items():
             #     modele.write_topological_graph([os.path.join(out_folder, modele.id + '.png')])
 
-        except CrueError as e:
+        except ExceptionCrue10 as e:
             logger.critical(e)

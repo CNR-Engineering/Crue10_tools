@@ -14,7 +14,7 @@ from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
-from crue10.utils import check_isinstance, check_preffix, CrueError, CrueErrorGeometryNotFound, logger, PREFIX
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, logger, PREFIX
 
 
 def parse_loi(elt, group='EvolutionFF', line='PointFF'):
@@ -88,43 +88,43 @@ class SousModele(FichierXML):
     def ajouter_noeud(self, noeud):
         check_isinstance(noeud, Noeud)
         if noeud.id in self.noeuds:
-            raise CrueError("Le noeud %s est déjà présent" % noeud.id)
+            raise ExceptionCrue10("Le noeud %s est déjà présent" % noeud.id)
         self.noeuds[noeud.id] = noeud
 
     def ajouter_section(self, section):
         check_isinstance(section, [SectionProfil, SectionIdem, SectionSansGeometrie, SectionInterpolee])
         if section.id in self.sections:
-            raise CrueError("La Section `%s` est déjà présente" % section.id)
+            raise ExceptionCrue10("La Section `%s` est déjà présente" % section.id)
         if isinstance(section, SectionIdem):
             if section.section_reference.id not in self.sections:
-                raise CrueError("La SectionIdem `%s` fait référence à une SectionProfil inexistante `%s`"
-                                % (section.id, section.section_ori.id))
+                raise ExceptionCrue10("La SectionIdem `%s` fait référence à une SectionProfil inexistante `%s`"
+                                      % (section.id, section.section_ori.id))
         if isinstance(section, SectionProfil):
             for lit in section.lits_numerotes:
                 if lit.loi_frottement.id not in self.lois_frottement:
-                    raise CrueError("La loi de frottement %s de la section `%s` doit être ajoutée au sous-modèle avant"
-                                    % (lit.loi_frottement.id, section.id))
+                    raise ExceptionCrue10("La loi de frottement %s de la section `%s` doit être ajoutée au sous-modèle avant"
+                                          % (lit.loi_frottement.id, section.id))
         self.sections[section.id] = section
 
     def ajouter_branche(self, branche):
         check_isinstance(branche, BRANCHE_CLASSES)
         if branche.id in self.branches:
-            raise CrueError("La branche `%s` est déjà présente" % branche.id)
+            raise ExceptionCrue10("La branche `%s` est déjà présente" % branche.id)
         if branche.noeud_amont.id not in self.noeuds:
-            raise CrueError("Le noeud_reference amont %s de la branche `%s` doit être ajouté au sous-modèle avant"
-                            % (branche.noeud_amont.id, branche.id))
+            raise ExceptionCrue10("Le noeud_reference amont %s de la branche `%s` doit être ajouté au sous-modèle avant"
+                                  % (branche.noeud_amont.id, branche.id))
         if branche.noeud_aval.id not in self.noeuds:
-            raise CrueError("Le noeud_reference aval %s de la branche `%s` doit être ajouté au sous-modèle avant"
-                            % (branche.noeud_aval.id, branche.id))
+            raise ExceptionCrue10("Le noeud_reference aval %s de la branche `%s` doit être ajouté au sous-modèle avant"
+                                  % (branche.noeud_aval.id, branche.id))
         self.branches[branche.id] = branche
 
     def ajouter_casier(self, casier):
         check_isinstance(casier, Casier)
         if casier.id in self.casiers:
-            raise CrueError("Le casier %s est déjà présent" % casier.id)
+            raise ExceptionCrue10("Le casier %s est déjà présent" % casier.id)
         if casier.noeud_reference.id not in self.noeuds:
-            raise CrueError("Le noeud_reference %s du casier `%s` doit être ajouté au sous-modèle avant"
-                            % (casier.noeud_reference.id, casier.id))
+            raise ExceptionCrue10("Le noeud_reference %s du casier `%s` doit être ajouté au sous-modèle avant"
+                                  % (casier.noeud_reference.id, casier.id))
         for profilcasier in casier.profils_casier:
             if profilcasier.id not in self.profils_casier:
                 self.ajouter_profil_casier(profilcasier)
@@ -133,13 +133,13 @@ class SousModele(FichierXML):
     def ajouter_profil_casier(self, profil_casier):
         check_isinstance(profil_casier, ProfilCasier)
         if profil_casier.id in self.profils_casier:
-            raise CrueError("Le profil casier %s est déjà présent" % profil_casier.id)
+            raise ExceptionCrue10("Le profil casier %s est déjà présent" % profil_casier.id)
         self.profils_casier[profil_casier.id] = profil_casier
 
     def ajouter_loi_frottement(self, loi_frottement):
         check_isinstance(loi_frottement, LoiFrottement)
         if loi_frottement.id in self.lois_frottement:
-            raise CrueError("La loi de frottement %s est déjà présente" % loi_frottement.id)
+            raise ExceptionCrue10("La loi de frottement %s est déjà présente" % loi_frottement.id)
         self.lois_frottement[loi_frottement.id] = loi_frottement
 
     def ajouter_lois_frottement_par_defaut(self):
@@ -151,31 +151,31 @@ class SousModele(FichierXML):
         try:
             return self.noeuds[nom_noeud]
         except KeyError:
-            raise CrueError("Le noeud %s n'est pas dans le %s" % (nom_noeud, self))
+            raise ExceptionCrue10("Le noeud %s n'est pas dans le %s" % (nom_noeud, self))
 
     def get_section(self, nom_section):
         try:
             return self.sections[nom_section]
         except KeyError:
-            raise CrueError("La section %s n'est pas dans le %s" % (nom_section, self))
+            raise ExceptionCrue10("La section %s n'est pas dans le %s" % (nom_section, self))
 
     def get_branche(self, nom_branche):
         try:
             return self.branches[nom_branche]
         except KeyError:
-            raise CrueError("La branche %s n'est pas dans le %s" % (nom_branche, self))
+            raise ExceptionCrue10("La branche %s n'est pas dans le %s" % (nom_branche, self))
 
     def get_casier(self, nom_casier):
         try:
             return self.casiers[nom_casier]
         except KeyError:
-            raise CrueError("Le casier %s n'est pas dans le %s" % (nom_casier, self))
+            raise ExceptionCrue10("Le casier %s n'est pas dans le %s" % (nom_casier, self))
 
     def get_loi_frottement(self, nom_loi_frottement):
         try:
             return self.lois_frottement[nom_loi_frottement]
         except KeyError:
-            raise CrueError("La loi de frottement %s n'est pas dans le %s" % (nom_loi_frottement, self))
+            raise ExceptionCrue10("La loi de frottement %s n'est pas dans le %s" % (nom_loi_frottement, self))
 
     def iter_on_sections(self, section_type=None, ignore_inactive=False):
         for _, section in self.sections.items():
@@ -295,7 +295,7 @@ class SousModele(FichierXML):
                     elif emh_branche_type == 'BranchePdc':
                         branche_cls = BranchePdC
                     else:
-                        raise CrueError("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
+                        raise ExceptionCrue10("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
 
                     branche_type_id = Branche.get_id_type_from_name(emh_branche_type)
                     if branche_type_id in branch_types:
@@ -473,7 +473,7 @@ class SousModele(FichierXML):
             try:
                 noeud.set_geom(geoms[noeud.id])
             except KeyError:
-                raise CrueErrorGeometryNotFound(noeud)
+                raise ExceptionCrue10GeometryNotFound(noeud)
 
     def _read_shp_branches(self):
         """Read geometry of all `Branches` from current sous_modele (they are compulsory)"""
@@ -487,7 +487,7 @@ class SousModele(FichierXML):
             try:
                 branche.set_geom(geoms[branche.id])
             except KeyError:
-                raise CrueErrorGeometryNotFound(branche)
+                raise ExceptionCrue10GeometryNotFound(branche)
 
     def _read_shp_traces_sections(self):
         """
@@ -522,7 +522,7 @@ class SousModele(FichierXML):
             try:
                 casier.set_geom(geoms[casier.id])
             except KeyError:
-                raise CrueErrorGeometryNotFound(casier)
+                raise ExceptionCrue10GeometryNotFound(casier)
 
     def read_all(self):
         if not self.was_read:
@@ -591,7 +591,7 @@ class SousModele(FichierXML):
         with fiona.open(os.path.join(folder, 'noeuds.shp'), 'w', 'ESRI Shapefile', schema) as layer:
             for i, (_, noeud) in enumerate(self.noeuds.items()):
                 if noeud.geom is None:
-                    raise CrueErrorGeometryNotFound(noeud)
+                    raise ExceptionCrue10GeometryNotFound(noeud)
                 point = Point((noeud.geom.x, noeud.geom.y))
                 elem = {
                     'geometry': mapping(point),
@@ -605,7 +605,7 @@ class SousModele(FichierXML):
         with fiona.open(os.path.join(folder, 'branches.shp'), 'w', 'ESRI Shapefile', schema) as layer:
             for i, branche in enumerate(self.iter_on_branches()):
                 if branche.geom is None:
-                    raise CrueErrorGeometryNotFound(branche)
+                    raise ExceptionCrue10GeometryNotFound(branche)
                 # Convert LineString to 3D LineString
                 line = LineString([(x, y, 0.0) for x, y in branche.geom.coords])
                 elem = {
@@ -624,7 +624,7 @@ class SousModele(FichierXML):
                 if self.get_connected_branche(section.id) is None:
                     continue  # ignore current orphan section
                 if section.geom_trace is None:
-                    raise CrueErrorGeometryNotFound(section)
+                    raise ExceptionCrue10GeometryNotFound(section)
                 elem = {
                     'geometry': mapping(section.geom_trace),
                     'properties': {'EMH_NAME': section.id, 'ATTRIBUTE_': i,
@@ -639,7 +639,7 @@ class SousModele(FichierXML):
         with fiona.open(os.path.join(folder, 'casiers.shp'), 'w', 'ESRI Shapefile', schema) as layer:
             for i, (_, casier) in enumerate(self.casiers.items()):
                 if casier.geom is None:
-                    raise CrueErrorGeometryNotFound(casier)
+                    raise ExceptionCrue10GeometryNotFound(casier)
                 # Convert LinearRing to 3D LineString
                 line = LineString([(x, y, 0.0) for x, y in casier.geom.coords])
                 elem = {
@@ -681,7 +681,7 @@ class SousModele(FichierXML):
     def set_section(self, section):
         check_isinstance(section, Section)
         if section.id not in self.sections:
-            raise CrueError("La section %s n'existe pas" % section.id)
+            raise ExceptionCrue10("La section %s n'existe pas" % section.id)
         self.sections[section.id] = section
 
     def set_active_sections(self):
@@ -731,8 +731,8 @@ class SousModele(FichierXML):
                     branche.liste_sections_dans_branche.remove(section)  # remove element (current iteration)
                     self.liste_sections_dans_branche.pop(section.id)
         if len(list(self.iter_on_sections_interpolees())) != 0:
-            raise CrueError("Des SectionInterpolee n'ont pas pu être supprimées : %s"
-                            % list(self.iter_on_sections_interpolees()))
+            raise ExceptionCrue10("Des SectionInterpolee n'ont pas pu être supprimées : %s"
+                                  % list(self.iter_on_sections_interpolees()))
 
     def convert_sectionidem_to_sectionprofil(self):
         """

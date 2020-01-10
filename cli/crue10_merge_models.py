@@ -22,13 +22,13 @@ Les valeurs vides sont permises si le sous-modèle n'est pas concerné.
 import sys
 
 from crue10.etude import Etude
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 from crue10.utils.cli_parser import MyArgParse
 
 
 def crue10_merge_models(args):
     if len(args.etu_path_list) != len(args.mo_name_list) != len(args.suffix_list):
-        raise CrueError("Les arguments `--etu_path_list`, `--suffix_list` et `--mo_name_list`"
+        raise ExceptionCrue10("Les arguments `--etu_path_list`, `--suffix_list` et `--mo_name_list`"
                         " n'ont pas la même longueur !")
 
     # Parse argument `--nodes_to_share`
@@ -39,8 +39,8 @@ def crue10_merge_models(args):
         for nodes_str in args.nodes_to_share:
             nodes = nodes_str.split(',')
             if len(nodes) != nb_models:
-                raise CrueError("L'argument `--nodes_to_share` doit être composé de groupe(s) de %i noeuds"
-                                % nb_models)
+                raise ExceptionCrue10("L'argument `--nodes_to_share` doit être composé de groupe(s) de %i noeuds"
+                                      % nb_models)
             reference_found = False
             for i, node_id in enumerate(nodes):
                 noeud_id_list[i].append(node_id)
@@ -48,7 +48,7 @@ def crue10_merge_models(args):
                     noeud_id_references.append(node_id)
                     reference_found = True
             if not reference_found:
-                raise CrueError("Le noeud de référence n'a pas pu être trouvé pour : `%s`" % nodes_str)
+                raise ExceptionCrue10("Le noeud de référence n'a pas pu être trouvé pour : `%s`" % nodes_str)
 
     study_out = Etude(args.etu_path_out, access='w')
     study_out.create_empty_scenario('Sc_%s' % args.out_name, 'Mo_%s' % args.out_name, nom_sous_modele=None)
@@ -64,7 +64,7 @@ def crue10_merge_models(args):
         for j, noeud_id in enumerate(noeud_id_list[i]):
             if noeud_id != '':
                 if noeud_id not in [nd.id for nd in model_in.get_liste_noeuds()]:
-                    raise CrueError("Le noeud %s n'est pas dans le modèle %s" % (noeud_id, model_in.id))
+                    raise ExceptionCrue10("Le noeud %s n'est pas dans le modèle %s" % (noeud_id, model_in.id))
                 model_in.rename_noeud(noeud_id, noeud_id_references[j])
 
         model_out.ajouter_depuis_modele(model_in)
@@ -101,6 +101,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         crue10_merge_models(args)
-    except CrueError as e:
+    except ExceptionCrue10 as e:
         logger.critical(e)
         sys.exit(1)

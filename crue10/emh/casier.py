@@ -11,7 +11,7 @@ import numpy as np
 from shapely.geometry import LinearRing
 
 from crue10.emh.noeud import Noeud
-from crue10.utils import check_isinstance, check_preffix, CrueError, logger
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger
 
 
 DX = 0.1
@@ -69,14 +69,14 @@ class ProfilCasier:
     def set_xz(self, array):
         check_isinstance(array, np.ndarray)
         if any(x > y for x, y in zip(array[:, 0], array[1:, 0])):
-            raise CrueError("Les valeurs de xt ne sont pas strictement croissantes %s" % array[:, 0])
+            raise ExceptionCrue10("Les valeurs de xt ne sont pas strictement croissantes %s" % array[:, 0])
         self.xz = array
         self.xt_min = self.xz[0, 0]
         self.xt_max = self.xz[-1, 0]
 
     def interp_z(self, xt):
         if xt < self.xt_min or xt > self.xt_max:
-            raise CrueError("xt=%f en dehors de la plage [%f, %f] pour %s" % (xt, self.xt_min, self.xt_max, self))
+            raise ExceptionCrue10("xt=%f en dehors de la plage [%f, %f] pour %s" % (xt, self.xt_min, self.xt_max, self))
         return np.interp(xt, self.xz[:, 0], self.xz[:, 1])
 
     def compute_surface(self, z):
@@ -116,7 +116,7 @@ class Casier:
     def set_geom(self, geom):
         check_isinstance(geom, LinearRing)
         if geom.has_z:
-            raise CrueError("La trace du %s ne doit pas avoir de Z !" % self)
+            raise ExceptionCrue10("La trace du %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
     def ajouter_profil_casier(self, profil_casier):

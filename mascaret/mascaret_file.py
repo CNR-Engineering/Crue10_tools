@@ -11,8 +11,8 @@ import numpy as np
 from math import sqrt
 
 # from utils.exceptions import MascaretException
-from crue10.utils import CrueError
-MascaretException = CrueError
+from crue10.utils import ExceptionCrue10
+MascaretException = ExceptionCrue10
 
 
 class Reach:

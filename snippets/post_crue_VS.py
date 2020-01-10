@@ -5,7 +5,7 @@ from shapely.geometry import mapping
 import sys
 
 from crue10.etude import Etude
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 
 
 try:
@@ -58,6 +58,6 @@ try:
                     layer['properties'].update(values)
                     out_shp.write(layer)
 
-except CrueError as e:
+except ExceptionCrue10 as e:
     logger.critical(e)
     sys.exit(2)

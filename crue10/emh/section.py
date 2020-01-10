@@ -16,7 +16,7 @@ from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString
 
-from crue10.utils import check_isinstance, check_preffix, CrueError, logger
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -175,7 +175,7 @@ class SectionProfil(Section):
         for limite in self.limites_geom:
             if limite.id == 'Et_AxeHyd':
                 return limite.xt
-        raise CrueError("Limite 'Et_AxeHyd' could not be found for %s" % self)
+        raise ExceptionCrue10("Limite 'Et_AxeHyd' could not be found for %s" % self)
 
     @property
     def is_avec_fente(self):
@@ -193,9 +193,9 @@ class SectionProfil(Section):
     def set_trace(self, trace):
         check_isinstance(trace, LineString)
         if trace.has_z:
-            raise CrueError("La trace de la %s ne doit pas avoir de Z !" % self)
+            raise ExceptionCrue10("La trace de la %s ne doit pas avoir de Z !" % self)
         if not self.lits_numerotes:
-            raise CrueError('xz has to be set before (to check consistency)')
+            raise ExceptionCrue10('xz has to be set before (to check consistency)')
         self.geom_trace = trace
 
         # Display a warning if geometry is not consistent with self.xz array
@@ -214,9 +214,9 @@ class SectionProfil(Section):
     def set_lits_numerotes(self, xt_list):
         """Add directly the 5 beds from a list of 6 ordered xt values"""
         if len(xt_list) != 6:
-            raise CrueError("Il faut exactement 5 lits numérotés pour les affecter")
+            raise ExceptionCrue10("Il faut exactement 5 lits numérotés pour les affecter")
         if any(x > y for x, y in zip(xt_list, xt_list[1:])):
-            raise CrueError("Les valeurs de xt ne sont pas croissantes")
+            raise ExceptionCrue10("Les valeurs de xt ne sont pas croissantes")
         self.lits_numerotes = []
         for bed_name, xt_min, xt_max in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
             lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
@@ -225,13 +225,13 @@ class SectionProfil(Section):
     def ajouter_lit(self, lit_numerote):
         check_isinstance(lit_numerote, LitNumerote)
         if lit_numerote.id in self.lits_numerotes:
-            raise CrueError("Le lit numéroté `%s` est déjà présent" % lit_numerote.id)
+            raise ExceptionCrue10("Le lit numéroté `%s` est déjà présent" % lit_numerote.id)
         self.lits_numerotes.append(lit_numerote)
 
     def add_limite_geom(self, limite_geom):
         check_isinstance(limite_geom, LimiteGeom)
         if limite_geom.id in self.limites_geom:
-            raise CrueError("La limite géométrique `%s` est déjà présente" % limite_geom.id)
+            raise ExceptionCrue10("La limite géométrique `%s` est déjà présente" % limite_geom.id)
         self.limites_geom.append(limite_geom)
 
     def interp_z(self, xt):
@@ -239,7 +239,7 @@ class SectionProfil(Section):
 
     def interp_point(self, xt):
         if not self.lits_numerotes:
-            raise CrueError('lits_numerotes has to be set before')
+            raise ExceptionCrue10('lits_numerotes has to be set before')
         xt_line = xt - self.lits_numerotes[0].xt_min
         diff = xt_line - self.geom_trace.length
         if diff > DISTANCE_TOL:
@@ -250,9 +250,9 @@ class SectionProfil(Section):
 
     def get_coord(self, add_z=False):
         if self.xz is None:
-            raise CrueError("`%s`: 3D trace could not be computed (xz is missing)!" % self)
+            raise ExceptionCrue10("`%s`: 3D trace could not be computed (xz is missing)!" % self)
         if self.geom_trace is None:
-            raise CrueError("`%s`: 3D trace could not be computed (trace is missing)!" % self)
+            raise ExceptionCrue10("`%s`: 3D trace could not be computed (trace is missing)!" % self)
         coords = []
         for xt, z in self.xz_filtered:
             point = self.interp_point(xt)

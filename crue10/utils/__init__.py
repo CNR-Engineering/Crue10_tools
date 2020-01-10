@@ -63,7 +63,7 @@ def add_default_missing_metadata(metadata, fields):
                 metadata_out[field] = default_metadata[field]
             except KeyError:
                 logger.debug(metadata)
-                raise CrueError("Le champ %s n'a pas de valeur par défaut, il faut le renseigner !" % field)
+                raise ExceptionCrue10("Le champ %s n'a pas de valeur par défaut, il faut le renseigner !" % field)
         else:
             metadata_out[field] = metadata[field]
     return metadata_out
@@ -79,16 +79,16 @@ def check_isinstance(obj, type):
                 has_error = False
                 break
         if has_error:
-            raise CrueError("L'objet %s n'a pas un type correct (types attentus : %s)" %
-                            (obj, [str(subtype) for subtype in type]))
+            raise ExceptionCrue10("L'objet %s n'a pas un type correct (types attentus : %s)" %
+                                  (obj, [str(subtype) for subtype in type]))
     else:
         if not isinstance(obj, type):
-            raise CrueError("L'objet %s n'est pas de type `%s`" % (obj, type))
+            raise ExceptionCrue10("L'objet %s n'est pas de type `%s`" % (obj, type))
 
 
 def check_preffix(name, preffix):
     if not name.startswith(preffix):
-        raise CrueError("Le nom `%s` ne commence pas par `%s`" % (name, preffix))
+        raise ExceptionCrue10("Le nom `%s` ne commence pas par `%s`" % (name, preffix))
 
 
 def float2str(value):
@@ -158,7 +158,7 @@ JINJA_ENV.filters = {
 }
 
 
-class CrueError(Exception):
+class ExceptionCrue10(Exception):
     """!
     @brief Custom exception for Crue file content check
     """
@@ -170,6 +170,6 @@ class CrueError(Exception):
         self.message = message
 
 
-class CrueErrorGeometryNotFound(CrueError):
+class ExceptionCrue10GeometryNotFound(ExceptionCrue10):
     def __init__(self, emh):
         super().__init__("%s n'a pas de géométrie !" % emh)

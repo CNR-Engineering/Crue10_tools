@@ -10,7 +10,7 @@ from shapely.geometry import LineString, mapping, Point
 from crue10.base import FichierXML
 from crue10.emh.branche import BrancheOrifice
 from crue10.emh.section import SectionProfil, LitNumerote
-from crue10.utils import check_isinstance, check_preffix, CrueError, \
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, \
     logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
@@ -98,7 +98,7 @@ class Modele(FichierXML):
         for sous_modele in self.liste_sous_modeles:
             if sous_modele.id == nom_sous_modele:
                 return sous_modele
-        raise CrueError("Le sous-modèle %s n'existe pas dans le modèle %s" % (nom_sous_modele, self.id))
+        raise ExceptionCrue10("Le sous-modèle %s n'existe pas dans le modèle %s" % (nom_sous_modele, self.id))
 
     def get_liste_noeuds(self):
         noeuds = []
@@ -147,7 +147,7 @@ class Modele(FichierXML):
     def ajouter_sous_modele(self, sous_modele):
         check_isinstance(sous_modele, SousModele)
         if sous_modele.id in self.liste_sous_modeles:
-            raise CrueError("Le sous-modèle %s est déjà présent" % sous_modele.id)
+            raise ExceptionCrue10("Le sous-modèle %s est déjà présent" % sous_modele.id)
         self.liste_sous_modeles.append(sous_modele)
 
     def ajouter_depuis_modele(self, modele):
@@ -253,7 +253,7 @@ class Modele(FichierXML):
         try:
             import pydot
         except ImportError:  # ModuleNotFoundError not available in Python2
-            raise CrueError("Le module pydot ne fonctionne pas !")
+            raise ExceptionCrue10("Le module pydot ne fonctionne pas !")
 
         check_isinstance(out_files, list)
         # Create a directed graph
@@ -310,7 +310,7 @@ class Modele(FichierXML):
                 elif out_file.endswith('.dot'):
                     graph.write_dot(out_file)
                 else:
-                    raise CrueError("Le format de fichier de `%s` n'est pas supporté" % out_file)
+                    raise ExceptionCrue10("Le format de fichier de `%s` n'est pas supporté" % out_file)
 
     def write_mascaret_geometry(self, geo_path):
         """
@@ -329,7 +329,7 @@ class Modele(FichierXML):
                     reach = Reach(i_branche, name=branche.id)
                     for section in branche.liste_sections_dans_branche:
                         if not isinstance(section, SectionProfil):
-                            raise CrueError("The `%s`, which is not a SectionProfil, could not be written" % section)
+                            raise ExceptionCrue10("The `%s`, which is not a SectionProfil, could not be written" % section)
                         masc_section = Section(i_section, section.xp, name=section.id)
                         coord = np.array(section.get_coord(add_z=True))
                         masc_section.set_points_from_xyz(coord[:, 0], coord[:, 1], coord[:, 2])

@@ -8,7 +8,7 @@ import re
 import struct
 import xml.etree.ElementTree as ET
 
-from crue10.utils import CrueError, PREFIX
+from crue10.utils import ExceptionCrue10, PREFIX
 
 
 CSV_DELIMITER = ';'
@@ -45,16 +45,16 @@ class FilePosition:
             calc_delimiter = resin.read(FilePosition.FLOAT_SIZE).decode(FilePosition.ENCODING).strip()
             if is_steady:
                 if calc_delimiter != 'RcalPp':
-                    raise CrueError("Le calcul n'est pas permanent !")
+                    raise ExceptionCrue10("Le calcul n'est pas permanent !")
             else:
                 if calc_delimiter != 'RcalPdt':
-                    raise CrueError("Le calcul n'est pas transitoire !")
+                    raise ExceptionCrue10("Le calcul n'est pas transitoire !")
 
             for emh_type, (nb_emh, nb_var) in res_pattern:
                 if not emh_type.startswith('Branche') or emh_type == emh_type_first_branche:
                     emh_delimiter = resin.read(FilePosition.FLOAT_SIZE).decode(FilePosition.ENCODING).strip()
                     if emh_delimiter not in emh_type:
-                        raise CrueError("Les EMH attendus sont %s (au lieu de %s)" % (emh_type, emh_delimiter))
+                        raise ExceptionCrue10("Les EMH attendus sont %s (au lieu de %s)" % (emh_type, emh_delimiter))
                 values = struct.unpack('<' + str(nb_emh * nb_var) + FilePosition.FLOAT_TYPE,
                                        resin.read(nb_emh * nb_var * FilePosition.FLOAT_SIZE))
                 res[emh_type] = np.array(values).reshape((nb_emh, nb_var))
@@ -157,7 +157,7 @@ class RunResults:
         ccal_path = self.rcal_path[:-9] + '.ccal.csv'  # to replace '.rcal.csv' => FIXME: it should be based on ocal
         print(ccal_path)
         if not os.path.exists(ccal_path):
-            raise CrueError("Le fichier de compte rendu de calcul `%s` est introuvable" % ccal_path)
+            raise ExceptionCrue10("Le fichier de compte rendu de calcul `%s` est introuvable" % ccal_path)
         self.nb_errors = 0
         self.nb_warnings = 0
         with open(ccal_path, newline='') as in_csv:
@@ -172,7 +172,7 @@ class RunResults:
     def _read_parametrage(self):
         nb_bytes = int(self.rcal_root.find(PREFIX + 'Parametrage').find(PREFIX + 'NbrOctetMot').text)
         if nb_bytes != FilePosition.FLOAT_SIZE:
-            raise CrueError("La taille des données (%i octets) n'est pas supportée" % nb_bytes)
+            raise ExceptionCrue10("La taille des données (%i octets) n'est pas supportée" % nb_bytes)
 
     def _read_structure(self):
         """
@@ -231,39 +231,39 @@ class RunResults:
         for emh_type in self.emh_types:
             if emh_name in self.emh[emh_type]:
                 return emh_type
-        raise CrueError("Le type de l'EMH %s n'est pas déterminable" % emh_name)
+        raise ExceptionCrue10("Le type de l'EMH %s n'est pas déterminable" % emh_name)
 
     def get_variable_position(self, emh_type, varname):
         try:
             return self.variables[emh_type].index(varname)
         except ValueError:
-            raise CrueError("La variable `%s` n'est pas disponible pour les %s" % (varname, emh_type.lower()))
+            raise ExceptionCrue10("La variable `%s` n'est pas disponible pour les %s" % (varname, emh_type.lower()))
 
     def get_emh_position(self, emh_type, emh_name):
         try:
             return self.emh[emh_type].index(emh_name)
         except ValueError:
-            raise CrueError("L'EMH `%s` n'est pas dans la liste des %s" % (emh_name, emh_type.lower()))
+            raise ExceptionCrue10("L'EMH `%s` n'est pas dans la liste des %s" % (emh_name, emh_type.lower()))
 
     def get_calc_steady(self, calc_name):
         try:
             return self.calc_steady_dict[calc_name]
         except KeyError:
             if len(self.calc_steady_dict) > 0:
-                raise CrueError("Calcul permanent `%s` non trouvé !\nLes noms de calculs possibles sont : %s."
-                                % (calc_name, ', '.join(self.calc_steady_dict.keys())))
+                raise ExceptionCrue10("Calcul permanent `%s` non trouvé !\nLes noms de calculs possibles sont : %s."
+                                      % (calc_name, ', '.join(self.calc_steady_dict.keys())))
             else:
-                raise CrueError("Calcul permanent `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
+                raise ExceptionCrue10("Calcul permanent `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
 
     def get_calc_unsteady(self, calc_name):
         try:
             return self.calc_unsteady_dict[calc_name]
         except KeyError:
             if len(self.calc_unsteady_dict) > 0:
-                raise CrueError("Calcul transitoire `%s` non trouvé !\nLes noms de calculs possibles sont : %s."
-                                % (calc_name, ', '.join(self.calc_unsteady_dict.keys())))
+                raise ExceptionCrue10("Calcul transitoire `%s` non trouvé !\nLes noms de calculs possibles sont : %s."
+                                      % (calc_name, ', '.join(self.calc_unsteady_dict.keys())))
             else:
-                raise CrueError("Calcul transitoire `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
+                raise ExceptionCrue10("Calcul transitoire `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
 
     def summary(self):
         text = ""

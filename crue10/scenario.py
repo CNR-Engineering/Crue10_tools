@@ -8,7 +8,7 @@ import subprocess
 from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
-from crue10.utils import check_isinstance, check_preffix, CrueError, logger, \
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger, \
     write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 
@@ -46,12 +46,12 @@ class Scenario(FichierXML):
 
     def get_run(self, run_id):
         if not self.runs:
-            raise CrueError("Aucun run n'existe pour ce scénario")
+            raise ExceptionCrue10("Aucun run n'existe pour ce scénario")
         try:
             return self.runs[run_id]
         except KeyError:
-            raise CrueError("Le run %s n'existe pas !\nLes noms possibles sont: %s"
-                            % (run_id, list(self.runs.keys())))
+            raise ExceptionCrue10("Le run %s n'existe pas !\nLes noms possibles sont: %s"
+                                  % (run_id, list(self.runs.keys())))
 
     def set_modele(self, model):
         check_isinstance(model, Modele)
@@ -66,12 +66,12 @@ class Scenario(FichierXML):
     def add_run(self, run):
         check_isinstance(run, Run)
         if run.id in self.runs:
-            raise CrueError("Le Run %s est déjà présent" % run.id)
+            raise ExceptionCrue10("Le Run %s est déjà présent" % run.id)
         self.runs[run.id] = run
 
     def set_current_run_id(self, run_id):
         if run_id not in self.runs:
-            raise CrueError("Le Run '%s' n'existe pas" % run_id)
+            raise ExceptionCrue10("Le Run '%s' n'existe pas" % run_id)
         self.current_run_id = run_id
 
     def remove_run(self, run_id, run_folder):
@@ -105,7 +105,7 @@ class Scenario(FichierXML):
         run = Run(os.path.join(run_folder, self.modele.id), metadata={'Commentaire': comment})
         if not force:
             if os.path.exists(run_folder):
-                raise CrueError("Le dossier du run existe déjà. "
+                raise ExceptionCrue10("Le dossier du run existe déjà. "
                                 "Utilisez l'argument force=True si vous souhaitez le supprimer")
         if run.id in self.runs:
             self.remove_run(run.id, run_folder)

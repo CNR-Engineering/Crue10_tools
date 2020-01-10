@@ -23,7 +23,7 @@ Les fichiers en sortie sont écrasés s'ils existent déjà
 import sys
 
 from crue10.utils.cli_parser import MyArgParse
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 from crue10.etude import Etude
 
 
@@ -48,6 +48,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         crue10_model_topographical_graph(args)
-    except CrueError as e:
+    except ExceptionCrue10 as e:
         logger.critical(e)
         sys.exit(1)

@@ -5,7 +5,7 @@ Lecture d'un modèle Crue10
 import os.path
 import sys
 
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 from crue10.etude import Etude
 
 
@@ -34,6 +34,6 @@ try:
 except FileNotFoundError as e:
     logger.critical(e)
     sys.exit(1)
-except CrueError as e:
+except ExceptionCrue10 as e:
     logger.critical(e)
     sys.exit(2)

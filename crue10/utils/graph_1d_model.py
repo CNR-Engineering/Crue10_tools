@@ -1,5 +1,5 @@
 # coding: utf-8
-from crue10.utils import CrueError
+from crue10.utils import ExceptionCrue10
 
 
 MO_FONTSIZE = 40
@@ -68,4 +68,4 @@ def key_from_constant(key, CONSTANT):
         try:
             return CONSTANT['default']
         except KeyError:
-            raise CrueError("La clé '{}' n'existe pas".format(key))
+            raise ExceptionCrue10("La clé '{}' n'existe pas".format(key))

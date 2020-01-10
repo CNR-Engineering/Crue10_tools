@@ -6,7 +6,7 @@ Exporter la géométrie d'un modèle Crue10 en shp
 import sys
 
 from crue10.etude import Etude
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 from crue10.utils.cli_parser import MyArgParse
 
 
@@ -38,6 +38,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         crue10_model_extract_shp(args)
-    except CrueError as e:
+    except ExceptionCrue10 as e:
         logger.critical(e)
         sys.exit(1)

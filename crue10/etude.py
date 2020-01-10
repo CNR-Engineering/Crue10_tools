@@ -9,7 +9,7 @@ from crue10.modele import Modele
 from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
-from crue10.utils import add_default_missing_metadata, check_isinstance, CrueError, JINJA_ENV, \
+from crue10.utils import add_default_missing_metadata, check_isinstance, ExceptionCrue10, JINJA_ENV, \
     logger, PREFIX, XSD_FOLDER
 from crue10.utils.settings import XML_ENCODING
 
@@ -114,12 +114,12 @@ class Etude:
                 try:
                     filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                 except AttributeError:
-                    raise CrueError("Le fichier %s n'est pas renseigné dans le sous-modèle !" % ext)
+                    raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le sous-modèle !" % ext)
                 if filename is None:
-                    raise CrueError("Le sous-modèle n'a pas de fichier %s !" % ext)
+                    raise ExceptionCrue10("Le sous-modèle n'a pas de fichier %s !" % ext)
                 filepath = os.path.join(folder, filename)
                 if filepath not in self.filename_list:
-                    raise CrueError("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
+                    raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
                 files[ext] = filepath
 
             for shp_name in SousModele.FILES_SHP:
@@ -129,7 +129,7 @@ class Etude:
             sous_modele = SousModele(nom_sous_modele, files=files, metadata=metadata)
             self.ajouter_sous_modele(sous_modele)
         if not self.sous_modeles:
-            raise CrueError("Il faut au moins un sous-modèle !")
+            raise ExceptionCrue10("Il faut au moins un sous-modèle !")
 
         # Modele
         elt_models = root.find(PREFIX + 'Modeles')
@@ -145,12 +145,12 @@ class Etude:
                     try:
                         filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                     except AttributeError:
-                        raise CrueError("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
+                        raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
                     if filename is None:
-                        raise CrueError("Le modèle n'a pas de fichier %s !" % ext)
+                        raise ExceptionCrue10("Le modèle n'a pas de fichier %s !" % ext)
                     filepath = os.path.join(folder, filename)
                     if filepath not in self.filename_list:
-                        raise CrueError("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
+                        raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
                     files[ext] = filepath
 
                 modele = Modele(model_name, files=files, metadata=metadata)
@@ -163,7 +163,7 @@ class Etude:
 
                 self.ajouter_modele(modele)
         if not self.modeles:
-            raise CrueError("Il faut au moins un modèle !")
+            raise ExceptionCrue10("Il faut au moins un modèle !")
 
         # Scenarios
         elt_scenarios = root.find(PREFIX + 'Scenarios')
@@ -177,12 +177,12 @@ class Etude:
                     try:
                         filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                     except AttributeError:
-                        raise CrueError("Le fichier %s n'est pas renseigné dans le scénario !" % ext)
+                        raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le scénario !" % ext)
                     if filename is None:
-                        raise CrueError("Le scénario n'a pas de fichier %s !" % ext)
+                        raise ExceptionCrue10("Le scénario n'a pas de fichier %s !" % ext)
                     filepath = os.path.join(folder, filename)
                     if filepath not in self.filename_list:
-                        raise CrueError("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
+                        raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
                     files[ext] = filepath
 
                 elt_models = elt_scenario.find(PREFIX + 'Scenario-Modeles')
@@ -211,7 +211,7 @@ class Etude:
                 self.ajouter_scenario(scenario)
 
         if not self.scenarios:
-            raise CrueError("Il faut au moins un scénario !")
+            raise ExceptionCrue10("Il faut au moins un scénario !")
 
     def read_all(self):
         # self._read_etu() is done in `__init__` method
@@ -286,22 +286,22 @@ class Etude:
         try:
             return self.scenarios[scenario_name]
         except KeyError:
-            raise CrueError("Le scénario %s n'existe pas  !\nLes noms possibles sont: %s"
-                            % (scenario_name, list(self.scenarios.keys())))
+            raise ExceptionCrue10("Le scénario %s n'existe pas  !\nLes noms possibles sont: %s"
+                                  % (scenario_name, list(self.scenarios.keys())))
 
     def get_modele(self, nom_modele):
         try:
             return self.modeles[nom_modele]
         except KeyError:
-            raise CrueError("Le modèle %s n'existe pas  !\nLes noms possibles sont: %s"
-                            % (nom_modele, list(self.modeles.keys())))
+            raise ExceptionCrue10("Le modèle %s n'existe pas  !\nLes noms possibles sont: %s"
+                                  % (nom_modele, list(self.modeles.keys())))
 
     def get_sous_modele(self, nom_sous_modele):
         try:
             return self.sous_modeles[nom_sous_modele]
         except KeyError:
-            raise CrueError("Le sous-modèle %s n'existe pas  !\nLes noms possibles sont: %s"
-                            % (nom_sous_modele, list(self.sous_modeles.keys())))
+            raise ExceptionCrue10("Le sous-modèle %s n'existe pas  !\nLes noms possibles sont: %s"
+                                  % (nom_sous_modele, list(self.sous_modeles.keys())))
 
     def check_xml_files(self):
         errors = {}

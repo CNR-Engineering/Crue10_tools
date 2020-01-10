@@ -4,7 +4,7 @@ from glob import glob
 import os.path
 
 from crue10.results import RunResults
-from crue10.utils import add_default_missing_metadata, CrueError
+from crue10.utils import add_default_missing_metadata, ExceptionCrue10
 
 
 FMT_RUN_IDENTIFIER = "R%Y-%m-%d-%Hh%Mm%Ss"
@@ -37,15 +37,15 @@ class Run:
         # Find list of rcal files
         rcal_path_list = []
         if not os.path.exists(self.mo_folder):
-            raise CrueError("Le dossier `%s` n'existe pas" % self.mo_folder)
+            raise ExceptionCrue10("Le dossier `%s` n'existe pas" % self.mo_folder)
         for rcal_path in glob(os.path.join(self.mo_folder, '*.rcal.xml')):
             rcal_path_list.append(rcal_path)
 
         # Check that only a single rcal file is found
         if len(rcal_path_list) == 0:
-            raise CrueError("Aucun fichier rcal trouvé dans le dossier du run")
+            raise ExceptionCrue10("Aucun fichier rcal trouvé dans le dossier du run")
         elif len(rcal_path_list) > 1:
-            raise CrueError("Plusieurs fichiers rcal trouvés dans le dossier du run")
+            raise ExceptionCrue10("Plusieurs fichiers rcal trouvés dans le dossier du run")
 
         return RunResults(rcal_path_list[0])
 

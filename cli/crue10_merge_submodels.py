@@ -8,13 +8,13 @@ import sys
 
 from crue10.etude import Etude
 from crue10.sous_modele import SousModele
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 from crue10.utils.cli_parser import MyArgParse
 
 
 def crue10_merge_sous_modeles(args):
     if len(args.etu_path_list) != len(args.sm_name_list) != len(args.suffix_list):
-        raise CrueError("Les arguments `etu_path_list`, `suffix_list` et `sm_name_list` n'ont pas la même longueur !")
+        raise ExceptionCrue10("Les arguments `etu_path_list`, `suffix_list` et `sm_name_list` n'ont pas la même longueur !")
 
     first = True
     merged_sous_modele = None
@@ -45,6 +45,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         crue10_merge_sous_modeles(args)
-    except CrueError as e:
+    except ExceptionCrue10 as e:
         logger.critical(e)
         sys.exit(1)

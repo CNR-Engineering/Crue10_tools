@@ -28,7 +28,7 @@ Les fichiers en sortie sont écrasés s'ils existent déjà
 from io import open  # Python2 fix
 import sys
 
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 from crue10.utils.cli_parser import MyArgParse
 from crue10.utils.graph_1d_model import *
 
@@ -125,7 +125,7 @@ def crue9_dc_topographical_graph(args):
             elif out_file.endswith('.dot'):
                 graph.write_dot(out_file)
             else:
-                raise CrueError("Le format de fichier de `%s` n'est pas supporté" % out_file)
+                raise ExceptionCrue10("Le format de fichier de `%s` n'est pas supporté" % out_file)
 
 
 parser = MyArgParse(description=__doc__)
@@ -139,6 +139,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     try:
         crue9_dc_topographical_graph(args)
-    except CrueError as e:
+    except ExceptionCrue10 as e:
         logger.critical(e)
         sys.exit(1)

@@ -15,7 +15,7 @@ import sys
 
 from crue10.emh.section import SectionProfil
 from crue10.etude import Etude
-from crue10.utils import CrueError, logger
+from crue10.utils import ExceptionCrue10, logger
 
 
 ADD_BOTTOM = True
@@ -89,6 +89,6 @@ try:
                     layer['properties']['Zf'] = z_bottom
                 out_shp.write(layer)
 
-except CrueError as e:
+except ExceptionCrue10 as e:
     logger.critical(e)
     sys.exit(1)
