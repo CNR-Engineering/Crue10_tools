@@ -52,7 +52,7 @@ for _, run in scenario.runs.items():
     print(results)
     values = results.get_res_all_steady_var_at_emhs('Z', ['St_RET113.600'])
     nb_calc_steady = values.shape[0]
-    time_serie = np.arange(0, nb_calc_steady*3600, step=3600)
+    time_serie = np.arange(0, nb_calc_steady * 3600, step=3600)
 
     plt.plot(time_serie, values[:, 0], label=run.id)
 

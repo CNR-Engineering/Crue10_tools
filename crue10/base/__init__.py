@@ -27,7 +27,7 @@ class FichierXML(ABC):
 
     def __init__(self, access, files, metadata):
         """
-        /!\ id attribute has to be defined before calling this super method
+        id attribute has to be defined before calling this super method
         """
         self.xml_trees = {}
 

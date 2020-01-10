@@ -15,8 +15,8 @@ from crue10.utils import CrueError, logger
 
 
 def crue10_model_geom_to_mascaret(args):
-    study = Etude(args.etu_path)
-    model = study.get_modele(args.mo_name)
+    etude = Etude(args.etu_path)
+    modele = etude.get_modele(args.mo_name)
     modele.read_all()
     for sous_modele in modele.sous_modeles:
         sous_modele.remove_sectioninterpolee()

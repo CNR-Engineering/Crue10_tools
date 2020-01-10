@@ -292,7 +292,7 @@ class SousModele(FichierXML):
                     elif emh_branche_type == 'BranchePdc':
                         branche_cls = BranchePdC
                     else:
-                         raise CrueError("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
+                        raise CrueError("Le type de branche `%s` n'est pas reconnu" % emh_branche_type)
 
                     branche_type_id = Branche.get_id_type_from_name(emh_branche_type)
                     if branche_type_id in branch_types:
@@ -793,7 +793,7 @@ class SousModele(FichierXML):
                    len(list(self.iter_on_sections_profil())), len(list(self.iter_on_sections_item())),
                    len(list(self.iter_on_sections_interpolees())), len(list(self.iter_on_sections_sans_geometrie())),
                    len(self.casiers), len(self.profils_casier)
-        )
+               )
 
     def __repr__(self):
         return "Sous-modèle %s" % self.id

@@ -28,7 +28,7 @@ Les fichiers en sortie sont écrasés s'ils existent déjà
 from io import open  # Python2 fix
 import sys
 
-from crue10.utils import logger
+from crue10.utils import CrueError, logger
 from crue10.utils.cli_parser import MyArgParse
 from crue10.utils.graph_1d_model import *
 
@@ -57,7 +57,7 @@ def crue9_dc_topographical_graph(args):
                 if label is not None:
                     # Il y a un goto en cours...
                     if line.startswith(label):
-                        print("/!\ Partie ignorée à cause du 'GOTO {}'".format(label))
+                        print("/!\\ Partie ignorée à cause du 'GOTO {}'".format(label))
                         label = None
 
                 else:

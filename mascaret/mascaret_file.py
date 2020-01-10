@@ -10,7 +10,7 @@ import os
 import numpy as np
 from math import sqrt
 
-#from utils.exceptions import MascaretException
+# from utils.exceptions import MascaretException
 from crue10.utils import CrueError
 MascaretException = CrueError
 
@@ -888,7 +888,7 @@ class Rubens(MascaretFileParent):
         @param vars_indexes (list) List of variable names
         @return (numpy.array)
         """
-        #FIXME: not consistant with Opthyca.get_series => it should use reach_id argument
+        # FIXME: not consistant with Opthyca.get_series => it should use reach_id argument
         if vars_indexes is None:
             vars_indexes = self.varnames_dict['id']
 

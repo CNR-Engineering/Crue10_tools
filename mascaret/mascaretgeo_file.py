@@ -4,9 +4,9 @@ This file was copied and adapted from http://svn.opentelemac.org/svn/opentelemac
 from collections import OrderedDict
 import os.path
 
-#from data_manip.formats.mascaret_file import Reach, Section
+# from data_manip.formats.mascaret_file import Reach, Section
 from mascaret.mascaret_file import Reach, Section
-#from utils.exceptions import MascaretException
+# from utils.exceptions import MascaretException
 from crue10.utils import CrueError
 MascaretException = CrueError
 

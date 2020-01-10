@@ -83,7 +83,7 @@ class Scenario(FichierXML):
     def create_and_launch_new_run(self, study, run_id=None, comment='', force=False):
         """
         Create and launch a new run
-        /!\ The instance of `etude` is modified but the original etu file not overwritten
+             The instance of `etude` is modified but the original etu file not overwritten
              (If necessary, it should be done after calling this method)
 
         1) Création d'un nouveau run (sans enregistrer la mise à jour du fichier etu.xml en entrée)
@@ -142,7 +142,7 @@ class Scenario(FichierXML):
         for xml_type in Scenario.FILES_XML_WITHOUT_TEMPLATE:
             xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
             if self.xml_trees:
-                write_xml_from_tree(self.xml_trees[xml_type],  xml_path)
+                write_xml_from_tree(self.xml_trees[xml_type], xml_path)
             else:
                 write_default_xml_file(xml_type, xml_path)
 

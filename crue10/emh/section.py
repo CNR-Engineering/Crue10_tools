@@ -143,7 +143,7 @@ class SectionProfil(Section):
     - xt_axe <float>: transversal position of hydraulic axis
     - xz <2D-array>: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
-    - geom_trace <LineString>: polyline section trace (/!\ only between left and right bank)
+    - geom_trace <LineString>: polyline section trace (only between left and right bank)
     - largeur_fente <float>: largeur de la fente
     - profondeur_fente <float>: profondeur de la fente
     - lits_numerotes <[LitNumerote]>: lits numérotés
@@ -263,7 +263,7 @@ class SectionProfil(Section):
         return coords
 
     def get_is_bed_active_array(self):
-        """/!\ Overestimation of active bed width"""
+        """Overestimation of active bed width"""
         xt = self.xz_filtered[:, 0]
         is_active = np.zeros(len(xt), dtype=bool)
         for lit in self.lits_numerotes:
@@ -275,7 +275,7 @@ class SectionProfil(Section):
         return is_active
 
     def get_friction_coeff_array(self):
-        """/!\ Overestimation of internal beds width"""
+        """Overestimation of internal beds width"""
         xt = self.xz_filtered[:, 0]
         coeff = np.zeros(xt.shape[0], dtype=np.float)
         for lit in self.lits_numerotes:

@@ -240,7 +240,7 @@ class Modele(FichierXML):
         for xml_type in Modele.FILES_XML_WITHOUT_TEMPLATE:
             xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
             if self.xml_trees:
-                write_xml_from_tree(self.xml_trees[xml_type],  xml_path)
+                write_xml_from_tree(self.xml_trees[xml_type], xml_path)
             else:
                 write_default_xml_file(xml_type, xml_path)
 
@@ -252,7 +252,7 @@ class Modele(FichierXML):
     def write_topological_graph(self, out_files, nodesep=0.8, prog='dot'):
         try:
             import pydot
-        except:
+        except ModuleNotFoundError:
             raise CrueError("Le module pydot ne fonctionne pas !")
 
         check_isinstance(out_files, list)
@@ -282,7 +282,7 @@ class Modele(FichierXML):
                 direction = 'forward'
                 if isinstance(branche, BrancheOrifice):
                     if branche.SensOrifice == 'Bidirect':
-                        direction= 'both'
+                        direction = 'both'
                     elif branche.SensOrifice == 'Indirect':
                         direction = 'back'
                 edge = pydot.Edge(
@@ -318,7 +318,7 @@ class Modele(FichierXML):
         Only active branche of type 20 (SaintVenant) are written
         TODO: Add min/maj delimiter
         @param geo_path <str>: output file path
-        /!\ Submodels branches should only contain SectionProfil
+            Submodels branches should only contain SectionProfil
             (call to method `convert_sectionidem_to_sectionprofil` is highly recommanded)
         """
         geofile = MascaretGeoFile(geo_path, access='w')

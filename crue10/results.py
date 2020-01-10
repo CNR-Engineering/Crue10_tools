@@ -214,7 +214,7 @@ class RunResults:
             calc_unsteady = CalcTrans(calc.get('NomRef'))
             for pdt in calc:
                 calc_unsteady.add_frame(get_time_in_seconds(pdt.get('TempsSimu')),
-                                     os.path.join(self.rcal_folder, pdt.get('Href')), int(pdt.get('OffsetMot')))
+                                        os.path.join(self.rcal_folder, pdt.get('Href')), int(pdt.get('OffsetMot')))
             self.calc_unsteady_dict[calc_unsteady.name] = calc_unsteady
 
     def _set_res_pattern(self):

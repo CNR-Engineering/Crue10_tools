@@ -11,8 +11,8 @@ from crue10.utils.cli_parser import MyArgParse
 
 
 def crue10_model_extract_shp(args):
-    study = Etude(args.etu_path)
-    model = study.get_modele(args.mo_name)
+    etude = Etude(args.etu_path)
+    modele = etude.get_modele(args.mo_name)
     modele.read_all()
     print(modele.summary())
 
