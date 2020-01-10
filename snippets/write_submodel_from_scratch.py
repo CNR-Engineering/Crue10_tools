@@ -4,10 +4,12 @@ import numpy as np
 import os.path
 from shapely.geometry import Point, LinearRing, LineString
 
-from crue10.emh.branche import *
+from crue10.emh.branche import BranchePdC, BrancheSeuilTransversal, \
+    BrancheSeuilLateral, BrancheOrifice, BrancheStrickler, BrancheNiveauxAssocies, \
+    BrancheBarrageGenerique, BrancheBarrageFilEau, BrancheSaintVenant
 from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
-from crue10.emh.section import *
+from crue10.emh.section import LimiteGeom, SectionIdem, SectionProfil, SectionSansGeometrie
 from crue10.sous_modele import SousModele
 from crue10.utils import logger
 

@@ -69,8 +69,9 @@ try:
     # Write a shp file to check
     schema = {
         'geometry': 'Point',
-        'properties': {'id_section': 'str', **{var: 'float' for var in VARIABLES}}
+        'properties': {'id_section': 'str'}
     }
+    schema['properties'].update({var: 'float' for var in VARIABLES})
     if ADD_BOTTOM:
         schema['properties']['Zf'] = 'float'
     with fiona.open(os.path.join(out_folder, 'debug.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
@@ -81,11 +82,9 @@ try:
                     values[var] = array[section_index, var_index]
                 layer = {
                     'geometry': mapping(Point(x, y)),
-                    'properties': {
-                        'id_section': section_name,
-                        **values
-                    }
+                    'properties': {'id_section': section_name}
                 }
+                layer['properties'].update(values)
                 if ADD_BOTTOM:
                     layer['properties']['Zf'] = z_bottom
                 out_shp.write(layer)

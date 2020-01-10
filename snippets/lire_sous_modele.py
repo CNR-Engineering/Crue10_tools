@@ -42,7 +42,7 @@ try:
             point = section.interp_point(section.lits_numerotes[i_lit - 1].xt_max)
         print((point.x, point.y))
 
-except FileNotFoundError as e:
+except IOError as e:
     logger.critical(e)
     sys.exit(1)
 except CrueError as e:

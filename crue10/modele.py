@@ -252,7 +252,7 @@ class Modele(FichierXML):
     def write_topological_graph(self, out_files, nodesep=0.8, prog='dot'):
         try:
             import pydot
-        except ModuleNotFoundError:
+        except ImportError:  # ModuleNotFoundError not available in Python2
             raise CrueError("Le module pydot ne fonctionne pas !")
 
         check_isinstance(out_files, list)

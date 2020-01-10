@@ -816,7 +816,7 @@ class Rubens(MascaretFileParent):
             for i, varname in enumerate(self.varnames):
                 var_index = abbrs.index(varname)
                 self.add_variable(names[var_index], units[var_index], varname)
-        except FileNotFoundError:
+        except IOError:  # FileNotFoundError is not Python2
             self.logger.warning('Mascaret dico file is missing !')
             for i, varname in enumerate(self.varnames):
                 self.add_variable('Rub_long_name_unknown_' + str(i), 'Rub_unit_unknown_' + str(i), varname)

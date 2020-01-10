@@ -226,7 +226,7 @@ class Etude:
             etu_path = os.path.join(folder, os.path.basename(self.etu_path))
         xml = 'etu'
         template_render = JINJA_ENV.get_template(xml + '.xml').render(
-            folders=[(name, folder) for name, folder in self.folders.items()],
+            folders=[(name, folder_str) for name, folder_str in self.folders.items()],
             metadata=self.metadata,
             current_scenario_id=self.nom_scenario_courant,
             files=[(os.path.basename(file), file[-8:-4].upper()) for file in sorted(self.filename_list)],

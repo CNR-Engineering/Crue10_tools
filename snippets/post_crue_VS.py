@@ -31,8 +31,9 @@ try:
     variables = ['Zseuil_min', 'Qmax', 'Qmin']
     schema = {
         'geometry': 'LineString',
-        'properties': {'id_branche': 'str', **{var: 'str' for var in variables}}
+        'properties': {'id_branche': 'str'}
     }
+    schema['properties'].update({var: 'float' for var in variables})
     with fiona.open(os.path.join(model_folder, 'check_at_branches.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for sous_modele in modele.liste_sous_modeles:
             sous_modele.convert_sectionidem_to_sectionprofil()
@@ -52,11 +53,9 @@ try:
 
                     layer = {
                         'geometry': mapping(branche.geom),
-                        'properties': {
-                            'id_branche': branche.id,
-                            **values
-                        }
+                        'properties': {'id_branche': branche.id}
                     }
+                    layer['properties'].update(values)
                     out_shp.write(layer)
 
 except CrueError as e:

@@ -2,16 +2,19 @@
 from builtins import super  # Python2 fix
 from collections import OrderedDict
 import fiona
+import numpy as np
 import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
 
 from crue10.base import FichierXML
-from crue10.emh.branche import *
+from crue10.emh.branche import BRANCHE_CLASSES, Branche, BranchePdC, BrancheSeuilTransversal, \
+    BrancheSeuilLateral, BrancheOrifice, BrancheStrickler, BrancheNiveauxAssocies, \
+    BrancheBarrageGenerique, BrancheBarrageFilEau, BrancheSaintVenant
 from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
-from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, LimiteGeom, LitNumerote, \
-    SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
-from crue10.utils import check_preffix, CrueError, CrueErrorGeometryNotFound, PREFIX
+from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
+    LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
+from crue10.utils import check_isinstance, check_preffix, CrueError, CrueErrorGeometryNotFound, logger, PREFIX
 
 
 def parse_loi(elt, group='EvolutionFF', line='PointFF'):
@@ -650,12 +653,12 @@ class SousModele(FichierXML):
 
         # TO CHECK:
         # - Casier has at least one ProfilCasier
-        # - BrancheSaintVenant has a section_pilote
+        # - BrancheBarrage* has a section_pilote
         # ...
 
         # Create folder if not existing
+        sm_folder = os.path.join(folder, folder_config, self.id.upper())
         if folder_config is not None:
-            sm_folder = os.path.join(folder, folder_config, self.id.upper())
             if not os.path.exists(sm_folder):
                 os.makedirs(sm_folder)
 
