@@ -88,7 +88,7 @@ class Modele(FichierXML):
                 Modele.rename_key_and_obj(sous_modele.profils_casier, suffix, insert_before=True)
             if 'St' in emh_list:
                 Modele.rename_key_and_obj(sous_modele.sections, suffix)
-                for st in sous_modele.iter_on_sections_profil():
+                for st in sous_modele.get_liste_sections_profil():
                     st.set_profilsection_name()
             if 'Br' in emh_list:
                 Modele.rename_key_and_obj(sous_modele.branches, suffix)
@@ -115,13 +115,13 @@ class Modele(FichierXML):
     def get_liste_sections(self, ignore_inactive=False):
         sections = []
         for sous_modele in self.liste_sous_modeles:
-            sections += sous_modele.iter_on_sections(ignore_inactive=ignore_inactive)
+            sections += sous_modele.get_liste_sections(ignore_inactive=ignore_inactive)
         return sections
 
     def get_liste_branches(self):
         branches = []
         for sous_modele in self.liste_sous_modeles:
-            branches += sous_modele.iter_on_branches()
+            branches += sous_modele.get_liste_branches()
         return branches
 
     def get_missing_active_sections(self, section_id_list):
@@ -278,7 +278,7 @@ class Modele(FichierXML):
                 subgraph.add_node(node)
 
             # Add branches
-            for branche in sous_modele.iter_on_branches():
+            for branche in sous_modele.get_liste_branches():
                 direction = 'forward'
                 if isinstance(branche, BrancheOrifice):
                     if branche.SensOrifice == 'Bidirect':
@@ -324,7 +324,7 @@ class Modele(FichierXML):
         geofile = MascaretGeoFile(geo_path, access='w')
         i_section = 0
         for sous_modele in self.liste_sous_modeles:
-            for i_branche, branche in enumerate(sous_modele.iter_on_branches([20])):
+            for i_branche, branche in enumerate(sous_modele.get_liste_branches([20])):
                 if branche.has_geom() and branche.is_active:
                     reach = Reach(i_branche, name=branche.id)
                     for section in branche.liste_sections_dans_branche:
@@ -344,7 +344,7 @@ class Modele(FichierXML):
         schema = {'geometry': '3D Point', 'properties': {'id_section': 'str', 'Z': 'float'}}
         with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
             for sous_modele in self.liste_sous_modeles:
-                for section in sous_modele.iter_on_sections(SectionProfil, ignore_inactive=True):
+                for section in sous_modele.get_liste_sections(SectionProfil, ignore_inactive=True):
                     coords = section.get_coord(add_z=True)
                     for coord in coords:
                         out_shp.write({'geometry': mapping(Point(coord)),
@@ -354,7 +354,7 @@ class Modele(FichierXML):
         schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
         with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
             for sous_modele in self.liste_sous_modeles:
-                for branche in sous_modele.iter_on_branches():
+                for branche in sous_modele.get_liste_branches():
                     for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
                         coords = []
                         for section in branche.liste_sections_dans_branche:

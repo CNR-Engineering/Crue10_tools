@@ -56,13 +56,13 @@ class SousModele(FichierXML):
     """
     Crue10 sous_modele
     - id <str>: sous_modele identifier
-    - noeuds <{crue10.emh.noeud.Noeud}>: nodes
-    - liste_sections_dans_branche <{crue10.emh.section.Section}>: list of branches
+    - noeuds <{crue10.emh.noeud.Noeud}>: ordered dict of nodes
+    - sections <{crue10.emh.section.Section}>: ordered dict of sections
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
-    - branches <{crue10.emh.section.SectionInterpolee}>: branches (only those with geometry are considered)
-    - casiers <{crue10.emh.casier.Casier}>: casiers
-    - profils_casier <{crue10.emh.casier.ProfilCasier}>: profils casier
-    - lois_frottement <{crue10.emh.section.LoiFrottement}>: friction laws (Strickler coefficients)
+    - branches <{crue10.emh.branche.Branche}>: ordered dict of branches
+    - casiers <{crue10.emh.casier.Casier}>: ordered dict of casiers
+    - profils_casier <{crue10.emh.casier.ProfilCasier}>: ordered dict of profils casier
+    - lois_frottement <{crue10.emh.section.LoiFrottement}>: ordered dict of friction laws (Strickler coefficients)
     """
 
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
@@ -177,35 +177,39 @@ class SousModele(FichierXML):
         except KeyError:
             raise ExceptionCrue10("La loi de frottement %s n'est pas dans le %s" % (nom_loi_frottement, self))
 
-    def iter_on_sections(self, section_type=None, ignore_inactive=False):
+    def get_liste_sections(self, section_type=None, ignore_inactive=False):
+        sections = []
         for _, section in self.sections.items():
             if ignore_inactive and not section.is_active:
                 continue
             if section_type is not None:
                 if isinstance(section, section_type):
-                    yield section
+                    sections.append(section)
             else:
-                yield section
+                sections.append(section)
+        return sections
 
-    def iter_on_sections_profil(self):
-        return self.iter_on_sections(section_type=SectionProfil)
+    def get_liste_sections_profil(self):
+        return self.get_liste_sections(section_type=SectionProfil)
 
-    def iter_on_sections_item(self):
-        return self.iter_on_sections(section_type=SectionIdem)
+    def get_liste_sections_item(self):
+        return self.get_liste_sections(section_type=SectionIdem)
 
-    def iter_on_sections_interpolees(self):
-        return self.iter_on_sections(section_type=SectionInterpolee)
+    def get_liste_sections_interpolees(self):
+        return self.get_liste_sections(section_type=SectionInterpolee)
 
-    def iter_on_sections_sans_geometrie(self):
-        return self.iter_on_sections(section_type=SectionSansGeometrie)
+    def get_liste_sections_sans_geometrie(self):
+        return self.get_liste_sections(section_type=SectionSansGeometrie)
 
-    def iter_on_branches(self, filter_branch_types=None):
+    def get_liste_branches(self, filter_branch_types=None):
+        branches = []
         for _, branche in self.branches.items():
             if filter_branch_types is not None:
                 if branche.type in filter_branch_types:
-                    yield branche
+                    branches.append(branche)
             else:
-                yield branche
+                branches.append(branche)
+        return branches
 
     def _read_dfrt(self):
         """
@@ -483,7 +487,7 @@ class SousModele(FichierXML):
                 nom_branche = obj['properties']['EMH_NAME']
                 coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_branche] = LineString(coords)
-        for branche in self.iter_on_branches():
+        for branche in self.get_liste_branches():
             try:
                 branche.set_geom(geoms[branche.id])
             except KeyError:
@@ -500,7 +504,7 @@ class SousModele(FichierXML):
                 nom_section = obj['properties']['EMH_NAME']
                 coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_section] = LineString(coords)
-        for section in self.iter_on_sections(section_type=SectionProfil):
+        for section in self.get_liste_sections(section_type=SectionProfil):
             try:
                 section.set_trace(geoms[section.id])
             except KeyError:
@@ -566,22 +570,22 @@ class SousModele(FichierXML):
             SectionProfil=SectionProfil,
             SectionSansGeometrie=SectionSansGeometrie,
             SectionInterpolee=SectionInterpolee,
-            branche_list=self.iter_on_branches(),
+            branche_list=self.get_liste_branches(),
         )
 
     def _write_dptg(self, folder):
         self._write_xml_file(
             'dptg', folder,
             profil_casier_list=[pc for _, pc in self.profils_casier.items()],
-            section_profil_list=sorted(self.iter_on_sections_profil(), key=lambda st: st.id),  # alphabetic order
-            section_idem_list=sorted(self.iter_on_sections_item(), key=lambda st: st.id),  # alphabetic order
-            branche_saintvenant_list=sorted(self.iter_on_branches([20]), key=lambda br: br.id),  # alphabetic order
+            section_profil_list=sorted(self.get_liste_sections_profil(), key=lambda st: st.id),  # alphabetic order
+            section_idem_list=sorted(self.get_liste_sections_item(), key=lambda st: st.id),  # alphabetic order
+            branche_saintvenant_list=sorted(self.get_liste_branches([20]), key=lambda br: br.id),  # alphabetic order
         )
 
     def _write_dcsp(self, folder):
         self._write_xml_file(
             'dcsp', folder,
-            branche_list=self.iter_on_branches(),
+            branche_list=self.get_liste_branches(),
             casier_list=[ca for _, ca in self.casiers.items()],
         )
 
@@ -603,7 +607,7 @@ class SousModele(FichierXML):
         schema = {'geometry': '3D LineString',
                   'properties': OrderedDict([('EMH_NAME', 'str:250'), ('ATTRIBUTE_', 'int:9')])}
         with fiona.open(os.path.join(folder, 'branches.shp'), 'w', 'ESRI Shapefile', schema) as layer:
-            for i, branche in enumerate(self.iter_on_branches()):
+            for i, branche in enumerate(self.get_liste_branches()):
                 if branche.geom is None:
                     raise ExceptionCrue10GeometryNotFound(branche)
                 # Convert LineString to 3D LineString
@@ -620,7 +624,7 @@ class SousModele(FichierXML):
                                              ('ANGLE_STAR', 'float:32'), ('ANGLE_END', 'float:32')])}
         with fiona.open(os.path.join(folder, 'tracesSections.shp'), 'w', 'ESRI Shapefile', schema) as layer:
             i = 0
-            for section in self.iter_on_sections(section_type=SectionProfil):
+            for section in self.get_liste_sections(section_type=SectionProfil):
                 if self.get_connected_branche(section.id) is None:
                     continue  # ignore current orphan section
                 if section.geom_trace is None:
@@ -688,10 +692,10 @@ class SousModele(FichierXML):
         """
         Sections are set to active if they are connected to a branch (active or not!)
         """
-        for section in self.iter_on_sections():
+        for section in self.get_liste_sections():
             section.is_active = False
 
-        for branche in self.iter_on_branches():
+        for branche in self.get_liste_branches():
             for section in branche.liste_sections_dans_branche:
                 section.is_active = branche.is_active
 
@@ -699,7 +703,7 @@ class SousModele(FichierXML):
         """
         Returns the connected branche if found, else returns None
         """
-        for branche in self.iter_on_branches():
+        for branche in self.get_liste_branches():
             if nom_section in [section.id for section in branche.liste_sections_dans_branche]:
                 return branche
         return None
@@ -709,7 +713,7 @@ class SousModele(FichierXML):
         Returns the list of the branches connected to requested node
         """
         branches = []
-        for branche in self.iter_on_branches():
+        for branche in self.get_liste_branches():
             if nom_noeud in (branche.noeud_amont.id, branche.noeud_aval.id):
                 branches.append(branche)
         return branches
@@ -725,14 +729,14 @@ class SousModele(FichierXML):
 
     def remove_sectioninterpolee(self):
         """Remove all `SectionInterpolee` which are internal sections"""
-        for branche in self.iter_on_branches():
+        for branche in self.get_liste_branches():
             for section in branche.liste_sections_dans_branche[1:-1]:
                 if isinstance(section, SectionInterpolee):
                     branche.liste_sections_dans_branche.remove(section)  # remove element (current iteration)
-                    self.liste_sections_dans_branche.pop(section.id)
-        if len(list(self.iter_on_sections_interpolees())) != 0:
+                    self.sections.pop(section.id)
+        if len(list(self.get_liste_sections_interpolees())) != 0:
             raise ExceptionCrue10("Des SectionInterpolee n'ont pas pu être supprimées : %s"
-                                  % list(self.iter_on_sections_interpolees()))
+                                  % list(self.get_liste_sections_interpolees()))
 
     def convert_sectionidem_to_sectionprofil(self):
         """
@@ -741,7 +745,7 @@ class SousModele(FichierXML):
            the original SectionProfil is reused. Else the default behaviour is to build a trace which
            is orthogonal to the hydraulic axis.
         """
-        for branche in self.iter_on_branches():
+        for branche in self.get_liste_branches():
             branche.normalize_sections_xp()
             for j, section in enumerate(branche.liste_sections_dans_branche):
                 if isinstance(section, SectionIdem):
@@ -770,7 +774,7 @@ class SousModele(FichierXML):
                     branche.liste_sections_dans_branche[j] = new_section
 
     def normalize_geometry(self):
-        for branche in self.iter_on_branches():
+        for branche in self.get_liste_branches():
             branche.shift_sectionprofil_to_extremity()
         self.convert_sectionidem_to_sectionprofil()
 
@@ -782,7 +786,7 @@ class SousModele(FichierXML):
             self.ajouter_noeud(noeud)
         for _, section in sous_modele.sections.items():
             self.ajouter_section(section)
-        for branche in sous_modele.iter_on_branches():
+        for branche in sous_modele.get_liste_branches():
             self.ajouter_branche(branche)
         for _, profils_casier in sous_modele.profils_casier.items():
             self.ajouter_profil_casier(profils_casier)
@@ -793,8 +797,8 @@ class SousModele(FichierXML):
         return "%s: %i noeud_reference(s), %i branche(s), %i section(s) (%i profil + %i idem + %i interpolee +" \
                " %i sans géométrie), %i casier(s) (%i profil(s) casier)" % (
                    self, len(self.noeuds), len(self.branches), len(self.sections),
-                   len(list(self.iter_on_sections_profil())), len(list(self.iter_on_sections_item())),
-                   len(list(self.iter_on_sections_interpolees())), len(list(self.iter_on_sections_sans_geometrie())),
+                   len(list(self.get_liste_sections_profil())), len(list(self.get_liste_sections_item())),
+                   len(list(self.get_liste_sections_interpolees())), len(list(self.get_liste_sections_sans_geometrie())),
                    len(self.casiers), len(self.profils_casier)
                )
 

@@ -9,7 +9,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='Crue10_tools',
-    version='2.0',
+    version='2.1',
     author='Luc Duron',
     author_email='l.duron@cnr.tm.fr',
     packages=find_packages(),

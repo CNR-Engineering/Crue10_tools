@@ -111,7 +111,7 @@ def crue10_model_for_maps(args):
     }
     with fiona.open(os.path.join(args.out_folder, 'sections.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for sous_modele in modele.sous_modeles:
-            for section in sous_modele.iter_on_sections(section_type=SectionProfil, ignore_inactive=True):
+            for section in sous_modele.get_liste_sections(section_type=SectionProfil, ignore_inactive=True):
                 layer = {
                     'geometry': mapping(section.geom_trace),
                     'properties': {
@@ -139,7 +139,7 @@ def crue10_model_for_maps(args):
             for _, casier in sous_modele.casiers.items():
                 sm_geom_list.append(Polygon(casier.geom).buffer(args.sm_buffer))
 
-            for branche in sous_modele.iter_on_branches():
+            for branche in sous_modele.get_liste_branches():
                 if branche.type in Branche.TYPES_WITH_GEOM:
                     # Build list of coordinates following upstream section, left ending points, downstream section and
                     #   right ending point

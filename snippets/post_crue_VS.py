@@ -39,7 +39,7 @@ try:
             sous_modele.convert_sectionidem_to_sectionprofil()
             print(sous_modele.summary())
 
-            for branche in sous_modele.iter_on_branches():
+            for branche in sous_modele.get_liste_branches():
                 if branche.is_active:
                     values = {var: 'NA' for var in variables}
 

@@ -17,7 +17,7 @@ sous_modele_out = study_out.get_sous_modele('Sm_from_scratch')
 
 if True:
     # Add some EMHs in sous_modele
-    from snippets.write_submodel_from_scratch import sous_modele
+    from snippets.construire_et_ecrire_sous_modele import sous_modele
     sous_modele_out.ajouter_emh_depuis_sous_modele(sous_modele)
 
 logger.info(study_out.summary())
