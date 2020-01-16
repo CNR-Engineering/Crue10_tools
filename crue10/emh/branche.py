@@ -26,11 +26,14 @@ from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, Excep
 # ABC below is compatible with Python 2 and 3
 ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
+COEFF_D = 1.0
+COEFF_PDC = 1.0
+
 DIFF_XP_TO_WARN = 20.0  # m
 
-DEFAULT_ELTS_SEUILS = np.array([(1.0, 0.0, 1.0)])
+DEFAULT_ELTS_SEUILS = np.array([(1.0, 0.0, COEFF_D)])
 
-DEFAULT_ELTS_SEUILS_AVEC_PDC = np.array([(1.0, 0.0, 1.0, 1.0)])
+DEFAULT_ELTS_SEUILS_AVEC_PDC = np.array([(1.0, 0.0, COEFF_D, COEFF_PDC)])
 
 DEFAULT_FORMULE_PDC = 'Borda'
 
@@ -210,30 +213,57 @@ class BranchePdC(Branche):
         return 'LoiQPdc_%s' % self.id[3:]
 
 
-class BrancheSeuilTransversal(Branche):
+class BrancheAvecElementsSeuil(Branche):
     """
-    BrancheSeuilTransversal - #2
     - formule_pertes_de_charge <str>: 'Borda' or 'Divergent'
     - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
+    """
+
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, type, is_active=True):
+        super().__init__(nom_branche, noeud_amont, noeud_aval, type, is_active)
+        self.formule_pertes_de_charge = DEFAULT_FORMULE_PDC
+        self.liste_elements_seuil = None
+        self.set_liste_elements_seuil(DEFAULT_ELTS_SEUILS_AVEC_PDC)
+
+    def set_liste_elements_seuil(self, elements_seuil):
+        """
+        :param elements_seuil: 2D array with 4 values for axis=1 (larg, z_seuil, coeff_d, coeff_pdc)
+        """
+        if elements_seuil.shape[0] < 1:
+            raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
+        if elements_seuil.shape[1] != 4:
+            raise ExceptionCrue10("Il faut exactement 4 valeurs pour axis=1")
+        self.liste_elements_seuil = elements_seuil
+
+    def set_liste_elements_seuil_avec_coeff_par_defaut(self, elements_seuil):
+        """
+        :param elements_seuil: 2D array with 2 values for axis=1 (larg, z_seuil)
+        """
+        if elements_seuil.shape[0] < 1:
+            raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
+        if elements_seuil.shape[1] != 2:
+            raise ExceptionCrue10("Il faut exactement 2 valeurs pour axis=1")
+        nb_elem = elements_seuil.shape[0]
+        new_array = np.column_stack((elements_seuil, np.ones(nb_elem) * COEFF_D, np.ones(nb_elem) * COEFF_PDC))
+        self.set_liste_elements_seuil(new_array)
+
+
+class BrancheSeuilTransversal(BrancheAvecElementsSeuil):
+    """
+    BrancheSeuilTransversal - #2
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 2, is_active)
-        self.formule_pertes_de_charge = DEFAULT_FORMULE_PDC
-        self.liste_elements_seuil = DEFAULT_ELTS_SEUILS_AVEC_PDC
 
 
-class BrancheSeuilLateral(Branche):
+class BrancheSeuilLateral(BrancheAvecElementsSeuil):
     """
     BrancheSeuilLateral - #4
-    - formule_pertes_de_charge <str>: 'Borda' or 'Divergent'
-    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 4, is_active)
-        self.formule_pertes_de_charge = DEFAULT_FORMULE_PDC
-        self.liste_elements_seuil = DEFAULT_ELTS_SEUILS_AVEC_PDC
 
 
 class BrancheOrifice(Branche):

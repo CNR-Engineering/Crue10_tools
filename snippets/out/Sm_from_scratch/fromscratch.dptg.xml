@@ -133,6 +133,9 @@
         <Etiquette Nom="Et_AxeHyd">
           <PointFF>5.0 0.0</PointFF>
         </Etiquette>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>5.0 0.0</PointFF>
+        </Etiquette>
       </Etiquettes>
     </ProfilSection>
   </DonPrtGeoProfilSections>

@@ -6,8 +6,8 @@ import numpy as np
 from crue10.etude import Etude
 
 
-study = Etude('../../Crue10_examples/Etudes-tests/Etu_GE2009_Conc/Etu_GE2009_Conc.etu.xml')
-sous_modele = study.get_sous_modele('Sm_GE2009_conc')
+etude = Etude('../../Crue10_examples/Etudes-tests/Etu_GE2009_Conc/Etu_GE2009_Conc.etu.xml')
+sous_modele = etude.get_sous_modele('Sm_GE2009_conc')
 sous_modele.read_all()
 
 fig1, ax_xz = plt.subplots(figsize=(16, 9))

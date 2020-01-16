@@ -1,11 +1,12 @@
 # coding: utf-8
 from collections import OrderedDict
 import csv
-from io import open  # Python2 fix
+import io  # Python2 fix
 import numpy as np
 import os.path
 import re
 import struct
+from sys import version_info
 import xml.etree.ElementTree as ET
 
 from crue10.utils import ExceptionCrue10, PREFIX
@@ -38,7 +39,7 @@ class FilePosition:
 
     def get_data(self, res_pattern, is_steady, emh_type_first_branche):
         res = {}
-        with open(self.rbin_path, 'rb') as resin:
+        with io.open(self.rbin_path, 'rb') as resin:
             resin.seek(self.byte_offset * FilePosition.FLOAT_SIZE)
 
             # Check calculation type
@@ -160,7 +161,7 @@ class RunResults:
             raise ExceptionCrue10("Le fichier de compte rendu de calcul `%s` est introuvable" % ccal_path)
         self.nb_errors = 0
         self.nb_warnings = 0
-        with open(ccal_path, newline='') as in_csv:
+        with io.open(ccal_path, newline='') as in_csv:
             csv_reader = csv.reader(in_csv, delimiter=';')
             for row in csv_reader:
                 criticity = row[2]
@@ -292,7 +293,7 @@ class RunResults:
 
         # Stack arrays
         for emh_type in self.emh_types:
-            res_all[emh_type] = np.stack(res_all[emh_type], axis=0)
+            res_all[emh_type] = np.array(res_all[emh_type])
         return res_all
 
     def get_res_all_steady_var_at_emhs(self, varname, emh_list):
@@ -330,7 +331,11 @@ class RunResults:
         Write CSV containing all `CalcPseudoPerm` results
         Header is: "calc;emh_type;emh;variable;value"
         """
-        with open(csv_path, 'w', newline='') as csv_file:
+        if version_info[0] == 3:   # Python2 fix: do not add `newline` argument
+            arguments = {'newline': ''}
+        else:
+            arguments = {}
+        with open(csv_path, 'w', **arguments) as csv_file:  # Python2.7 fix: io.open is not compatible with csv
             fieldnames = ['calc', 'emh_type', 'emh', 'variable', 'value']
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=CSV_DELIMITER)
             csv_writer.writeheader()
@@ -351,7 +356,11 @@ class RunResults:
         Write CSV containing all `CalcTrans` results
         Header is: "calc;time;emh_type;emh;variable;value"
         """
-        with open(csv_path, 'w', newline='') as csv_file:
+        if version_info[0] == 3:   # Python2 fix: do not add `newline` argument
+            arguments = {'newline': ''}
+        else:
+            arguments = {}
+        with open(csv_path, 'w', **arguments) as csv_file:  # Python2.7 fix: io.open is not compatible with csv
             fieldnames = ['calc', 'time', 'emh_type', 'emh', 'variable', 'value']
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=CSV_DELIMITER)
             csv_writer.writeheader()

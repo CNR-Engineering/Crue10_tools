@@ -99,6 +99,10 @@ class LimiteGeom:
     - id <str>: bed identifier
     - xt <str>: curvilinear abscissa
     """
+
+    AXE_HYDRAULIQUE = 'Et_AxeHyd'
+    THALWEG = 'Et_Thalweg'
+
     def __init__(self, id, xt):
         check_preffix(id, 'Et_')
         self.id = id

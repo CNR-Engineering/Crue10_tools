@@ -424,11 +424,11 @@ class SousModele(FichierXML):
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilTransversal':
                         branche.formule_pertes_de_charge = emh.find(PREFIX + 'FormulePdc').text
-                        branche.liste_elements_seuil = parse_elem_seuil(emh, with_pdc=True)
+                        branche.set_liste_elements_seuil(parse_elem_seuil(emh, with_pdc=True))
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilLateral':
                         branche.formule_pertes_de_charge = emh.find(PREFIX + 'FormulePdc').text
-                        branche.liste_elements_seuil = parse_elem_seuil(emh, with_pdc=True)
+                        branche.set_liste_elements_seuil(parse_elem_seuil(emh, with_pdc=True))
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheOrifice':
                         elem_orifice = emh.find(PREFIX + 'ElemOrifice')
@@ -663,18 +663,10 @@ class SousModele(FichierXML):
         logger.debug("Writing %s in %s" % (self, folder))
 
         # Create folder if not existing
-        sm_folder = os.path.join(folder, folder_config, self.id.upper())
         if folder_config is not None:
+            sm_folder = os.path.join(folder, folder_config, self.id.upper())
             if not os.path.exists(sm_folder):
                 os.makedirs(sm_folder)
-
-        # Write xml files
-        self._write_dfrt(folder)
-        self._write_drso(folder)
-        self._write_dptg(folder)
-        self._write_dcsp(folder)
-
-        if folder_config is not None:
             if self.noeuds:
                 self._write_shp_noeuds(sm_folder)
             if self.branches:
@@ -683,6 +675,12 @@ class SousModele(FichierXML):
                 self._write_shp_traces_sections(sm_folder)
             if self.casiers:
                 self._write_shp_casiers(sm_folder)
+
+        # Write xml files
+        self._write_dfrt(folder)
+        self._write_drso(folder)
+        self._write_dptg(folder)
+        self._write_dcsp(folder)
 
     def set_section(self, section):
         check_isinstance(section, Section)

@@ -81,7 +81,8 @@ sous_modele.ajouter_section(section1_av)
 
 section2_am = SectionProfil('St_2_Am')
 section2_am.set_xz(np.array([(0, 3), (1, 0.5), (5, 0), (9, 0.5), (10, 3)]))
-section2_am.ajouter_limite_geom(LimiteGeom('Et_AxeHyd', 5.0))
+section2_am.ajouter_limite_geom(LimiteGeom(LimiteGeom.AXE_HYDRAULIQUE, 5.0))
+section2_am.ajouter_limite_geom(LimiteGeom(LimiteGeom.THALWEG, 5.0))
 section2_am.set_lits_numerotes((0.0, 0.0, 1.0, 9.0, 10.0, 10.0))
 # section2_am.set_geom_trace(LineString(...))
 section2_am.build_orthogonal_trace(axe_geom)
@@ -137,12 +138,14 @@ sous_modele.ajouter_section(section20_av)
 
 # Add branches
 branche1 = BranchePdC('Br_1-PdC', noeud1, noeud2)
-# branche1.set_geom(LineString([(0, 100), (0, 90)]))  # this is already the default behaviour
+# Below is already the default behaviour (straight line from noeud1 to noeud2):
+# branche1.set_geom(LineString([(0, 100), (0, 90)]))
 branche1.ajouter_section_dans_branche(section1_am, 0.0)
 branche1.ajouter_section_dans_branche(section1_av, 11.0)  # => branche1.length = 11 m
 sous_modele.ajouter_branche(branche1)
 
 branche2 = BrancheSeuilTransversal('Br_2-SeuilTransversal', noeud2, noeud4)
+branche2.set_liste_elements_seuil_avec_coeff_par_defaut(np.array([(10.0, -2.0), (5.0, -1.75), (6.8, 0.2)]))
 branche2.ajouter_section_dans_branche(section2_am, 0.0)
 branche2.ajouter_section_dans_branche(section2_av, 10.1)
 sous_modele.ajouter_branche(branche2)

@@ -13,8 +13,20 @@
     <DonCalcSansPrtBrancheSeuilTransversal NomRef="Br_2-SeuilTransversal">
       <FormulePdc>Borda</FormulePdc>
       <ElemSeuilAvecPdc>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
+        <Largeur>10.0</Largeur>
+        <Zseuil>-2.0</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>5.0</Largeur>
+        <Zseuil>-1.75</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>6.8</Largeur>
+        <Zseuil>0.2</Zseuil>
         <CoefD>1.0</CoefD>
         <CoefPdc>1.0</CoefPdc>
       </ElemSeuilAvecPdc>

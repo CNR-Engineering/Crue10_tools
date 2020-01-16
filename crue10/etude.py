@@ -1,4 +1,5 @@
 # coding: utf-8
+from builtins import super  # Python2 fix
 from collections import OrderedDict
 from io import open  # Python2 fix
 import os.path
