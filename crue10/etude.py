@@ -1,16 +1,15 @@
 # coding: utf-8
 from collections import OrderedDict
 from io import open  # Python2 fix
-from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
 
+from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
-from crue10.utils import add_default_missing_metadata, check_isinstance, ExceptionCrue10, JINJA_ENV, \
-    logger, PREFIX, XSD_FOLDER
+from crue10.utils import check_isinstance, ExceptionCrue10, JINJA_ENV, logger, PREFIX
 from crue10.utils.settings import XML_ENCODING
 
 
@@ -22,16 +21,13 @@ def read_metadata(elt, keys):
     return metadata
 
 
-class Etude:
+class Etude(FichierXML):
     """
     Crue10 etude
-    - etu_path <str>: path to etu.xml file
     - access <str>: 'r' to read and 'w' to write
     - folders <{str}>: dict with folders (keys correspond to `FOLDERS` list)
     - filename_list <[str]>: list of xml file names
-    - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
     - nom_scenario_courant <str>: current scenario identifier
-    - comment <str>: information describing current etude
     - scenarios <{str: Scenario}>: dict with scneario name and Scenario object
     - modeles <{str: Modele}>: dict with modele name and Modele object
     - liste_sous_modeles <{str: SousModele}>: dict with sous_modele name and SousModele object
@@ -39,14 +35,17 @@ class Etude:
 
     FOLDERS = OrderedDict([('CONFIG', 'Config'), ('FICHETUDES', '.'),
                            ('RAPPORTS', 'Rapports'), ('RUNS', 'Runs')])
-    XML_FILES = Scenario.FILES_XML + Modele.FILES_XML + SousModele.FILES_XML
+    FILES_XML = ['etu']
+    SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + SousModele.FILES_XML
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
     def __init__(self, etu_path, folders=None, access='r', metadata=None, comment=''):
         """
         :param etu_path: Crue10 etude file (etu.xml format)
         """
-        self.etu_path = etu_path
+        files = {'etu': etu_path} if access == 'r' else None
+        super().__init__(access, files, metadata)
+        self.files['etu'] = etu_path  # FIXME: hack to overwrite the special key 'etu'
         self.access = access
         if folders is None:
             self.folders = Etude.FOLDERS
@@ -57,15 +56,12 @@ class Etude:
                 raise NotImplementedError
             self.folders = folders
         self.filename_list = []
-        self.metadata = {} if metadata is None else metadata
         self.nom_scenario_courant = ''
-        self.comment = comment
+        self.set_comment(comment)
 
         self.scenarios = OrderedDict()
         self.modeles = OrderedDict()
         self.sous_modeles = OrderedDict()
-
-        self.metadata = add_default_missing_metadata(self.metadata, Etude.METADATA_FIELDS)
 
         if access == 'r':
             self._read_etu()
@@ -75,8 +71,12 @@ class Etude:
             raise NotImplementedError
 
     @property
+    def etu_path(self):
+        return self.files['etu']
+
+    @property
     def folder(self):
-        return os.path.dirname(self.etu_path)
+        return os.path.abspath(os.path.dirname(self.etu_path))
 
     def _read_etu(self):
         root = ET.parse(self.etu_path).getroot()
@@ -96,7 +96,7 @@ class Etude:
         # FichEtudes
         elt_fichiers = root.find(PREFIX + 'FichEtudes')
         for elt_fichier in elt_fichiers:
-            if elt_fichier.get('Type').lower() in Etude.XML_FILES:  # Ignore Crue9 files
+            if elt_fichier.get('Type').lower() in Etude.SUB_FILES_XML:  # Ignore Crue9 files
                 if elt_fichier.get('Chemin') != '.\\':
                     raise NotImplementedError
                 self.filename_list.append(os.path.join(folder, elt_fichier.get('Nom')))
@@ -303,26 +303,10 @@ class Etude:
             raise ExceptionCrue10("Le sous-modèle %s n'existe pas  !\nLes noms possibles sont: %s"
                                   % (nom_sous_modele, list(self.sous_modeles.keys())))
 
-    def check_xml_files(self):
+    def check_xml_files(self, folder=None):
         errors = {}
-        for file in self.filename_list:
-            errors[file] = []
-            file_splitted = file.split('.')
-            if len(file_splitted) > 2:
-                xml_type = file_splitted[-2]
-                xsd_tree = etree.parse(os.path.join(XSD_FOLDER, '%s-1.2.xsd' % xml_type))
-
-                with open(file, 'r', encoding='utf-8') as in_xml:
-                    content = '\n'.join(in_xml.readlines())
-                    xmlschema = etree.XMLSchema(xsd_tree)
-                    try:
-                        xml_tree = etree.fromstring(content)
-                        try:
-                            xmlschema.assertValid(xml_tree)
-                        except etree.DocumentInvalid as e:
-                            errors[file].append('Invalid XML: %s' % e)
-                    except etree.XMLSyntaxError as e:
-                        errors[file].append('Error XML: %s' % e)
+        for file_path in self.filename_list:
+            errors[file_path] = self._check_xml_file(file_path)
         return errors
 
     def summary(self):

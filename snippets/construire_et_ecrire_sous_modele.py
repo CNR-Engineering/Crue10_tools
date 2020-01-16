@@ -11,12 +11,9 @@ from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import LimiteGeom, SectionIdem, SectionProfil, SectionSansGeometrie
 from crue10.sous_modele import SousModele
-from crue10.utils import logger
-
-logger.setLevel(logging.DEBUG)
 
 
-# Build a sous_modele
+# Build a submodel
 sous_modele = SousModele('Sm_fromscratch', access='w')
 sous_modele.ajouter_lois_frottement_par_defaut()
 
@@ -64,7 +61,10 @@ sous_modele.ajouter_noeud(noeud_aval)
 
 # Add a casier
 casier = Casier('Ca_1', noeud1)
-casier.ajouter_profil_casier(ProfilCasier('Pc_' + casier.id[3:] + '_001'))
+profil_casier = ProfilCasier('Pc_' + casier.id[3:] + '_001')
+profil_casier.set_longueur(10.0)
+profil_casier.set_xz(np.array([(0, 0), (10, 1.5), (30, 3.0)]))
+casier.ajouter_profil_casier(profil_casier)
 casier.set_geom(LinearRing([(-4, 96), (4, 96), (4, 104), (-4, 104)]))
 sous_modele.ajouter_casier(casier)
 
@@ -81,8 +81,9 @@ sous_modele.ajouter_section(section1_av)
 
 section2_am = SectionProfil('St_2_Am')
 section2_am.set_xz(np.array([(0, 3), (1, 0.5), (5, 0), (9, 0.5), (10, 3)]))
-section2_am.add_limite_geom(LimiteGeom('Et_AxeHyd', 5.0))
+section2_am.ajouter_limite_geom(LimiteGeom('Et_AxeHyd', 5.0))
 section2_am.set_lits_numerotes((0.0, 0.0, 1.0, 9.0, 10.0, 10.0))
+# section2_am.set_geom_trace(LineString(...))
 section2_am.build_orthogonal_trace(axe_geom)
 sous_modele.ajouter_section(section2_am)
 
@@ -125,7 +126,7 @@ sous_modele.ajouter_section(section20_am)
 section20_middle = SectionProfil('St_20_middle')
 section20_middle.set_xz(np.array([(0, 3), (1, 0.5), (5, 0), (9, 0.5), (10, 3)]))
 section20_middle.ajouter_fente(0.15, 15)
-section20_middle.add_limite_geom(LimiteGeom('Et_AxeHyd', 5.0))
+section20_middle.ajouter_limite_geom(LimiteGeom('Et_AxeHyd', 5.0))
 section20_middle.set_lits_numerotes((0.0, 0.0, 1.0, 9.0, 10.0, 10.0))
 section20_middle.build_orthogonal_trace(axe_geom)
 sous_modele.ajouter_section(section20_middle)
@@ -186,5 +187,14 @@ sous_modele.ajouter_branche(branche20)
 
 
 if __name__ == "__main__":
+    from crue10.utils import logger
+
+    folder = os.path.join('out', 'Sm_from_scratch')
+
     # Write all submodel files
-    sous_modele.write_all(os.path.join('out', 'Sm_from_scratch'), 'Config')
+    sous_modele.write_all(folder, 'Config')
+
+    # Perform some checks
+    logger.info('Etapes de validation')
+    sous_modele.log_validation()  # could be called before `write_all`
+    sous_modele.log_check_xml(folder)  # has to be called after `write_all`

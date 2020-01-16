@@ -103,13 +103,13 @@ class Modele(FichierXML):
     def get_liste_noeuds(self):
         noeuds = []
         for sous_modele in self.liste_sous_modeles:
-            noeuds += [noeud for _, noeud in sous_modele.noeuds.items()]
+            noeuds += sous_modele.get_liste_noeuds()
         return noeuds
 
     def get_liste_casiers(self):
         casiers = []
         for sous_modele in self.liste_sous_modeles:
-            casiers += [casier for _, casier in sous_modele.casiers.items()]
+            casiers += sous_modele.get_liste_casiers()
         return casiers
 
     def get_liste_sections(self, ignore_inactive=False):

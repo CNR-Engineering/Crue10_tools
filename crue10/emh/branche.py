@@ -135,6 +135,8 @@ class Branche(ABC):
 
     def set_geom(self, geom):
         check_isinstance(geom, LineString)
+        if geom.has_z:
+            raise ExceptionCrue10("La géométrie de la %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
     def shift_sectionprofil_to_extremity(self):
@@ -157,7 +159,7 @@ class Branche(ABC):
                 if isinstance(section_point, Point):
                     dx = node.x - section_point.x
                     dy = node.y - section_point.y
-                    self.liste_sections_dans_branche[pos].set_trace(
+                    self.liste_sections_dans_branche[pos].set_geom_trace(
                         translate(section.geom_trace, xoff=dx, yoff=dy))
 
     def normalize_sections_xp(self):
@@ -176,6 +178,16 @@ class Branche(ABC):
             except ZeroDivisionError:
                 section.xp = (i / (len(self.liste_sections_dans_branche) - 1)) * length
 
+    def validate(self):
+        errors = []
+        if len(self.id) > 32:  # valid.nom.tooLong.short
+            errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))
+        if len(self.liste_sections_dans_branche) < 2:  # validation.brancheMustContain2Sections
+            errors.append((self, "La branche doit contenir au moins 2 sections"))
+            if self.get_section_amont().xp != 0.0:  # validation.branche.firstSectionMustBeAmont
+                errors.append((self, "La Section de position Amont doit avoir une abscisse nulle."))
+        return errors
+
     def __repr__(self):
         return "Branche [%i] #%s: %s -> %s (%i sections)" % (self.type, self.id, self.noeud_amont, self.noeud_aval,
                                                              len(self.liste_sections_dans_branche))
@@ -183,7 +195,7 @@ class Branche(ABC):
 
 class BranchePdC(Branche):
     """
-    BrancheSaintVenant - #1
+    BranchePdC - #1
     - loi_QPdc
     - comment_loi <str>: commentaire loi
     """
@@ -306,6 +318,12 @@ class BrancheBarrageGenerique(Branche):
     def name_loi_QpilZam(self):
         return 'LoiQpilZam_%s' % self.id[3:]
 
+    def validate(self):
+        errors = super().validate()
+        if self.section_pilote is None:  # validation.branche.mustContainSectionPilote
+            errors.append((self, "La branche doit contenir une Section pilote."))
+        return errors
+
 
 class BrancheBarrageFilEau(Branche):
     """
@@ -330,6 +348,12 @@ class BrancheBarrageFilEau(Branche):
     def name_loi_QZam(self):
         return 'LoiQpilZam_%s' % self.id[3:]
 
+    def validate(self):
+        errors = super().validate()
+        if self.section_pilote is None:  # validation.branche.mustContainSectionPilote
+            errors.append((self, "La branche doit contenir une Section pilote."))
+        return errors
+
 
 class BrancheSaintVenant(Branche):
     """
@@ -348,6 +372,14 @@ class BrancheSaintVenant(Branche):
         self.CoefBeta = 1.0
         self.CoefRuis = 0.0
         self.CoefRuisQdm = 0.0
+
+    def validate(self):
+        errors = super().validate()
+        for section1, section2 in zip(self.liste_sections_dans_branche, self.liste_sections_dans_branche[1:]):
+            if section1.xp >= section2.xp:
+                errors.append((self, "Les abscisses ne sont pas strictement croissantes entre %s et %s"
+                               % (section1.id, section2.id)))
+        return errors
 
 
 BRANCHE_CLASSES = [BranchePdC, BrancheSeuilTransversal, BrancheSeuilLateral, BrancheOrifice, BrancheStrickler,

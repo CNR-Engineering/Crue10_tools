@@ -14,7 +14,8 @@ from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, logger, PREFIX
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, \
+    logger, PREFIX
 
 
 def parse_loi(elt, group='EvolutionFF', line='PointFF'):
@@ -72,7 +73,7 @@ class SousModele(FichierXML):
 
     def __init__(self, nom_sous_modele, access='r', files=None, metadata=None):
         """
-        :param nom_sous_modele: sous_modele name
+        :param nom_sous_modele: nom du sous-modèle
         """
         check_preffix(nom_sous_modele, 'Sm_')
         self.id = nom_sous_modele
@@ -102,8 +103,8 @@ class SousModele(FichierXML):
         if isinstance(section, SectionProfil):
             for lit in section.lits_numerotes:
                 if lit.loi_frottement.id not in self.lois_frottement:
-                    raise ExceptionCrue10("La loi de frottement %s de la section `%s` doit être ajoutée au sous-modèle avant"
-                                          % (lit.loi_frottement.id, section.id))
+                    raise ExceptionCrue10("La loi de frottement %s de la section `%s` doit être"
+                                          " ajoutée au sous-modèle avant" % (lit.loi_frottement.id, section.id))
         self.sections[section.id] = section
 
     def ajouter_branche(self, branche):
@@ -111,10 +112,10 @@ class SousModele(FichierXML):
         if branche.id in self.branches:
             raise ExceptionCrue10("La branche `%s` est déjà présente" % branche.id)
         if branche.noeud_amont.id not in self.noeuds:
-            raise ExceptionCrue10("Le noeud_reference amont %s de la branche `%s` doit être ajouté au sous-modèle avant"
+            raise ExceptionCrue10("Le noeud amont %s de la branche `%s` doit être ajouté au sous-modèle avant"
                                   % (branche.noeud_amont.id, branche.id))
         if branche.noeud_aval.id not in self.noeuds:
-            raise ExceptionCrue10("Le noeud_reference aval %s de la branche `%s` doit être ajouté au sous-modèle avant"
+            raise ExceptionCrue10("Le noeud aval %s de la branche `%s` doit être ajouté au sous-modèle avant"
                                   % (branche.noeud_aval.id, branche.id))
         self.branches[branche.id] = branche
 
@@ -200,6 +201,12 @@ class SousModele(FichierXML):
 
     def get_liste_sections_sans_geometrie(self):
         return self.get_liste_sections(section_type=SectionSansGeometrie)
+
+    def get_liste_noeuds(self):
+        return [section for _, section in self.noeuds.items()]
+
+    def get_liste_casiers(self):
+        return [casier for _, casier in self.casiers.items()]
 
     def get_liste_branches(self, filter_branch_types=None):
         branches = []
@@ -355,7 +362,7 @@ class SousModele(FichierXML):
                     nom_profil_casier = emh.get('Nom')
                     profil_casier = self.profils_casier[nom_profil_casier]
                     profil_casier.comment = get_optional_commentaire(emh)
-                    profil_casier.distance = float(emh.find(PREFIX + 'Longueur').text)
+                    profil_casier.set_longueur(float(emh.find(PREFIX + 'Longueur').text))
 
                     profil_casier.set_xz(parse_loi(emh))
 
@@ -378,7 +385,7 @@ class SousModele(FichierXML):
                         lit_id = lit_num_elt.find(PREFIX + 'LitNomme').text
                         xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
                         xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
-                        loi_frottement = self.lois_frottement[lit_num_elt.find(PREFIX + 'Frot').get('NomRef')]
+                        loi_frottement = self.get_loi_frottement(lit_num_elt.find(PREFIX + 'Frot').get('NomRef'))
                         section.ajouter_lit(LitNumerote(lit_id, xt_min, xt_max, loi_frottement))
 
                     etiquettes = emh.find(PREFIX + 'Etiquettes')
@@ -388,7 +395,7 @@ class SousModele(FichierXML):
                         for etiquette in etiquettes:
                             xt = float(etiquette.find(PREFIX + 'PointFF').text.split()[0])
                             limite = LimiteGeom(etiquette.get('Nom'), xt)
-                            section.add_limite_geom(limite)
+                            section.ajouter_limite_geom(limite)
 
                     section.set_xz(parse_loi(emh))
 
@@ -506,7 +513,7 @@ class SousModele(FichierXML):
                 geoms[nom_section] = LineString(coords)
         for section in self.get_liste_sections(section_type=SectionProfil):
             try:
-                section.set_trace(geoms[section.id])
+                section.set_geom_trace(geoms[section.id])
             except KeyError:
                 branche = self.get_connected_branche(section.id)
                 if branche is None:
@@ -655,11 +662,6 @@ class SousModele(FichierXML):
     def write_all(self, folder, folder_config=None):
         logger.debug("Writing %s in %s" % (self, folder))
 
-        # TO CHECK:
-        # - Casier has at least one ProfilCasier
-        # - BrancheBarrage* has a section_pilote
-        # ...
-
         # Create folder if not existing
         sm_folder = os.path.join(folder, folder_config, self.id.upper())
         if folder_config is not None:
@@ -793,8 +795,24 @@ class SousModele(FichierXML):
         for _, casier in sous_modele.casiers.items():
             self.ajouter_casier(casier)
 
+    def validate(self):
+        """Check some rules for Crue10"""
+        errors = []
+        for emh in self.get_liste_noeuds() + self.get_liste_casiers() + self.get_liste_sections() + \
+                self.get_liste_branches():
+            errors += emh.validate()
+        return errors
+
+    def log_validation(self):
+        errors = self.validate()
+        if errors:
+            for nom_emh, message in errors:
+                logger.warning('    - %s: %s' % (nom_emh, message))
+        else:
+            logger.info("=> Pas de problème de validation (pour %s)" % self)
+
     def summary(self):
-        return "%s: %i noeud_reference(s), %i branche(s), %i section(s) (%i profil + %i idem + %i interpolee +" \
+        return "%s: %i noeud(s), %i branche(s), %i section(s) (%i profil + %i idem + %i interpolee +" \
                " %i sans géométrie), %i casier(s) (%i profil(s) casier)" % (
                    self, len(self.noeuds), len(self.branches), len(self.sections),
                    len(list(self.get_liste_sections_profil())), len(list(self.get_liste_sections_item())),

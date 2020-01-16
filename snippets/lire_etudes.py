@@ -20,10 +20,14 @@ OK (sauf copie manquante des fichiers orphelins)
 (Sur Windows ou Python2 sur Linux: drso: some Xp are truncated)
 """
 from glob import glob
+import logging
 import os.path
 
 from crue10.etude import Etude
 from crue10.utils import ExceptionCrue10, logger
+
+
+logger.setLevel(logging.INFO)
 
 
 for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests', '*')):

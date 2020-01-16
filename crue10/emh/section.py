@@ -131,6 +131,12 @@ class Section(ABC):
         self.CoefDiv = 0.0
         self.comment = ''
 
+    def validate(self):
+        errors = []
+        if len(self.id) > 32:  # valid.nom.tooLong.short
+            errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))
+        return errors
+
     def __repr__(self):
         return '%s #%s' % (self.__class__.__name__, self.id)
 
@@ -175,7 +181,7 @@ class SectionProfil(Section):
         for limite in self.limites_geom:
             if limite.id == 'Et_AxeHyd':
                 return limite.xt
-        raise ExceptionCrue10("Limite 'Et_AxeHyd' could not be found for %s" % self)
+        raise ExceptionCrue10("La limite 'Et_AxeHyd' n'existe pas pour %s" % self)
 
     @property
     def is_avec_fente(self):
@@ -190,7 +196,7 @@ class SectionProfil(Section):
         check_isinstance(array, np.ndarray)
         self.xz = array
 
-    def set_trace(self, trace):
+    def set_geom_trace(self, trace):
         check_isinstance(trace, LineString)
         if trace.has_z:
             raise ExceptionCrue10("La trace de la %s ne doit pas avoir de Z !" % self)
@@ -206,8 +212,10 @@ class SectionProfil(Section):
 
     def ajouter_fente(self, largeur, profondeur):
         """Adds (or replaces if already exists) fente width and depth"""
-        assert largeur > 0
-        assert profondeur > 0
+        if largeur <= 0:
+            raise ExceptionCrue10("La largeur de fente doit être strictement positive")
+        if profondeur <= 0:
+            raise ExceptionCrue10("La profondeur de fente doit être strictement positive")
         self.largeur_fente = largeur
         self.profondeur_fente = profondeur
 
@@ -228,7 +236,7 @@ class SectionProfil(Section):
             raise ExceptionCrue10("Le lit numéroté `%s` est déjà présent" % lit_numerote.id)
         self.lits_numerotes.append(lit_numerote)
 
-    def add_limite_geom(self, limite_geom):
+    def ajouter_limite_geom(self, limite_geom):
         check_isinstance(limite_geom, LimiteGeom)
         if limite_geom.id in self.limites_geom:
             raise ExceptionCrue10("La limite géométrique `%s` est déjà présente" % limite_geom.id)
@@ -239,7 +247,7 @@ class SectionProfil(Section):
 
     def interp_point(self, xt):
         if not self.lits_numerotes:
-            raise ExceptionCrue10('lits_numerotes has to be set before')
+            raise ExceptionCrue10('Les lits numerotés doivent être définis au préalable')
         xt_line = xt - self.lits_numerotes[0].xt_min
         diff = xt_line - self.geom_trace.length
         if diff > DISTANCE_TOL:
@@ -286,6 +294,24 @@ class SectionProfil(Section):
             coeff[bed_pos] = lit.loi_frottement.loi_Fk[:, 1].mean()
         return coeff
 
+    def get_premier_lit_numerote(self, nom):
+        for lit in self.lits_numerotes:
+            if lit.id == nom:
+                return lit
+        raise ExceptionCrue10("Aucun lit `%s` pour la %s" % (nom, self))
+
+    def get_dernier_lit_numerote(self, nom):
+        for lit in reversed(self.lits_numerotes):
+            if lit.id == nom:
+                return lit
+        raise ExceptionCrue10("Aucun lit `%s` pour la %s" % (nom, self))
+
+    def get_limite_geom(self, nom):
+        for limite in self.limites_geom:
+            if limite.id == nom:
+                return limite
+        raise ExceptionCrue10("La limite `%s` n'exsite pas pour la %s" % (nom, self))
+
     def has_xz(self):
         return self.xz is not None
 
@@ -316,6 +342,62 @@ class SectionProfil(Section):
                 xt_list.append(lit1.xt_max)
         xt_list.append(self.lits_numerotes[-1].xt_min)
         self.set_lits_numerotes(xt_list)
+
+    def validate(self):
+        """
+        TODO: validate.thalweg.NotInLitMineur, validate.etiquette.definedSeveralTimes
+        """
+        errors = super().validate()
+
+        # Lits numérotés
+        if len(self.lits_numerotes) == 0:
+            errors.append((self, "Aucun LitNumerote"))  # io.dptg.convert.noLit.error
+        else:
+            for nom_lit in LitNumerote.BED_NAMES:
+                try:
+                    self.get_premier_lit_numerote(nom_lit)
+                except ExceptionCrue10:
+                    errors.append((self, 'le LitNumerote `%s` manque' % nom_lit))
+            for lit in self.lits_numerotes:
+                if lit.xt_min not in self.xz[:, 0]:  # validate.lit.limDebNotFound
+                    errors.append((self, "LitNumerote %s: la limite de d\u00e9but n'est pas un point du profil."
+                                   % lit.id))
+                if lit.xt_min > lit.xt_max:  # validate.lit.limFinMustBeGreatedThanLitDeb
+                    errors.append((self, "LitNumerote %s: la limite de fin est inf\u00e9rieure \u00e0"
+                                         " la limite de d\u00e9but" % lit.id))
+                if lit.xt_max not in self.xz[:, 0]:  # validate.lit.limFinNotFound
+                    errors.append((self, "LitNumerote %s: la limite de fin n'est pas un point du profil."
+                                   % lit.id))
+                if set([lit.id for lit in self.lits_numerotes]) != set(LitNumerote.BED_NAMES):
+                    # profil.editionValidation.order.error
+                    errors.append((self, "L''ordre de LitNomme n''est pas valide. Attendu: %s"
+                                   % LitNumerote.BED_NAMES))
+
+        # Cas particulier du lit mineur
+        try:
+            premier_lit_mineur = self.get_premier_lit_numerote('Lt_Mineur')
+            dernier_lit_mineur = self.get_dernier_lit_numerote('Lt_Mineur')
+            mineur_deb, mineur_fin = premier_lit_mineur.xt_min, dernier_lit_mineur.xt_max
+            if mineur_deb >= mineur_fin:
+                errors.append((self, "Le lit mineur est de dimension nulle"))  # validate.lit.litMineurNull
+        except ExceptionCrue10:
+            pass  # validate.lit.litMineurNotFound est un cas particulier vu avant
+
+        # Limites géométriques
+        try:
+            limite_axe = self.get_limite_geom('Et_AxeHyd')
+            try:
+                if not(self.get_premier_lit_numerote('Lt_Mineur').xt_min <= limite_axe.xt <=
+                       self.get_dernier_lit_numerote('Lt_Mineur').xt_max):
+                    # validate.axeHyd.NotInLitMineur
+                    errors.append((self, "L'axe hydraulique n'appartient pas au lit mineur"))
+            except ExceptionCrue10:
+                pass  # Lit numéroté mineur manque, déjà reporté plus haut
+
+        except ExceptionCrue10:
+            errors.append((self, "L'axe hydraulique n'est pas défini"))
+
+        return errors
 
     def summary(self):
         text = '%s:' % self

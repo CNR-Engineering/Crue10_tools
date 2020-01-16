@@ -58,13 +58,16 @@ class ProfilCasier:
     def __init__(self, nom_profil_casier):
         check_preffix(nom_profil_casier, 'Pc_')
         self.id = nom_profil_casier
-        self.distance = 0.0
+        self.longueur = 0.0
         self.xz = None
         self.xt_min = -1.0
         self.xt_max = -1.0
         self.comment = ''
 
         self.set_xz(ProfilCasier.DEFAULT_COORDS)
+
+    def set_longueur(self, longueur):
+        self.longueur = longueur
 
     def set_xz(self, array):
         check_isinstance(array, np.ndarray)
@@ -83,11 +86,11 @@ class ProfilCasier:
         return get_negative_area(self.xz[:, 0], self.xz[:, 1] - z)
 
     def compute_volume(self, z):
-        return self.compute_surface(z) * self.distance
+        return self.compute_surface(z) * self.longueur
 
     def __str__(self):
-        return "ProfilCasier #%s: distance = %f m, Z dans [%f, %f]" \
-               % (self.id, self.distance, self.xz[:, 1].min(), self.xz[:, 1].max())
+        return "ProfilCasier #%s: longueur = %f m, Z dans [%f, %f]" \
+               % (self.id, self.longueur, self.xz[:, 1].min(), self.xz[:, 1].max())
 
 
 class Casier:
@@ -116,17 +119,17 @@ class Casier:
     def set_geom(self, geom):
         check_isinstance(geom, LinearRing)
         if geom.has_z:
-            raise ExceptionCrue10("La trace du %s ne doit pas avoir de Z !" % self)
+            raise ExceptionCrue10("La géométrie du %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
     def ajouter_profil_casier(self, profil_casier):
         check_isinstance(profil_casier, ProfilCasier)
         self.profils_casier.append(profil_casier)
 
-    def sum_distances(self):
+    def somme_longueurs(self):
         distance = 0
         for profil_casier in self.profils_casier:
-            distance += profil_casier.distance
+            distance += profil_casier.longueur
         return distance
 
     def compute_volume(self, z):
@@ -136,7 +139,7 @@ class Casier:
         return volume
 
     def compute_surface(self, z):
-        return self.compute_volume(z) / self.sum_distances()
+        return self.compute_volume(z) / self.somme_longueurs()
 
     def fusion_profil_casiers(self):
         """Replace multiple ProfilCasiers by a combined ProfilCasier giving a similar volume law"""
@@ -157,14 +160,14 @@ class Casier:
             # Build a new ProfilCasier
             new_name = self.profils_casier[0].id
             new_profil_casier = ProfilCasier(new_name)
-            new_profil_casier.distance = self.sum_distances()
+            new_profil_casier.longueur = self.somme_longueurs()
 
             # Set its xz array
             new_xz = []
             xt = 0.0
             new_xz.append((xt, z_array_combine[0]))
             for i, (z1, z2, vol1, vol2) in enumerate(zip(z_array_combine, z_array_combine[1:], volumes, volumes[1:])):
-                xt = ((vol2 - vol1) / self.sum_distances()) / (z2 - z1)
+                xt = ((vol2 - vol1) / self.somme_longueurs()) / (z2 - z1)
                 new_xz.append((xt - DX, z1))
                 new_xz.append((xt, z2))
             new_profil_casier.set_xz(np.array(new_xz))
@@ -174,6 +177,13 @@ class Casier:
             self.ajouter_profil_casier(new_profil_casier)
         else:
             logger.debug("Le %s n'est pas fusionné car il a moins de 2 ProfilCasiers" % self)
+
+    def validate(self):
+        errors = []
+        if len(self.id) > 32:  # valid.nom.tooLong.short
+            errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))
+        #TODO: Casier has at least one ProfilCasier
+        return errors
 
     def __str__(self):
         return "Casier #%s" % self.id

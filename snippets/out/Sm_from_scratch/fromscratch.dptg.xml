@@ -4,15 +4,15 @@
   <DonPrtGeoProfilCasiers>
     <ProfilCasier Nom="Pc_1_001">
       <Commentaire></Commentaire>
-      <Longueur>0.0</Longueur>
+      <Longueur>10.0</Longueur>
       <EvolutionFF>
-        <PointFF>0 0</PointFF>
-        <PointFF>50 0</PointFF>
-        <PointFF>100 0</PointFF>
+        <PointFF>0.0 0.0</PointFF>
+        <PointFF>10.0 1.5</PointFF>
+        <PointFF>30.0 3.0</PointFF>
       </EvolutionFF>
       <LitUtile>
-        <LimDeb>0 0.0</LimDeb>
-        <LimFin>100 0.0</LimFin>
+        <LimDeb>0.0 0.0</LimDeb>
+        <LimFin>30.0 3.0</LimFin>
       </LitUtile>
     </ProfilCasier>
   </DonPrtGeoProfilCasiers>
