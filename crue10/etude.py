@@ -201,9 +201,9 @@ class Etude(FichierXML):
                     for run_elt in runs:
                         run_id = run_elt.get('Nom')
                         metadata = read_metadata(run_elt, Run.METADATA_FIELDS)
-                        run_mo_folder = os.path.join(self.folder, self.folders['RUNS'], scenario.id,
+                        run_mo_path = os.path.join(self.folder, self.folders['RUNS'], scenario.id,
                                                      run_id, scenario.modele.id)
-                        scenario.add_run(Run(run_mo_folder, metadata=metadata))
+                        scenario.add_run(Run(run_mo_path, metadata=metadata))
 
                 elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')
                 if elt_current_run is not None:
@@ -289,6 +289,11 @@ class Etude(FichierXML):
         except KeyError:
             raise ExceptionCrue10("Le scénario %s n'existe pas  !\nLes noms possibles sont: %s"
                                   % (scenario_name, list(self.scenarios.keys())))
+
+    def get_scenario_courant(self):
+        if self.nom_scenario_courant:
+            return self.get_scenario(self.nom_scenario_courant)
+        raise ExceptionCrue10("Aucun scénario courant n'est défini dans l'étude")
 
     def get_modele(self, nom_modele):
         try:

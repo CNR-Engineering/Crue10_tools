@@ -8,7 +8,7 @@ import subprocess
 from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger, \
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger, PREFIX, \
     write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 
@@ -44,6 +44,14 @@ class Scenario(FichierXML):
         self.current_run_id = None
         self.runs = OrderedDict()
 
+    @property
+    def get_nb_calc_pseudoperm(self):
+        return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcPseudoPerm'))
+
+    @property
+    def get_nb_calc_trans(self):
+        return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcTrans'))
+
     def get_run(self, run_id):
         if not self.runs:
             raise ExceptionCrue10("Aucun run n'existe pour ce scénario")
@@ -52,6 +60,9 @@ class Scenario(FichierXML):
         except KeyError:
             raise ExceptionCrue10("Le run %s n'existe pas !\nLes noms possibles sont: %s"
                                   % (run_id, list(self.runs.keys())))
+
+    def get_liste_run_ids(self):
+        return [run_id for run_id, _ in self.runs.items()]
 
     def set_modele(self, model):
         check_isinstance(model, Modele)
@@ -74,13 +85,20 @@ class Scenario(FichierXML):
             raise ExceptionCrue10("Le Run '%s' n'existe pas" % run_id)
         self.current_run_id = run_id
 
-    def remove_run(self, run_id, run_folder):
+    def remove_run(self, run_id):
+        run_path = os.path.join(self.runs[run_id].run_mo_path, '..')
+        logger.debug("Suppression du Run #%s (%s)" % (run_id, run_path))
         del self.runs[run_id]
-        run_folder = os.path.join(run_folder, self.id, run_id)
-        if os.path.exists(run_folder):
-            shutil.rmtree(run_folder)
+        if os.path.exists(run_path):
+            shutil.rmtree(run_path)
 
-    def create_and_launch_new_run(self, study, run_id=None, comment='', force=False):
+    def remove_all_runs(self):
+        """Suppression de tous les Runs existants"""
+        for run_id in self.get_liste_run_ids():
+            run = self.get_run(run_id)
+            self.remove_run(run.id)
+
+    def create_and_launch_new_run(self, etude, run_id=None, comment='', force=False):
         """
         Create and launch a new run
              The instance of `etude` is modified but the original etu file not overwritten
@@ -101,36 +119,36 @@ class Scenario(FichierXML):
         # Create a Run instance
         if run_id is None:
             run_id = get_run_identifier()
-        run_folder = os.path.join(study.folder, study.folders['RUNS'], self.id, run_id)
+        run_folder = os.path.join(etude.folder, etude.folders['RUNS'], self.id, run_id)
         run = Run(os.path.join(run_folder, self.modele.id), metadata={'Commentaire': comment})
         if not force:
             if os.path.exists(run_folder):
                 raise ExceptionCrue10("Le dossier du run existe déjà. "
-                                "Utilisez l'argument force=True si vous souhaitez le supprimer")
-        if run.id in self.runs:
-            self.remove_run(run.id, run_folder)
+                                      "Utilisez l'argument force=True si vous souhaitez le supprimer")
+        elif run.id in self.runs:
+            self.remove_run(run.id)
         self.add_run(run)
         self.set_current_run_id(run.id)
 
         # Update etude attributes
-        study.current_scenario_id = self.id
+        etude.current_scenario_id = self.id
 
         # Write files and create folder is necessary
         logger.debug("Écriture de %s dans %s" % (run, run_folder))
         mo_folder = os.path.join(run_folder, self.modele.id)
         self.write_all(run_folder, folder_config=None, write_model=False)
         self.modele.write_all(mo_folder, folder_config=None)
-        study.write_etu(run_folder)
+        etude.write_etu(run_folder)
 
         # Run crue10.exe in command line and redirect stdout and stderr in csv files
-        etu_path = os.path.join(run_folder, os.path.basename(study.etu_path))
+        etu_path = os.path.join(run_folder, os.path.basename(etude.etu_path))
         cmd_list = [CRUE10_EXE_PATH] + CRUE10_EXE_OPTS + [etu_path]
         logger.info("Éxécution : %s" % ' '.join(cmd_list))
         with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
             with open(os.path.join(run_folder, 'stderr.csv'), "w") as err_csv:
                 exit_code = subprocess.call(cmd_list, stdout=out_csv, stderr=err_csv)
                 logger.debug("Exit status = %i" % exit_code)
-        return run.id
+        return run
 
     def write_all(self, folder, folder_config=None, write_model=True):
         logger.debug("Écriture de %s dans %s" % (self, folder))

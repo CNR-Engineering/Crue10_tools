@@ -2,6 +2,7 @@
 A script to check that all snippets execute properly
 """
 
+import snippets.caleur_loi_QZam_br15.py
 import snippets.fusion_profil_casiers
 import snippets.post_crue_VS
 import snippets.lire_modele

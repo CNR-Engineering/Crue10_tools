@@ -3,8 +3,9 @@
 Classes for branches (or river reaches) in minor and major beds:
 - Branche
     - 1 = BranchePdc
-    - 2 = BrancheSeuilTransversal
-    - 4 = BrancheSeuilLateral
+    - BrancheAvecElementsSeuil
+        - 2 = BrancheSeuilTransversal
+        - 4 = BrancheSeuilLateral
     - 5 = BrancheOrifice
     - 6 = BrancheStrickler
     - 12 = BrancheNiveauxAssocies
@@ -377,6 +378,15 @@ class BrancheBarrageFilEau(Branche):
     @property
     def name_loi_QZam(self):
         return 'LoiQpilZam_%s' % self.id[3:]
+
+    def set_loi_QZam(self, loi_QZam):
+        if loi_QZam.shape[0] < 1:
+            raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
+        if loi_QZam.shape[1] != 2:
+            raise ExceptionCrue10("Il faut exactement 2 valeurs pour axis=1")
+        if any(x >= y for x, y in zip(loi_QZam[:, 0], loi_QZam[1:, 0])):
+            raise ExceptionCrue10("Les valeurs de Q ne sont pas strictement croissantes")
+        self.loi_QZam = loi_QZam
 
     def validate(self):
         errors = super().validate()

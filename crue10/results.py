@@ -238,7 +238,7 @@ class RunResults:
         try:
             return self.variables[emh_type].index(varname)
         except ValueError:
-            raise ExceptionCrue10("La variable `%s` n'est pas disponible pour les %s" % (varname, emh_type.lower()))
+            raise ExceptionCrue10("La variable `%s` n'est pas disponible pour les %ss" % (varname, emh_type.lower()))
 
     def get_emh_position(self, emh_type, emh_name):
         try:

@@ -27,25 +27,25 @@ class Run:
 
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
-    def __init__(self, run_mo_folder, metadata=None):
-        self.id = os.path.basename(os.path.normpath(os.path.join(run_mo_folder, '..')))
-        self.mo_folder = run_mo_folder
+    def __init__(self, run_mo_run, metadata=None):
+        self.id = os.path.basename(os.path.normpath(os.path.join(run_mo_run, '..')))
+        self.run_mo_path = run_mo_run
         self.metadata = self.metadata = {} if metadata is None else metadata
         self.metadata = add_default_missing_metadata(self.metadata, Run.METADATA_FIELDS)
 
     def get_results(self):
         # Find list of rcal files
         rcal_path_list = []
-        if not os.path.exists(self.mo_folder):
-            raise ExceptionCrue10("Le dossier `%s` n'existe pas" % self.mo_folder)
-        for rcal_path in glob(os.path.join(self.mo_folder, '*.rcal.xml')):
+        if not os.path.exists(self.run_mo_path):
+            raise ExceptionCrue10("Le dossier `%s` n'existe pas" % self.run_mo_path)
+        for rcal_path in glob(os.path.join(self.run_mo_path, '*.rcal.xml')):
             rcal_path_list.append(rcal_path)
 
         # Check that only a single rcal file is found
         if len(rcal_path_list) == 0:
-            raise ExceptionCrue10("Aucun fichier rcal trouvé dans le dossier du run")
+            raise ExceptionCrue10("Aucun fichier rcal trouvé dans le dossier du %s" % self)
         elif len(rcal_path_list) > 1:
-            raise ExceptionCrue10("Plusieurs fichiers rcal trouvés dans le dossier du run")
+            raise ExceptionCrue10("Plusieurs fichiers rcal trouvés dans le dossier du %s" % self)
 
         return RunResults(rcal_path_list[0])
 
