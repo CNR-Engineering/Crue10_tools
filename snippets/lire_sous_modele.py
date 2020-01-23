@@ -7,14 +7,24 @@ import sys
 
 from crue10.utils import ExceptionCrue10, logger
 from crue10.emh.section import LitNumerote
+from crue10.sous_modele import SousModele
 from crue10.etude import Etude
 
 
 try:
-    # Get sous_modele
-    study = Etude(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
-                               'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
-    sous_modele = study.get_sous_modele('Sm_BE2016_etatref')
+    dossier = os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests', 'Etu_BE2016_conc')
+    nom_sous_modele = 'Sm_BE2016_etatref'
+    if False:
+        # Get sous_modele from a study
+        study = Etude(os.path.join(dossier, 'Etu_BE2016_conc.etu.xml'))
+        sous_modele = study.get_sous_modele(nom_sous_modele)
+    else:
+        # Get sous_modele directly from a dict containing path to xml/shp files
+        files = {xml: os.path.join(dossier, nom_sous_modele[3:] + '.' + xml + '.xml')
+                 for xml in SousModele.FILES_XML}
+        for shp_name in SousModele.FILES_SHP:
+            files[shp_name] = os.path.join(dossier, 'Config', nom_sous_modele.upper(), shp_name + '.shp')
+        sous_modele = SousModele(nom_sous_modele, access='r', files=files, metadata=None)
     sous_modele.read_all()
 
     # Do something with `sous_modele`...

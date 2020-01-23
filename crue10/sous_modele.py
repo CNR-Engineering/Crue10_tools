@@ -461,7 +461,7 @@ class SousModele(FichierXML):
                         branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
                         branche.liste_elements_seuil = parse_elem_seuil(emh, with_pdc=False)
                         regime_denoye_elt = emh.find(PREFIX + 'RegimeDenoye')
-                        branche.loi_QZam = parse_loi(regime_denoye_elt)
+                        branche.set_loi_QZam(parse_loi(regime_denoye_elt))
                         branche.comment_denoye = get_optional_commentaire(regime_denoye_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSaintVenant':

@@ -21,7 +21,7 @@ class Run:
     """
     Run
     - id: run identifier corresponding to folder name
-    - mo_folder <str>: path to run modele folder
+    - run_mo_path <str>: path to the folder of the model (corresponds to the longest path)
     - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
     """
 
