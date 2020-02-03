@@ -68,15 +68,9 @@ while True:
     print('Lecture du run %s' % run.id)
 
     # Exploitation des résultats
-    try:
-        results = run.get_results()
-        if results.nb_errors > 0:
-            raise ExceptionCrue10("Erreur pour le %s" % run)
-    except ExceptionCrue10 as e:  #FIXME: un plantage du calcul ne devrait pas lever d'ExceptionCrue10?
-        logger.critical("Erreur après lancement de la simu")
-        logger.critical(e)
-        break  # On arrête tout
-
+    if run.nb_erreurs() > 0:
+        raise ExceptionCrue10("Erreur bloquante pour le %s" % run)
+    results = run.get_results()
     logger.info(results)
     z_PR1, z_PR2, z_barrage = results.get_res_all_steady_var_at_emhs('Z',
                                                                      [section_PR1, section_PR2, section_barrage]).T

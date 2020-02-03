@@ -9,7 +9,7 @@ from crue10.run.results import RunResults
 from crue10.run.trace import Trace
 from crue10.utils import add_default_missing_metadata, ExceptionCrue10, logger
 from crue10.utils.crueconfigmetier import ENUM_SEVERITE
-from crue10.utils.settings import GRAVITE_MIN, GRAVITE_MIN_ERROR
+from crue10.utils.settings import GRAVITE_MAX, GRAVITE_MIN, GRAVITE_MIN_ERROR
 
 
 FMT_RUN_IDENTIFIER = "R%Y-%m-%d-%Hh%Mm%Ss"
@@ -20,9 +20,9 @@ def get_path_file_unique_matching(folder, ext_pattern):
     for file_path in glob(os.path.join(folder, ext_pattern)):
         file_path_list.append(file_path)
     if len(file_path_list) == 0:
-        raise ExceptionCrue10("Aucun fichier `%s` trouvé dans le dossier du %s" % ext_pattern)
+        raise ExceptionCrue10("Aucun fichier `%s` trouvé dans le dossier du %s" % (ext_pattern, folder))
     elif len(file_path_list) > 1:
-        raise ExceptionCrue10("Plusieurs fichiers `%s` trouvés dans le dossier du %s" % ext_pattern)
+        raise ExceptionCrue10("Plusieurs fichiers `%s` trouvés dans le dossier du %s" % (ext_pattern, folder))
     return file_path_list[0]
 
 
@@ -67,17 +67,22 @@ class Run:
                 for row in in_csv:
                     self.traces[service].append(Trace(row.replace('\n', '')))
 
-    def get_service_traces(self, service, gravite_min=GRAVITE_MIN):
+    def get_service_traces(self, service, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
         gravite_min_int = ENUM_SEVERITE[gravite_min]
+        gravite_max_int = ENUM_SEVERITE[gravite_max]
         if service not in Run.SERVICES:
             raise ExceptionCrue10("Le service `%s` n'est pas reconnu" % service)
-        return [str(trace) for trace in self.traces[service] if trace.gravite_int <= gravite_min_int]
+        return [str(trace) for trace in self.traces[service]
+                if gravite_min_int >= trace.gravite_int >= gravite_max_int]
 
     def nb_avertissements(self, services=SERVICES):
         nb = 0
         for service in services:
-            nb += len(self.get_service_traces(service, gravite_min='WARN'))
+            nb += len(self.get_service_traces(service, gravite_min='WARN', gravite_max='WARN'))
         return nb
+
+    def nb_avertissements_calcul(self):
+        return self.nb_avertissements(['c'])
 
     def nb_erreurs(self, services=SERVICES):
         nb = 0
@@ -85,11 +90,14 @@ class Run:
             nb += len(self.get_service_traces(service, gravite_min=GRAVITE_MIN_ERROR))
         return nb
 
-    def get_all_traces(self, services=SERVICES, gravite_min=GRAVITE_MIN):
+    def nb_erreurs_calcul(self):
+        return self.nb_erreurs(['c'])
+
+    def get_all_traces(self, services=SERVICES, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
         text = ''
         for service in services:
             text = '~> Traces du service "%s"\n' % Run.SERVICES_NAMES[service]
-            text += '\n'.join(self.get_service_traces(service, gravite_min=gravite_min))
+            text += '\n'.join(self.get_service_traces(service, gravite_min=gravite_min, gravite_max=gravite_max))
             text += '\n'
         return text
 
@@ -122,9 +130,8 @@ class Run:
         # Check if errors are in computation traces
         traces_errors = self.get_service_traces(service='c', gravite_min=GRAVITE_MIN_ERROR)
         if traces_errors:
-            logger.warn("Le run #%s contient des résultats partiels car les traces correspondent à "
-                        "des erreurs de calculs :" % self.id)
-            logger.warn('\n'.join(traces_errors))
+            logger.warn("Le run #%s contient des résultats partiels car des erreurs "
+                        "se trouvent dans les traces du calcul :\n%s" % (self.id, '\n'.join(traces_errors)))
 
         # Get file and returns results
         rcal_path = get_path_file_unique_matching(self.run_mo_path, '*.rcal.xml')
@@ -133,11 +140,12 @@ class Run:
     def __repr__(self):
         text = "Run %s" % self.id
         if self.traces[Run.SERVICES[0]]:
-            text += ' (%i avertissement(s) dont %i erreur(s) au total, ' % (self.nb_avertissements(), self.nb_erreurs())
+            text += ' (%i avertissement(s) + %i erreur(s) au total, '\
+                    % (self.nb_avertissements(), self.nb_erreurs())
             if not self.traces['c']:
                 text += 'pas de calcul'
             else:
-                text += '%i avertissement(s) dont %i erreur(s) de calculs'\
-                        % (self.nb_avertissements(['c']), self.nb_erreurs(['c']))
+                text += '%i avertissement(s) + %i erreur(s) de calculs'\
+                        % (self.nb_avertissements_calcul(), self.nb_erreurs_calcul())
             text += ')'
         return text

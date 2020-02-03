@@ -98,8 +98,7 @@ class Scenario(FichierXML):
     def remove_all_runs(self):
         """Suppression de tous les Runs existants"""
         for run_id in self.get_liste_run_ids():
-            run = self.get_run(run_id)
-            self.remove_run(run.id)
+            self.remove_run(run_id)
 
     def create_and_launch_new_run(self, etude, run_id=None, comment='', force=False):
         """
@@ -150,7 +149,8 @@ class Scenario(FichierXML):
         with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
             with open(os.path.join(run_folder, 'stderr.csv'), "w") as err_csv:
                 exit_code = subprocess.call(cmd_list, stdout=out_csv, stderr=err_csv)
-                logger.debug("Exit status = %i" % exit_code)
+                # exit_code is always to 0 even in case of computation error
+        run.read_traces()
         return run
 
     def write_all(self, folder, folder_config=None, write_model=True):

@@ -15,6 +15,7 @@ import numpy as np
 import os.path
 
 from crue10.etude import Etude
+from crue10.utils import logger
 
 
 etude = Etude(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
@@ -35,22 +36,20 @@ for delta_strickler in np.arange(-20.0, 20.0, step=5.0):
 
     if False:
         # With regular run identifiers
-        run_id = scenario.create_and_launch_new_run(etude, comment='Modif Strickler %f points' % delta_strickler,
-                                                    force=True)
+        run = scenario.create_and_launch_new_run(etude, force=True,
+                                                 comment='Modif Strickler %f points' % delta_strickler)
     else:
         # With custom run identifiers
         run_id = 'Strickler_%i' % delta_strickler
-        scenario.create_and_launch_new_run(etude, run_id=run_id,
-                                           comment='Modif Strickler %f points' % delta_strickler, force=True)
-
-    print(run_id)
+        run = scenario.create_and_launch_new_run(etude, run_id=run_id, force=True,
+                                                 comment='Modif Strickler %f points' % delta_strickler)
+    logger.info(run)
 
 etude.write_etu()
 
 # Plot Z at PR1
 for _, run in scenario.runs.items():
     results = run.get_results()
-    print(results)
     values = results.get_res_all_steady_var_at_emhs('Z', ['St_RET113.600'])
     nb_calc_steady = values.shape[0]
     time_serie = np.arange(0, nb_calc_steady * 3600, step=3600)

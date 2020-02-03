@@ -29,15 +29,15 @@ class Trace:
         if len(cells) < 7:
             raise ExceptionCrue10("La trace ne contient pas assez de colonnes pour être lue :\n%s" % line)
         self.date, self.id, self.gravite, self.localisation_methode, self.localisation_fichier, \
-            self.localisation_ligne, self.nom_emh = cells[:7]
-        self.parametres = cells[7:]
+            self.localisation_ligne, self.nom_emh = [str(cell) for cell in cells[:7]]
+        # Python2 fix: str required to convert from unicode (lines above and below)
+        self.parametres = [str(cell) for cell in cells[7:]]
         self.gravite_int = ENUM_SEVERITE[self.gravite]
 
     def get_message(self):
-        parse_message(self.id, self.nom_emh, self.parametres)
+        return parse_message(self.id, self.nom_emh, self.parametres)
 
-    def __str__(self):
-        return '%s|%s|%s|%s|%s|%s|%s|%s'\
-               % (self.date.ljust(23), self.id.ljust(32), self.gravite.ljust(6),
-                  self.localisation_methode.ljust(60), self.localisation_fichier.ljust(40),
-                  self.localisation_ligne.ljust(4), self.nom_emh.ljust(32), self.get_message())
+    def __repr__(self):
+        return '%s|%s|%s|%s|%s'\
+               % (self.date.ljust(23), self.gravite.ljust(6), self.nom_emh.ljust(32),
+                  self.id.ljust(33), self.get_message())

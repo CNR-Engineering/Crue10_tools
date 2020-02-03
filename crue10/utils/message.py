@@ -16,7 +16,8 @@ messages = {}
 try:
     root = ET.parse(MSG_FILE).getroot()
     for elt in root.iter(PREFIX + 'Message'):
-        messages[elt.get('ID')] = elt[0].text
+        # Python2 fix: add str/encode for special characters
+        messages[str(elt.get('ID'))] = elt[0].text.encode('utf-8')
 except ET.ParseError as e:
     raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (MSG_FILE, e))
 
