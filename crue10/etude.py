@@ -79,6 +79,12 @@ class Etude(FichierXML):
     def folder(self):
         return os.path.abspath(os.path.dirname(self.etu_path))
 
+    def get_chemin_vers_fichier(self, filename):
+        for fich_path in self.filename_list:
+            if fich_path.endswith(filename):
+                return fich_path
+        raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filename)
+
     def _read_etu(self):
         root = ET.parse(self.etu_path).getroot()
         folder = os.path.dirname(self.etu_path)
@@ -98,9 +104,8 @@ class Etude(FichierXML):
         elt_fichiers = root.find(PREFIX + 'FichEtudes')
         for elt_fichier in elt_fichiers:
             if elt_fichier.get('Type').lower() in Etude.SUB_FILES_XML:  # Ignore Crue9 files
-                if elt_fichier.get('Chemin') != '.\\':
-                    raise NotImplementedError
-                self.filename_list.append(os.path.join(folder, elt_fichier.get('Nom')))
+                fich_path = os.path.normpath(os.path.join(folder, elt_fichier.get('Chemin'), elt_fichier.get('Nom')))
+                self.filename_list.append(fich_path)
 
         # SousModeles
         elt_sous_modeles = root.find(PREFIX + 'SousModeles')
@@ -118,10 +123,7 @@ class Etude(FichierXML):
                     raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le sous-modèle !" % ext)
                 if filename is None:
                     raise ExceptionCrue10("Le sous-modèle n'a pas de fichier %s !" % ext)
-                filepath = os.path.join(folder, filename)
-                if filepath not in self.filename_list:
-                    raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
-                files[ext] = filepath
+                files[ext] = self.get_chemin_vers_fichier(filename)
 
             for shp_name in SousModele.FILES_SHP:
                 files[shp_name] = os.path.join(folder, self.folders['CONFIG'],
@@ -149,10 +151,7 @@ class Etude(FichierXML):
                         raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
                     if filename is None:
                         raise ExceptionCrue10("Le modèle n'a pas de fichier %s !" % ext)
-                    filepath = os.path.join(folder, filename)
-                    if filepath not in self.filename_list:
-                        raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
-                    files[ext] = filepath
+                    files[ext] = self.get_chemin_vers_fichier(filename)
 
                 modele = Modele(model_name, files=files, metadata=metadata)
 
@@ -181,10 +180,7 @@ class Etude(FichierXML):
                         raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le scénario !" % ext)
                     if filename is None:
                         raise ExceptionCrue10("Le scénario n'a pas de fichier %s !" % ext)
-                    filepath = os.path.join(folder, filename)
-                    if filepath not in self.filename_list:
-                        raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filepath)
-                    files[ext] = filepath
+                    files[ext] = self.get_chemin_vers_fichier(filename)
 
                 elt_models = elt_scenario.find(PREFIX + 'Scenario-Modeles')
                 modele = None
