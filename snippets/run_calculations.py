@@ -17,11 +17,11 @@ import os.path
 from crue10.etude import Etude
 
 
-study = Etude(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
+etude = Etude(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
                            'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
-study.read_all()
+etude.read_all()
 
-scenario = study.get_scenario('Sc_BE2016_etatref')
+scenario = etude.get_scenario('Sc_BE2016_etatref')
 scenario_ori = deepcopy(scenario)
 
 for delta_strickler in np.arange(-20.0, 20.0, step=5.0):
@@ -33,18 +33,19 @@ for delta_strickler in np.arange(-20.0, 20.0, step=5.0):
                 loi_frottement.loi_Fk[:, 1] = new_strickler.clip(min=10.0)
                 # print("Nouvelles valeurs de Strickler pour %s: %s" % (fk_id, loi_frottement.loi_Fk[:, 1]))
 
-    # With regular run identifiers
-    # run_id = scenario.create_and_launch_new_run(etude, comment='Modif Strickler %f points' % delta_strickler,
-    #                                             force=True)
-
-    # With custom run identifiers
-    run_id = 'Strickler_%i' % delta_strickler
-    scenario.create_and_launch_new_run(study, run_id=run_id,
-                                       comment='Modif Strickler %f points' % delta_strickler, force=True)
+    if False:
+        # With regular run identifiers
+        run_id = scenario.create_and_launch_new_run(etude, comment='Modif Strickler %f points' % delta_strickler,
+                                                    force=True)
+    else:
+        # With custom run identifiers
+        run_id = 'Strickler_%i' % delta_strickler
+        scenario.create_and_launch_new_run(etude, run_id=run_id,
+                                           comment='Modif Strickler %f points' % delta_strickler, force=True)
 
     print(run_id)
 
-study.write_etu()
+etude.write_etu()
 
 # Plot Z at PR1
 for _, run in scenario.runs.items():

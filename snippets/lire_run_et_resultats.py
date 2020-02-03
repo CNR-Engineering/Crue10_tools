@@ -3,6 +3,7 @@ import os.path
 import sys
 
 from crue10.etude import Etude
+from crue10.run import Run
 from crue10.utils import ExceptionCrue10, logger
 
 
@@ -10,6 +11,17 @@ etu_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
     study = Etude(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
     run = study.get_scenario('Sc_EtatsRef2015').get_run('R2019-04-16-14h09m19s')
+    run.read_traces()
+
+    # Affichage de quelques traces
+    logger.info('AVERTISSEMENTS ET ERREURS DU CALCUL:\n' + run.get_all_traces(services=['c'], gravite_min='WARN'))
+
+    # Calcul du temps total (sommé par les valeurs fournies dans les traces)
+    time_list = [run.get_time(services=[service]) for service in Run.SERVICES]
+    logger.info('Temps calcul Crue = %f s (' % sum(time_list) + ' + '.join([str(time) for time in time_list]) + ')')
+
+    logger.info(run)
+
     results = run.get_results()
     # It is also possible to avoid using the Etude instance, in providing the path rcal to RunResults:
     # from crue10.results import RunResults

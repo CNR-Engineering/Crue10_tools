@@ -1,0 +1,830 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ce fichier xml est à mettre dans le répertoire de l'exécutable Crue10 -->
+<DecodageMessages xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/messages-1.2.xsd">
+<!-- Ce fichier contient les messages permettant de décoder les traces de l'exécutable Crue10 -->
+<!-- Format des éléments : -->
+<!-- 	<Message ID="xxxxxx"> -->
+<!-- 		<Texte>Message localisé de l'erreur, avec motifs des paramètres complémentaires au format {i}</Texte> -->
+<!-- 		<LienDocumentation HRef="fichierDoc" Signet="nomReference"</LienDocumentation> -->
+<!-- 		<LienMultimedia    HRef="fichierMM"  Signet="nomReference"</LienMultimedia>    -->
+<!-- 	<\Message> -->
+	<Localisation>fr_FR</Localisation>
+	<Messages>
+		<Message ID="ID_ARRET_UTILISATEUR">
+			<Texte>Code correspondant à un arrêt utilisateur</Texte>
+		</Message>
+		<Message ID="ID_FICHIER_NON_TROUVE">
+			<Texte>{nomEMH} : Le fichier {1} n'a pas été trouvé.</Texte>
+		</Message>
+		<Message ID="ID_FICHIER_ACCES_LECTURE">
+			<Texte>{nomEMH} : Le fichier {1} n'est pas accessible en lecture.</Texte>
+		</Message>
+		<Message ID="ID_FICHIER_ACCES_ECRITURE">
+			<Texte>{nomEMH} : Le fichier {1} n'est pas accessible en écriture.</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_VERSION_GRAMMAIRE">
+			<Texte>Fichier {nomEMH} {1} : la version de grammaire du fichier ({2}) n'est pas prise en charge.</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_VIDE">
+			<Texte>Le fichier {nomEMH} {1} est vide.</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_SYNTAXE">
+			<Texte>Fichier {nomEMH} {1} : erreur XML ({2}).</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_TYPE">
+			<Texte>Fichier {1} : type ({nomEMH}) différent de celui attendu ({2}).</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_TAG_NB">
+			<Texte>Fichier {nomEMH} {3} : tag {4} trouvé {1} fois, contre {2} attendu.</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_TAG_NON_TROUVE">
+			<Texte>Fichier {nomEMH} {1} : tag {2} non trouvé.</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_TAG_NON_TROUVE_RACINE">
+			<Texte>Fichier {nomEMH} {1} : tag {2} non trouvé sous {3}.</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_TAGATTRIBUT_NON_TROUVE">
+			<Texte>Fichier {nomEMH} {1} : l'élément de type {2} et d'attribut {3} valant {4} n'a pas été trouvé (&lt;{2} {3}="{4}"&gt;).</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_TAG_NON_RECONNU">
+			<Texte>Fichier {nomEMH} {1} : tag {2} non reconnu.</Texte>
+		</Message>
+		<Message ID="ID_FICHIERXML_VALEUR_NON_RECONNUE">
+			<Texte>Fichier {nomEMH} {2} : valeur {1} non reconnue pour le tag {3}.</Texte>
+		</Message>
+		<Message ID="ID_FICHIERBIN_LECTURE">
+			<Texte>Erreur à la lecture du fichier binaire {nomEMH} : tag {2} attendu au lieu de {3} (position {1}).</Texte>
+		</Message>
+		<Message ID="ID_VARIABLE_HORS_VALIDITE">
+			<Texte>Dans {nomEMH} (contexte {5}), la variable {4} est hors des plages de validité [{1}, {2}] : {3}</Texte>
+		</Message>
+		<Message ID="ID_VARIABLE_HORS_NORMALITE">
+			<Texte>Dans {nomEMH} (contexte {5}), la variable {4} est hors des plages de normalité [{1}, {2}] : {3}</Texte>
+			<LienDocumentation Href="FctCrue10/Dictionnaire Crue.html" />
+		</Message>
+		<Message ID="ID_VARIABLE_SUPERIEURE_VARIABLE">
+			<Texte>La variable {nomEMH} ({1}) devrait être inférieure à la variable {3} ({2}).</Texte>
+		</Message>
+		<Message ID="ID_EMH_TYPE_INCONNU">
+			<Texte>Le type de l'EMH {nomEMH} n'est pas reconnu : {1}.</Texte>
+		</Message>
+		<Message ID="ID_EMH_CATEGORIE_ABSENT">
+			<Texte>Il n'y a pas d'EMH de catégorie {1} et de nom {nomEMH}.</Texte>
+		</Message>
+		<Message ID="ID_EMH_TYPE_ABSENT">
+			<Texte>Il n'y a pas d'EMH de type {1} et de nom {nomEMH}.</Texte>
+		</Message>
+		<Message ID="ID_EMH_DOUBLE_REFERENCE">
+			<Texte>L'EMH {nomEMH} est référencée par 2 autres EMH : {1} et {2}.</Texte>
+		</Message>
+		<Message ID="ID_EMHSCENARIO_VERSION_INCONNUE">
+			<Texte>Fichier {nomEMH} {1} : la version du scénario courant ({2}) n'est pas prise en charge.</Texte>
+		</Message>
+		<Message ID="ID_EMHBRANCHE_ORDRE_SECTIONS">
+			<Texte>Branche {nomEMH} : problème dans l'ordonancement des sections de la branche ({1}).</Texte>
+		</Message>
+		<Message ID="ID_EMHBRANCHE_SECTIONAMONT_XPPOS">
+			<Texte>Branche {nomEMH} : la section amont {2} a un Xp non nul ({1}).</Texte>
+		</Message>
+		<Message ID="ID_EMHBRANCHEORIFICE_NORIFICES">
+			<Texte>Branche orifice {nomEMH} : il n'est pas prévu d'utiliser plusieurs ({1}) orifices.</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_NOEUD_ISOLE">
+			<Texte>Erreur dans le réseau : le nœud {2} est isolé (nb branches connectées : {1}).</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_EMH_INACTIVE">
+			<Texte>Attention dans le réseau : l'EMH {nomEMH} est inactive</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_NOEUD_MALCONNECTE">
+			<Texte>Erreur dans le réseau : le nœud {nomEMH} est connecté à la branche {1} sans être ni son nœud amont ({2}) ni son nœud aval ({3}).</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_BRANCHE_LGR_NULLE">
+			<Texte>Erreur dans le réseau : la branche {nomEMH} est de longeur nulle.</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_BRANCHE_SANS_SECTION_AMONT">
+			<Texte>Erreur dans le réseau : dans la branche {nomEMH}, la section {1} n'a pas de section amont</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_BRANCHE_SANS_SECTION_AMONTAVAL">
+			<Texte>Erreur dans le réseau : la branche {nomEMH} n'a pas de section amont ou aval</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_SECTIONINTERPOLEE_NON_INTERNE">
+			<Texte>Une section interpolée ({nomEMH}) doit être interne à la branche !</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_SECTIONINTERPOLEE_MAL_ENCADREE">
+			<Texte>La section amont ou aval de la section interpolée {nomEMH} n'a pas été trouvée...</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_SECTIONINTERPOLEE_REFS_SUPERPOSEES">
+			<Texte>Les sections amont ({2}) et aval ({3}) de la section interpolée {nomEMH} sont superposée (xp={1}).</Texte>
+		</Message>
+		<Message ID="ID_RESEAU_PROFILSECTION_INACTIF">
+			<Texte>Le profil section {nomEMH} est inactif (pas de section profil associée).</Texte>
+		</Message>
+		<Message ID="ID_LOI_TYPE_INCONNU">
+			<Texte>Le type de loi {nomEMH} n'est pas défini.</Texte>
+		</Message>
+		<Message ID="ID_LOI_NON_VALIDE_DIM">
+			<Texte>Loi {nomEMH} non valide : dimension {1} incorrecte.</Texte>
+		</Message>
+		<Message ID="ID_LOI_NON_VALIDE_TCO">
+			<Texte>Loi {nomEMH} non valide : contrôle de loi {1} non vérifié.</Texte>
+		</Message>
+		<Message ID="ID_LOI_NON_VALIDE_TEX">
+			<Texte>Loi {1} non valide : type d'extrapolation non possible {2}.</Texte>
+		</Message>
+		<Message ID="ID_LOI_NON_VALIDE_TYPE">
+			<Texte>Loi {1} non valide : type de loi non possible {2}.</Texte>
+		</Message>
+		<Message ID="ID_LOI_EXTRAPOLATION_IMPOSSIBLE">
+			<Texte>Loi {nomEMH} : problème d'extrapolation de type {2} en {1}.</Texte>
+		</Message>
+		<Message ID="ID_LOI_INT_PARAMETRE_MANQUANT">
+			<Texte>Loi {nomEMH} : ne contient pas de paramètre de valeur {1}.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_TYPE_INCONNU">
+			<Texte>Le type de CLimM {nomEMH} n'est pas défini.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_INCOMPATIBLE_SCENARIO">
+			<Texte>La CLimM de type {1}, associée à l'EMH {nomEMH}, n'est pas compatible avec le calcul et le scénario.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_INCOMPATIBLES">
+			<Texte>Les CLimM {1} sur l'EMH {nomEMH} et {4} sur l'EMH {3} sont incompatibles.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_SET_INCOMPATIBLE">
+			<Texte>La CLimM {1} utilisée pour modifier la CLimM {2} sur l'EMH {nomEMH} n'est pas incompatible.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_MODIF_INCOMPATIBLE">
+			<Texte>Les tableaux utilisés pour modifier la CLimM {1} sur l'EMH {nomEMH} ne sont pas incompatibles (tailles {2} et {3}).</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_VAR_SANS_LOI">
+			<Texte>Pas de loi {2} trouvée pour la CLimM de type {1} associée à l'EMH {nomEMH}.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_VAR_CLASSE_NON_LOIFF">
+			<Texte>La loi {2} trouvée pour la CLimM de type {1} associée à l'EMH {nomEMH} est de classe non flottant/flottant.</Texte>
+		</Message>
+		<Message ID="ID_TYPE_OUVERTURE_INCONNU">
+			<Texte>Le type de sens d'ouverture {nomEMH} n'est pas défini.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_MAJ_IMPOSSIBLE">
+			<Texte>La mise à jour automatique de la CLimM de type {1} et portant sur l'EMH {nomEMH} n'est pas possible ici (état système non accessible). Utiliser la méthode setValeurCLimM.</Texte>
+		</Message>
+		<Message ID="ID_DATE_INVALIDE">
+			<Texte>Format de date non valide : {1}.</Texte>
+		</Message>
+		<Message ID="ID_DATE_TROP_ANCIENNE">
+			<Texte>Date trop ancienne : {1} (date min 01/01/1971).</Texte>
+		</Message>
+		<Message ID="ID_TRACE_NON_INITIALISEE">
+			<Texte>Problème technique : utilisation d'une trace non initialisée...</Texte>
+		</Message>
+		<Message ID="ID_TRACE_NON_VALIDE">
+			<Texte>Les paramètres de la trace ne sont pas valides (id={1} gravite={2}, localisation={4} ligne {3} / {nomEMH}).</Texte>
+		</Message>
+		<Message ID="ID_TRACE_ID_NON_RECONNU">
+			<Texte>L'identifiant interne de trace {1} n'est pas reconnu</Texte>
+		</Message>
+		<Message ID="ID_MEM_GESTION_MEMOIRE">
+			<Texte>Problème de gestion mémoire ({1}, {nomEMH})...</Texte>
+		</Message>
+		<Message ID="ID_MEM_INDEX_HORS_TAILLE">
+			<Texte>Problème de gestion mémoire : index ({1}) supérieur ou égal à la taille allouée ({2}).</Texte>
+		</Message>
+		<Message ID="ID_CONFIG_COEUR_NON_INITIALISE">
+			<Texte>Cœur mal initialisé, vérifiez les messages d'initialisation.</Texte>
+		</Message>
+		<Message ID="ID_CONFIG_DONNEE_ENUM_ERRONEE">
+			<Texte>Donnée de configuration erronée, l'enum {3} de type {4} vaut {1} au lieu de {2}.</Texte>
+		</Message>
+		<Message ID="ID_CONFIG_DONNEE_ERRONEE">
+			<Texte>{nomEMH} : Donnée de configuration métier erronée, voir avertissements ci-dessus.</Texte>
+		</Message>
+		<Message ID="ID_CONFIG_DONNEE_MANQUANTE">
+			<Texte>{nomEMH} : Donnée de configuration métier manquante : {1} d'attribut {2}={3}.</Texte>
+		</Message>
+		<Message ID="ID_CONFIG_DONNEE_DOUBLE">
+			<Texte>Donnée de configuration métier en double : {1} de type {2}.</Texte>
+		</Message>
+		<Message ID="ID_CONFIG_DONNEE_NONPREVUE">
+			<Texte>Donnée de configuration métier non prévue : {1}.</Texte>
+		</Message>
+		<Message ID="ID_SERVICE_SCENARIO_NON_CHARGE">
+			<Texte>Scénario d'identifiant {1} non chargé en mémoire.</Texte>
+		</Message>
+		<Message ID="ID_SERVICE_SCENARIO_ERREUR">
+			<Texte>Scénario {nomEMH} en erreur : un service précédent s'est terminé sur une erreur. Il faut déverrouiller le scénario.</Texte>
+		</Message>
+		<Message ID="ID_SERVICE_SCENARIO_NON_LIBRE">
+			<Texte>Scénario {nomEMH} non libre : un service {1} est déjà en cours...</Texte>
+		</Message>
+		<Message ID="ID_SERVICE_SCENARIO_PUBLIC_REF">
+			<Texte>Le scénario public ne pointe vers aucun scénario chargé.</Texte>
+		</Message>
+		<Message ID="ID_CE_OPTIONS_MANQUE_SERVICE">
+			<Texte>Il manque une demande de service (-h, -r, -g, -i ou -c) parmi les options ({1}).</Texte>
+		</Message>
+		<Message ID="ID_CE_OPTIONS_MANQUE_ETUDE">
+			<Texte>Il manque le chemin de l'étude parmi les options ({1}).</Texte>
+		</Message>
+		<Message ID="ID_CE_OPTIONS_COMMANDE_NOMBRE">
+			<Texte>Nombre d'options incorrect parmi les options de ligne de commande ({1}).</Texte>
+		</Message>
+		<Message ID="ID_CE_OPTIONS_COMMANDE_INCONNUE">
+			<Texte>Option {1} non reconnue parmi les options de ligne de commande ({2}).</Texte>
+		</Message>
+		<Message ID="ID_PTR_METHODE_INCONNUE">
+			<Texte>Scénario {nomEMH} : méthode de pré-traitement réseau non reconnue : {1}.</Texte>
+		</Message>
+		<Message ID="ID_PTR_DIAG_EMHSECTIONIDEM_CONTROLE">
+			<Texte>La section idem {nomEMH} a été construite à partir d'une autre section idem : {1}</Texte>
+		</Message>
+		<Message ID="ID_PTG_LIT_ACTIF_NON_CONTIGU">
+			<Texte>Lit actif non contigu sur le profil section {nomEMH}.</Texte>
+		</Message>
+		<Message ID="ID_PTG_LARGEURLIT_INF_LARGEURFENTE">
+			<Texte>La largeur {1} du lit {nomEMH}  est inférieure à la largeur de la fente {2}.</Texte>
+		</Message>
+		<Message ID="ID_PTG_DEFINITION_LIT_LIM">
+			<Texte>Le lit {nomEMH} est incompatible avec le profil {2} : point limite {1} non trouvé.</Texte>
+		</Message>
+		<Message ID="ID_PTG_ZF_HORS_LIT_MINEUR">
+			<Texte>Dans le profil {nomEMH}, zf ({1}) n'appartient pas à un lit mineur (cause possible : absence de lit mineur, lit mineur de taille nulle, ou zf appartenant à un autre lit).</Texte>
+		</Message>
+		<Message ID="ID_PTG_BLOQUE">
+			<Texte>Le PTG des sections idem/interpolées est bloqué : {1} est/sont encore en attente de traitement (problème de références circulaires ?)</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_LITNOMME_LITNUMEROTEABSENT">
+			<Texte>Le profil {nomEMH} ne possède pas de lit nommé (Lt_StoG {1}, Lt_MajG {2}, Lt_Mineur {3}, Lt_MajD {4}, Lt_StoD {5}).</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILSECTION_DOUBLON">
+			<Texte>La profil section {nomEMH} possède un doublon dans la liste des profils section</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILSECTION_AUCUN_LITNUMEROTE">
+			<Texte>La profil section {nomEMH} ne possède pas de lit numéroté</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILSECTION_ZF_INCORRECT_FENTE">
+			<Texte>Le point le plus bas de la profil section {nomEMH} doit se trouver exclusivement dans le lit mineur en cas d'utilisation de la fente</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILSECTION_ZF_INCORRECT">
+			<Texte>La profil section {nomEMH} n'a pas son Zf dans un lit de type mineur (Zf troouvé dans le lit {1}).</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILSECTION_ABSCISSES_INCORRECTES">
+			<Texte>La profil section {nomEMH} a deux points consécutifs ne respectant pas la stricte croissance de leurs abscisses : {1} &gt; {2}</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_DOUBLON">
+			<Texte>La section profil {nomEMH} possède un doublon dans la liste des sections</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_NON_REFERENCEE">
+			<Texte>La section profil {nomEMH} n'est pas référencée dans une branche</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_LITMINEUR_ABSENT">
+			<Texte>La section profil {nomEMH} n'a pas de lit mineur</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_LITMINEUR_LARGEURNULLE">
+			<Texte>La section profil {nomEMH} contient un lit mineur de largeur nulle</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONIDEM_NON_REFERENCEE">
+			<Texte>La section profil idem {nomEMH} n'est pas référencée</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONINTERPOLEE_NON_REFERENCEE">
+			<Texte>La section interpolee {nomEMH} n'est pas référencée</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_FENTE_NON_ATTENDUE">
+			<Texte>La section profil {nomEMH} dans la branche {1} présente une fente non autorisée</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_NBRLITS_INCORRECT">
+			<Texte>La section profil {nomEMH} dans la branche {1} de type barrage fil eau ou à seuil transversal ne contient pas  le nombre de lits  correct ({2} au lieu de 5)</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_TYPELIT_INCORRECT">
+			<Texte>La section profil {nomEMH} dans la branche {1} de type barrage fil eau ou à seuil transversal contient un lit n'ayant pas le type attendu</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_FROTTEMENT_INCORRECT">
+			<Texte>La section profil {nomEMH} dans la branche {1} de type barrage fil eau ou à seuil transversal ne présente pas les frottements attendus (frottements aux lits de stockages nuls et frottements aux deux lits majeurs égaux)</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_ZF_INCORRECT">
+			<Texte>La section profil {nomEMH} dans la branche {1} de type barrage fil eau ou à seuil transversal n'a pas son Zf dans le lit n°3</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_LITMAJEUR_LARGUEURNONNULLE">
+			<Texte>La section profil {nomEMH} dans la branche {1} de type Strickler possède un lit non mineur de largeur non nulle</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_LITS_NON_CONTIGUS">
+			<Texte>La section profil {nomEMH} dans la branche {1} contient un lit actif dont les lits ne sont pas contigus</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHSECTIONPROFIL_REB_DEB">
+			<Texte>La section profil {nomEMH} dans la branche {1} contient un rebroussement de débitance</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHBRANCHE_LOI_INCORRECTE">
+			<Texte>La loi {1} associée à la branche de type {2} {nomEMH} contient moins de 2 points</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHBRANCHE_LOI_NONCROISSANTE">
+			<Texte>La loi {3} associée à la branche de type {4} {nomEMH} n'est pas strictement croissante (point {1} inférieur ou égal au point {2})</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILCASIER_DOUBLON">
+			<Texte>Le profil casier {nomEMH} possède un doublon dans la liste des profils casiers</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILCASIER_LONGUEUR_NONPOS">
+			<Texte>Le profil casier {nomEMH} a une longueur non positive ({1})</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILCASIER_ABSENCE_LIT_UTILE">
+			<Texte>Le profil casier {nomEMH} ne possède pas de lit utile</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_CATEMHCASIER_ZBATI_INCORRECT">
+			<Texte>Le bati {nomEMH} du casier {3} a un Zbati total ({1}) &lt; Zf({2}), cote du fond du casier</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_CATEMHCASIER_SPLANBATI_INCORRECT">
+			<Texte>Le bati {nomEMH} du casier {3} a un Splan négatif ({1})</Texte>
+		</Message>
+		<Message ID="ID_LECTURE_LOI_PTG">
+			<Texte>Une erreur est intervenue lors de la lecture d'un résultat du PTG (sur EMH {nomEMH}, loi {2} de taille {1}, contre {2} attendue).</Texte>
+		</Message>
+		<Message ID="ID_LECTURE_LOI_PTG_NULLE">
+			<Texte>Une erreur est intervenue lors de la lecture d'un résultat du PTG (sur EMH {nomEMH}, loi {1} de taille nulle).</Texte>
+		</Message>
+		<Message ID="ID_PTI_INTERPOLATION_INCONNUE">
+			<Texte>Scénario {nomEMH} : méthode de pré-traitement réseau non reconnue : {1}.</Texte>
+		</Message>
+		<Message ID="ID_PTI_PARAM_INCONNU">
+			<Texte>Scénario {nomEMH} : paramètres de pré-traitement des conditions initiales inexistants : {1}.</Texte>
+		</Message>
+		<Message ID="ID_PTI_SECTIONS_INEXISTANTES">
+			<Texte>Scénario {nomEMH} : paramètres de pré-traitement des conditions initiales inexistants : {1}.</Texte>
+		</Message>
+		<Message ID="ID_PTI_INTERPOL_STVENANT">
+			<Texte>Scénario {nomEMH} : Le changement de signe lors du calcul du Z initial pour la section {1} n'a pas été atteint, il est impossible de fixer cette valeur.</Texte>
+		</Message>
+		<Message ID="ID_CLICHE_INCOMPATIBLE">
+			<Texte>Cliché {1} incompatible avec le scénario {nomEMH}.</Texte>
+		</Message>
+		<Message ID="ID_CLICHE_INCOMPATIBLE_Qst">
+			<Texte>Cliché {3} incompatible avec le scénario {nomEMH} : nombre de sections différent en Q ({1} / {2}).</Texte>
+		</Message>
+		<Message ID="ID_CLICHE_INCOMPATIBLE_Zst">
+			<Texte>Cliché {3} incompatible avec le scénario {nomEMH} : nombre de sections différent en Z ({1} / {2}).</Texte>
+		</Message>
+		<Message ID="ID_CLICHE_INCOMPATIBLE_Zca">
+			<Texte>Cliché {3} incompatible avec le scénario {nomEMH} : nombre de casiers différent en Z ({1} / {2}).</Texte>
+		</Message>
+		<Message ID="ID_CLICHE_INCOMPATIBLE_Qech">
+			<Texte>Cliché {3} incompatible avec le scénario {nomEMH} : nombre de casiers différent en Qech ({1} / {2}).</Texte>
+		</Message>
+		<Message ID="ID_CLICHE_INCOMPATIBLE_St">
+			<Texte>Cliché incompatible avec le scénario {nomEMH} : section du cliché non trouvée {1}.</Texte>
+		</Message>
+		<Message ID="ID_CLICHE_INCOMPATIBLE_Ca">
+			<Texte>Cliché incompatible avec le scénario {nomEMH} : casier du cliché non trouvé {1}.</Texte>
+		</Message>
+		<Message ID="ID_CLICHE_QUALITE_NONORMALE">
+			<Texte>Chargement d'un cliché de qualité non normale ({1}) dans le scénario {nomEMH}.</Texte>
+		</Message>
+		<Message ID="ID_ETATSYSTEMEPARTIEL_INCOMPATIBLE_Br">
+			<Texte>Etat systeme partiel incompatible avec le scénario {nomEMH} : branche de l'état système partiel non trouvée {1}.</Texte>
+		</Message>
+		<Message ID="ID_ETATSYSTEMEPARTIEL_INCOMPATIBLE_Nd">
+			<Texte>Etat système partiel incompatible avec le scénario {nomEMH} : nœud de l'état système partiel non trouvé {1}.</Texte>
+		</Message>
+		<Message ID="ID_NOM_FICHIER_ABSENT_OCAL">
+			<Texte>Nom de fichier non renseigné pour le cliche en fin de calcul permanent dans le fichier OCAL : {1}</Texte>
+		</Message>
+		<Message ID="ID_NOM_CALCUL_INCONNU">
+			<Texte>Scénario {nomEMH} : Nom de calcul non reconnu ({1}).</Texte>
+		</Message>
+		<Message ID="ID_INITCALCULS_INCONNUE">
+			<Texte>Scénario {nomEMH} : Méthode d'initialisation des calculs non reconnue ({1}).</Texte>
+		</Message>
+		<Message ID="ID_INITCALCULS_NONPREVUE">
+			<Texte>Méthode d'initialisation des calculs non prévue pour le calcul {3} de type {1} ({2}).</Texte>
+		</Message>
+		<Message ID="ID_INITCALCULS">
+			<Texte>Scénario {nomEMH} : Erreur à l'initialisation du calcul ({1}).</Texte>
+		</Message>
+		<Message ID="ID_CALCUL_CLIMM_INACTIVES">
+			<Texte>Tentative de lancement d'un calcul ({nomEMH}) sans aucune CLimM active.</Texte>
+		</Message>
+		<Message ID="ID_CALCULS_BIBCAL">
+			<Texte>Erreur interne bibCal</Texte>
+		</Message>
+		<Message ID="ID_INITCALCULS_CLIMM">
+			<Texte>Scénario {nomEMH} : Erreur à l'initialisation du calcul ({1}), type de CLimM non gérée ({2}).</Texte>
+		</Message>
+		<Message ID="ID_INITCALCULS_CALCPREC_SANS_CALCPREC">
+			<Texte>Scénario {nomEMH} : Erreur à l'initialisation du calcul ({1}) : calcul avec IniCalcPrecedent sans résultat de calcul précédent.</Texte>
+		</Message>
+		<Message ID="ID_INITCALCULS_TRANSITOIRE_SANS_CALPERM">
+			<Texte>Scénario {nomEMH} : Erreur à l'initialisation du calcul ({1}) : calcul transitoire sans calcul permanent préalable.</Texte>
+		</Message>
+		<Message ID="ID_CALPERM_STABILISATION_NON_ATTEINTE_OK">
+			<Texte>Scénario {nomEMH} : Stabilisation du calcul permanent {7} non atteinte mais avec écarts max inférieurs à 10x la tolérance (itération {1}/{2}, convergence en Z {3}/{4} en Q {5}/{6})</Texte>
+		</Message>
+		<Message ID="ID_CALPERM_STABILISATION_NON_ATTEINTE">
+			<Texte>Scénario {nomEMH} : Stabilisation du calcul permanent {7} non atteinte (itération {1}/{2}, convergence en Z {3}/{4} en Q {5}/{6})</Texte>
+		</Message>
+		<Message ID="ID_CALPERM_STABILISATION_NON_ATTEINTE_APRES_DECOUP">
+			<Texte>Scénario {nomEMH} : Stabilisation du calcul permanent {2} non atteinte après découpage du pas de temps (divisé par {1})</Texte>
+		</Message>
+		<Message ID="ID_CALCULS_NON_CONVERGENCE_DZ">
+			<Texte>Calcul {5}, TempsSimu {2} s : Non convergence des itérations sur dZ (EcartMax={3} pour seuil {4}, NbrIterMax={1})</Texte>
+		</Message>
+		<Message ID="ID_PDT_TROP_PETIT">
+			<Texte>Scénario {nomEMH} : pas de temps trop petit ({1}) au temps {2} du calcul {3}.</Texte>
+		</Message>
+		<Message ID="ID_SECTION_HORS_FROUDE_CRITIQUE">
+			<Texte>Section {nomEMH} : calcul du Froude critique impossible, problème de configuration de la section ? (FrBas={1} FrHaut={2})</Texte>
+		</Message>
+		<Message ID="ID_COTE_SOUS_ZFOND">
+			<Texte>Section {nomEMH} : calcul pour une cote sous le fond (z={1}, Zf={2})</Texte>
+		</Message>
+		<Message ID="ID_INCIDENT_CALCULS">
+			<Texte>Calcul {nomEMH}, TempsSimu {1} s : non convergence pour un pdt déjà divisé : arrêt des calculs.</Texte>
+		</Message>
+		<Message ID="ID_CALCUL_IMPOSSIBLE_SOLVEUR">
+			<Texte>Scénario {nomEMH}, calcul {2} au temps {1} : l'état système obtenu ne permet pas la résolution du système (arrêt solveur sans et avec permutation sur diagonale nulle)</Texte>
+		</Message>
+		<Message ID="ID_CALCUL_IMPOSSIBLE_AUTRE">
+			<Texte>Scénario {nomEMH}, calcul {2} au temps {1} : l'état système obtenu ne permet pas la résolution du système (voir messages ci-dessus)</Texte>
+		</Message>
+		<Message ID="ID_BrSEUILTRANSVERSAL_COMPATIBILITE">
+			<Texte>Dans les calculs des coefficients de la relation de condensation de la branche seuil transversal {nomEMH} les charges sont incompatibles avec le signe du débit malgré {1} itérations</Texte>
+		</Message>
+		<Message ID="ID_BrSEUILTRANSVERSAL_NON_CONVERGENCE_QT">
+			<Texte>Dans le calcul du Q théorique pour la branche seuil transversal {nomEMH}, le nombre maximum d'itérations a été atteint ({1}), ecart={2}, q3={3}</Texte>
+		</Message>
+		<Message ID="ID_BrBARRAGEFILEAU_QMAX">
+			<Texte>Le débit dans la branche barrage fil eau {nomEMH} est trop grand (débit dans la branche = {1} m^3/s, débit maximum autorisé = {2} m^3/s)</Texte>
+		</Message>
+		<Message ID="ID_BrBARRAGEFILEAU_QMIN">
+			<Texte>Le débit dans la branche barrage fil eau {nomEMH} est trop petit (débit dans la branche = {1} m^3/s, débit minimum autorisé = {2} m^3/s)</Texte>
+		</Message>
+		<Message ID="ID_BrBARRAGEGENERIQUE_QMAX">
+			<Texte>Le débit dans la branche barrage générique {nomEMH} est trop grand (débit dans la branche = {1} m^3/s, débit maximum autorisé = {2} m^3/s)</Texte>
+		</Message>
+		<Message ID="ID_BrBARRAGEGENERIQUE_QMIN">
+			<Texte>Le débit dans la branche barrage générique {nomEMH} est trop petit (débit dans la branche = {1} m^3/s, débit minimum autorisé = {2} m^3/s)</Texte>
+		</Message>
+		<Message ID="ID_ERRBLK">
+			<Texte>{nomEMH} : Une erreur bloquante a été détectée au cours du service {1}. Regardez les messages précédents.</Texte>
+		</Message>
+		<Message ID="ID_DIVISION_ZERO">
+			<Texte>Erreur : le calcul suivant réalise une division par 0 sur la variable {1}</Texte>
+		</Message>
+		<Message ID="ID_RACINECARREE_VARNEGATIVE">
+			<Texte>Erreur : le calcul suivant réalise une racine carrée sur la variable {2} négative ({1})</Texte>
+		</Message>
+		<Message ID="ID_CALCUL_ZCRITIQUE_IMPOSSIBLE_SACT">
+			<Texte>Erreur : le calcul du Z critique pour la section {nomEMH} est impossible car Sact(Zhaut) ou Sact(Zf) est nul (Sact(Zhaut) = {1} ; Sact(Zf) = {2}).</Texte>
+		</Message>
+		<Message ID="ID_CALCUL_ZCRITIQUE_IMPOSSIBLE_LACT">
+			<Texte>Erreur : le calcul du Z critique pour la section {nomEMH} est impossible car Lact(Zhaut) ou Lact(Zf) est nul (Lact(Zhaut) = {1} ; Lact(Zf) = {2}).</Texte>
+		</Message>
+		<Message ID="ID_CALCUL_ZCRITIQUE_DICHOTOMIE_IMPOSSIBLE">
+			<Texte>Erreur : le calcul du Z critique pour la section {nomEMH} est impossible car lors de la dichotomie {1}((Zhaut+Zf)/2) = 0</Texte>
+		</Message>
+		<Message ID="ID_MATRICE_ELEMENTDIAGONAL_NUL">
+			<Texte>Erreur : l'élément diagonal ({1},{1}) est nul, la matrice ne peut être triangularisée</Texte>
+		</Message>
+		<Message ID="ID_MULTIPLICATION_VECTEUR_INCORRECT">
+			<Texte>Erreur : le vecteur multipliant n'a pas la même dimension que la matrice (vecteur de dimension {1} et matrice de dimension {2}).</Texte>
+		</Message>
+		<Message ID="ID_POINTEUR_NULL">
+			<Texte>Erreur : utilisation d'un pointeur nul non prévue ({1})</Texte>
+		</Message>
+		<Message ID="ID_DEPASSEMENT_TABLEAU_1D">
+			<Texte>Erreur : dépassement de la taille du tableau (élément {1} pour une taille de {2})</Texte>
+		</Message>
+		<Message ID="ID_DEPASSEMENT_TABLEAU_2D">
+			<Texte>Erreur : accès à une donnée hors tableau (élément({1},{2}) pour une dimension de {3})</Texte>
+		</Message>
+		<Message ID="ID_MOTEURXML_ERREUR">
+			<Texte>Problème interne au moteur XML ({1}).</Texte>
+		</Message>
+		<Message ID="ID_METHODE_NON_PREVUE">
+			<Texte>Accès à une méthode non prévue (non encore implémentée ?).</Texte>
+		</Message>
+		<Message ID="ID_METHODE_MULTIMODELE_NON_PREVUE">
+			<Texte>Scénario {nomEMH} : La gestion multi-modèle n'est pas encore implémentée</Texte>
+		</Message>
+		<Message ID="ID_METHODE_ABONNEE_TRACES">
+			<Texte>Une exception a été levée dans votre méthode abonnée aux traces !</Texte>
+		</Message>
+		<Message ID="ID_NON_IDENTIFIEE">
+			<Texte>Une exception non prévue a été interceptée : {1} sur {nomEMH}.</Texte>
+		</Message>
+		<Message ID="ID_DONNEE_MANQUANTE">
+			<Texte>EMH {nomEMH} : Donnée manquante : {1}.</Texte>
+		</Message>
+		<Message ID="ID_DONNEE_DOUBLE">
+			<Texte>{nomEMH} : Donnée {1} {2} en double.</Texte>
+		</Message>
+		<Message ID="ID_INFORMATION_DOUBLE">
+			<Texte>{nomEMH} : Information {1} donnée en double : {2} {3}.</Texte>
+		</Message>
+		<Message ID="ID_DONNEE_EMH_NONPREVUE">
+			<Texte>{nomEMH} : Donnée non prévue pour l'EMH de type {1} : {2}.</Texte>
+		</Message>
+		<Message ID="ID_VALEUR_DONNEE_NONPREVUE">
+			<Texte>{nomEMH} : valeur de donnée non prévue de type {2} : {1}.</Texte>
+		</Message>
+		<Message ID="ID_REFERENCE_MANQUANTE">
+			<Texte>{nomEMH} : Référence à un élément manquant : {1}.</Texte>
+		</Message>
+		<Message ID="ID_METHODE_NONCODEE">
+			<Texte>{nomEMH} : Méthode présente mais non encore developpée.</Texte>
+		</Message>
+		<Message ID="ID_STD_DIVERS">
+			<Texte>Exception stdlib levée : {1}.</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHBRANCHESAINTVENANT_NOEUD_RUPTURE_PENTE">
+			<Texte>Une rupture de pente (marche d'escalier) a été détectée au noeud {nomEMH} entre la section aval {1} et la section amont {2}</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_CATEMHBRANCHESEUIL_LARGEUR_SEUIL">
+			<Texte>Un seuil trop large ({1}), supérieur à la limite fixée ({2}), a été détecté à la branche {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHBRANCHESAINTVENANT_PDX_GRAND">
+			<Texte>Un pas d'espace trop grand a été détecté à la branche {nomEMH} entre la section {1} et la section {2}</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHBRANCHESAINTVENANT_VARPDX_GRANDE">
+			<Texte>Une variation du pas d'espace trop grande a été détectée à la branche {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHBRANCHESAINTVENANT_PENTE_FORTE">
+			<Texte>Une pente trop forte a été détectée à la branche {nomEMH} entre les sections {1} et {2}</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHBRANCHESAINTVENANT_RUPTURE_PENTE">
+			<Texte>Une rupture de pente entre la pente calculée entre la section {1} et la section {2} et la pente calculée entra la section {2} et la section {3} a été détectée au sein de la branche {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_EMHBRANCHESAINTVENANT_RUPTURE_PENTE_JONCTION">
+			<Texte>Une rupture de pente a été détectée à la jonction de la branche {1} et de la branche {2} au noeud {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILSECTION_PROFPLAT">
+			<Texte>Un profil plat a été détecté sur la profil section {nomEMH}</Texte>
+			<LienDocumentation Href="FctCrue10/crue_doc__pretraitements_geometriques.html" Signet="__RefHeading__22548_2042069871" />
+		</Message>
+		<Message ID="ID_PTG_DIAG_PROFILSECTION_ZF_LITMAJEUR">
+			<Texte>Le point le plus bas du profil de section {nomEMH} n'est pas exclusivement dans un lit mineur, ce qui peut s'avérer problématique. Voir la documentation à ce sujet.</Texte>
+		</Message>
+		<Message ID="ID_PTG_EMHSECTIONINTERPOLEE_HORS_BRANCHE">
+			<Texte>Le PTG de la section interpolée {nomEMH} est impossible : section hors d'une branche.</Texte>
+		</Message>
+		<Message ID="ID_PTG_ECRITURE_LOI_NON_DEFINIE">
+			<Texte>Tentative d'écriture de la loi {1} de l'EMH {nomEMH} alors qu'elle n'est pas définie ! (PTG non réalisé ?)</Texte>
+		</Message>
+		<Message ID="ID_PTI_DIAG_QBR_NON_UNIFORME">
+			<Texte>Lors du traitement des diagnostics des conditions initiales, non atteinte de l’état permanent dans la branche {nomEMH} ; sections {1} et {2}, Q vaut {3} et {4}</Texte>
+		</Message>
+		<Message ID="ID_PTI_DIAG_QND_NON_NUL">
+			<Texte>Lors des diagnostics des conditions initiales, non atteinte de l’état permanent au nœud {nomEMH} : somme des débits entrants et sortants en ce noeud non nulle</Texte>
+		</Message>
+		<Message ID="ID_LARGEUR_BANDE_MATRICE">
+			<Texte>Scénario {nomEMH}, compte-tenu du réseau, la largeur de bande de la matrice est de {1} (pour une dimension de {2}).</Texte>
+		</Message>
+		<Message ID="ID_EMH_INACTIVE">
+			<Texte>L'EMH {nomEMH} est inactive.</Texte>
+		</Message>
+		<Message ID="ID_ANNULATION_TERME_INERTIE_DESACTIVE">
+			<Texte>FrLinInf ({1}) &gt; FrLinSup ({2}) : le mécanisme d'annulation du terme d'inertie est désactivé.</Texte>
+		</Message>
+		<Message ID="ID_PDT_IMPOSE_SUPERIEUR_CALCUL">
+			<Texte>Scénario {nomEMH}, calcul {3}, le pas de temps imposé {1} est supérieur au pas de temps calculé {2}.</Texte>
+		</Message>
+		<Message ID="ID_SCENARIO_DEVERROUILLAGE">
+			<Texte>Scénario {nomEMH} : déverrouillage du scénario en erreur. Nouveau statut : {1}.</Texte>
+		</Message>
+		<Message ID="ID_NOUVEAU_CALCUL">
+			<Texte>Lancement du calcul {2} {1}</Texte>
+		</Message>
+		<Message ID="ID_NOUVEAU_PDT">
+			<Texte>Calcul {7}, TempsSimu {1} s : calcul d'un nouveau pas de temps jusqu'à {4} (Pdt={2} s pour PdtMax={3} s) au sein de la période [{5} à {6} s]</Texte>
+		</Message>
+		<Message ID="ID_NOUVEAU_PSEUDO_PDT">
+			<Texte>Calcul {4}, pseudo-Pdt n.{1} : calcul d'un nouveau pas de temps pseudo-permanent (pseudo-pdt={2} s pour PdtMax={3} s)</Texte>
+		</Message>
+		<Message ID="ID_NOUVELLE_ITERATION_MOTEUR">
+			<Texte>Calcul {4} TempsSimu {2} s : nouvelle itération {1} (Pdt={3} s)</Texte>
+		</Message>
+		<Message ID="ID_DIVISION_PDT">
+			<Texte>Calcul {3}, TempsSimu {1} s : division du pas de temps sur incident de calcul, nouveau Pdt={2} s</Texte>
+		</Message>
+		<Message ID="ID_CALPERM_STABILISATION_ATTEINTE">
+			<Texte>Scénario {nomEMH} : Stabilisation du calcul permanent {7} atteinte (itération {1}/{2}, convergence en Z {3}/{4} en Q {5}/{6})</Texte>
+		</Message>
+		<Message ID="ID_CALPERM_NCONV_LISSAGE_CLIMM">
+			<Texte>Scénario {nomEMH} : non convergence du calcul permanent {2}, tentative de lissage des CLimM avec {1} pas de découpage</Texte>
+		</Message>
+		<Message ID="ID_CALCULS_CONVERGENCE_BRANCHES">
+			<Texte>Scénario {nomEMH} calcul {1} : toutes les branches ont leurs coefficients issus des relations de condensations qui ont convergé</Texte>
+		</Message>
+		<Message ID="ID_CORR_ND_ISOLE">
+			<Texte>Correction de la matrice pour nœud isolé {nomEMH} (indice {1})</Texte>
+		</Message>
+		<Message ID="ID_COTE_SUP_ZHAUT">
+			<Texte>Section {nomEMH} de la branche {3} : calcul pour une cote au dessus de Zhaut (Z={1}, Zhaut={2})</Texte>
+		</Message>
+		<Message ID="ID_VERSION">
+			<Texte>Version : Crue10 {1}.{2}.{3} , grammaire {4}.{5}</Texte>
+		</Message>
+		<Message ID="ID_PLATEFORME">
+			<Texte>Plateforme d'exécution : marchine {1}, architecture {2}.</Texte>
+		</Message>
+		<Message ID="ID_USAGE">
+			<Texte>Usage : {1}</Texte>
+		</Message>
+		<Message ID="ID_SCENARIO_COURANT">
+			<Texte>Utilisation du scénario courant {nomEMH}, de version {1}</Texte>
+		</Message>
+		<Message ID="ID_MODELE">
+			<Texte>Utilisation du modèle {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_CHEMIN_FICHIER">
+			<Texte>Fichier {nomEMH}, chemin : {1}</Texte>
+		</Message>
+		<Message ID="ID_LECTURE_FICHIER">
+			<Texte>Lecture fichier {1}</Texte>
+		</Message>
+		<Message ID="ID_ECRITURE_FICHIER">
+			<Texte>Ecriture fichier {1} (type {2})</Texte>
+		</Message>
+		<Message ID="ID_TIMING">
+			<Texte>Timing service {2} sur {nomEMH} : {1}</Texte>
+		</Message>
+		<Message ID="ID_AVCT_INACTIF">
+			<Texte>Fichier d'avancement inactif pour le service {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_MOTEUR_XML">
+			<Texte>Message XML : fichier {nomEMH} ({3}), l{1}c{2} : {4}.</Texte>
+		</Message>
+		<Message ID="ID_COMPARAISON_VARIABLE">
+			<Texte>En l'EMH {nomEMH}, la variable {6} est différente : {1} &lt;&gt; {2} (diff {3}, pour eps {4}), erreur relative {5}.</Texte>
+		</Message>
+		<Message ID="ID_FINPP0">
+			<Texte>En fin de pas pseudo-permanent {4} (itération {1}), sur la section {nomEMH} : Z={2} et Q={3}.</Texte>
+		</Message>
+		<Message ID="ID_FINPP">
+			<Texte>En fin de calcul pseudo-permanent {4} (itération {1}), sur la section {nomEMH} : Z={2} et Q={3}.</Texte>
+		</Message>
+		<Message ID="ID_FINPDT">
+			<Texte>En fin d'itération de calcul transitoire {4} (temps {1}), sur la section {nomEMH} : Z={2} et Q={3}.</Texte>
+		</Message>
+		<Message ID="ID_BIBCAL">
+			<Texte>Trace Bibcal : gravite={1}, code={2} nomMethode={3}, message={4}</Texte>
+		</Message>
+		<Message ID="ID_ENTREE_METHODE">
+			<Texte>Entrée méthode sur {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_ENTREE_METHODE_P">
+			<Texte>Entrée méthode sur {nomEMH} : {1}</Texte>
+		</Message>
+		<Message ID="ID_ENTREE_METHODE_PP">
+			<Texte>Entrée méthode sur {nomEMH} : {1}, {2}</Texte>
+		</Message>
+		<Message ID="ID_SORTIE_METHODE">
+			<Texte>Sortie méthode sur {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_SORTIE_METHODE_P">
+			<Texte>Sortie méthode sur {nomEMH} : {1}</Texte>
+		</Message>
+		<Message ID="ID_SORTIE_METHODE_PP">
+			<Texte>Sortie méthode sur {nomEMH} : {1} {2}</Texte>
+		</Message>
+		<Message ID="ID_SORTIE_METHODE_PPP">
+			<Texte>Sortie méthode sur {nomEMH} : {1} {2} {3}</Texte>
+		</Message>
+		<Message ID="ID_DEBOG_P">
+			<Texte>Trace de débog : {nomEMH} {1}</Texte>
+		</Message>
+		<Message ID="ID_DEBOG_PP">
+			<Texte>Trace de débog : {nomEMH} {1} {2}</Texte>
+		</Message>
+		<Message ID="ID_DEBOG_PPP">
+			<Texte>Trace de débog : {nomEMH} {1} {2} {3}</Texte>
+		</Message>
+		<Message ID="ID_DEBOG_NOM_SECTION">
+			<Texte>Trace de débog section : {nomEMH}</Texte>
+		</Message>
+		<Message ID="ID_PARAMNUM">
+			<Texte>Paramètres numériques des calculs : FrLinInf ({1}), FrLinSup ({2}), Zref ({3})</Texte>
+		</Message>
+		<Message ID="ID_ORDRE_CALCUL">
+			<Texte>Ordre de calcul : {nomEMH} de type {1} et méthode d'initialisation {2}</Texte>
+		</Message>
+		<Message ID="ID_PARAMCALC">
+			<Texte>Paramètres d'un calcul : {nomEMH} ({1})</Texte>
+		</Message>
+		<Message ID="ID_PARAMNUMCALCPPERM">
+			<Texte>Paramètres numériques des calculs pseudos-permanents : CoefRelaxQ ({3}), CoefRelaxZ ({4}), CrMaxFlu ({5}), CrMaxTor ({6}), NbrPdtDecoup ({1}), NbrPdtMax ({2}), TolMaxQ ({7}), TolMaxZ ({8})</Texte>
+		</Message>
+		<Message ID="ID_PARAMNUMCALCTRANS">
+			<Texte>Paramètres numériques des calculs transitoires : CrMaxFlu ({1}), CrMaxTor ({2}), ThetaPreissmann ({3}).</Texte>
+		</Message>
+		<Message ID="ID_PARAMCALCSCENARIO">
+			<Texte>Paramètres du scénario : date début ({3}), est atemporel({1}), avec des résultats à pas constant ({2}).</Texte>
+		</Message>
+		<Message ID="ID_PARAMPTRESEAU">
+			<Texte>Paramètres de pré-traitement réseau : méthode ({1})</Texte>
+		</Message>
+		<Message ID="ID_PARAMPTGEOMETRIE">
+			<Texte>Paramètres de pré-traitement géométrique : méthode ({1})</Texte>
+		</Message>
+		<Message ID="ID_PARAMPTCI">
+			<Texte>Paramètres de pré-traitement des CI : méthode ({1})</Texte>
+		</Message>
+		<Message ID="ID_PARAMSORTIES">
+			<Texte>Paramètres de sortie du service {nomEMH} : avct ({1}) std ({2}, {6}), r*.csv ({3}, {7}, {8}), alarme ({4}, {9}), r* ({5})</Texte>
+		</Message>
+		<Message ID="ID_PARAMLOIHYDATEMP">
+			<Texte>Paramètres de lois hydrauliques atemporelles {nomEMH} : type ({1})</Texte>
+		</Message>
+		<Message ID="ID_PARAMLOIHYDTEMP">
+			<Texte>Paramètres de lois hydrauliques temporelles {nomEMH} : type ({2}), dateZeroLoi ({3}), decalageSimulation({1})</Texte>
+		</Message>
+		<Message ID="ID_PARAM_ORES_CATEMH">
+			<Texte>Paramètres de sorties des résultats du scénario {nomEMH} : Catégorie d'EMH {1}, variable {2}</Texte>
+		</Message>
+		<Message ID="ID_PARAM_ORES_TYPEEMH">
+			<Texte>Paramètres de sorties des résultats du scénario {nomEMH} : Type d'EMH {1}, variable {2}</Texte>
+		</Message>
+		<Message ID="ID_PROFILCASIER">
+			<Texte>Profil casier {nomEMH}, associé au casier {2} de longueur {1}</Texte>
+		</Message>
+		<Message ID="ID_PROFILSECTION">
+			<Texte>Profil section {nomEMH} avec fente {1} (largeur {2}, profondeur {3})</Texte>
+		</Message>
+		<Message ID="ID_NOEUD">
+			<Texte>Nœud {nomEMH} (indice {1}) : Z={2}, Q={3}</Texte>
+		</Message>
+		<Message ID="ID_CASIER">
+			<Texte>Casier {nomEMH} (indice {1}) : Z={2}, Qech={3}, vol={4}, splan={5}, splanCal={6}</Texte>
+		</Message>
+		<Message ID="ID_BrSAINTVENANT">
+			<Texte>Br StVenant {nomEMH} (indice {1}) : Q={2}, vol={3}, Sact={4}, Ssto={5}</Texte>
+		</Message>
+		<Message ID="ID_SECTION">
+			<Texte>Section {nomEMH} (indice {1}) : Z={2}, Q={3}, Lact={4}, Lsto={5}, Ltot={6}, Sact={7}, Stot={8}, vit={9}, vitCrit={10}</Texte>
+		</Message>
+		<Message ID="ID_SECTION_INTERPOLEE">
+			<Texte>Section interpolée {nomEMH} Xp={1} : entre la section amont {6} (Xp={2}) et la section aval (Xp=[3}), coeff d'interpolation am={4} et av={5}</Texte>
+		</Message>
+		<Message ID="ID_COEF_SECTION">
+			<Texte>Coefficients de relation de condensation d'une section {nomEMH} (indice {1}) : den={2}, coefa={3}, coefb={4}, coefc={5}, coefd={6}, coefe={7}, coeff={8}</Texte>
+		</Message>
+		<Message ID="ID_COEF_REL_CONDENSATION">
+			<Texte>Coefficients de relation de condensation d'une branche {nomEMH} : idCalcul={10}, iteration={2}, tempsScenario={3}, dzm1={4}, dzv1={5}, dz1={6}, dzmn={7}, dzvn={8}, dzn={9}, convergenceBr={1}</Texte>
+		</Message>
+		<Message ID="ID_MATRICE_CARREE">
+			<Texte>Matrice carrée de dimension {1}, valeurs={v}</Texte>
+		</Message>
+		<Message ID="ID_VECTEUR">
+			<Texte>Vecteur de dimension {1}, valeurs={v}</Texte>
+		</Message>
+		<Message ID="ID_LISTE_BRANCHES">
+			<Texte>Liste des branches conectées au noeud {nomEMH} : {v}</Texte>
+		</Message>
+		<Message ID="ID_PARAMNATUREVARIABLE">
+			<Texte>Paramètres de nature de variable {nomEMH} : id ({1}), epsilonComparaison ({3}), precisionPresentaion ({2})</Texte>
+		</Message>
+		<Message ID="ID_PARAMVARIABLE">
+			<Texte>Paramètres de variable {nomEMH} : nature ({1}), validité ({2}, {3}), normalité ({4}, {5})</Texte>
+		</Message>
+		<Message ID="ID_PARAMCONSTANTE">
+			<Texte>Paramètres de constante {nomEMH} : nature ({1}), valeur ({2}, validité ({3}, {4}), normalité ({5}, {6})</Texte>
+		</Message>
+		<Message ID="ID_PARAMTYPELOIHYD">
+			<Texte>Paramètres des types de lois hydrauliques {nomEMH} : contrôle ({1}), extrapolInf ({2}), extrapolSup ({3}), variables ({4}, {5})</Texte>
+		</Message>
+		<Message ID="ID_PARAMCLIMCTE">
+			<Texte>Paramètres de CLimM constante : sur EMH={nomEMH} type {3}, active {1}, valeur {2}.</Texte>
+		</Message>
+		<Message ID="ID_PARAMMANOEUVRECTE">
+			<Texte>Paramètres de manœuvre constante : sur EMH={nomEMH} type {4}, active {1}, sensOuverture {2}, ouverture {3}.</Texte>
+		</Message>
+		<Message ID="ID_PARAMCLIMVAR">
+			<Texte>Paramètres de CLimM variable : sur EMH={nomEMH} type {2}, active {1}, loi {3}.</Texte>
+		</Message>
+		<Message ID="ID_PARAMMANOEUVREVAR">
+			<Texte>Paramètres de manœuvre variable : sur EMH={nomEMH} type {3}, active {1}, sensOuverture {2}, loi {4}.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_VALEUR_PP">
+			<Texte>Valeur de CLimMPP : sur EMH={nomEMH}, valeur CLimM imposée : {1}, réelle : {2}.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_VALEUR">
+			<Texte>Valeur de CLimM : sur EMH={nomEMH}, paramètre={1}, valeur CLimM imposée : {2}, réelle : {3}.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_VALEUR_DERIVEE">
+			<Texte>Valeur de CLimM : sur EMH={nomEMH}, paramètre={1}, valeur CLimM imposée : {2}, réelle : {3}, dérivée : {4}.</Texte>
+		</Message>
+		<Message ID="ID_CLIMM_PP">
+			<Texte>Calcul PP {6} Valeur de CLimM sur EMH={nomEMH} : valeur CLimM actuelle {3}, écart/imposé {4}, valeur imposée {5} (itération du découpage {1} sur {2}).</Texte>
+		</Message>
+		<Message ID="ID_VARSEC_EMHSECTION_ZCRITIQUE_ZF">
+			<Texte>Section {nomEMH} : la section possède un Z critique inférieur à Zf</Texte>
+		</Message>
+		<Message ID="ID_VARSEC_EMHSECTION_ZCRITIQUE_ZHAUT">
+			<Texte>Section {nomEMH} : la section possède un Z critique supérieur à Zhaut</Texte>
+		</Message>
+		<Message ID="ID_VARSEC_EMHSECTION_ZNORMAL_PENTENULLE">
+			<Texte>Section {nomEMH} : Zn = Zf. Cela est dû au fait que la pente Jf au niveau de la section est nulle. La dichotomie ne peut-être effectuée pour calculer Zn.</Texte>
+		</Message>
+		<Message ID="ID_VARSEC_EMHSECTION_ZNORMAL_ZF">
+			<Texte>Section {nomEMH} : Zn = Zf. Cela est dû à un débit probablement trop faible au niveau de la section.</Texte>
+		</Message>
+		<Message ID="ID_VARSEC_EMHSECTION_ZNORMAL_ZHAUT">
+			<Texte>Section {nomEMH} : la section possède un Z normal Zn supérieur à Zhaut</Texte>
+		</Message>
+	</Messages>
+</DecodageMessages>
+

@@ -1,0 +1,2890 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ce fichier xml est à mettre dans le répertoire de l'exécutable Crue10 -->
+<CrueConfigMetier xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/CrueConfigMetier-1.3.xsd">
+  <!-- Toutes les balises sont obligatoires, ainsi que leurs attributs. Sauf 
+		précision contraire, les balises ne peuvent pas être vides. -->
+
+  <!-- ATTENTION ! Note de maintenance des fichiers CCM :
+		Pour maintenir en cohérence les fichiers CCM de toutes les grammaire, il faut :
+		- identifier par un commentaire contenant le mot "grammaire" tous les endroits où les changements de grammaire ont un impact,
+		- tenir à jour le fichier CCM de la grammaire la plus récente, en fonction des évolutions de grammaire,
+			en laissant en commentaire les parties nécessaires aux anciennes grammaires,
+		- tenir à jour le fichier CCM de la grammaire la plus récente, en fonction des évolutions fonctionnelles (changements de valeurs, ajout de variables...),
+			en n'oubliant pas de modifier aussi les variables correspondantes des grammaires précédentes, 
+		- à partir du fichier CCM de la grammaire la plus récente, regénérer les fichiers CCM des grammaires précédentes en commentant/décommentant les lignes ad hoc,
+		- en conséquence, AUCUN COMMENTAIRE autre que technique n'est autorisé dans ce fichier, parce qu'il peut rendre inopérant le mécanisme ci-dessus,
+		- les commentaires fonctionnels sont hébergés dans le dictionnaire de données.
+	-->
+
+  <!-- Version du fichier CCM : g1.g2.ccm3 avec g1.g2, version de la grammaire courante, et ccm3 l'indice du fichier pour cette grammaire -->
+  <!-- Incrémenter ccm3 à chaque modification de fichier livrée -->
+  <!-- Mettre à jour également les fichiers etc\coeurs\c10m10\fichiers_vierges\default.XXXX.xml à chaque modification de ce numéro de version -->
+  <VersionCCM>1.3.0</VersionCCM>
+
+  <!-- Type de controle qui sera effectué sur la variation de la loi, sachant 
+		que l'ordre de rangement des points donne toujours l'ordre de progression -->
+  <TypeControleLois>
+    <ItemTypeControleLoi Nom="Tco_Aucun" />
+    <!-- Aucun contrôle sur les variations des abscisses et des ordonnées -->
+    <ItemTypeControleLoi Nom="Tco_AbsCrt" />
+    <!-- Les abscisses doivent être croissantes mais pas forcément strictement, 
+			donc 2 points consécutifs peuvent avoir la même abscisse -->
+    <ItemTypeControleLoi Nom="Tco_AbsCrtStrict" />
+    <!-- Les abscisses doivent être strictement croissantes -->
+  </TypeControleLois>
+  <!-- Types d'extrapolation, appliqués à une extrémité d'une loi -->
+  <TypeExtrapolLois>
+    <ItemTypeExtrapolLoi Nom="Tex_Aucun" />
+    <!-- Aucune extrapolation possible -->
+    <ItemTypeExtrapolLoi Nom="Tex_OrdCst" />
+    <!-- Extrapolation à valeur de l'ordonnée constante -->
+    <ItemTypeExtrapolLoi Nom="Tex_OrdInterpolLineaire" />
+    <!-- Extrapolation par interpolation linéaire de l'ordonnée -->
+  </TypeExtrapolLois>
+  <!-- Types numériques de stockage à affecter à chaque Nature de Variable -->
+  <!-- Dans les fichiers binaires, 
+		une variable de type Tnu_Entier est stockée dans un entier signé 32 bits
+		une variable de type Tnu_Reel est stockée dans un reel IEEE 64 bits,
+		une variable de type Enum est stockée dans une chaine de 32 car. -->
+  <TypeNumeriques>
+    <ItemTypeNumerique Nom="Tnu_Entier">
+      <Infini>2000000000</Infini>
+    </ItemTypeNumerique>
+    <ItemTypeNumerique Nom="Tnu_Reel">
+      <Infini>1.0E30</Infini>
+    </ItemTypeNumerique>
+  </TypeNumeriques>
+
+  <TypeEnums>
+    <ItemTypeEnum Nom="Ten_ClicheOrigine">
+      <ItemEnum Id="0">CalculPseudoPermanent</ItemEnum>
+      <ItemEnum Id="1">CalculTransitoire</ItemEnum>
+      <ItemEnum Id="2">Initialisation</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_ClicheQualite">
+      <ItemEnum Id="0">Normale</ItemEnum>
+      <ItemEnum Id="1">Erreur</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_Etiquette">
+      <ItemEnum Id="0">Et_AxeHyd</ItemEnum>
+      <ItemEnum Id="1">Et_LimLit</ItemEnum>
+      <ItemEnum Id="2">Et_Thalweg</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_FormulePdc">
+      <ItemEnum Id="0">DIVERGENT</ItemEnum>
+      <ItemEnum Id="1">BORDA</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_LitNomme">
+      <ItemEnum Id="0">Lt_StoD</ItemEnum>
+      <ItemEnum Id="1">Lt_MajD</ItemEnum>
+      <ItemEnum Id="2">Lt_Mineur</ItemEnum>
+      <ItemEnum Id="3">Lt_MajG</ItemEnum>
+      <ItemEnum Id="4">Lt_StoG</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_MethodeInterpol">
+      <ItemEnum Id="0">ZIMP_AUX_SECTIONS</ItemEnum>
+      <ItemEnum Id="1">LINEAIRE</ItemEnum>
+      <ItemEnum Id="2">SAINT_VENANT</ItemEnum>
+      <ItemEnum Id="3">BAIGNOIRE</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_PosBordure">
+      <ItemEnum Id="0">PAS_BORDURE</ItemEnum>
+      <ItemEnum Id="1">BORDURE_DROITE</ItemEnum>
+      <ItemEnum Id="2">BORDURE_GAUCHE</ItemEnum>
+      <ItemEnum Id="3">BORDURE_2_COTES</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_PosSection">
+      <ItemEnum Id="0">AMONT</ItemEnum>
+      <ItemEnum Id="1">INTERNE</ItemEnum>
+      <ItemEnum Id="2">AVAL</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_RegimeBarrage">
+      <ItemEnum Id="0">MANOEUVRANT</ItemEnum>
+      <ItemEnum Id="1">NOYE</ItemEnum>
+      <ItemEnum Id="2">DENOYE</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_RegimeOrifice">
+      <ItemEnum Id="0">HORS_EAU</ItemEnum>
+      <ItemEnum Id="1">NSU_DEN</ItemEnum>
+      <ItemEnum Id="2">NSU_NOY</ItemEnum>
+      <ItemEnum Id="3">SUB_DEN</ItemEnum>
+      <ItemEnum Id="4">SUB_NOY</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_RegimeSeuil">
+      <ItemEnum Id="0">HORS_EAU</ItemEnum>
+      <ItemEnum Id="1">NSU_DEN</ItemEnum>
+      <ItemEnum Id="2">NSU_NOY</ItemEnum>
+      <ItemEnum Id="3">MIXTE</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_SensOrifice">
+      <ItemEnum Id="0">BIDIRECT</ItemEnum>
+      <ItemEnum Id="1">DIRECT</ItemEnum>
+      <ItemEnum Id="2">INDIRECT</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_SensOuv">
+      <ItemEnum Id="0">OUV_VERS_HAUT</ItemEnum>
+      <ItemEnum Id="1">OUV_VERS_BAS</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_Severite">
+      <ItemEnum Id="0">FATAL</ItemEnum>
+      <ItemEnum Id="10">ERRBLK</ItemEnum>
+      <ItemEnum Id="20">ERRNBLK</ItemEnum>
+      <ItemEnum Id="30">WARN</ItemEnum>
+      <ItemEnum Id="40">INFO</ItemEnum>
+      <ItemEnum Id="50">FCT1</ItemEnum>
+      <ItemEnum Id="60">FCT2</ItemEnum>
+      <ItemEnum Id="70">FCT3</ItemEnum>
+      <ItemEnum Id="80">DEBUG1</ItemEnum>
+      <ItemEnum Id="90">DEBUG2</ItemEnum>
+      <ItemEnum Id="100">DEBUG3</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_TypeLit">
+      <ItemEnum Id="0">MINEUR</ItemEnum>
+      <ItemEnum Id="1">MAJEUR</ItemEnum>
+      <ItemEnum Id="2">STOCKAGE</ItemEnum>
+    </ItemTypeEnum>
+  </TypeEnums>
+
+  <Natures>
+    <!-- Natures de Variables -->
+    <ItemNature Nom="Nat_Beta">
+      <!-- Attribut de type ID -->
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <!-- Permet d'affecter à la Nature un TypeNumerique de stockage, ce qui servira notamment à déterminer la valeur de l'infini -->
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <!-- Réel positif ne peut pas etre vide -->
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <!-- Réel positif ne peut pas etre vide -->
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <!-- Réel positif ne peut pas etre vide -->
+      <Unite></Unite>
+      <!-- Chaine de caractère pour l'affichage: peut être vide. Utiliser ^() pour les exposants -->
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefBeta">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefConv">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefCtr">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefD">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefDiv">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefPdc">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefPdt">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefPond">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefRelax">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <!-- Grammaire v1.3 : Nouvelle Nature Nat_CoefRelaxTolMaxQ -->
+    <ItemNature Nom="Nat_CoefRelaxTolMaxQ">
+      <TypeNumerique NomRef="Tnu_Entier" />
+      <EpsilonComparaison>1E0</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E0</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <!-- Grammaire v1.3 : Nouvelle Nature Nat_CoefRelaxTolMaxZ -->
+    <ItemNature Nom="Nat_CoefRelaxTolMaxZ">
+      <TypeNumerique NomRef="Tnu_Entier" />
+      <EpsilonComparaison>1E0</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E0</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefRelCond">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-4</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-4</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-4</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefRuis">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-8</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-8</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-8</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefRuisQdm">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-8</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-8</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-8</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefSinuo">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefSys">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_CoefW">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Cr">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_D">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>m^(3)/s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Date">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E0</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E0</EpsilonPresentation>
+      <Unite>s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Dh">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Dj">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>(m/m)/(m/m)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Dq">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>m3/s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Dt">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Dx">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Dy">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Dz">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Eps">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-8</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-8</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-8</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Fr">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-4</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-4</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-4</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Gravite">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>m/s^(2)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Jfx">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-6</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-6</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-6</EpsilonPresentation>
+      <Unite>m/m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Jfy">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-6</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-6</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-6</EpsilonPresentation>
+      <Unite>m/m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Jx">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-6</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-6</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-6</EpsilonPresentation>
+      <Unite>m/m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_K">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>m^(1/3)/s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Ksto">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>m^(1/3)/s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_N">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-6</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-6</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-6</EpsilonPresentation>
+      <Unite>s/m^(1/3)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Nbr">
+      <TypeNumerique NomRef="Tnu_Entier" />
+      <EpsilonComparaison>1E0</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E0</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <!-- Grammaire v1.3 : Nouvelle Nature Nat_NbrDecoupIncid -->
+    <ItemNature Nom="Nat_NbrDecoupIncid">
+      <TypeNumerique NomRef="Tnu_Entier" />
+      <EpsilonComparaison>1E0</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E0</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Nsto">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-6</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-6</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-6</EpsilonPresentation>
+      <Unite>s/m^(1/3)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Num">
+      <TypeNumerique NomRef="Tnu_Entier" />
+      <EpsilonComparaison>1E0</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E0</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Ouv">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-2</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-2</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-2</EpsilonPresentation>
+      <Unite>m/(100m)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_ParamCalc">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-8</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-8</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-8</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Pdc">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>mce</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Q">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-4</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-4</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-4</EpsilonPresentation>
+      <Unite>m^(3)/s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Qlin">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-8</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-8</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-8</EpsilonPresentation>
+      <Unite>m^(2)/s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Rau">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>kg/m^(3)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_S">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-4</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-4</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-4</EpsilonPresentation>
+      <Unite>m^(2)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_SeuilSimplif">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>m</Unite >
+    </ItemNature>
+    <ItemNature Nom="Nat_Splan">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-2</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-2</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-2</EpsilonPresentation>
+      <Unite>m^(2)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Tau">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>kg/m/s^(2)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Theta">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_TolQ">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>m^(3)/s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_TolZ">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-7</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-7</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-7</EpsilonPresentation>
+      <Unite>m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_TolRelQ">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-8</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-8</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-8</EpsilonPresentation>
+      <Unite>(m^(3)/s)/(m^(3)/s)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Tx">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_TxD">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>(m^(3)/s)/(m^(3)/s)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_TxS">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>m^(2)/m^(2)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_V">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-4</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-4</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-4</EpsilonPresentation>
+      <Unite>m/s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Vol">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>m^(3)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_X">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>m</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Z">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite>mNGF</Unite>
+    </ItemNature>
+  </Natures>
+  <!--
+		Conventions d'écriture :
+		- les infinis sont représentés par les chaines "-Infini" et "+Infini",
+		- les valeurs de cette section sont écrites sous forme de chaine de caractères
+			pouvant prendre les valeurs suivantes :
+			- "-Infini" - "+Infini" 
+			- une valeur numérique que l'on peut caster dans le type de la nature de la variable
+	-->
+  <!--
+		Règles d'intégrité :
+		- le Min doit être inférieur ou égal au Max 
+		- dans le cas ou le Min et le max sont tous les deux Strict="true", alors le Min doit être strictement inférieur
+			au Max
+		- la plage (entre Min et Max) de Normalité doit etre incluse dans la plage de Validité
+		- rappel : l'ensemble de Validité est constitué de l'union de la plage de Validité
+			et de la valeur par défaut
+	-->
+  <Constantes>
+    <ItemConstante Nom="DdPtgEpsilon">
+      <Nature NomRef="Nat_D" />
+      <Valeur>0.001</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DhLinSeuil">
+      <Nature NomRef="Nat_Dh" />
+      <Valeur>0.01</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DpPtgEpsilon">
+      <Nature NomRef="Nat_Dy" />
+      <Valeur>0.01</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DsPtgEpsilon">
+      <Nature NomRef="Nat_S" />
+      <Valeur>0.001</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DxXtEpsilon">
+      <Nature NomRef="Nat_Dx" />
+      <Valeur>0.002</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DzLinOrifice">
+      <Nature NomRef="Nat_Dz" />
+      <Valeur>0.01</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DzLinSeuil">
+      <Nature NomRef="Nat_Dz" />
+      <Valeur>0.1</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DzLinStrickler">
+      <Nature NomRef="Nat_Dz" />
+      <Valeur>0.01</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DzMinOuverture">
+      <Nature NomRef="Nat_Dz" />
+      <Valeur>0.0001</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">1.</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DzPtgEpsilon">
+      <Nature NomRef="Nat_Dz" />
+      <Valeur>0.00000001</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DzPtgPlat">
+      <Nature NomRef="Nat_Dz" />
+      <Valeur>0.02</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="DzPtgZhaut">
+      <Nature NomRef="Nat_Dz" />
+      <Valeur>0.1</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_Don_c9c9">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_Don_c9c10">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_Don_c10c10">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_RPT_c9c9">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_RPT_c9c10">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_RPT_c10c10">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_RCAL_c9c9">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_RCAL_c9c10">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="EpsCompRel_RCAL_c10c10">
+      <Nature NomRef="Nat_Eps" />
+      <Valeur>1E-6</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="Gr">
+      <Nature NomRef="Nat_Gravite" />
+      <Valeur>9.81</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="NbrPdtDecoupIncidPseudoPerm">
+      <Nature NomRef="Nat_Nbr" />
+      <Valeur>10</Valeur>
+      <MinValidite Strict="true">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="NbrPdtDecoupIncidTrans">
+      <Nature NomRef="Nat_Nbr" />
+      <Valeur>5</Valeur>
+      <MinValidite Strict="true">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="CoefMultiplicateurPdt">
+      <Nature NomRef="Nat_CoefPdt" />
+      <Valeur>1.2</Valeur>
+      <MinValidite Strict="true">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="NbrIterMax">
+      <Nature NomRef="Nat_Nbr" />
+      <Valeur>100</Valeur>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="NbrIterMin">
+      <Nature NomRef="Nat_Nbr" />
+      <Valeur>2</Valeur>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="RauH2O">
+      <Nature NomRef="Nat_Rau" />
+      <Valeur>1000</Valeur>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">950</MinNormalite>
+      <MaxNormalite Strict="false">1001</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="TolMaxZPdt">
+      <Nature NomRef="Nat_TolZ" />
+      <Valeur>0.0001</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemConstante>
+    <ItemConstante Nom="YminStrickler">
+      <Nature NomRef="Nat_Dz" />
+      <Valeur>0.001</Valeur>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">100.</MaxNormalite>
+    </ItemConstante>
+
+    <ItemConstanteVecteur Nom="ParamCalcEMHBrancheBarrageFilEau">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur>0.001 0.8 </ValeurVecteur>
+    </ItemConstanteVecteur>
+    <ItemConstanteVecteur Nom="ParamCalcEMHBrancheBarrageGenerique">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur></ValeurVecteur>
+    </ItemConstanteVecteur>
+    <ItemConstanteVecteur Nom="ParamCalcEMHBrancheOrifice">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur>1.0 0.5 1.0 5.0 1.0 0.05 0.001 0.01 0.4 0.75 0.15 0.1 0.6 0.2 0.2 1.5 2. 1.e-7</ValeurVecteur>
+    </ItemConstanteVecteur>
+    <ItemConstanteVecteur Nom="ParamCalcEMHBranchePdc">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur></ValeurVecteur>
+    </ItemConstanteVecteur>
+    <ItemConstanteVecteur Nom="ParamCalcEMHBrancheSaintVenant">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur>0.5 0.5 1.e12</ValeurVecteur>
+    </ItemConstanteVecteur>
+    <ItemConstanteVecteur Nom="ParamCalcEMHBrancheSeuilLateral">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur>1.0 0.5 1.0 5. 0.05 0.001 0.01 0.4 0.65 0.15 0.1 0.6 0.2 0.2</ValeurVecteur>
+    </ItemConstanteVecteur>
+    <ItemConstanteVecteur Nom="ParamCalcEMHBrancheSeuilTransversal">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur>1.0 0.001 0.75 0.01 0.5 0.001 10. 0.005 15. 0.01 20. 0.05 0.00001 0.01 0.00001 1000. 500.</ValeurVecteur>
+    </ItemConstanteVecteur>
+    <ItemConstanteVecteur Nom="ParamCalcEMHBrancheStrickler">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur>1.0 0.5 1.0 5. 1.0 0.01 0.001 0.05 10. 0.005 15. 0.01 20. 0.05 0.01 0.4 0.65 0.15 0.1 0.6 0.2 0.2 0.0001</ValeurVecteur>
+    </ItemConstanteVecteur>
+    <ItemConstanteVecteur Nom="ParamCalcEMHCasierProfil">
+      <Nature NomRef="Nat_ParamCalc" />
+      <ValeurVecteur>0.01 0.3 0.25 0.65 0.1</ValeurVecteur>
+    </ItemConstanteVecteur>
+  </Constantes>
+
+  <Variables>
+    <!-- Variables de type Enum -->
+    <ItemVariable Nom="FormulePdc">
+      <TypeEnum NomRef="Ten_FormulePdc" />
+      <EnumValeurDefaut>DIVERGENT</EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="MethodeInterpol">
+      <TypeEnum NomRef="Ten_MethodeInterpol" />
+      <EnumValeurDefaut>LINEAIRE</EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="PosBordure">
+      <TypeEnum NomRef="Ten_PosBordure" />
+      <EnumValeurDefaut></EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="PosSection">
+      <TypeEnum NomRef="Ten_PosSection" />
+      <EnumValeurDefaut></EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="RegimeBarrage">
+      <TypeEnum NomRef="Ten_RegimeBarrage" />
+      <EnumValeurDefaut></EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="RegimeOrifice">
+      <TypeEnum NomRef="Ten_RegimeOrifice" />
+      <EnumValeurDefaut>HORS_EAU</EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="RegimeSeuil">
+      <TypeEnum NomRef="Ten_RegimeSeuil" />
+      <EnumValeurDefaut></EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="SensOrifice">
+      <TypeEnum NomRef="Ten_SensOrifice" />
+      <EnumValeurDefaut>BIDIRECT</EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="SensOuv">
+      <TypeEnum NomRef="Ten_SensOuv" />
+      <EnumValeurDefaut>OUV_VERS_HAUT</EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="TypeLit">
+      <TypeEnum NomRef="Ten_TypeLit" />
+      <EnumValeurDefaut></EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="Verbosite">
+      <TypeEnum NomRef="Ten_Severite" />
+      <EnumValeurDefaut>INFO</EnumValeurDefaut>
+    </ItemVariable>
+
+    <!-- Variables de type numérique -->
+    <ItemVariable Nom="Beta">
+      <Nature NomRef="Nat_Beta" />
+      <ValeurDefaut>1.0</ValeurDefaut>
+      <MinValidite Strict="true">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1.0</MinNormalite>
+      <MaxNormalite Strict="false">1.5</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefBeta">
+      <Nature NomRef="Nat_CoefBeta" />
+      <ValeurDefaut>1.0</ValeurDefaut>
+      <MinValidite Strict="true">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0.0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefConv">
+      <Nature NomRef="Nat_CoefConv" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.0</MinNormalite>
+      <MaxNormalite Strict="false">0.5</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefCtr">
+      <Nature NomRef="Nat_CoefCtr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.6</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefCtrLim">
+      <Nature NomRef="Nat_CoefCtr" />
+      <ValeurDefaut>0.65</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.6</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefD">
+      <Nature NomRef="Nat_CoefD" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.2</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefDiv">
+      <Nature NomRef="Nat_CoefDiv" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefKextrapol">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">8</MinNormalite>
+      <MaxNormalite Strict="false">60</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefPdc">
+      <Nature NomRef="Nat_CoefPdc" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.2</MinNormalite>
+      <MaxNormalite Strict="false">1.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefPond">
+      <Nature NomRef="Nat_CoefPond" />
+      <ValeurDefaut>0.5</ValeurDefaut>
+      <MinValidite Strict="true">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.5</MinNormalite>
+      <MaxNormalite Strict="false">1.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefRelaxQ">
+      <Nature NomRef="Nat_CoefRelax" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="true">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefRelaxTolMaxQ">
+      <Nature NomRef="Nat_CoefRelaxTolMaxQ" />
+      <ValeurDefaut>10</ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefRelaxTolMaxZ">
+      <Nature NomRef="Nat_CoefRelaxTolMaxZ" />
+      <ValeurDefaut>10</ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefRelaxZ">
+      <Nature NomRef="Nat_CoefRelax" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="true">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefRuis">
+      <Nature NomRef="Nat_CoefRuis" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-10</MinNormalite>
+      <MaxNormalite Strict="false">10</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefRuisQdm">
+      <Nature NomRef="Nat_CoefRuisQdm" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefSinuo">
+      <Nature NomRef="Nat_CoefSinuo" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefW1">
+      <Nature NomRef="Nat_CoefW" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">200</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefW2">
+      <Nature NomRef="Nat_CoefW" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Cr">
+      <Nature NomRef="Nat_Cr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CrMaxFlu">
+      <Nature NomRef="Nat_Cr" />
+      <ValeurDefaut>+Infini</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.1</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CrMaxTor">
+      <Nature NomRef="Nat_Cr" />
+      <ValeurDefaut>+Infini</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.1</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Dact">
+      <Nature NomRef="Nat_D" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Date">
+      <Nature NomRef="Nat_Date" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">1700-01-01T00:00:00.000</MinValidite>
+      <MaxValidite Strict="false">2100-12-12T23:59:59.999</MaxValidite>
+      <MinNormalite Strict="false">1900-01-01T00:00:00.000</MinNormalite>
+      <MaxNormalite Strict="false">2099-12-12T23:59:59.999</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DateDebSce">
+      <Nature NomRef="Nat_Date" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">1700-01-01T00:00:00.000</MinValidite>
+      <MaxValidite Strict="false">2100-12-12T23:59:59.999</MaxValidite>
+      <MinNormalite Strict="false">1900-01-01T00:00:00.000</MinNormalite>
+      <MaxNormalite Strict="false">2099-12-12T23:59:59.999</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DateZeroLoiDF">
+      <Nature NomRef="Nat_Date" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">1700-01-01T00:00:00.000</MinValidite>
+      <MaxValidite Strict="false">2100-12-12T23:59:59.999</MaxValidite>
+      <MinNormalite Strict="false">1900-01-01T00:00:00.000</MinNormalite>
+      <MaxNormalite Strict="false">2099-12-12T23:59:59.999</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Distance">
+      <Nature NomRef="Nat_X" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DureeCalc">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut>86400</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">3456000</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">3456000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DureePdt">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">3456000</MaxValidite>
+      <MinNormalite Strict="false">0.01</MinNormalite>
+      <MaxNormalite Strict="false">86400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DureeSce">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">3456000</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">3456000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Dx">
+      <Nature NomRef="Nat_Dx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DxXtDefaut">
+      <Nature NomRef="Nat_Dx" />
+      <ValeurDefaut>100.0</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Dq">
+      <Nature NomRef="Nat_Dq" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Dz">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DzSectionIdem">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="FenteTxD">
+      <Nature NomRef="Nat_TxD" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">0.05</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="FenteTxS">
+      <Nature NomRef="Nat_TxS" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">0.05</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Fr">
+      <Nature NomRef="Nat_Fr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-1.2</MinNormalite>
+      <MaxNormalite Strict="false">1.2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="FrLinInf">
+      <Nature NomRef="Nat_Fr" />
+      <ValeurDefaut>+Infini</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.6</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="FrLinSup">
+      <Nature NomRef="Nat_Fr" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.6</MinNormalite>
+      <MaxNormalite Strict="false">1.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="H">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Haut">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">30</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Hmax">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Hmin">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Hs">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="J">
+      <Nature NomRef="Nat_Jx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-0.1</MinNormalite>
+      <MaxNormalite Strict="false">0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Jf">
+      <Nature NomRef="Nat_Jfx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-0.1</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="K">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">8</MinNormalite>
+      <MaxNormalite Strict="false">60</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Kact_eq">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">5</MinNormalite>
+      <MaxNormalite Strict="false">120</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="KmajD">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">5</MinNormalite>
+      <MaxNormalite Strict="false">120</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="KmajG">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">5</MinNormalite>
+      <MaxNormalite Strict="false">120</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Kmin">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">5</MinNormalite>
+      <MaxNormalite Strict="false">120</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Ksto">
+      <Nature NomRef="Nat_Ksto" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">0</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Ksup">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">60</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="L">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Lact">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Largeur">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="LargeurFente">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Lcont">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Linf">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Lit">
+      <Nature NomRef="Nat_Num" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">10</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">10</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Lmin">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Lmaj">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Longueur">
+      <Nature NomRef="Nat_Dx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="LongueurMajeur">
+      <Nature NomRef="Nat_Dx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="LongueurMineur">
+      <Nature NomRef="Nat_Dx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Lsto">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Lsup">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Ltot">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="N">
+      <Nature NomRef="Nat_N" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.015</MinNormalite>
+      <MaxNormalite Strict="false">0.125</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Nsto">
+      <Nature NomRef="Nat_Nsto" />
+      <ValeurDefaut>+Infini</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Nbr">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrCatEMHBranche">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">1000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrCatEMHCasier">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrCatEMHConteneur">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrCatEMHNoeud">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">600</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrCatEMHSection">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">2500</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrDecoupIncid">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">1</MinNormalite>
+      <MaxNormalite Strict="false">10</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrLitMax">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>10</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">10</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">10</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrPdt">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrPdtDecoup">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrPdtMax">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>40</ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrPdz">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>50</ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrPtLoi">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">2400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrPtProfil">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">2</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">2</MinNormalite>
+      <MaxNormalite Strict="false">400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NumLitZf">
+      <Nature NomRef="Nat_Num" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">10</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">10</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Ouv">
+      <Nature NomRef="Nat_Ouv" />
+      <ValeurDefaut>100</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="OuvVersBas">
+      <Nature NomRef="Nat_Ouv" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="OuvVersHaut">
+      <Nature NomRef="Nat_Ouv" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="P">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pact">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pdc">
+      <Nature NomRef="Nat_Pdc" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">30</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pdt">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.01</MinNormalite>
+      <MaxNormalite Strict="false">86400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="PdtCouplage">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">86400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="PdtCst">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.01</MinNormalite>
+      <MaxNormalite Strict="false">86400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="PdtPerm">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut>3600</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.01</MinNormalite>
+      <MaxNormalite Strict="false">86400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="PdtRes">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut>3600</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">86400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="PdtTrans">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut>900</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.01</MinNormalite>
+      <MaxNormalite Strict="false">86400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="PdtVar">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.01</MinNormalite>
+      <MaxNormalite Strict="false">86400</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pdx">
+      <Nature NomRef="Nat_Dx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">1000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pdz">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.01</MinNormalite>
+      <MaxNormalite Strict="false">10</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_Decal">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.2</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_DpenteMax">
+      <Nature NomRef="Nat_Dj" />
+      <ValeurDefaut>2</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_LargSeuil">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut>100</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">10</MinNormalite>
+      <MaxNormalite Strict="false">200</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_ProfPlat">
+      <Nature NomRef="Nat_Jfy" />
+      <ValeurDefaut>0.0001</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_PenteRupture">
+      <Nature NomRef="Nat_Jfx" />
+      <ValeurDefaut>0.00001</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_PdxMax">
+      <Nature NomRef="Nat_Dx" />
+      <ValeurDefaut>200</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">1000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_PenteMax">
+      <Nature NomRef="Nat_Jfx" />
+      <ValeurDefaut>0.01</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_QbrUniforme">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut>0.001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.0001</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_Qnd">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut>0.001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.0001</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_TolNdZ">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.01</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.001</MinNormalite>
+      <MaxNormalite Strict="false">0.10</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_TolStQ">
+      <Nature NomRef="Nat_Dq" />
+      <ValeurDefaut>0.01</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.001</MinNormalite>
+      <MaxNormalite Strict="false">0.10</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pm_VarPdxMax">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pmin">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Pmaj">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ProfondeurFente">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>10</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.01</MinNormalite>
+      <MaxNormalite Strict="false">30</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Psup">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Q">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15000.0</MinNormalite>
+      <MaxNormalite Strict="false">15000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qam">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15000.0</MinNormalite>
+      <MaxNormalite Strict="false">15000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qapp">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15000.0</MinNormalite>
+      <MaxNormalite Strict="false">15000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qav">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15000.0</MinNormalite>
+      <MaxNormalite Strict="false">15000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qdeb">
+      <Nature NomRef="Nat_Qlin" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-0.000001</MinNormalite>
+      <MaxNormalite Strict="false">0.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qini">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15000.0</MinNormalite>
+      <MaxNormalite Strict="false">15000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qech">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15000.0</MinNormalite>
+      <MaxNormalite Strict="false">15000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qlat">
+      <Nature NomRef="Nat_Qlin" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-0.000001</MinNormalite>
+      <MaxNormalite Strict="false">0.000001</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="QLimInf">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut>-Infini</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15000.0</MinNormalite>
+      <MaxNormalite Strict="false">0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="QLimSup">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut>+Infini</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.0</MinNormalite>
+      <MaxNormalite Strict="false">15000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qpil">
+      <Nature NomRef="Nat_Q" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.0</MinNormalite>
+      <MaxNormalite Strict="false">15000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Qruis">
+      <Nature NomRef="Nat_Qlin" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-0.1</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Rh">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Rhact">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="RegleDecal">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="RegleLargSeuil">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">10</MinNormalite>
+      <MaxNormalite Strict="false">200</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ReglePdxMax">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">1000.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ReglePenteMax">
+      <Nature NomRef="Nat_Jfx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ReglePenteRupture">
+      <Nature NomRef="Nat_Jfx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="RegleProfPlat">
+      <Nature NomRef="Nat_Jfy" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Sact">
+      <Nature NomRef="Nat_S" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SeuilSimplifProfilCasier">
+      <Nature NomRef="Nat_SeuilSimplif" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">2.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SeuilSimplifProfilSection">
+      <Nature NomRef="Nat_SeuilSimplif" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">2.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Smin">
+      <Nature NomRef="Nat_S" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Smaj">
+      <Nature NomRef="Nat_S" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Splan">
+      <Nature NomRef="Nat_Splan" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SplanAct">
+      <Nature NomRef="Nat_Splan" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SplanBati">
+      <Nature NomRef="Nat_Splan" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SplanSto">
+      <Nature NomRef="Nat_Splan" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SplanTot">
+      <Nature NomRef="Nat_Splan" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Ssto">
+      <Nature NomRef="Nat_S" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Ssup">
+      <Nature NomRef="Nat_S" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Stot">
+      <Nature NomRef="Nat_S" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="StriRefC">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">8</MinNormalite>
+      <MaxNormalite Strict="false">60.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="StriRefY">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">8</MinNormalite>
+      <MaxNormalite Strict="false">60.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="StriRefZ">
+      <Nature NomRef="Nat_K" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">8</MinNormalite>
+      <MaxNormalite Strict="false">60.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Tauact">
+      <Nature NomRef="Nat_Tau" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">1000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TempsCalc">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">3456000</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">3456000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TempsLoi">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">3456000</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">3456000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TempsReprise">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">3456000</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">3456000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TempsRes">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">3456000</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">3456000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TempsSce">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">3456000</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">3456000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ThetaPreissmann">
+      <Nature NomRef="Nat_Theta" />
+      <ValeurDefaut>0.75</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.5</MinNormalite>
+      <MaxNormalite Strict="false">1.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TolMaxQ">
+      <Nature NomRef="Nat_TolQ" />
+      <ValeurDefaut>0.01</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.001</MinNormalite>
+      <MaxNormalite Strict="false">10.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TolMaxZ">
+      <Nature NomRef="Nat_TolZ" />
+      <ValeurDefaut>0.001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.001</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TolRelQndPerm">
+      <Nature NomRef="Nat_TolRelQ" />
+      <ValeurDefaut>0.00001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TolRelQstPerm">
+      <Nature NomRef="Nat_TolRelQ" />
+      <ValeurDefaut>0.00001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Tx">
+      <Nature NomRef="Nat_Tx" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Ustaract">
+      <Nature NomRef="Nat_V" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">4</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="V">
+      <Nature NomRef="Nat_V" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-4</MinNormalite>
+      <MaxNormalite Strict="false">+4</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Vact">
+      <Nature NomRef="Nat_V" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-4</MinNormalite>
+      <MaxNormalite Strict="false">+4</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Vc">
+      <Nature NomRef="Nat_V" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+15</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Vol">
+      <Nature NomRef="Nat_Vol" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Vtot">
+      <Nature NomRef="Nat_V" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-4</MinNormalite>
+      <MaxNormalite Strict="false">+4</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Xp">
+      <Nature NomRef="Nat_X" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Xt">
+      <Nature NomRef="Nat_X" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-2500</MinNormalite>
+      <MaxNormalite Strict="false">+2500</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Y">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Yact">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+20</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Yc">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Yn">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">+100</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Z">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zam">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zav">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ZBatiTotal">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zc">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zf">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ZfSsFente">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zhaut">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zimp">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zini">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut>+Infini</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ZLimDLitMaj">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ZLimDLitMin">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ZLimDLitSto">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ZLimGLitMaj">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ZLimGLitMin">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="ZLimGLitSto">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zn">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zref">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zseuil">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+  </Variables>
+  <ConfigLois>
+    <ItemConfigLoi Nom="Fk">
+      <!-- <Commentaire>Frottement donné en Strickler</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="K" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="FkSto">
+      <!-- <Commentaire>Frottement donné en Strickler pour un lit non actif</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Ksto" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="Fn">
+      <!-- <Commentaire>Frottement donné en Manning</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="N" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="FnSto">
+      <!-- <Commentaire>Frottement donné en Manning pour un lit non actif</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Nsto" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiPdcQ">
+      <!-- <Commentaire>Loi de tarage inverse</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdInterpolLineaire" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Q" />
+      <VarOrdonnee NomRef="Dz" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiPtProfil">
+      <!-- <Commentaire>Profil en travers</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Xt" />
+      <VarOrdonnee NomRef="Z" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiQDz">
+      <!-- <Commentaire>Loi de régime noyé</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Q" />
+      <VarOrdonnee NomRef="Dz" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiQDq">
+      <!-- <Commentaire>Derivee issue loi QPdc</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Q" />
+      <VarOrdonnee NomRef="Dq" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiQPdc">
+      <!-- <Commentaire>Loi de perte de charge (Dz)</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Q" />
+      <VarOrdonnee NomRef="Pdc" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiQpilZam">
+      <!-- <Commentaire>Loi de régime dénoyé</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdInterpolLineaire" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Qpil" />
+      <VarOrdonnee NomRef="Zam" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiQZ">
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Q" />
+      <VarOrdonnee NomRef="Z" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiQZimp">
+      <!-- <Commentaire>Loi de tarage</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Q" />
+      <VarOrdonnee NomRef="Zimp" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiSectionsZ">
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Xt" />
+      <VarOrdonnee NomRef="Z" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiTOuv">
+      <!-- <Commentaire>Chronique de manœuvre</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="TempsLoi" />
+      <VarOrdonnee NomRef="Ouv" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiTQ">
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="TempsSce" />
+      <VarOrdonnee NomRef="Q" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiTQapp">
+      <!-- <Commentaire>Chronique d'hydrogramme d'apport</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="TempsLoi" />
+      <VarOrdonnee NomRef="Qapp" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiTQruis">
+      <!-- <Commentaire>Chronique d'hydrogramme de ruissellement</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="TempsLoi" />
+      <VarOrdonnee NomRef="Qruis" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiTZ">
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="TempsSce" />
+      <VarOrdonnee NomRef="Z" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiTZimp">
+      <!-- <Commentaire>Chronique de limnigramme</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="TempsLoi" />
+      <VarOrdonnee NomRef="Zimp" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZavZam">
+      <!-- <Commentaire>Loi de niveaux associés (Zasso)</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Zav" />
+      <VarOrdonnee NomRef="Zam" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZBeta">
+      <!-- <Commentaire>Coefficient de Boussinesq en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Beta" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZCoefW1">
+      <!-- <Commentaire>CoefW1 en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="CoefW1" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZCoefW2">
+      <!-- <Commentaire>CoefW2 en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="CoefW2" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZDact">
+      <!-- <Commentaire>Débitance en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Dact" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZDqapp">
+      <!-- <Commentaire>Loi de tarage : dérivée de q(z)</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Q" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZLact">
+      <!-- <Commentaire>Largeur du lit actif en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Lact" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZLcont">
+      <!-- <Commentaire>Largeur de continuité en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Lcont" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZLmaj">
+      <!-- <Commentaire>Largeur au miroir du lit majeur en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Lmaj" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZLmin">
+      <!-- <Commentaire>Largeur au miroir du lit mineur en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Lmin" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZLsto">
+      <!-- <Commentaire>Largeur du lit de stockage en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Lsto" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZLtot">
+      <!-- <Commentaire>Largeur du lit total en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Ltot" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZPact">
+      <!-- <Commentaire>Périmètre mouillé du lit actif en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Pact" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZPmaj">
+      <!-- <Commentaire>Périmètre mouillé du lit majeur en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Pmaj" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZPmin">
+      <!-- <Commentaire>Périmètre mouillé du lit mineur en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Pmin" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZQapp">
+      <!-- <Commentaire>Loi de tarage</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdInterpolLineaire" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Zimp" />
+      <VarOrdonnee NomRef="Q" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZSact">
+      <!-- <Commentaire>Surface mouillée du lit actif en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Sact" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZSmaj">
+      <!-- <Commentaire>Aire de la section mouillée du lit majeur en fonction de	la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Smaj" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZSmin">
+      <!-- <Commentaire>Aire de la section mouillée du lit mineur en fonction de	la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Smin" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZSplan">
+      <!-- <Commentaire>Surface planimétrique en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Splan" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZVol">
+      <!-- <Commentaire>Volume en fonction de la cote</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Vol" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LstLitKsup">
+      <!-- <Commentaire>Strickler à la cote supérieure du lit numéroté</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Lit" />
+      <VarOrdonnee NomRef="Ksup" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LstLitLinf">
+      <!-- <Commentaire>Largeur à la cote inférieure du lit numéroté</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Lit" />
+      <VarOrdonnee NomRef="Linf" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LstLitLsup">
+      <!-- <Commentaire>Largeur à la cote supérieure du lit numéroté</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Lit" />
+      <VarOrdonnee NomRef="Lsup" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LstLitPosBordure">
+      <!-- <Commentaire>Position relative du lit numéroté pour le calcul de débitance</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Lit" />
+      <VarOrdonnee NomRef="PosBordure" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LstLitPsup">
+      <!-- <Commentaire>Périmètre mouillé à la cote supérieure du lit numéroté</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Lit" />
+      <VarOrdonnee NomRef="Psup" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LstLitSsup">
+      <!-- <Commentaire>Surface mouillé à la cote supérieure du lit numéroté</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Lit" />
+      <VarOrdonnee NomRef="Ssup" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LstLitTypeLit">
+      <!-- <Commentaire>Type de lit du lit numéroté</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Lit" />
+      <VarOrdonnee NomRef="TypeLit" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LstLitZf">
+      <!-- <Commentaire>Cote du fond (hors fente) du lit numéroté</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_Aucun" />
+      <ExtrapolInf NomRef="Tex_Aucun" />
+      <ExtrapolSup NomRef="Tex_Aucun" />
+      <VarAbscisse NomRef="Lit" />
+      <VarOrdonnee NomRef="Zf" />
+    </ItemConfigLoi>
+  </ConfigLois>
+</CrueConfigMetier>

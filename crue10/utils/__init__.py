@@ -11,11 +11,13 @@ from lxml import etree
 from crue10.utils.settings import XML_ENCODING
 
 
-XML_DEFAULT_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'default')
+DATA_FOLDER_ABSPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data')
 
-XML_TEMPLATES_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'templates')
+XML_DEFAULT_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'default')
 
-XSD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data', 'xsd')
+XML_TEMPLATES_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'templates')
+
+XSD_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'xsd')
 
 try:
     USERNAME = os.getlogin()

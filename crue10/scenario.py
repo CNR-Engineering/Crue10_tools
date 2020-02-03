@@ -55,11 +55,14 @@ class Scenario(FichierXML):
     def get_run(self, run_id):
         if not self.runs:
             raise ExceptionCrue10("Aucun run n'existe pour ce scénario")
+        run = None
         try:
-            return self.runs[run_id]
+            run = self.runs[run_id]
         except KeyError:
             raise ExceptionCrue10("Le run %s n'existe pas !\nLes noms possibles sont: %s"
                                   % (run_id, list(self.runs.keys())))
+        run.read_traces()
+        return run
 
     def get_liste_run_ids(self):
         return [run_id for run_id, _ in self.runs.items()]
