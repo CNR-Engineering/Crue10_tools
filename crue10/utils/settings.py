@@ -7,6 +7,7 @@ CRUE10_EXE_OPTS = ['-r', '-g', '-i', '-c']  # Run complet (avec tous les pré-tr
 
 GRAVITE_MAX = 'FATAL'
 GRAVITE_MIN = 'DEBUG3'
+GRAVITE_AVERTISSEMENT = 'WARN'
 GRAVITE_MIN_ERROR = 'ERRNBLK'
 
 XML_ENCODING = 'utf-8'

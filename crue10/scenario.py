@@ -100,7 +100,7 @@ class Scenario(FichierXML):
         for run_id in self.get_liste_run_ids():
             self.remove_run(run_id)
 
-    def create_and_launch_new_run(self, etude, run_id=None, comment='', force=False):
+    def create_and_launch_new_run(self, etude, run_id=None, exe_path=None, comment='', force=False):
         """
         Create and launch a new run
              The instance of `etude` is modified but the original etu file not overwritten
@@ -143,8 +143,10 @@ class Scenario(FichierXML):
         etude.write_etu(run_folder)
 
         # Run crue10.exe in command line and redirect stdout and stderr in csv files
+        if exe_path is None:
+            exe_path = CRUE10_EXE_PATH
         etu_path = os.path.join(run_folder, os.path.basename(etude.etu_path))
-        cmd_list = [CRUE10_EXE_PATH] + CRUE10_EXE_OPTS + [etu_path]
+        cmd_list = [exe_path] + CRUE10_EXE_OPTS + [etu_path]
         logger.info("Éxécution : %s" % ' '.join(cmd_list))
         with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
             with open(os.path.join(run_folder, 'stderr.csv'), "w") as err_csv:

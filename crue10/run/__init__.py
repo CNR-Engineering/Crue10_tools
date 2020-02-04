@@ -9,7 +9,7 @@ from crue10.run.results import RunResults
 from crue10.run.trace import Trace
 from crue10.utils import add_default_missing_metadata, ExceptionCrue10, logger
 from crue10.utils.crueconfigmetier import ENUM_SEVERITE
-from crue10.utils.settings import GRAVITE_MAX, GRAVITE_MIN, GRAVITE_MIN_ERROR
+from crue10.utils.settings import GRAVITE_AVERTISSEMENT, GRAVITE_MAX, GRAVITE_MIN, GRAVITE_MIN_ERROR
 
 
 FMT_RUN_IDENTIFIER = "R%Y-%m-%d-%Hh%Mm%Ss"
@@ -37,6 +37,7 @@ class Run:
     """
     Run
     - id: run identifier corresponding to folder name
+    - run_path <str>: path to the folder of the run (exactly one folder before run_mo_path)
     - run_mo_path <str>: path to the folder of the model (corresponds to the longest path)
     - metadata <dict>: containing metadata (keys correspond to `METADATA_FIELDS` list)
     - traces <OrderedDict>: list of traces for each service
@@ -54,13 +55,26 @@ class Run:
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
     def __init__(self, run_mo_path, metadata=None):
-        self.id = os.path.basename(os.path.normpath(os.path.join(run_mo_path, '..')))
+        self.run_path = os.path.normpath(os.path.join(run_mo_path, '..'))
+        self.id = os.path.basename(self.run_path)
         self.run_mo_path = run_mo_path
         self.metadata = self.metadata = {} if metadata is None else metadata
         self.metadata = add_default_missing_metadata(self.metadata, Run.METADATA_FIELDS)
         self.traces = OrderedDict([(service, []) for service in Run.SERVICES])
 
     def read_traces(self):
+        # Check stdout.csv (only compulsory output file)
+        csv_path = os.path.join(self.run_path, 'stdout.csv')
+        with open(csv_path, 'r') as in_csv:
+            for row in in_csv:
+                if 'chargement OK scenario' in row:
+                    break  # Stop parsing stdout.csv because traces of first service should exist
+                if not(row.startswith('Crue10_CoeurEtudes') or row.startswith('*****')) and row != '':
+                    trace = Trace(row)
+                    if trace.is_erreur():
+                        raise ExceptionCrue10("Une erreur critique dans stdout.csv:\n%s" % trace)
+
+        # Read traces of each 4 services
         for service, csv_type in zip(Run.SERVICES, Run.FILES_CSV):
             csv_path = get_path_file_unique_matching(self.run_mo_path, '*.' + csv_type + '.csv')
             with open(csv_path, 'r') as in_csv:
@@ -78,7 +92,8 @@ class Run:
     def nb_avertissements(self, services=SERVICES):
         nb = 0
         for service in services:
-            nb += len(self.get_service_traces(service, gravite_min='WARN', gravite_max='WARN'))
+            nb += len(self.get_service_traces(service, gravite_min=GRAVITE_AVERTISSEMENT,
+                                              gravite_max=GRAVITE_AVERTISSEMENT))
         return nb
 
     def nb_avertissements_calcul(self):

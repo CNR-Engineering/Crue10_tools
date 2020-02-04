@@ -4,5 +4,7 @@ jinja2
 lxml
 matplotlib  # only required for some snippets
 numpy
-pydot  # only required for Modele.write_topological_graph
+pandas  # only required for snippets.stat_diff_calculs
+pydot  # only required for crue10.modele.Modele.write_topological_graph
+seaborn  # only required for snippets.stat_diff_calculs
 shapely
