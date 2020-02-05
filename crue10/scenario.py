@@ -8,7 +8,7 @@ import subprocess
 from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger, PREFIX, \
+from crue10.utils import check_isinstance, check_preffix, DATA_FOLDER_ABSPATH, ExceptionCrue10, logger, PREFIX, \
     write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 
@@ -132,8 +132,8 @@ class Scenario(FichierXML):
         self.add_run(run)
         self.set_current_run_id(run.id)
 
-        # Update etude attributes
-        etude.current_scenario_id = self.id
+        # Update etude attribute
+        etude.nom_scenario_courant = self.id
 
         # Write files and create folder is necessary
         logger.debug("Écriture de %s dans %s" % (run, run_folder))
@@ -141,6 +141,15 @@ class Scenario(FichierXML):
         self.write_all(run_folder, folder_config=None, write_model=False)
         self.modele.write_all(mo_folder, folder_config=None)
         etude.write_etu(run_folder)
+
+        # Write xxcprovx.dat for Crue9
+        # xxcprovx_path = os.path.join(mo_folder, 'xxcprovx.dat')
+        # folder_to_write = mo_folder #+ '\\' + os.path.basename(mo_folder)
+        # with open(xxcprovx_path, 'w') as out:
+        #     out.write(" 0\n")
+        #     out.write("Q:\\Qualif_Exec\\Crue9.3\\francais\n")
+        #     out.write(folder_to_write + '\n')
+        #     out.write(folder_to_write + '\n')
 
         # Run crue10.exe in command line and redirect stdout and stderr in csv files
         if exe_path is None:

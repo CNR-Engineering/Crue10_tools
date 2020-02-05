@@ -20,9 +20,9 @@ def get_path_file_unique_matching(folder, ext_pattern):
     for file_path in glob(os.path.join(folder, ext_pattern)):
         file_path_list.append(file_path)
     if len(file_path_list) == 0:
-        raise ExceptionCrue10("Aucun fichier `%s` trouvé dans le dossier du %s" % (ext_pattern, folder))
+        raise IOError("Aucun fichier `%s` trouvé dans le dossier `%s`" % (ext_pattern, folder))
     elif len(file_path_list) > 1:
-        raise ExceptionCrue10("Plusieurs fichiers `%s` trouvés dans le dossier du %s" % (ext_pattern, folder))
+        raise ExceptionCrue10("Plusieurs fichiers `%s` trouvés dans le dossier `%s`" % (ext_pattern, folder))
     return file_path_list[0]
 
 
@@ -76,7 +76,11 @@ class Run:
 
         # Read traces of each 4 services
         for service, csv_type in zip(Run.SERVICES, Run.FILES_CSV):
-            csv_path = get_path_file_unique_matching(self.run_mo_path, '*.' + csv_type + '.csv')
+            try:
+                csv_path = get_path_file_unique_matching(self.run_mo_path, '*.' + csv_type + '.csv')
+            except IOError as e:
+                logger.warn("Le service `%s` n'a pas de trace :\n%s" % (Run.SERVICES_NAMES[service], e))
+                return  # further services will not have a csv with traces
             with open(csv_path, 'r') as in_csv:
                 for row in in_csv:
                     self.traces[service].append(Trace(row.replace('\n', '')))
