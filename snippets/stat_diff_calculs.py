@@ -27,7 +27,7 @@ from crue10.utils import ExceptionCrue10, logger
 logger.setLevel(logging.ERROR)
 
 
-RUN_CALCULATIONS, WRITE_DATAFRAMES, PLOT_BARPLOTS, PLOT_BOXPLOTS = False, False, True, False
+RUN_CALCULATIONS, WRITE_DATAFRAMES, PLOT_BARPLOTS, PLOT_BOXPLOTS = False, True, True, False
 
 SCENARIO_PAR_AMENAGEMENT = OrderedDict([
     # Scénario à utiliser par aménagement s'il diffère du "scénario courant" (sinon mettre `None`)
@@ -106,9 +106,11 @@ if RUN_CALCULATIONS or WRITE_DATAFRAMES:
             etude = Etude(etu_path)
             etude.read_all()
 
-            if SCENARIO_PAR_AMENAGEMENT[amenagement] is not None:
-                etude.nom_scenario_courant = SCENARIO_PAR_AMENAGEMENT[amenagement]
-            scenario = etude.get_scenario_courant()
+            if SCENARIO_PAR_AMENAGEMENT[amenagement] is None:
+                nom_scenario = etude.nom_scenario_courant
+            else:
+                nom_scenario = SCENARIO_PAR_AMENAGEMENT[amenagement]
+            scenario = etude.get_scenario(nom_scenario)
 
             logger.error("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm))
 
@@ -129,8 +131,8 @@ if RUN_CALCULATIONS or WRITE_DATAFRAMES:
                     logger.debug("%s: %s" % (exe, run.traces['r'][0].get_message()))  # Check Crue10 version
 
                     nb_services_ok = 0
-                    for _, traces in run.traces.items():
-                        if len(traces) > 0:
+                    for service, traces in run.traces.items():
+                        if traces and run.nb_erreurs([service]) == 0:
                             nb_services_ok += 1
                     values = OrderedDict([
                         ('nb_services_ok', nb_services_ok),

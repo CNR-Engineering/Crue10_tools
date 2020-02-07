@@ -12,12 +12,12 @@ from crue10.etude import Etude
 
 
 try:
-    dossier = os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests', 'Etu_BE2016_conc')
+    dossier = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc', 'Etu_BE2016_conc')
     nom_sous_modele = 'Sm_BE2016_etatref'
-    if False:
+    if True:
         # Get sous_modele from a study
-        study = Etude(os.path.join(dossier, 'Etu_BE2016_conc.etu.xml'))
-        sous_modele = study.get_sous_modele(nom_sous_modele)
+        etude = Etude(os.path.join(dossier, 'Etu_BE2016_conc.etu.xml'))
+        sous_modele = etude.get_sous_modele(nom_sous_modele)
     else:
         # Get sous_modele directly from a dict containing path to xml/shp files
         files = {xml: os.path.join(dossier, nom_sous_modele[3:] + '.' + xml + '.xml')

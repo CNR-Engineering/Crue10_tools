@@ -8,7 +8,7 @@ import subprocess
 from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
-from crue10.utils import check_isinstance, check_preffix, DATA_FOLDER_ABSPATH, ExceptionCrue10, logger, PREFIX, \
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger, PREFIX, \
     write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 

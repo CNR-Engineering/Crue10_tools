@@ -18,11 +18,12 @@ from crue10.etude import Etude
 from crue10.utils import logger
 
 
-etude = Etude(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests',
+etude = Etude(os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc',
                            'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
 etude.read_all()
 
 scenario = etude.get_scenario('Sc_BE2016_etatref')
+scenario.remove_all_runs()
 scenario_ori = deepcopy(scenario)
 
 for delta_strickler in np.arange(-20.0, 20.0, step=5.0):
@@ -52,11 +53,10 @@ for _, run in scenario.runs.items():
     results = run.get_results()
     values = results.get_res_all_steady_var_at_emhs('Z', ['St_RET113.600'])
     nb_calc_steady = values.shape[0]
-    time_serie = np.arange(0, nb_calc_steady * 3600, step=3600)
-
+    time_serie = np.arange(1, nb_calc_steady + 1, step=1)
     plt.plot(time_serie, values[:, 0], label=run.id)
 
-plt.xlabel("Temps (s)")
-plt.ylabel("Niveau d'eau au PR1 (mNGFO)")
+plt.xlabel(u"Numéro du calcul pseudo-permanent")
+plt.ylabel(u"Niveau d'eau au PR1 [mNGFO]")
 plt.legend(loc='upper left')
 plt.show()
