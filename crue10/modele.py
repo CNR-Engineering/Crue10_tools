@@ -144,6 +144,9 @@ class Modele(FichierXML):
     def get_duplicated_branches(self):
         return [br for br, count in Counter([branche.id for branche in self.get_liste_branches()]).items() if count > 1]
 
+    def get_theta_preissmann(self):
+        return float(self.xml_trees['pnum'].find(PREFIX + 'ParamNumCalcTrans').find(PREFIX + 'ThetaPreissmann').text)
+
     def ajouter_sous_modele(self, sous_modele):
         check_isinstance(sous_modele, SousModele)
         if sous_modele.id in self.liste_sous_modeles:

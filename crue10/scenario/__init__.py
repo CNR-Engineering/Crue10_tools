@@ -8,9 +8,10 @@ import subprocess
 from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger, PREFIX, \
-    write_default_xml_file, write_xml_from_tree
+from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, get_optional_commentaire, \
+    logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
+from calcul import Calcul, CalcPseudoPerm, CalcTrans
 
 
 class Scenario(FichierXML):
@@ -23,7 +24,7 @@ class Scenario(FichierXML):
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
-    FILES_XML_WITHOUT_TEMPLATE = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
+    FILES_XML_WITHOUT_TEMPLATE = ['ocal', 'ores', 'pcal', 'dlhy']
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
@@ -38,19 +39,29 @@ class Scenario(FichierXML):
         self.id = scenario_name
         super().__init__(access, files, metadata)
 
+        self.calculs = []
+
         self.modele = None
         self.set_modele(model)
 
         self.current_run_id = None
         self.runs = OrderedDict()
 
-    @property
-    def get_nb_calc_pseudoperm(self):
+    def get_nb_calc_pseudoperm_actif(self):
         return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcPseudoPerm'))
 
-    @property
-    def get_nb_calc_trans(self):
+    def get_nb_calc_trans_actif(self):
         return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcTrans'))
+
+    def get_liste_calc_pseudoperm_actif(self):
+        return [calcul for calcul in self.calculs if isinstance(calcul, CalcPseudoPerm)]
+
+    def get_liste_calc_trans_actif(self):
+        return [calcul for calcul in self.calculs if isinstance(calcul, CalcTrans)]
+
+    def ajouter_calcul(self, calcul):
+        check_isinstance(calcul, Calcul)
+        self.calculs.append(calcul)
 
     def get_run(self, run_id):
         if not self.runs:
@@ -71,10 +82,75 @@ class Scenario(FichierXML):
         check_isinstance(model, Modele)
         self.modele = model
 
+    def _read_dclm(self):
+        """
+        Read dclm.xml file
+        """
+        root = self._get_xml_root_and_set_comment('dclm')
+
+        for elt_calc in root:
+            if elt_calc.tag == PREFIX + 'CalcPseudoPerm':
+                calc_perm = CalcPseudoPerm(elt_calc.get('Nom'), get_optional_commentaire(elt_calc))
+                for elt_valeur in elt_calc:
+                    if elt_valeur.tag == (PREFIX + 'Commentaire'):
+                        continue
+
+                    clim_type = elt_valeur.tag[len(PREFIX):]
+                    if clim_type not in CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE:
+                        raise ExceptionCrue10("Type de Clim inconnu: %s" % clim_type)
+
+                    if clim_type == 'CalcPseudoPermBrancheOrificeManoeuvre':
+                        sens = elt_valeur.find(PREFIX + 'SensOuv').text
+                    else:
+                        sens = None
+
+                    value_elt = elt_valeur.find(PREFIX + CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE[clim_type])
+                    value = float(value_elt.text)
+
+                    calc_perm.ajouter_valeur(
+                        elt_valeur.get('NomRef'),
+                        clim_type,
+                        elt_valeur.find(PREFIX + 'IsActive').text == 'true',
+                        value,
+                        sens,
+                    )
+
+                self.ajouter_calcul(calc_perm)
+
+        if elt_calc.tag == PREFIX + 'CalcTrans':
+            calc_trans = CalcTrans(elt_calc.get('Nom'), get_optional_commentaire(elt_calc))
+            for elt_valeur in elt_calc:
+                if elt_valeur.tag == (PREFIX + 'Commentaire'):
+                    continue
+
+                clim_type = elt_valeur.tag[len(PREFIX):]
+                if clim_type not in CalcTrans.CLIM_TYPE_TO_TAG_VALUE:
+                    raise ExceptionCrue10("Type de Clim inconnu: %s" % clim_type)
+
+                if clim_type == 'CalcTransBrancheOrificeManoeuvre':
+                    sens = elt_valeur.find(PREFIX + 'SensOuv').text
+                else:
+                    sens = None
+
+                value_elt = elt_valeur.find(PREFIX + CalcTrans.CLIM_TYPE_TO_TAG_VALUE[clim_type])
+                nom_loi = value_elt.get('NomRef')  # TODO: check law exists
+
+                calc_trans.ajouter_valeur(
+                    elt_valeur.get('NomRef'),
+                    clim_type,
+                    elt_valeur.find(PREFIX + 'IsActive').text == 'true',
+                    nom_loi,
+                    sens,
+                )
+
+            self.ajouter_calcul(calc_trans)
+
     def read_all(self):
         if not self.was_read:
             self._set_xml_trees()
             self.modele.read_all()
+            self._read_dclm()
+
         self.was_read = True
 
     def add_run(self, run):
@@ -164,6 +240,15 @@ class Scenario(FichierXML):
         run.read_traces()
         return run
 
+    def _write_dclm(self, folder):
+        self._write_xml_file(
+            'dclm', folder,
+            isinstance=isinstance,
+            CalcPseudoPerm=CalcPseudoPerm,
+            CalcTrans=CalcTrans,
+            calculs=self.calculs,
+        )
+
     def write_all(self, folder, folder_config=None, write_model=True):
         logger.debug("Écriture de %s dans %s" % (self, folder))
 
@@ -177,6 +262,8 @@ class Scenario(FichierXML):
                 write_xml_from_tree(self.xml_trees[xml_type], xml_path)
             else:
                 write_default_xml_file(xml_type, xml_path)
+
+        self._write_dclm(folder)
 
         if write_model:
             self.modele.write_all(folder, folder_config)

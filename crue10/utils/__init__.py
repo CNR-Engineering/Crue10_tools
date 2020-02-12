@@ -5,9 +5,11 @@ from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
 import logging
 import os
+import re
 import shutil
 from lxml import etree
 
+from crue10.utils.filters import float2str, html_escape, typeclim2str_calcpseudoperm, typeclim2str_calctrans
 from crue10.utils.settings import XML_ENCODING
 
 
@@ -93,20 +95,13 @@ def check_preffix(name, preffix):
         raise ExceptionCrue10("Le nom `%s` ne commence pas par `%s`" % (name, preffix))
 
 
-def float2str(value):
-    """
-    34.666664123535156 => not changed!
-    1e30 => 1.0E30
-    """
-    text = str(value).replace('e+', 'E')
-    if 'E' in text:
-        # Exponent case
-        if '.' not in text:
-            text = text.replace('E', '.0E')
-    return text
-    # # Conventional rendering
-    # text = format(value, '.15f')
-    # return re.sub(r'\.([0-9])([0]+)$', r'.\1', text) # remove ending useless zeros
+def get_optional_commentaire(elt):
+    """Returns text of Commentaire element if found, empty string else"""
+    sub_elt = elt.find(PREFIX + 'Commentaire')
+    if sub_elt is not None:
+        if sub_elt.text is not None:
+            return sub_elt.text
+    return ''
 
 
 def write_default_xml_file(xml_type, file_path):
@@ -122,6 +117,7 @@ def get_xml_root_from_file(file_path):
 
 
 def write_xml_from_tree(xml_tree, file_path):
+    # Avoid some self-closing tags
     def avoid_self_closing_tags(elt):
         """Avoid some elements to be not self-closing"""
         if elt.tag.replace(PREFIX, '') not in SELF_CLOSING_TAGS:
@@ -130,33 +126,33 @@ def write_xml_from_tree(xml_tree, file_path):
         for sub_elt in elt:
             avoid_self_closing_tags(sub_elt)
         return elt
+    xml_tree = avoid_self_closing_tags(xml_tree)
 
+    # Convert xml tree to string
+    main_text = etree.tostring(xml_tree, method='xml', encoding=XML_ENCODING,
+                               pretty_print=False, xml_declaration=False).decode(XML_ENCODING)
+
+    # Insert HTML entities in <Commentaire> tags
+    def insert_html_entities(match):
+        text = html_escape(match.group(1))
+        return "<Commentaire>%s</Commentaire>" % text
+    main_text = re.sub(r'<Commentaire>(.*?)</Commentaire>', insert_html_entities, main_text, flags=re.S)
+
+    # Write XML file
     with open(file_path, 'w', encoding=XML_ENCODING) as out_xml:
         text = u'\ufeff'  # Add BOM for utf-8
         text += '<?xml version="1.0" encoding="UTF-8"?>\n'  # hardcoded xml declaration to control case and quotation marks
-        text += etree.tostring(avoid_self_closing_tags(xml_tree), method='xml', encoding=XML_ENCODING,
-                               pretty_print=False, xml_declaration=False).decode(XML_ENCODING)
+        text += main_text
         out_xml.write(text)
-
-
-HTML_ESCAPE_TABLE = {
-    "&": "&amp;",
-    '"': "&quot;",
-    "'": "&apos;",
-    ">": "&gt;",
-    "<": "&lt;",
-}
-
-
-def html_escape(text):
-    """Produce entities within text."""
-    return "".join(HTML_ESCAPE_TABLE.get(c, c) for c in text)
 
 
 JINJA_ENV = Environment(loader=FileSystemLoader(XML_TEMPLATES_FOLDER))
 JINJA_ENV.filters = {
     'float2str': float2str,
-    'html_escape': html_escape
+    'abs': abs,
+    'html_escape': html_escape,
+    'typeclim2str_calcpseudoperm': typeclim2str_calcpseudoperm,
+    'typeclim2str_calctrans': typeclim2str_calctrans,
 }
 
 

@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DCLM xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dclm-1.2.xsd">
+  <Commentaire>{{ comment|html_escape }}</Commentaire>
+  {%- for calcul in calculs %}
+  {%- if isinstance(calcul, CalcPseudoPerm) %}
+  <CalcPseudoPerm Nom="{{ calcul.id }}">
+    <Commentaire>{{ calcul.comment }}</Commentaire>
+    {%- for nom_emh, clim_tag, is_active, value, sens in calcul.values %}
+    <{{ clim_tag }} NomRef="{{ nom_emh }}">
+      <IsActive>{% if is_active %}true{% else %}false{% endif %}</IsActive>
+      {%- if sens is not none %}
+      <SensOuv>{{ sens }}</SensOuv>
+      {%- endif %}
+      <{{ clim_tag|typeclim2str_calcpseudoperm }}>{{ value }}</{{ clim_tag|typeclim2str_calcpseudoperm }}>
+    </{{ clim_tag }}>
+    {%- endfor %}
+  </CalcPseudoPerm>
+  {%- elif isinstance(calcul, CalcTrans) %}
+  <CalcTrans Nom="{{ calcul.id }}">
+    <Commentaire>{{ calcul.comment }}</Commentaire>
+    {%- for nom_emh, clim_tag, is_active, value, sens in calcul.values %}
+    <{{ clim_tag }} NomRef="{{ nom_emh }}">
+      <IsActive>{% if is_active %}true{% else %}false{% endif %}</IsActive>
+      {%- if sens is not none %}
+      <SensOuv>{{ sens }}</SensOuv>
+      {%- endif %}
+      <{{ clim_tag|typeclim2str_calctrans }} NomRef="{{ value }}"/>
+    </{{ clim_tag }}>
+    {%- endfor %}
+  </CalcTrans>
+  {%- endif %}
+  {%- endfor %}
+</DCLM>

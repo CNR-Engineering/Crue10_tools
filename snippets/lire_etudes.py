@@ -1,23 +1,10 @@
 # coding: utf-8
 """
-Lecture d'études Crue10 et vérification des fichiers XML
+Lecture d'études Crue10 et vérification des fichiers XML de tous les modèles Conc
 
 Bilan des différentes modifications du texte des fichiers introduites par le passage dans Crue10_tools.
 
-# BE2016_conc
-OK
-
-# Etu_BV2016_Conc_Etatref - ISfonds2016_K2016
-- dlhy: &apos; => '
-- drso: some empty `Commentaire` tags appear as they were missing
-
-# GE2009_Conc
-- dclm: &apos; => '
-(Sur Windows ou Python2 sur Linux: drso: some Xp are truncated)
-
-# VA2018_Conc
-OK (sauf copie manquante des fichiers orphelins)
-(Sur Windows ou Python2 sur Linux: drso: some Xp are truncated)
+TODO
 """
 from glob import glob
 import logging
@@ -30,7 +17,7 @@ from crue10.utils import ExceptionCrue10, logger
 logger.setLevel(logging.INFO)
 
 
-for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests', '*')):
+for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc', '*')):
     for etu_path in glob(os.path.join(folder, '*.etu.xml')):
         logger.info(etu_path)
         try:
@@ -42,7 +29,7 @@ for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'Etudes-tests', '
             study.read_all()
 
             # Write etude (to check in integrity, see difference in file docstring above)
-            out_folder = os.path.join('../tmp/Etudes-tests', os.path.basename(folder))
+            out_folder = os.path.join('..', 'tmp', 'sharepoint_modeles_Conc', os.path.basename(folder))
             study.write_all(out_folder)
 
             # Write topographical graph for each modele

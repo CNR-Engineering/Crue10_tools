@@ -82,7 +82,7 @@ while True:
     z_res_at_PR[q_pilote > QLimPR1] = z_PR2[q_pilote > QLimPR1]
 
     # Cible (consigne)
-    z_target_at_PR = np.ones(scenario.get_nb_calc_pseudoperm) * Z_cible_PR1
+    z_target_at_PR = np.ones(scenario.get_nb_calc_pseudoperm_actif()) * Z_cible_PR1
     z_target_at_PR[q_pilote > QLimPR1] = Z_cible_PR2
 
     # Calcul dz (résultat - cible) et application de ce dz à la loi de pilotage (par interpolation)

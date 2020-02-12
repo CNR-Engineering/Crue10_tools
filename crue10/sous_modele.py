@@ -1,5 +1,5 @@
 # coding: utf-8
-from builtins import super  # Python2 fix
+from builtins import super  # Python2 fix (requires module `future`)
 from collections import OrderedDict
 import fiona
 import numpy as np
@@ -15,7 +15,7 @@ from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, \
-    logger, PREFIX
+    get_optional_commentaire, logger, PREFIX
 
 
 def parse_loi(elt, group='EvolutionFF', line='PointFF'):
@@ -42,15 +42,6 @@ def parse_elem_seuil(elt, with_pdc=False):
             raise RuntimeError
         values.append(row)
     return np.array(values)
-
-
-def get_optional_commentaire(elt):
-    """Returns text of Commentaire element if found, empty string else"""
-    sub_elt = elt.find(PREFIX + 'Commentaire')
-    if sub_elt is not None:
-        if sub_elt.text is not None:
-            return sub_elt.text
-    return ''
 
 
 class SousModele(FichierXML):

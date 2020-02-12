@@ -11,7 +11,7 @@ Classes for cross-section with minor and major beds:
     - SectionSansGeometrie
 """
 import abc
-from builtins import super  # python2 compatibility, requires module `future`
+from builtins import super  # Python2 fix (requires module `future`)
 from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString

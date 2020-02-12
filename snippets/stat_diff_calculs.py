@@ -112,7 +112,7 @@ if RUN_CALCULATIONS or WRITE_DATAFRAMES:
                 nom_scenario = SCENARIO_PAR_AMENAGEMENT[amenagement]
             scenario = etude.get_scenario(nom_scenario)
 
-            logger.error("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm))
+            logger.error("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actif()))
 
             if RUN_CALCULATIONS:
                 for exe, crue10_exe in CRUE10_EXE.items():
