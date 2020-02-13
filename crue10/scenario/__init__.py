@@ -53,10 +53,10 @@ class Scenario(FichierXML):
     def get_nb_calc_trans_actif(self):
         return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcTrans'))
 
-    def get_liste_calc_pseudoperm_actif(self):
+    def get_liste_calc_pseudoperm(self):
         return [calcul for calcul in self.calculs if isinstance(calcul, CalcPseudoPerm)]
 
-    def get_liste_calc_trans_actif(self):
+    def get_liste_calc_trans(self):
         return [calcul for calcul in self.calculs if isinstance(calcul, CalcTrans)]
 
     def ajouter_calcul(self, calcul):

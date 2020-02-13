@@ -8,7 +8,7 @@ import os.path
 from shapely.geometry import LineString, mapping, Point
 
 from crue10.base import FichierXML
-from crue10.emh.branche import BrancheOrifice
+from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
 from crue10.emh.section import SectionProfil, LitNumerote
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, \
     logger, PREFIX, write_default_xml_file, write_xml_from_tree
@@ -146,6 +146,17 @@ class Modele(FichierXML):
 
     def get_theta_preissmann(self):
         return float(self.xml_trees['pnum'].find(PREFIX + 'ParamNumCalcTrans').find(PREFIX + 'ThetaPreissmann').text)
+
+    def get_branche_barrage(self):
+        liste_branches = []
+        for branche in self.get_liste_branches():
+            if isinstance(branche, BrancheBarrageFilEau) or isinstance(branche, BrancheBarrageGenerique):
+                liste_branches.append(branche)
+        if len(liste_branches) == 0:
+            raise ExceptionCrue10("Aucune branche 14 ou 15 dans le sous-modèle")
+        if len(liste_branches) > 1:
+            raise ExceptionCrue10("Plusieurs branches 14 ou 15 dans le sous-modèle")
+        return liste_branches[0]
 
     def ajouter_sous_modele(self, sous_modele):
         check_isinstance(sous_modele, SousModele)

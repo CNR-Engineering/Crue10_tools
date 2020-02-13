@@ -10,27 +10,6 @@ from crue10.utils import check_isinstance
 ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 
-QAPP, ZIMP, MANOEUVRE, BR_QRUIS, CA_QRUIS, ZIMPQ_TARAGE = 0, 1, 2, 3, 4, 5
-
-# CLIM_TYPE_LABELS = {
-#     QAPP: 'Qapp',
-#     ZIMP: 'Zimp',
-#     MANOEUVRE: 'Ouv',
-#     BR_QRUIS: 'Qruis',
-#     CA_QRUIS: 'Qruis',
-#     ZIMPQ_TARAGE: '',  # FIXME
-# }
-#
-# CLIM_TYPE_TAGS = {
-#     QAPP: 'Qapp',
-#     ZIMP: 'Zimp',
-#     MANOEUVRE: 'Ouv',
-#     BR_QRUIS: 'Qruis',
-#     CA_QRUIS: 'Qruis',
-#     ZIMPQ_TARAGE: '',  # FIXME
-# }
-
-
 class Calcul(ABC):
     """
     Abstract class for Sections
@@ -61,10 +40,10 @@ class CalcPseudoPerm(Calcul):
         assert clim_tag in CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE.keys()
         super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens)
 
-    def get_Qapp_somme(self):
+    def get_somme_positive_Qapp(self):
         sum = 0.0
         for _, clim_tag, _, value, _ in self.values:
-            if clim_tag == QAPP:
+            if clim_tag == 'CalcPseudoPermNoeudQapp' and value > 0:
                 sum += value
         return sum
 

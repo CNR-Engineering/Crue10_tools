@@ -217,7 +217,7 @@ class BranchePdC(Branche):
 class BrancheAvecElementsSeuil(Branche):
     """
     - formule_pertes_de_charge <str>: 'Borda' or 'Divergent'
-    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns)
+    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns: Largeur, Zseuil, CoefD, CoefPdc)
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, type, is_active=True):
@@ -228,7 +228,7 @@ class BrancheAvecElementsSeuil(Branche):
 
     def set_liste_elements_seuil(self, elements_seuil):
         """
-        :param elements_seuil: 2D array with 4 values for axis=1 (larg, z_seuil, coeff_d, coeff_pdc)
+        :param elements_seuil: 2D array with 4 values for axis=1 (Largeur, Zseuil, CoefD, CoefPdc)
         """
         if elements_seuil.shape[0] < 1:
             raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
@@ -238,7 +238,7 @@ class BrancheAvecElementsSeuil(Branche):
 
     def set_liste_elements_seuil_avec_coeff_par_defaut(self, elements_seuil):
         """
-        :param elements_seuil: 2D array with 2 values for axis=1 (larg, z_seuil)
+        :param elements_seuil: 2D array with 2 values for axis=1 (Largeur, Zseuil)
         """
         if elements_seuil.shape[0] < 1:
             raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
@@ -273,7 +273,7 @@ class BrancheOrifice(Branche):
     - CoefCtrLim <float>: "Coefficient maximum de contraction de la veine submergée"
     - Largeur <float>: "Largeur"
     - Zseuil <float>: "Cote du radier du clapet"
-    - CoefD <float>: ?
+    - CoefD <float>: "Coefficient de débitance"
     - Haut <float>: "Hauteur du clapet à pleine ouverture"
     - SensOrifice <str>: "Sens de l'écoulement"
     """
@@ -363,7 +363,7 @@ class BrancheBarrageFilEau(Branche):
     - QLimInf: "Débit  minimum admis dans la branche"
     - QLimSup: "Débit maximum admis dans la branche"
     - loi_QZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
-    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 3 columns)
+    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 3 columns: Largeur, Zseuil, CoefD)
     - comment_denoye <str>: commentaire loi dénoyée
     """
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):

@@ -33,13 +33,6 @@ ECART_MAX = 0.015  # m
 VALEUR_MANOEUVRANT = 2  # FIXME: ça devrait être 0 mais Crue10 ne le sort pas...
 
 
-def trouver_branche_barrage(sous_modele):
-    for branche in sous_modele.get_liste_branches():
-        if branche.type == 15:
-            return branche
-    raise ExceptionCrue10("Pas de branche 15 dans le modèle")
-
-
 etude = Etude(os.path.join('..', '..', 'Crue10_examples',
                            'Etudes-tests', 'Etu_SV2019_Conc_Br15', 'Etu_SV2019_Conc.etu.xml'))
 etude.read_all()
@@ -48,8 +41,8 @@ scenario = etude.get_scenario_courant()
 scenario.remove_all_runs()
 
 # Récupération de la branche 15
-sous_modele = etude.get_sous_modele('Sm_SV2019_Conc_EtatRef')
-branche_bararge = trouver_branche_barrage(sous_modele)
+modele = etude.get_modele('Mo_SV2019_Conc_EtatRef')
+branche_bararge = modele.get_branche_barrage()
 section_barrage = branche_bararge.get_section_amont().id
 section_pilote = branche_bararge.section_pilote.id
 
