@@ -104,7 +104,11 @@ class Etude(FichierXML):
         elt_fichiers = root.find(PREFIX + 'FichEtudes')
         for elt_fichier in elt_fichiers:
             if elt_fichier.get('Type').lower() in Etude.SUB_FILES_XML:  # Ignore Crue9 files
-                fich_path = os.path.normpath(os.path.join(folder, elt_fichier.get('Chemin'), elt_fichier.get('Nom')))
+                if elt_fichier.get('Chemin') == '.\\':
+                    norm_folder = os.path.normpath(folder)
+                else:
+                    norm_folder = os.path.normpath(os.path.join(folder, elt_fichier.get('Chemin')))
+                fich_path = os.path.join(norm_folder, elt_fichier.get('Nom'))
                 self.filename_list.append(fich_path)
 
         # SousModeles

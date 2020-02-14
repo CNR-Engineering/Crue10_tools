@@ -11,7 +11,7 @@ from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, get_optional_commentaire, \
     logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
-from calcul import Calcul, CalcPseudoPerm, CalcTrans
+from .calcul import Calcul, CalcPseudoPerm, CalcTrans
 
 
 class Scenario(FichierXML):
