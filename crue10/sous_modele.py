@@ -690,6 +690,12 @@ class SousModele(FichierXML):
             for section in branche.liste_sections_dans_branche:
                 section.is_active = branche.is_active
 
+    def replace_zero_xp_sectionaval(self):
+        for branche in self.get_liste_branches():
+            section_aval = branche.get_section_aval()
+            if section_aval.xp <= 0.0:
+                section_aval.xp = branche.geom.length
+
     def get_connected_branche(self, nom_section):
         """
         Returns the connected branche if found, else returns None
