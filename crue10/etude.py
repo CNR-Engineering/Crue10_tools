@@ -85,6 +85,12 @@ class Etude(FichierXML):
                 return fich_path
         raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filename)
 
+    def get_liste_run_names(self):
+        run_names = []
+        for _, scenario in self.scenarios.items():
+            run_names += scenario.runs.keys()
+        return run_names
+
     def _read_etu(self):
         root = ET.parse(self.etu_path).getroot()
         folder = os.path.dirname(self.etu_path)

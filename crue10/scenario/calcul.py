@@ -59,6 +59,7 @@ class CalcTrans(Calcul):
         'CalcTransHydrogrammeQruisBranche': 'HydrogrammeQruis',
         'CalcTransHydrogrammeQruisCasier': 'HydrogrammeQruis',
         'CalcTransNoeudNiveauContinuTarage': 'Tarage',
+        'CalcTransBrancheSaintVenantQruis': 'HydrogrammeQruis',
     }
 
     def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None):

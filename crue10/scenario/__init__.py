@@ -199,12 +199,18 @@ class Scenario(FichierXML):
             run_id = get_run_identifier()
         run_folder = os.path.join(etude.folder, etude.folders['RUNS'], self.id, run_id)
         run = Run(os.path.join(run_folder, self.modele.id), metadata={'Commentaire': comment})
+
         if not force:
             if os.path.exists(run_folder):
                 raise ExceptionCrue10("Le dossier du run existe déjà. "
                                       "Utilisez l'argument force=True si vous souhaitez le supprimer")
         elif run.id in self.runs:
             self.remove_run(run.id)
+
+        # Check that run_id is unique in current study
+        if run_id in etude.get_liste_run_names():
+            raise ExceptionCrue10("Le Run `%s` existe déjà dans l'étude" % run_id)
+
         self.add_run(run)
         self.set_current_run_id(run.id)
 
