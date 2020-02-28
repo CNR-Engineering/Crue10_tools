@@ -47,6 +47,6 @@ class Trace:
         return parse_message(self.id, self.nom_emh, self.parametres)
 
     def __repr__(self):
-        return '%s|%s|%s|%s|%s'\
+        return '>%s|%s|%s|%s|%s' \
                % (self.date.ljust(23), self.gravite.ljust(6), self.nom_emh.ljust(32),
                   self.id.ljust(33), self.get_message())

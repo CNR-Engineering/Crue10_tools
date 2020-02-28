@@ -218,7 +218,7 @@ class Scenario(FichierXML):
         etude.nom_scenario_courant = self.id
 
         # Write files and create folder is necessary
-        logger.debug("Écriture de %s dans %s" % (run, run_folder))
+        logger.debug("Écriture du %s dans %s" % (run, run_folder))
         mo_folder = os.path.join(run_folder, self.modele.id)
         self.write_all(run_folder, folder_config=None, write_model=False)
         self.modele.write_all(mo_folder, folder_config=None)

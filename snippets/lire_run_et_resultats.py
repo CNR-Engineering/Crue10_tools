@@ -9,9 +9,8 @@ from crue10.utils import ExceptionCrue10, logger
 
 etu_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
-    study = Etude(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
-    run = study.get_scenario('Sc_EtatsRef2015').get_run('R2019-04-16-14h09m19s')
-    run.read_traces()
+    etude = Etude(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
+    run = etude.get_scenario('Sc_EtatsRef2015').get_run('R2019-04-16-14h09m19s')
 
     # Affichage de quelques traces
     logger.info('AVERTISSEMENTS ET ERREURS DU CALCUL:\n' + run.get_all_traces(services=['c'], gravite_min='WARN'))

@@ -142,8 +142,8 @@ class Run:
     def get_results(self):
         # Check that some traces were read
         if not self.has_computation_traces:
-            # Remark: rcal.xml should not exist in this case (a previous service encounters a problem)
-            raise ExceptionCrue10("Le run #%s ne contient pas de traces (ou vous avez oubliez `read_traces`)"
+            # Remark: rcal.xml should not exist in this case (a previous service encountered a problem)
+            raise ExceptionCrue10("Le run #%s ne contient pas de traces (ou vous avez oublié `read_traces`)"
                                   % self.id)
 
         # Check if errors are in computation traces

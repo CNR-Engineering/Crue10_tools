@@ -246,7 +246,7 @@ class Etude(FichierXML):
 
     def write_all(self, folder=None):
         folder = self.folder if folder is None else folder
-        logger.debug("Écriture de %s dans %s" % (self, folder))
+        logger.debug("Écriture de l'%s dans %s" % (self, folder))
 
         # Create folder if not existing
         if not os.path.exists(folder):
@@ -293,7 +293,7 @@ class Etude(FichierXML):
         try:
             return self.scenarios[scenario_name]
         except KeyError:
-            raise ExceptionCrue10("Le scénario %s n'existe pas  !\nLes noms possibles sont: %s"
+            raise ExceptionCrue10("Le scénario %s n'existe pas !\nLes noms possibles sont: %s"
                                   % (scenario_name, list(self.scenarios.keys())))
 
     def get_scenario_courant(self):
@@ -305,14 +305,14 @@ class Etude(FichierXML):
         try:
             return self.modeles[nom_modele]
         except KeyError:
-            raise ExceptionCrue10("Le modèle %s n'existe pas  !\nLes noms possibles sont: %s"
+            raise ExceptionCrue10("Le modèle %s n'existe pas !\nLes noms possibles sont: %s"
                                   % (nom_modele, list(self.modeles.keys())))
 
     def get_sous_modele(self, nom_sous_modele):
         try:
             return self.sous_modeles[nom_sous_modele]
         except KeyError:
-            raise ExceptionCrue10("Le sous-modèle %s n'existe pas  !\nLes noms possibles sont: %s"
+            raise ExceptionCrue10("Le sous-modèle %s n'existe pas !\nLes noms possibles sont: %s"
                                   % (nom_sous_modele, list(self.sous_modeles.keys())))
 
     def check_xml_files(self, folder=None):

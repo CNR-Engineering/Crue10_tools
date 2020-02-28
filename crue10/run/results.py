@@ -211,13 +211,16 @@ class RunResults:
         for emh_type in self.emh_types:
             if emh_name in self.emh[emh_type]:
                 return emh_type
-        raise ExceptionCrue10("Le type de l'EMH %s n'est pas déterminable" % emh_name)
+        raise ExceptionCrue10("Le type de l'EMH %s n'est pas déterminable, "
+                              "probablement car son nom est mal orthographié." % emh_name)
 
     def get_variable_position(self, emh_type, varname):
         try:
             return self.variables[emh_type].index(varname)
         except ValueError:
-            raise ExceptionCrue10("La variable `%s` n'est pas disponible pour les %ss" % (varname, emh_type.lower()))
+            raise ExceptionCrue10("La variable `%s` n'est pas disponible pour les %ss\n"
+                                  "Les variables possibles sont : %s"
+                                  % (varname, emh_type.lower(), self.variables[emh_type]))
 
     def get_emh_position(self, emh_type, emh_name):
         try:

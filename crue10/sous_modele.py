@@ -651,7 +651,7 @@ class SousModele(FichierXML):
                 layer.write(elem)
 
     def write_all(self, folder, folder_config=None):
-        logger.debug("Writing %s in %s" % (self, folder))
+        logger.debug("Écriture du %s dans %s" % (self, folder))
 
         # Create folder if not existing
         if folder_config is not None:

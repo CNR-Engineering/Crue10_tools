@@ -245,7 +245,7 @@ class Modele(FichierXML):
         )
 
     def write_all(self, folder, folder_config):
-        logger.debug("Écriture de %s dans %s" % (self, folder))
+        logger.debug("Écriture du %s dans %s" % (self, folder))
 
         # Create folder if not existing
         if not os.path.exists(folder):
