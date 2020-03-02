@@ -117,33 +117,33 @@ class Scenario(FichierXML):
 
                 self.ajouter_calcul(calc_perm)
 
-        if elt_calc.tag == PREFIX + 'CalcTrans':
-            calc_trans = CalcTrans(elt_calc.get('Nom'), get_optional_commentaire(elt_calc))
-            for elt_valeur in elt_calc:
-                if elt_valeur.tag == (PREFIX + 'Commentaire'):
-                    continue
+            if elt_calc.tag == PREFIX + 'CalcTrans':
+                calc_trans = CalcTrans(elt_calc.get('Nom'), get_optional_commentaire(elt_calc))
+                for elt_valeur in elt_calc:
+                    if elt_valeur.tag == (PREFIX + 'Commentaire'):
+                        continue
 
-                clim_type = elt_valeur.tag[len(PREFIX):]
-                if clim_type not in CalcTrans.CLIM_TYPE_TO_TAG_VALUE:
-                    raise ExceptionCrue10("Type de Clim inconnu: %s" % clim_type)
+                    clim_type = elt_valeur.tag[len(PREFIX):]
+                    if clim_type not in CalcTrans.CLIM_TYPE_TO_TAG_VALUE:
+                        raise ExceptionCrue10("Type de Clim inconnu: %s" % clim_type)
 
-                if clim_type == 'CalcTransBrancheOrificeManoeuvre':
-                    sens = elt_valeur.find(PREFIX + 'SensOuv').text
-                else:
-                    sens = None
+                    if clim_type == 'CalcTransBrancheOrificeManoeuvre':
+                        sens = elt_valeur.find(PREFIX + 'SensOuv').text
+                    else:
+                        sens = None
 
-                value_elt = elt_valeur.find(PREFIX + CalcTrans.CLIM_TYPE_TO_TAG_VALUE[clim_type])
-                nom_loi = value_elt.get('NomRef')  # TODO: check law exists
+                    value_elt = elt_valeur.find(PREFIX + CalcTrans.CLIM_TYPE_TO_TAG_VALUE[clim_type])
+                    nom_loi = value_elt.get('NomRef')  # TODO: check law exists
 
-                calc_trans.ajouter_valeur(
-                    elt_valeur.get('NomRef'),
-                    clim_type,
-                    elt_valeur.find(PREFIX + 'IsActive').text == 'true',
-                    nom_loi,
-                    sens,
-                )
+                    calc_trans.ajouter_valeur(
+                        elt_valeur.get('NomRef'),
+                        clim_type,
+                        elt_valeur.find(PREFIX + 'IsActive').text == 'true',
+                        nom_loi,
+                        sens,
+                    )
 
-            self.ajouter_calcul(calc_trans)
+                self.ajouter_calcul(calc_trans)
 
     def read_all(self):
         if not self.was_read:
