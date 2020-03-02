@@ -49,6 +49,7 @@ if WRITE_DIFF_DATAFRAME:
 if PLOT_RUN_BARPLOT:
     # Read data to plot
     df_runs = pd.read_csv(OUT_CSV_RUNS_FILE, delimiter=CSV_DELIMITER)
+    df_runs = df_runs.sort_values(by='scenario')
 
     # Filter data
     # df_runs = df_runs.loc[df_runs['exe_id'] != 'local', :]

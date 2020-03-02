@@ -68,6 +68,7 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                         values = OrderedDict()
 
                         run_id = scenario_name[3:] + '_' + exe_id
+                        run_id = run_id[:32]  # avoid error with too long identifier
                         if not overwrite and run_id in scenario.runs:
                             # Load existing run
                             run = scenario.get_run(run_id)

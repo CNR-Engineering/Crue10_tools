@@ -194,6 +194,8 @@ class Scenario(FichierXML):
         - Les XML du modèle associés sont écrits dans un sous-dossier
         - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
         """
+        if exe_path is None:
+            exe_path = CRUE10_EXE_PATH
         if not os.path.exists(exe_path) and exe_path.endswith('.exe'):
             raise ExceptionCrue10("Le chemin vers l'exécutable n'existe pas : `%s`" % exe_path)
 
@@ -239,8 +241,6 @@ class Scenario(FichierXML):
         #     out.write(folder_to_write + '\n')
 
         # Run crue10.exe in command line and redirect stdout and stderr in csv files
-        if exe_path is None:
-            exe_path = CRUE10_EXE_PATH
         etu_path = os.path.join(run_folder, os.path.basename(etude.etu_path))
         cmd_list = [exe_path] + CRUE10_EXE_OPTS + [etu_path]
         logger.info("Éxécution : %s" % ' '.join(cmd_list))

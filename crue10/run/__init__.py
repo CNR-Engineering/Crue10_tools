@@ -120,6 +120,9 @@ class Run:
             text += '\n'
         return text
 
+    def get_all_traces_above_warn(self, services=SERVICES, gravite_max=GRAVITE_MAX):
+        return self.get_all_traces(services, gravite_min=GRAVITE_AVERTISSEMENT, gravite_max=gravite_max)
+
     def get_service_time(self, service):
         if service not in Run.SERVICES:
             raise ExceptionCrue10("Le service `%s` n'est pas reconnu" % service)
