@@ -194,16 +194,21 @@ class Scenario(FichierXML):
         - Les XML du modèle associés sont écrits dans un sous-dossier
         - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
         """
+        if not os.path.exists(exe_path) and exe_path.endswith('.exe'):
+            raise ExceptionCrue10("Le chemin vers l'exécutable n'existe pas : `%s`" % exe_path)
+
         # Create a Run instance
         if run_id is None:
             run_id = get_run_identifier()
+        if len(run_id) > 32:
+            raise ExceptionCrue10("Le nom du Run dépasse 32 caractères: `%s`" % run_id)
         run_folder = os.path.join(etude.folder, etude.folders['RUNS'], self.id, run_id)
         run = Run(os.path.join(run_folder, self.modele.id), metadata={'Commentaire': comment})
 
         if not force:
             if os.path.exists(run_folder):
-                raise ExceptionCrue10("Le dossier du run existe déjà. "
-                                      "Utilisez l'argument force=True si vous souhaitez le supprimer")
+                raise ExceptionCrue10("Le dossier du Run `%s` existe déjà. "
+                                      "Utilisez l'argument force=True si vous souhaitez le supprimer" % run_id)
         elif run.id in self.runs:
             self.remove_run(run.id)
 
@@ -273,6 +278,15 @@ class Scenario(FichierXML):
 
         if write_model:
             self.modele.write_all(folder, folder_config)
+
+    def normalize_for_10_2(self):
+        """Remove some variables if they are present in ores"""
+        variables_to_remove = ['Cr', 'J', 'Jf', 'Kact_eq', 'Pact', 'Rhact', 'Tauact', 'Ustaract']
+        tree = self.xml_trees['ores']
+        elt_section = tree.find(PREFIX + 'OrdResSections').find(PREFIX + 'OrdResSection')
+        for elt_dde in elt_section:
+            if elt_dde.get('NomRef') in variables_to_remove:
+                elt_section.remove(elt_dde)
 
     def __repr__(self):
         return "Scénario %s" % self.id

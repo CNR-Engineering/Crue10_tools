@@ -33,7 +33,7 @@ t1 = time()
 
 
 if RUN_CALCULATIONS:
-    df_runs = launch_runs(DOSSIER, None, CRUE10_EXE, overwrite=False)
+    df_runs = launch_runs(DOSSIER, None, CRUE10_EXE, overwrite=True)
     write_csv(df_runs, OUT_CSV_RUNS_FILE)
 
 
@@ -51,24 +51,24 @@ if PLOT_RUN_BARPLOT:
     df_runs = pd.read_csv(OUT_CSV_RUNS_FILE, delimiter=CSV_DELIMITER)
 
     # Filter data
-    # df_runs = df_stats.loc[df_runs['exe_id'] != 'local', :]
-    # df_runs = df_stats.loc[df_runs['variable'] != 'nb_avertissements', :]
+    # df_runs = df_runs.loc[df_runs['exe_id'] != 'local', :]
+    df_runs = df_runs.loc[df_runs['variable'] == 'nb_services_ok', :]
 
     # Build a FacetGrid object with barplots
     sns.set_context('notebook', font_scale=1.5, rc={'lines.linewidth': 2.5})
-    g = sns.FacetGrid(df_runs, row='variable', col='etude_dossier', sharex=False, sharey='row', height=4, aspect=2)
+    # g = sns.FacetGrid(df_runs, row='variable', col='etude_dossier', sharex=False, sharey='row', height=4, aspect=2)
+    g = sns.FacetGrid(df_runs, row='variable', sharey='row', height=4, aspect=25)
     g = g.map(sns.barplot, 'scenario', 'value', 'exe_id',
               hue_order=CRUE10_EXE.keys(), palette="husl", ci=None)
 
     # Sets xlabels and ylabels from titles
     for i, axes in enumerate(g.axes[:, :]):
         for j, ax in enumerate(axes):
-            variable_name, scenario_name = (txt.split(' = ')[1] for txt in str(ax.get_title()).split(' | '))
+            variable_name = str(ax.get_title()).split(' = ')[1]
             if i == 0:  # first row
                 ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.22),
                           ncol=len(CRUE10_EXE), fancybox=True, shadow=True)
             if i == (len(g.axes[:, 0]) - 1):  # last row
-                ax.set_xlabel(scenario_name)
                 ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
             else:
                 ax.get_xaxis().set_visible(False)
@@ -120,7 +120,7 @@ if PLOT_DIFF_HEATMAP:
     df_diff_stat = df_diff_stat.sort_values(by='scenario')
 
     # Build a FacetGrid object
-    g = sns.FacetGrid(df_diff_stat, row='variable', sharex=False, sharey='row', height=2, aspect=22)
+    g = sns.FacetGrid(df_diff_stat, row='variable', sharey='row', height=2, aspect=22)
     fig = g.fig
 
     def draw_heatmap(*args, **kwargs):
@@ -162,4 +162,4 @@ if PLOT_DIFF_HEATMAP:
 
 
 t2 = time()
-logger.info("=> Execution time: {}s".format(t2 - t1))
+logger.info("=> Temps d'exécution = {}s".format(t2 - t1))

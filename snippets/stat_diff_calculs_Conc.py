@@ -128,4 +128,4 @@ if PLOT_BOXPLOT:
 
 
 t2 = time()
-logger.info("=> Execution time: {}s".format(t2 - t1))
+logger.info("=> Temps d'exécution = {}s".format(t2 - t1))

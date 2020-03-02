@@ -56,10 +56,18 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                     scenario = etude.get_scenario(scenario_name)
                     logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actif()))
 
+                    # Shift 'prod' to the end to call `normalize_for_10_2` safely
+                    if 'prod' in crue_exe_dict:
+                        value = crue_exe_dict.pop('prod')
+                        crue_exe_dict['prod'] = value
+
                     for run_idx, (exe_id, crue10_exe) in enumerate(crue_exe_dict.items()):
+                        if exe_id == 'prod':
+                            scenario.normalize_for_10_2()
+
                         values = OrderedDict()
 
-                        run_id = scenario_name + '_' + exe_id
+                        run_id = scenario_name[3:] + '_' + exe_id
                         if not overwrite and run_id in scenario.runs:
                             # Load existing run
                             run = scenario.get_run(run_id)
@@ -122,6 +130,10 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
     :param emh_type:
     :returns pd.DataFrame
     """
+    # Sort df_runs_unique to have 'prod' in first position to compute differences
+    df_runs_unique = df_runs_unique.sort_values(['etude_dossier', 'scenario', 'exe_id'],
+                                                ascending=[True, True, True])
+
     LOGGER_LEVEL = logger.level
     res_perm = {}
     cols = list(df_runs_unique.columns)
