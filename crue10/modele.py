@@ -124,6 +124,37 @@ class Modele(FichierXML):
             branches += sous_modele.get_liste_branches()
         return branches
 
+    def get_noeud(self, nom_noeud):
+        noeuds = []
+        for noeud in self.get_liste_noeuds():
+            if noeud.id == nom_noeud:
+                noeuds.append(noeud)
+        if len(noeuds) == 0:
+            raise ExceptionCrue10("Le noeud %s n'est pas dans le %s" % (nom_noeud, self))
+        elif len(noeuds) == 1:
+            return noeuds[0]
+        else:
+            raise ExceptionCrue10("Le noeud %s existe dans plusieurs sous-modèles différents "
+                                  "et ne peut pas être obtenu avec cette méthode" % nom_noeud)
+
+    def get_section(self, nom_section):
+        for section in self.get_liste_sections():
+            if section.id == nom_section:
+                return section
+        raise ExceptionCrue10("La section %s n'est pas dans le %s" % (nom_section, self))
+
+    def get_branche(self, nom_branche):
+        for branche in self.get_liste_branches():
+            if branche.id == nom_branche:
+                return branche
+        raise ExceptionCrue10("La branche %s n'est pas dans le %s" % (nom_branche, self))
+
+    def get_casier(self, nom_casier):
+        for casier in self.get_liste_casiers():
+            if casier.id == nom_casier:
+                return casier
+        raise ExceptionCrue10("Le casier %s n'est pas dans le %s" % (nom_casier, self))
+
     def get_missing_active_sections(self, section_id_list):
         """
         Returns the list of the requested sections which are not found (or not active) in the current modele
@@ -153,9 +184,9 @@ class Modele(FichierXML):
             if isinstance(branche, BrancheBarrageFilEau) or isinstance(branche, BrancheBarrageGenerique):
                 liste_branches.append(branche)
         if len(liste_branches) == 0:
-            raise ExceptionCrue10("Aucune branche 14 ou 15 dans le sous-modèle")
+            raise ExceptionCrue10("Aucune branche barrage (14 ou 15) dans le sous-modèle")
         if len(liste_branches) > 1:
-            raise ExceptionCrue10("Plusieurs branches 14 ou 15 dans le sous-modèle")
+            raise ExceptionCrue10("Plusieurs branches barrages (14 ou 15) dans le sous-modèle : %s" % liste_branches)
         return liste_branches[0]
 
     def ajouter_sous_modele(self, sous_modele):
@@ -176,6 +207,21 @@ class Modele(FichierXML):
             self.branches_ic[branche_id] = values
         for casier_id, value in modele.casiers_ic.items():
             self.casiers_ic[casier_id] = value
+
+    def supprimer_noeuds_entre_deux_branches_fluviales(self):
+        """
+        Remove all intermediate removable nodes which are located between 2 adjacent fluvial branches
+        Downstream Branche and the intermediate SectionIdem are safely removed
+        Beware: boundary conditions are not checked yet!
+        """
+        for sous_modele in self.liste_sous_modeles:
+            for noeud in sous_modele.get_liste_noeuds():
+                if sous_modele.is_noeud_supprimable(noeud):
+                    old_branche = sous_modele.supprimer_noeud_entre_deux_branches_fluviales(noeud)
+
+                    # Remove obsolete initial conditions
+                    self.noeuds_ic.pop(noeud.id)
+                    self.branches_ic.pop(old_branche.id)
 
     def reset_initial_conditions(self):
         """Set initial conditions to default values"""

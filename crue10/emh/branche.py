@@ -137,6 +137,9 @@ class Branche(ABC):
         section.xp = xp
         self.liste_sections_dans_branche.append(section)
 
+    def supprimer_section_dans_branche(self, pos_section):
+        del self.liste_sections_dans_branche[pos_section]
+
     def set_geom(self, geom):
         check_isinstance(geom, LineString)
         if geom.has_z:

@@ -705,15 +705,31 @@ class SousModele(FichierXML):
                 return branche
         return None
 
-    def get_connected_branches(self, nom_noeud):
+    def get_connected_branches_in(self, nom_noeud):
         """
-        Returns the list of the branches connected to requested node
+        Returns the list of the branches whose downstream node is the requested node
         """
         branches = []
         for branche in self.get_liste_branches():
-            if nom_noeud in (branche.noeud_amont.id, branche.noeud_aval.id):
+            if nom_noeud == branche.noeud_aval.id:
                 branches.append(branche)
         return branches
+
+    def get_connected_branches_out(self, nom_noeud):
+        """
+        Returns the list of the branches whose upstream node is the requested node
+        """
+        branches = []
+        for branche in self.get_liste_branches():
+            if nom_noeud == branche.noeud_amont.id:
+                branches.append(branche)
+        return branches
+
+    def get_connected_branches(self, nom_noeud):
+        """
+        Returns the list of the branches connected to requested node (direction is not considered)
+        """
+        return self.get_connected_branches_in(nom_noeud) + self.get_connected_branches_out(nom_noeud)
 
     def get_connected_casier(self, noeud):
         """
@@ -734,6 +750,90 @@ class SousModele(FichierXML):
         if len(list(self.get_liste_sections_interpolees())) != 0:
             raise ExceptionCrue10("Des SectionInterpolee n'ont pas pu être supprimées : %s"
                                   % list(self.get_liste_sections_interpolees()))
+
+    @staticmethod
+    def are_sections_similar(section1, section2):
+        if isinstance(section1, SectionIdem) and isinstance(section2, SectionProfil):
+            section_idem = section1
+            section_profil = section2
+        elif isinstance(section1, SectionProfil) and isinstance(section2, SectionIdem):
+            section_idem = section2
+            section_profil = section1
+        else:
+            return False
+        return section_idem.section_reference is section_profil and section_idem.dz_section_reference == 0.0
+
+    def is_noeud_supprimable(self, noeud):
+        connected_casier = self.get_connected_casier(noeud)
+        has_casier = connected_casier is not None
+
+        if not has_casier:
+            in_branches = self.get_connected_branches_in(noeud.id)
+            out_branches = self.get_connected_branches_out(noeud.id)
+            if len(in_branches) == len(out_branches) == 1:
+                in_branche = in_branches[0]
+                out_branche = out_branches[0]
+                in_section = in_branche.get_section_aval()
+                out_section = out_branche.get_section_amont()
+
+                if (in_branche.type == out_branche.type == 20) and \
+                        (in_branche.is_active == out_branche.is_active) and \
+                        self.are_sections_similar(in_section, out_section):
+                    return True
+        return False
+
+    def supprimer_noeud_entre_deux_branches_fluviales(self, noeud):
+        """
+        Remove noeud in merging the 2 adjacent branches
+        Beware: comment, CoefSinuo, CoefBeta, CoefRuis, CoefRuisQdm of downstream branch are simply ignored
+        :param noeud <Noeud>: node to remove
+        :return branche <Branche>: branche to remove
+        """
+        # Check that noeud is not connected to a Casier
+        connected_casier = self.get_connected_casier(noeud)
+        has_casier = connected_casier is not None
+        if has_casier:
+            raise ExceptionCrue10("Le %s n'est pas supprimable car il est lié à un casier" % noeud)
+
+        # Check upstream (in) and downstream (out) branches and check that they can be merged
+        if not self.is_noeud_supprimable(noeud):
+            raise ExceptionCrue10("Le %s n'est pas supprimable "
+                                  "car il n'est pas entre 2 branches Saint-Venant fusionnables" % noeud)
+
+        # Get upstream (in) and downstream (out) branches and sections at the interface
+        in_branche = self.get_connected_branches_in(noeud.id)[0]
+        out_branche = self.get_connected_branches_out(noeud.id)[0]
+        logger.debug("Suppresion du %s (entre les branches %s et %s)" % (noeud, in_branche.id, out_branche.id))
+
+        in_section = in_branche.get_section_aval()
+        out_section = out_branche.get_section_amont()
+
+        in_branche_length = in_branche.get_section_aval().xp
+        assert in_branche_length > 0
+
+        if isinstance(out_section, SectionProfil) and isinstance(in_section, SectionIdem):
+            # Move SectionProfil in upstream branch
+            in_branche.supprimer_section_dans_branche(in_section.id)
+            in_branche.ajouter_section_dans_branche(out_section, in_branche_length)
+
+            # Remove orphan SectionIdem
+            self.sections.pop(in_section.id)
+        else:
+            # Remove orphan SectionIdem
+            self.sections.pop(out_section.id)
+
+        # Insert sections from downstream to upstream branch
+        for section in out_branche.liste_sections_dans_branche[1:]:
+            in_branche.ajouter_section_dans_branche(section, in_branche_length + section.xp)
+        in_branche.geom = LineString(list(in_branche.geom.coords) + list(out_branche.geom.coords))
+
+        # Merge geometry
+        in_branche.noeud_aval = out_branche.noeud_aval
+
+        # Remove old downstream branch and intermediate node
+        self.branches.pop(out_branche.id)
+        self.noeuds.pop(noeud.id)
+        return out_branche
 
     def convert_sectionidem_to_sectionprofil(self):
         """
