@@ -16,6 +16,7 @@ import sys
 from crue10.emh.section import SectionProfil
 from crue10.etude import Etude
 from crue10.utils import ExceptionCrue10, logger
+from crue10.utils.settings import CSV_DELIMITER
 
 
 ADD_BOTTOM = True
@@ -26,7 +27,7 @@ etu_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
     # Get modele
     etude = Etude(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
-    modele = etude.get_modele('Mo_VS2013_c10_octobre_2014')
+    modele = etude.get_scenario_courant().modele
     modele.read_all()
     for sous_modele in modele.liste_sous_modeles:
         sous_modele.convert_sectionidem_to_sectionprofil()
@@ -40,7 +41,7 @@ try:
 
     # Read rcal result file
     scenario = etude.get_scenario('Sc_EtatsRef2015')
-    run = scenario.get_run('R2019-04-16-14h09m19s')
+    run = scenario.get_last_run()
     results = run.get_results()
     print(results.summary())
 
@@ -52,6 +53,11 @@ try:
     # Read a single *steady* calculation
     res_perm = results.get_res_steady('Cc_360m3-s')
     res = res_perm['Section']
+
+    # Export a longitudinal profile between 2 nodes in CSV
+    branches = modele.get_branches_liste_entre_noeuds('Nd_CAF4.000', 'Nd_RET33.700')
+    df_res = results.get_res_steady_at_sections_along_branches_as_dataframe('Cc_360m3-s', branches, VARIABLES)
+    df_res.to_csv('../tmp/LE.csv', sep=CSV_DELIMITER)
 
     # Subset results to get requested variables at active sections
     pos_variables = [results.variables['Section'].index(var) for var in VARIABLES]

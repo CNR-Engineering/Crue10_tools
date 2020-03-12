@@ -4,15 +4,15 @@ import csv
 import io  # Python2 fix
 import numpy as np
 import os.path
+import pandas as pd
 import re
 import struct
 from sys import version_info
 import xml.etree.ElementTree as ET
 
 from crue10.utils import ExceptionCrue10, PREFIX
+from crue10.utils.settings import CSV_DELIMITER
 
-
-CSV_DELIMITER = ';'
 
 FMT_FLOAT_CSV = '{:.6e}'
 
@@ -260,6 +260,32 @@ class RunResults:
     def get_res_steady(self, calc_name):
         calc = self.get_calc_steady(calc_name)
         return calc.file_pos.get_data(self._res_pattern, True, self._emh_type_first_branche)
+
+    def get_res_steady_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None):
+        calc = self.get_calc_steady(calc_name)
+        res_perm = calc.file_pos.get_data(self._res_pattern, True, self._emh_type_first_branche)['Section']
+
+        if var_names is None:
+            var_names = self.variables['Section']
+
+        branche_names = []
+        section_names = []
+        distances_list = []
+        distance = 0.0
+        for branche in branches:
+            for section in branche.liste_sections_dans_branche:
+                distance += section.xp
+                branche_names.append(branche.id)
+                section_names.append(section.id)
+                distances_list.append(distance)
+
+        pos_sections = [self.emh['Section'].index(section_name) for section_name in section_names]
+        pos_variables = [self.variables['Section'].index(var) for var in var_names]
+        array = res_perm[pos_sections, :][:, pos_variables]
+
+        values_in_dict = {'branche': branche_names, 'section': section_names, 'distance': distances_list}
+        values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
+        return pd.DataFrame(values_in_dict)
 
     def get_res_unsteady(self, calc_name):
         calc = self.get_calc_unsteady(calc_name)

@@ -16,9 +16,9 @@ except NameError:  # Python2 fix
 
 try:
     # Get modele
-    study = Etude(os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc',
+    etude = Etude(os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc',
                                'Etu_BE2016_conc', 'Etu_BE2016_conc.etu.xml'))
-    modele = study.get_modele('Mo_BE2016_etatref')
+    modele = etude.get_scenario_courant().modele
     modele.read_all()
 
     print(modele)

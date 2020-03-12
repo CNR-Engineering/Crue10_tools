@@ -75,6 +75,12 @@ class Scenario(FichierXML):
         run.read_traces()
         return run
 
+    def get_last_run(self):
+        if not self.runs:
+            raise ExceptionCrue10("Aucun run n'existe pour ce scénario")
+        run_id = list(self.runs.keys())[-1]
+        return self.get_run(run_id)
+
     def get_liste_run_ids(self):
         return [run_id for run_id, _ in self.runs.items()]
 
@@ -194,6 +200,8 @@ class Scenario(FichierXML):
         - Les XML du modèle associés sont écrits dans un sous-dossier
         - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
         """
+        if not self.was_read:
+            raise ExceptionCrue10("L'appel à read_all doit être fait pour %s" % self)
         if exe_path is None:
             exe_path = CRUE10_EXE_PATH
         if not os.path.exists(exe_path) and exe_path.endswith('.exe'):

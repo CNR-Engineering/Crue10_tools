@@ -26,6 +26,7 @@ class Modele(FichierXML):
     - noeuds_ic <dict>: initial condition at noeuds
     - casiers_ic <dict>: initial condition at casiers
     - branches_ic <dict>: initial condition at branches
+    - graph <networkx.DiGraph>: directed graph with all nodes and active branches
     """
 
     FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti']
@@ -45,11 +46,18 @@ class Modele(FichierXML):
         super().__init__(access, files, metadata)
 
         self.liste_sous_modeles = []
+        self._graph = None
 
         # Initial conditions
         self.noeuds_ic = OrderedDict()
         self.casiers_ic = OrderedDict()
         self.branches_ic = OrderedDict()
+
+    @property
+    def graph(self):
+        if self._graph is None:
+            self._build_graph()
+        return self._graph
 
     @staticmethod
     def rename_emh(dictionary, old_id, new_id, replace_obj=True):
@@ -207,6 +215,39 @@ class Modele(FichierXML):
             self.branches_ic[branche_id] = values
         for casier_id, value in modele.casiers_ic.items():
             self.casiers_ic[casier_id] = value
+
+    def _build_graph(self):
+        try:
+            import networkx as nx
+        except ImportError:  # ModuleNotFoundError not available in Python2
+            raise ExceptionCrue10("Le module networkx ne fonctionne pas !")
+
+        self._graph = nx.DiGraph()
+        for noeud in self.get_liste_noeuds():
+            self._graph.add_node(noeud.id)  # This step is necessary to import potential orphan nodes
+        for branche in self.get_liste_branches():
+            if branche.is_active:
+                weight = 1 if branche.type in (1, 20) else 10  # branches in minor bed are favoured
+                self._graph.add_edge(branche.noeud_amont.id, branche.noeud_aval.id,
+                                     branche=branche.id, weight=weight)
+
+    def get_branches_liste_entre_noeuds(self, noeud_amont_id, noeud_aval_id):
+        try:
+            import networkx as nx
+        except ImportError:  # ModuleNotFoundError not available in Python2
+            raise ExceptionCrue10("Le module networkx ne fonctionne pas !")
+
+        try:
+            path = nx.shortest_path(self.graph, noeud_amont_id, noeud_aval_id, weight='weight')  # minimize weight
+        except nx.exception.NetworkXException as e:
+            raise ExceptionCrue10("PROBLÈME AVEC LE GRAPHE : %s" % e)
+
+        branches_list = []
+        for u, v in zip(path, path[1:]):
+            edge_data = self.graph.get_edge_data(u, v)
+            nom_branche = edge_data['branche']
+            branches_list.append(self.get_branche(nom_branche))
+        return branches_list
 
     def supprimer_noeuds_entre_deux_branches_fluviales(self):
         """

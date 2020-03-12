@@ -3,8 +3,9 @@ future  # python2 only packages
 jinja2
 lxml
 matplotlib  # only required for some snippets
+networkx  # only requried for build_graph
 numpy
-pandas  # only required for snippets.stat_diff_calculs
+pandas
 pydot  # only required for crue10.modele.Modele.write_topological_graph
 seaborn  # only required for snippets.stat_diff_calculs
 shapely
