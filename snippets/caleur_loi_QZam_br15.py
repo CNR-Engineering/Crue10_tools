@@ -75,8 +75,7 @@ try:
     scenario.remove_all_runs()
 
     # Récupération de la branche 15
-    modele = etude.get_modele('Mo_SV2019_Conc_EtatRef')
-    branche_bararge = modele.get_branche_barrage()
+    branche_bararge = scenario.modele.get_branche_barrage()
     section_barrage = branche_bararge.get_section_amont().id
     section_pilote = branche_bararge.section_pilote.id
 

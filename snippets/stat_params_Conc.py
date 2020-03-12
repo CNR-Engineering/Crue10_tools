@@ -75,7 +75,7 @@ if WRITE_DATAFRAMES:
                     assert len(np.unique(branche_bararge.liste_elements_seuil[:, 1])) == 1  # same elevation for all passes
                 ajouter_values(etude_dossier, 'brange_bge_coefD', branche_bge_coefD)
             except ExceptionCrue10 as e:
-                logger.warn(e)
+                logger.warning(e)
 
             # Branche seuils
             nb_branche_seuil = 0
