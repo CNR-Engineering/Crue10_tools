@@ -191,6 +191,7 @@ class Branche(ABC):
             errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))
         if len(self.liste_sections_dans_branche) < 2:  # validation.brancheMustContain2Sections
             errors.append((self, "La branche doit contenir au moins 2 sections"))
+        else:
             if self.get_section_amont().xp != 0.0:  # validation.branche.firstSectionMustBeAmont
                 errors.append((self, "La Section de position Amont doit avoir une abscisse nulle."))
         return errors
