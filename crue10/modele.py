@@ -86,7 +86,7 @@ class Modele(FichierXML):
     def rename_emhs(self, suffix, emh_list=['Fk', 'Nd', 'Cd', 'St', 'Br'], emhs_to_preserve=[]):
         for sous_modele in self.liste_sous_modeles:
             if 'Fk' in emh_list:
-                Modele.rename_key_and_obj(sous_modele.liste_lois_frottement, suffix)
+                Modele.rename_key_and_obj(sous_modele.lois_frottement, suffix)
             if 'Nd' in emh_list:
                 Modele.rename_key_and_obj(sous_modele.noeuds, suffix, emhs_to_preserve=emhs_to_preserve)
                 Modele.rename_key_and_obj(self.noeuds_ic, suffix, emhs_to_preserve=emhs_to_preserve, replace_obj=False)
@@ -205,7 +205,7 @@ class Modele(FichierXML):
 
     def ajouter_depuis_modele(self, modele):
         """Add modele in current modele with the related initial conditions"""
-        for sous_modele in modele.susoubmodels:
+        for sous_modele in modele.liste_sous_modeles:
             self.ajouter_sous_modele(sous_modele)
 
         # Copy initial conditions

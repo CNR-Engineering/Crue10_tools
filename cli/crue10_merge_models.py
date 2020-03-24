@@ -74,7 +74,7 @@ def crue10_merge_models(args):
     logger.info(model_out.summary())
     model_out.log_duplicated_emh()
 
-    for sous_modele in model_out.sous_modeles:
+    for sous_modele in model_out.liste_sous_modeles:
         study_out.ajouter_sous_modele(sous_modele)
         logger.info(sous_modele.summary())
 
