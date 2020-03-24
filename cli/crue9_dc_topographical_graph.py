@@ -117,7 +117,7 @@ def crue9_dc_topographical_graph(args):
     # Export(s) to png, svg, dot...
     for out_file in args.out_files:
         if out_file:
-            logger.debug("Génération du fichier %s (nodesep=%s, prog=%s)" % (out_file, args.nodesep, args.prog))
+            logger.debug("Génération du fichier %s (nodesep=%s, prog=%s)" % (out_file, args.sep, args.prog))
             if out_file.endswith('.png'):
                 graph.write_png(out_file)
             elif out_file.endswith('.svg'):

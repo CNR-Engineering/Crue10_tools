@@ -18,7 +18,7 @@ def crue10_model_geom_to_mascaret(args):
     etude = Etude(args.etu_path)
     modele = etude.get_modele(args.mo_name)
     modele.read_all()
-    for sous_modele in modele.sous_modeles:
+    for sous_modele in modele.liste_sous_modeles:
         sous_modele.remove_sectioninterpolee()
         sous_modele.normalize_geometry()
     modele.write_mascaret_geometry(args.georef_path)

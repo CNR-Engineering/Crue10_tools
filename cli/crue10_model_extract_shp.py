@@ -20,7 +20,7 @@ def crue10_model_extract_shp(args):
         modele.write_shp_sectionprofil_as_points(args.shp_sections)
 
     if args.shp_limits:
-        for sous_modele in modele.sous_modeles:
+        for sous_modele in modele.liste_sous_modeles:
             sous_modele.convert_sectionidem_to_sectionprofil()
         modele.write_shp_limites_lits_numerotes(args.shp_limits)
 

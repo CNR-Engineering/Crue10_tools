@@ -33,8 +33,8 @@ def crue10_model_for_maps(args):
     modele.read_all()
     logger.info(modele.summary())
 
-    if args.model_name:
-        model_name = args.model_name
+    if args.nom_modele:
+        model_name = args.nom_modele
     else:
         model_name = modele.id
 
@@ -47,7 +47,7 @@ def crue10_model_for_maps(args):
         'properties': OrderedDict([('NOM', 'str'), ('modele', 'str'), ('sousmodele', 'str')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'noeuds.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for sous_modele in modele.sous_modeles:
+        for sous_modele in modele.liste_sous_modeles:
             for _, noeud in sous_modele.noeuds.items():
                 layer = {
                     'geometry': mapping(noeud.geom),
@@ -66,7 +66,7 @@ def crue10_model_for_maps(args):
                                    ('noeud', 'str'), ('is_active', 'bool')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'casiers.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for sous_modele in modele.sous_modeles:
+        for sous_modele in modele.liste_sous_modeles:
             for _, casier in sous_modele.casiers.items():
                 layer = {
                     'geometry': mapping(Polygon(casier.geom)),
@@ -87,7 +87,7 @@ def crue10_model_for_maps(args):
                                    ('nd_aval', 'str'), ('type', 'int'), ('is_active', 'bool')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'branches.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for sous_modele in modele.sous_modeles:
+        for sous_modele in modele.liste_sous_modeles:
             for _, branche in sous_modele.branches.items():
                 layer = {
                     'geometry': mapping(branche.geom),
@@ -110,7 +110,7 @@ def crue10_model_for_maps(args):
                                    ('id_branche', 'str'), ('xp', 'float')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'sections.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for sous_modele in modele.sous_modeles:
+        for sous_modele in modele.liste_sous_modeles:
             for section in sous_modele.get_liste_sections(section_type=SectionProfil, ignore_inactive=True):
                 layer = {
                     'geometry': mapping(section.geom_trace),
@@ -131,7 +131,7 @@ def crue10_model_for_maps(args):
         'properties': OrderedDict([('NOM', 'str'), ('modele', 'str')]),
     }
     with fiona.open(os.path.join(args.out_folder, 'sous-modeles.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
-        for sous_modele in modele.sous_modeles:
+        for sous_modele in modele.liste_sous_modeles:
             sous_modele.remove_sectioninterpolee()
             sous_modele.normalize_geometry()  # replace SectionIdem by SectionProfil
 
