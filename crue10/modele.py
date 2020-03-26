@@ -108,30 +108,6 @@ class Modele(FichierXML):
                 return sous_modele
         raise ExceptionCrue10("Le sous-modèle %s n'existe pas dans le modèle %s" % (nom_sous_modele, self.id))
 
-    def get_liste_noeuds(self):
-        noeuds = []
-        for sous_modele in self.liste_sous_modeles:
-            noeuds += sous_modele.get_liste_noeuds()
-        return noeuds
-
-    def get_liste_casiers(self):
-        casiers = []
-        for sous_modele in self.liste_sous_modeles:
-            casiers += sous_modele.get_liste_casiers()
-        return casiers
-
-    def get_liste_sections(self, ignore_inactive=False):
-        sections = []
-        for sous_modele in self.liste_sous_modeles:
-            sections += sous_modele.get_liste_sections(ignore_inactive=ignore_inactive)
-        return sections
-
-    def get_liste_branches(self):
-        branches = []
-        for sous_modele in self.liste_sous_modeles:
-            branches += sous_modele.get_liste_branches()
-        return branches
-
     def get_noeud(self, nom_noeud):
         noeuds = []
         for noeud in self.get_liste_noeuds():
@@ -162,6 +138,43 @@ class Modele(FichierXML):
             if casier.id == nom_casier:
                 return casier
         raise ExceptionCrue10("Le casier %s n'est pas dans le %s" % (nom_casier, self))
+
+    def get_loi_frottement(self, nom_loi_frottement):
+        for loi in self.get_liste_lois_frottement():
+            if loi.id == nom_loi_frottement:
+                return loi
+        raise ExceptionCrue10("La loi de frottement %s n'est pas dans le %s" % (nom_loi_frottement, self))
+
+    def get_liste_noeuds(self):
+        noeuds = []
+        for sous_modele in self.liste_sous_modeles:
+            noeuds += sous_modele.get_liste_noeuds()
+        return noeuds
+
+    def get_liste_casiers(self):
+        casiers = []
+        for sous_modele in self.liste_sous_modeles:
+            casiers += sous_modele.get_liste_casiers()
+        return casiers
+
+    def get_liste_sections(self, section_type=None, ignore_inactive=False):
+        sections = []
+        for sous_modele in self.liste_sous_modeles:
+            sections += sous_modele.get_liste_sections(section_type=section_type,
+                                                       ignore_inactive=ignore_inactive)
+        return sections
+
+    def get_liste_branches(self, filter_branch_types=None):
+        branches = []
+        for sous_modele in self.liste_sous_modeles:
+            branches += sous_modele.get_liste_branches(filter_branch_types=filter_branch_types)
+        return branches
+
+    def get_liste_lois_frottement(self, ignore_sto=False):
+        lois = []
+        for sous_modele in self.liste_sous_modeles:
+            lois += sous_modele.get_liste_lois_frottement(ignore_sto=ignore_sto)
+        return lois
 
     def get_missing_active_sections(self, section_id_list):
         """

@@ -169,6 +169,12 @@ class SousModele(FichierXML):
         except KeyError:
             raise ExceptionCrue10("La loi de frottement %s n'est pas dans le %s" % (nom_loi_frottement, self))
 
+    def get_liste_noeuds(self):
+        return [section for _, section in self.noeuds.items()]
+
+    def get_liste_casiers(self):
+        return [casier for _, casier in self.casiers.items()]
+
     def get_liste_sections(self, section_type=None, ignore_inactive=False):
         sections = []
         for _, section in self.sections.items():
@@ -193,12 +199,6 @@ class SousModele(FichierXML):
     def get_liste_sections_sans_geometrie(self):
         return self.get_liste_sections(section_type=SectionSansGeometrie)
 
-    def get_liste_noeuds(self):
-        return [section for _, section in self.noeuds.items()]
-
-    def get_liste_casiers(self):
-        return [casier for _, casier in self.casiers.items()]
-
     def get_liste_branches(self, filter_branch_types=None):
         branches = []
         for _, branche in self.branches.items():
@@ -208,6 +208,13 @@ class SousModele(FichierXML):
             else:
                 branches.append(branche)
         return branches
+
+    def get_liste_lois_frottement(self, ignore_sto=False):
+        lois = []
+        for _, loi in self.lois_frottement.items():
+            if not ignore_sto and loi.type != 'FkSto':
+                lois.append(loi)
+        return lois
 
     def _read_dfrt(self):
         """
