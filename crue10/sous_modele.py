@@ -212,7 +212,7 @@ class SousModele(FichierXML):
     def get_liste_lois_frottement(self, ignore_sto=False):
         lois = []
         for _, loi in self.lois_frottement.items():
-            if not ignore_sto and loi.type != 'FkSto':
+            if not ignore_sto or loi.type != 'FkSto':
                 lois.append(loi)
         return lois
 

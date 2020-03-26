@@ -4,11 +4,17 @@ from glob import glob
 import logging
 import os
 import pandas as pd
+from multiprocessing import Pool
 import numpy as np
 
 from crue10.etude import Etude
 from crue10.utils import ExceptionCrue10, logger
-from crue10.utils.settings import CRUE10_EXE_PATH
+from crue10.utils.settings import CRUE10_EXE_PATH, NCSIZE
+
+
+def launch_scenario_modifications(function, modifications_liste, ncsize=NCSIZE):
+    with Pool(processes=ncsize) as pool:
+        return pool.map(function, modifications_liste)
 
 
 def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_PATH}, overwrite=True):

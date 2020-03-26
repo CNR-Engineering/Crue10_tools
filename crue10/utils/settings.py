@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import psutil
 
 
 CRUE10_EXE_PATH = 'P:/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', os.sep)  # Crue PROD
@@ -11,5 +12,7 @@ GRAVITE_MAX = 'FATAL'
 GRAVITE_MIN = 'DEBUG3'
 GRAVITE_AVERTISSEMENT = 'WARN'
 GRAVITE_MIN_ERROR = 'ERRNBLK'
+
+NCSIZE = psutil.cpu_count(logical=False)   # multiprocessing.cpu_count() includes logical
 
 XML_ENCODING = 'utf-8'

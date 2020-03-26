@@ -48,6 +48,13 @@ class LoiFrottement:
         self.loi_Fk = loi_Fk
         self.comment = ''
 
+    def get_loi_Fk_values(self):
+        return self.loi_Fk[:, 1]
+
+    def set_loi_Fk_values(self, value):
+        check_isinstance(value, float)
+        self.loi_Fk[:, 1] = value
+
 
 DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)]))
 DEFAULT_FK_MAX = LoiFrottement('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)]))

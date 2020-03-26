@@ -210,6 +210,21 @@ class Modele(FichierXML):
             raise ExceptionCrue10("Plusieurs branches barrages (14 ou 15) dans le sous-modèle : %s" % liste_branches)
         return liste_branches[0]
 
+    def _get_pnum_CalcPseudoPerm(self):
+        return self.xml_trees['pnum'].find(PREFIX + 'ParamNumCalcPseudoPerm')
+
+    def get_pnum_CalcPseudoPerm_NbrPdtDecoup(self):
+        return int(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'NbrPdtDecoup').text)
+
+    def get_pnum_CalcPseudoPerm_NbrPdtMax(self):
+        return int(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'NbrPdtMax').text)
+
+    def get_pnum_CalcPseudoPerm_TolMaxZ(self):
+        return float(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxZ').text)
+
+    def get_pnum_CalcPseudoPerm_TolMaxQ(self):
+        return float(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxQ').text)
+
     def ajouter_sous_modele(self, sous_modele):
         check_isinstance(sous_modele, SousModele)
         if sous_modele.id in self.liste_sous_modeles:
@@ -261,6 +276,18 @@ class Modele(FichierXML):
             nom_branche = edge_data['branche']
             branches_list.append(self.get_branche(nom_branche))
         return branches_list
+
+    def set_pnum_CalcPseudoPerm_TolMaxZ(self, value):
+        check_isinstance(value, float)
+        self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxZ').text = str(value)
+
+    def set_pnum_CalcPseudoPerm_TolMaxQ(self, value):
+        check_isinstance(value, float)
+        self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxQ').text = str(value)
+
+    def set_pnum_CalcPseudoPerm_PdtCst(self, value):
+        check_isinstance(value, float)
+        raise NotImplementedError  #TODO
 
     def supprimer_noeuds_entre_deux_branches_fluviales(self):
         """

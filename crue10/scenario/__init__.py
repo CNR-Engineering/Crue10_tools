@@ -4,6 +4,7 @@ from collections import OrderedDict
 import os.path
 import shutil
 import subprocess
+import time
 
 from crue10.base import FichierXML
 from crue10.modele import Modele
@@ -47,6 +48,23 @@ class Scenario(FichierXML):
         self.current_run_id = None
         self.runs = OrderedDict()
 
+    def get_function_apply_modifications(self, etude):
+        def fun(modifications):
+            run_id = modifications.pop('run_id')
+            self.apply_modifications(modifications)
+            return self.create_and_launch_new_run(etude, run_id=run_id, force=True)
+        return fun
+
+    def ajouter_calcul(self, calcul):
+        check_isinstance(calcul, Calcul)
+        self.calculs.append(calcul)
+
+    def add_run(self, run):
+        check_isinstance(run, Run)
+        if run.id in self.runs:
+            raise ExceptionCrue10("Le Run %s est déjà présent" % run.id)
+        self.runs[run.id] = run
+
     def get_nb_calc_pseudoperm_actif(self):
         return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcPseudoPerm'))
 
@@ -58,10 +76,6 @@ class Scenario(FichierXML):
 
     def get_liste_calc_trans(self):
         return [calcul for calcul in self.calculs if isinstance(calcul, CalcTrans)]
-
-    def ajouter_calcul(self, calcul):
-        check_isinstance(calcul, Calcul)
-        self.calculs.append(calcul)
 
     def get_run(self, run_id):
         if not self.runs:
@@ -87,6 +101,23 @@ class Scenario(FichierXML):
     def set_modele(self, model):
         check_isinstance(model, Modele)
         self.modele = model
+
+    def set_current_run_id(self, run_id):
+        if run_id not in self.runs:
+            raise ExceptionCrue10("Le Run '%s' n'existe pas" % run_id)
+        self.current_run_id = run_id
+
+    def apply_modifications(self, modifications):
+        """Modify current Scenario instance from a dictionary describing modifications"""
+        check_isinstance(modifications, dict)
+        for modification_key, modification_value in modifications.items():
+            if modification_key == 'pnum.CalcPseudoPerm.Pdt':
+                self.modele.set_pnum_CalcPseudoPerm_PdtCst(modification_value)
+            elif modification_key.startswith('Fk_'):
+                loi = self.modele.get_loi_frottement(modification_key)
+                loi.set_loi_Fk_values(modification_value)
+            else:
+                raise NotImplementedError
 
     def _read_dclm(self):
         """
@@ -159,17 +190,6 @@ class Scenario(FichierXML):
 
         self.was_read = True
 
-    def add_run(self, run):
-        check_isinstance(run, Run)
-        if run.id in self.runs:
-            raise ExceptionCrue10("Le Run %s est déjà présent" % run.id)
-        self.runs[run.id] = run
-
-    def set_current_run_id(self, run_id):
-        if run_id not in self.runs:
-            raise ExceptionCrue10("Le Run '%s' n'existe pas" % run_id)
-        self.current_run_id = run_id
-
     def remove_run(self, run_id):
         run_path = os.path.join(self.runs[run_id].run_mo_path, '..')
         logger.debug("Suppression du Run #%s (%s)" % (run_id, run_path))
@@ -177,10 +197,12 @@ class Scenario(FichierXML):
         if os.path.exists(run_path):
             shutil.rmtree(run_path)
 
-    def remove_all_runs(self):
+    def remove_all_runs(self, sleep=0.0):
         """Suppression de tous les Runs existants"""
         for run_id in self.get_liste_run_ids():
             self.remove_run(run_id)
+        if sleep > 0.0:  # Avoid potential conflict if folder is rewritten directly afterwards
+            time.sleep(sleep)
 
     def create_and_launch_new_run(self, etude, run_id=None, exe_path=None, comment='', force=False):
         """

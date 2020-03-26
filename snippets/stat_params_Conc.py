@@ -62,6 +62,10 @@ if WRITE_DATAFRAMES:
                 ('nb_casiers', len(modele.get_liste_casiers())),
                 ('nb_branches', len(modele.get_liste_branches())),
                 # ('theta_preissman', scenario.modele.get_theta_preissmann()),
+                ('NbrPdtDecoup', modele.get_pnum_CalcPseudoPerm_NbrPdtDecoup()),
+                ('NbrPdtMax', modele.get_pnum_CalcPseudoPerm_NbrPdtMax()),
+                ('TolMaxZ', modele.get_pnum_CalcPseudoPerm_TolMaxZ()),
+                ('TolMaxQ', modele.get_pnum_CalcPseudoPerm_TolMaxQ()),
                 ('debit_max_calculs_pseudoperm',
                  max([calcul.get_somme_positive_Qapp() for calcul in scenario.get_liste_calc_pseudoperm()]))
             ])
@@ -111,8 +115,9 @@ if PLOT_BARPLOT:
 
     # Build a FacetGrid object with barplots
     sns.set_context("notebook", font_scale=1.5, rc={"lines.linewidth": 2.5})
-    g = sns.FacetGrid(df_stats, row="variable", sharex=True, sharey=False, height=3, aspect=4)
-    g = g.map(sns.barplot, "etude_dossier", "value", palette="husl", order=ETATREF_SCENARIO_PAR_AMENAGEMENT.keys(), ci=None)
+    g = sns.FacetGrid(df_stats, row="variable", sharex=True, sharey=False, height=4, aspect=3)
+    g = g.map(sns.barplot, "etude_dossier", "value", palette="husl",
+              order=ETATREF_SCENARIO_PAR_AMENAGEMENT.keys(), ci=None)
 
     # Sets ylabels from titles
     for ax in g.axes[:, 0]:
