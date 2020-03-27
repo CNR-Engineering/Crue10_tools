@@ -5,7 +5,8 @@ lxml
 matplotlib  # only required for some snippets
 networkx  # only requried for build_graph
 numpy
+openturns==1.12  # only for snippets.probabilistic_study
 pandas
 pydot  # only required for crue10.modele.Modele.write_topological_graph
-seaborn  # only required for snippets.stat_diff_calculs
+seaborn  # only required for some snippets
 shapely

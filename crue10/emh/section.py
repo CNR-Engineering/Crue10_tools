@@ -51,6 +51,13 @@ class LoiFrottement:
     def get_loi_Fk_values(self):
         return self.loi_Fk[:, 1]
 
+    def get_loi_Fk_value(self):
+        values = self.get_loi_Fk_values()
+        if len(values) != 1:
+            raise ExceptionCrue10("La loi de frottement %s contient plus de 1 valeur, "
+                                  "cette méthode n'est pas utilisable." % self.id)
+        return values[0]
+
     def set_loi_Fk_values(self, value):
         check_isinstance(value, float)
         self.loi_Fk[:, 1] = value

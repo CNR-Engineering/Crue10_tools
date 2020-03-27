@@ -116,6 +116,10 @@ class Scenario(FichierXML):
             elif modification_key.startswith('Fk_'):
                 loi = self.modele.get_loi_frottement(modification_key)
                 loi.set_loi_Fk_values(modification_value)
+            elif modification_key.startswith('Qapp_factor.'):
+                nom_noeud = modification_key[12:]
+                for calcul in self.get_liste_calc_pseudoperm():
+                    calcul.multiplier_valeur(nom_noeud, modification_value)
             else:
                 raise NotImplementedError
 
