@@ -1,6 +1,7 @@
 # coding: utf-8
 from builtins import super  # Python2 fix
 from collections import OrderedDict
+from copy import deepcopy
 import os.path
 import shutil
 import subprocess
@@ -50,9 +51,16 @@ class Scenario(FichierXML):
 
     def get_function_apply_modifications(self, etude):
         def fun(modifications):
+            # self is not shared across thread but is successively modified (per thread),
+            # therefore a deep copy is performed:
+            curr_scenario = deepcopy(self)
             run_id = modifications.pop('run_id')
-            self.apply_modifications(modifications)
-            return self.create_and_launch_new_run(etude, run_id=run_id, force=True)
+            try:
+                comment = modifications.pop('comment')
+            except KeyError:
+                comment = None
+            curr_scenario.apply_modifications(modifications)
+            return curr_scenario.create_and_launch_new_run(etude, run_id=run_id, comment=comment, force=True)
         return fun
 
     def ajouter_calcul(self, calcul):

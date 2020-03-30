@@ -17,12 +17,12 @@ from crue10.utils.settings import CSV_DELIMITER
 
 NB_SAMPLES = 1000
 LOIS_FROTTEMENT = ['Fk_RET1min', 'Fk_RET2min', 'Fk_RET3min', 'Fk_RET4min', 'Fk_RET5min', 'Fk_RET6min']
-DELTA_SIGMA_STRICKLER = 8.0  # m^(1/3)/s
+DELTA_SIGMA_STRICKLER = 5.0  # m^(1/3)/s
 ND_QAPP_AMONT = ['Nd_RET162.000']
 DELTA_REL_QAPP = 0.1  # 10%
-IDX_CALC = 4  # index du calcul pseudo-permanent à étudier
+IDX_CALC = -1  # index du calcul pseudo-permanent à étudier
 
-SAMPLE, RUN, POST = False, False, True
+SAMPLE, RUN, POST = False, True, True
 
 CSV_SAMPLES = os.path.join('out', 'probabilistic_study_sample.csv')
 
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         t1 = perf_counter()
         runs_liste = launch_scenario_modifications(apply_modifications, modifications_liste)
         t2 = perf_counter()
-        logger.info("=> Temps génération de tous les runs = {}s".format(t2 - t1))  # 125s on laptop P52 (on C:\)
+        logger.info("=> Temps génération de tous les runs = {}s".format(t2 - t1))  # 127s on laptop P52 (on C:\)
 
         # Write a clean etu.xml file
         for run in runs_liste:
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         df_all['has_errors'] = False
         nom_sections = ['St_RET155.030',  # Fk_RET5min
                         'St_RET160.300',  # Fk_RET3min
-                        'St_RET162.000']
+                        'St_RET162.000']  # Fk_RET1min
         y_vars = []
         for nom_section in nom_sections:
             colname = 'Z_' + nom_section
@@ -108,21 +108,20 @@ if __name__ == '__main__':
 
         crue_time = 0
         for run in runs_liste:
-            print(run)
             crue_time += run.get_time()
             if run.nb_erreurs() > 0:
                 df_sample[run.id] = True
             results = run.get_results()
             values = results.get_res_all_steady_var_at_emhs('Z', nom_sections)[IDX_CALC]
-            for i, col in enumerate(y_vars):
-                df_all[col][run.id] = values[i]
+            for i, nom_section in enumerate(nom_sections):
+                df_all.at[run.id, 'Z_' + nom_section] = values[i]
 
         nb_errors = df_all['has_errors'].sum()
         logger.info("=> Nombre d'échec = {}".format(nb_errors))
         logger.info("=> Temps total passé dans Crue10.exe = {:.1f}s "
                     "(moyenne par run: {:.2f}s)".format(crue_time, crue_time/NB_SAMPLES))
 
-        df_all = df_all[df_all[y_vars[-1]] < 400.0]  # filter to avoid inconsistent data with this case...
+        df_all.to_csv(os.path.join('out', 'probabilistic_study_all.csv'), sep=CSV_DELIMITER)
 
         sns_plot = sns.pairplot(df_all, vars=x_vars, hue='has_errors')
         sns_plot.savefig(os.path.join('out', 'probabilistic_study_matrix_X-X.png'))

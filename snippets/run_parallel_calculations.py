@@ -29,7 +29,7 @@ scenario.remove_all_runs(sleep=1.0)
 # Build list of modifications
 modifications_liste = []
 for i, delta_strickler in enumerate(np.arange(-20.0, 20.0, step=5.0)):
-    modifications = {'run_id': 'Iter%i' % i}
+    modifications = {'run_id': 'Iter%i' % i, 'comment': 'Strickler %.0f' % delta_strickler}
     for loi_frottement in scenario.modele.get_liste_lois_frottement(ignore_sto=True):
         fk_id = loi_frottement.id
         loi_frottement = scenario.modele.get_loi_frottement(fk_id)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         values = results.get_res_all_steady_var_at_emhs('Z', ['St_RET113.600'])
         nb_calc_steady = values.shape[0]
         time_serie = np.arange(1, nb_calc_steady + 1, step=1)
-        plt.plot(time_serie, values[:, 0], label=run.id)
+        plt.plot(time_serie, values[:, 0], label=run.metadata['Commentaire'])
 
     plt.xlabel(u"Numéro du calcul pseudo-permanent")
     plt.ylabel(u"Niveau d'eau au PR1 [mNGFO]")
