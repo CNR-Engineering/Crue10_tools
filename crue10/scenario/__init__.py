@@ -58,7 +58,7 @@ class Scenario(FichierXML):
             try:
                 comment = modifications.pop('comment')
             except KeyError:
-                comment = None
+                comment = ''
             curr_scenario.apply_modifications(modifications)
             return curr_scenario.create_and_launch_new_run(etude, run_id=run_id, comment=comment, force=True)
         return fun
