@@ -12,6 +12,7 @@ GRAVITE_MAX = 'FATAL'
 GRAVITE_MIN = 'DEBUG3'
 GRAVITE_AVERTISSEMENT = 'WARN'
 GRAVITE_MIN_ERROR = 'ERRNBLK'
+GRAVITE_MIN_ERROR_BLK = 'ERRBLK'
 
 NCSIZE = psutil.cpu_count(logical=False)   # multiprocessing.cpu_count() includes logical
 

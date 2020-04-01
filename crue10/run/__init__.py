@@ -9,14 +9,15 @@ from crue10.run.results import RunResults
 from crue10.run.trace import Trace
 from crue10.utils import add_default_missing_metadata, ExceptionCrue10, logger
 from crue10.utils.crueconfigmetier import ENUM_SEVERITE
-from crue10.utils.settings import GRAVITE_AVERTISSEMENT, GRAVITE_MAX, GRAVITE_MIN, GRAVITE_MIN_ERROR
+from crue10.utils.settings import GRAVITE_AVERTISSEMENT, GRAVITE_MAX, GRAVITE_MIN, \
+    GRAVITE_MIN_ERROR, GRAVITE_MIN_ERROR_BLK
 
 
 FMT_RUN_IDENTIFIER = "R%Y-%m-%d-%Hh%Mm%Ss"
 
 
 def get_path_file_unique_matching(folder, ext_pattern):
-    file_path_list= []
+    file_path_list = []
     for file_path in glob(os.path.join(folder, ext_pattern)):
         file_path_list.append(file_path)
     if len(file_path_list) == 0:
@@ -112,6 +113,12 @@ class Run:
     def nb_erreurs_calcul(self):
         return self.nb_erreurs(['c'])
 
+    def nb_erreurs_bloquantes(self, services=SERVICES):
+        nb = 0
+        for service in services:
+            nb += len(self.get_service_traces(service, gravite_min=GRAVITE_MIN_ERROR_BLK))
+        return nb
+
     def get_all_traces(self, services=SERVICES, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
         text = ''
         for service in services:
@@ -150,9 +157,9 @@ class Run:
                                   % self.id)
 
         # Check if errors are in computation traces
-        traces_errors = self.get_service_traces(service='c', gravite_min=GRAVITE_MIN_ERROR)
+        traces_errors = self.get_service_traces(service='c', gravite_min=GRAVITE_MIN_ERROR_BLK)
         if traces_errors:
-            logger.warn("Le run #%s contient des résultats partiels car des erreurs "
+            logger.warn("Le run #%s contient des résultats partiels car des erreurs bloquantes "
                         "se trouvent dans les traces du calcul :\n%s" % (self.id, '\n'.join(traces_errors)))
 
         # Get file and returns results
