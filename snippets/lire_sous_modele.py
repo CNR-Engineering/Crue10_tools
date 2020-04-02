@@ -14,22 +14,23 @@ from crue10.etude import Etude
 try:
     dossier = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc', 'Etu_BE2016_conc')
     nom_sous_modele = 'Sm_BE2016_etatref'
-    if True:
-        # Get sous_modele from a study
-        etude = Etude(os.path.join(dossier, 'Etu_BE2016_conc.etu.xml'))
-        sous_modele = etude.get_sous_modele(nom_sous_modele)
-    else:
-        # Get sous_modele directly from a dict containing path to xml/shp files
-        files = {xml: os.path.join(dossier, nom_sous_modele[3:] + '.' + xml + '.xml')
-                 for xml in SousModele.FILES_XML}
-        for shp_name in SousModele.FILES_SHP:
-            files[shp_name] = os.path.join(dossier, 'Config', nom_sous_modele.upper(), shp_name + '.shp')
-        sous_modele = SousModele(nom_sous_modele, access='r', files=files, metadata=None)
-    sous_modele.read_all()
+
+    # Get sous_modele from a study
+    etude = Etude(os.path.join(dossier, 'Etu_BE2016_conc.etu.xml'))
+    etude.read_all()
+    sous_modele = etude.get_sous_modele(nom_sous_modele)
+
+    # # Get sous_modele directly from a dict containing path to xml/shp files
+    # files = {xml: os.path.join(dossier, nom_sous_modele[3:] + '.' + xml + '.xml')
+    #          for xml in SousModele.FILES_XML}
+    # for shp_name in SousModele.FILES_SHP:
+    #     files[shp_name] = os.path.join(dossier, 'Config', nom_sous_modele.upper(), shp_name + '.shp')
+    # sous_modele = SousModele(nom_sous_modele, access='r', files=files, metadata=None)
+    # sous_modele.read_all()
 
     # Do something with `sous_modele`...
     # Here is an example below:
-    sous_modele.remove_sectioninterpolee()
+    sous_modele.remove_sectioninterpolee()  #FIXME: some IC/BC can become inconsistent
     sous_modele.convert_sectionidem_to_sectionprofil()
 
     # Select a single branch
