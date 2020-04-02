@@ -452,6 +452,7 @@ class SectionIdem(Section):
         new_section.is_active = self.is_active
         new_section.xz[:, 1] += self.dz_section_reference
         new_section.comment = 'Copie de la section parent %s' % self.section_reference.id
+        new_section.set_profilsection_name()  # reset ProfilSection name (avoid duplications)
         return new_section
 
 

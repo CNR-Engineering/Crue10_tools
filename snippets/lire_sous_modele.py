@@ -52,6 +52,12 @@ try:
             point = section.interp_point(section.lits_numerotes[i_lit - 1].xt_max)
         print((point.x, point.y))
 
+    # Check reloading of a modified study
+    etude.write_all('out')
+    new_etude = Etude(os.path.join('out', os.path.basename(etude.etu_path)))
+    new_etude.check_xml_files()
+    new_etude.read_all()
+
 except IOError as e:
     logger.critical(e)
     sys.exit(1)
