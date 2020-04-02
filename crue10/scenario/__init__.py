@@ -30,10 +30,10 @@ class Scenario(FichierXML):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, scenario_name, model, access='r', files=None, metadata=None):
+    def __init__(self, scenario_name, modele, access='r', files=None, metadata=None):
         """
         :param scenario_name: scenario name
-        :param model: a Modele instance
+        :param modele: a Modele instance
         :param files: dict with xml path files
         :param metadata: dict containing metadata
         """
@@ -44,13 +44,17 @@ class Scenario(FichierXML):
         self.calculs = []
 
         self.modele = None
-        self.set_modele(model)
+        self.set_modele(modele)
 
         self.current_run_id = None
         self.runs = OrderedDict()
 
     def get_function_apply_modifications(self, etude):
         def fun(modifications):
+            """
+            Applique les modifications demandées sur une copie du scénario courant et lance un Run complet
+            @return: Run
+            """
             # self is not shared across thread but is successively modified (per thread),
             # therefore a deep copy is performed:
             curr_scenario = deepcopy(self)
@@ -106,9 +110,9 @@ class Scenario(FichierXML):
     def get_liste_run_ids(self):
         return [run_id for run_id, _ in self.runs.items()]
 
-    def set_modele(self, model):
-        check_isinstance(model, Modele)
-        self.modele = model
+    def set_modele(self, modele):
+        check_isinstance(modele, Modele)
+        self.modele = modele
 
     def set_current_run_id(self, run_id):
         if run_id not in self.runs:
@@ -116,11 +120,30 @@ class Scenario(FichierXML):
         self.current_run_id = run_id
 
     def apply_modifications(self, modifications):
-        """Modify current Scenario instance from a dictionary describing modifications"""
+        """
+        Modifie le scénario courant à partir d'un dictionnaire décrivant les modifications
+
+        Les modifications possibles sont :
+
+        # Sur le scénario ou modèle
+        - `pnum.CalcPseudoPerm.Pdt`: <float> => affection du pas de temps (en secondes) pour les calculs permanents
+        - `Qapp_factor.NomNoeud`: <float> => application du facteur multiplicatif
+              à tous les débits imposés au noeud nommé NomNoeur
+
+        # Sur les sous-modèles
+        - `Fk_NomLoi`: <float> => modification du Strickler de la loi de frottement nommée NomLoi
+        """
         check_isinstance(modifications, dict)
         for modification_key, modification_value in modifications.items():
+            # Numerical parameters
             if modification_key == 'pnum.CalcPseudoPerm.Pdt':
                 self.modele.set_pnum_CalcPseudoPerm_PdtCst(modification_value)
+            elif modification_key == 'pnum.CalcPseudoPerm.TolMaxZ':
+                self.modele.set_pnum_CalcPseudoPerm_TolMaxZ(modification_value)
+            elif modification_key == 'pnum.CalcPseudoPerm.TolMaxQ':
+                self.modele.set_pnum_CalcPseudoPerm_TolMaxQ(modification_value)
+
+            # Hydraulic parameters
             elif modification_key.startswith('Fk_'):
                 loi = self.modele.get_loi_frottement(modification_key)
                 loi.set_loi_Fk_values(modification_value)
@@ -129,7 +152,8 @@ class Scenario(FichierXML):
                 for calcul in self.get_liste_calc_pseudoperm():
                     calcul.multiplier_valeur(nom_noeud, modification_value)
             else:
-                raise NotImplementedError
+                raise ExceptionCrue10("La modification `%s` n'est pas reconnue. "
+                                      "Voyez la documentation de Scenario.apply_modifications" % modification_key)
 
     def _read_dclm(self):
         """

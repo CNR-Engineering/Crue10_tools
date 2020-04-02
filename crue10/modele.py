@@ -3,6 +3,7 @@ from builtins import super  # Python2 fix
 from collections import Counter, OrderedDict
 from copy import deepcopy
 import fiona
+from lxml import etree
 import numpy as np
 import os.path
 from shapely.geometry import LineString, mapping, Point
@@ -10,8 +11,8 @@ from shapely.geometry import LineString, mapping, Point
 from crue10.base import FichierXML
 from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
 from crue10.emh.section import SectionProfil, LitNumerote
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, \
-    logger, PREFIX, write_default_xml_file, write_xml_from_tree
+from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
+    ExceptionCrue10, logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
 from mascaret.mascaret_file import Reach, Section
@@ -225,6 +226,14 @@ class Modele(FichierXML):
     def get_pnum_CalcPseudoPerm_TolMaxQ(self):
         return float(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxQ').text)
 
+    def get_pnum_CalcPseudoPerm_PdtCst(self):
+        pdt_elt = self._get_pnum_CalcPseudoPerm().find(PREFIX + 'Pdt')
+        pdtcst_elt = pdt_elt.find(PREFIX + 'PdtCst')
+        if pdtcst_elt is None:
+            print(etree.tostring(pdt_elt))
+            raise ExceptionCrue10("Le pas de temps n'est pas constant")
+        return duration_iso8601_to_seconds(pdtcst_elt.text)
+
     def ajouter_sous_modele(self, sous_modele):
         check_isinstance(sous_modele, SousModele)
         if sous_modele.id in self.liste_sous_modeles:
@@ -286,8 +295,18 @@ class Modele(FichierXML):
         self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxQ').text = str(value)
 
     def set_pnum_CalcPseudoPerm_PdtCst(self, value):
+        """
+        Affecte le pas de temps constant demandé
+        Attention si le pas de temps était variable, il est bien mis constant à la valeur demandée sans avertissement.
+        """
         check_isinstance(value, float)
-        raise NotImplementedError  #TODO
+        pdt_elt = self._get_pnum_CalcPseudoPerm().find(PREFIX + 'Pdt')
+        # Remove existing elements
+        for elt in pdt_elt:
+            pdt_elt.remove(elt)
+        # Add new single element
+        sub_elt = etree.SubElement(pdt_elt, PREFIX + 'PdtCst')
+        sub_elt.text = duration_seconds_to_iso8601(value)
 
     def supprimer_noeuds_entre_deux_branches_fluviales(self):
         """

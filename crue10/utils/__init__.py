@@ -12,7 +12,6 @@ from lxml import etree
 from crue10.utils.filters import float2str, html_escape, typeclim2str_calcpseudoperm, typeclim2str_calctrans
 from crue10.utils.settings import XML_ENCODING
 
-
 DATA_FOLDER_ABSPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data')
 
 XML_DEFAULT_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'default')
@@ -35,7 +34,6 @@ SELF_CLOSING_TAGS = [
 ]
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
-
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
@@ -126,6 +124,7 @@ def write_xml_from_tree(xml_tree, file_path):
         for sub_elt in elt:
             avoid_self_closing_tags(sub_elt)
         return elt
+
     xml_tree = avoid_self_closing_tags(xml_tree)
 
     # Convert xml tree to string
@@ -136,6 +135,7 @@ def write_xml_from_tree(xml_tree, file_path):
     def insert_html_entities(match):
         text = html_escape(match.group(1))
         return "<Commentaire>%s</Commentaire>" % text
+
     main_text = re.sub(r'<Commentaire>(.*?)</Commentaire>', insert_html_entities, main_text, flags=re.S)
 
     # Write XML file
@@ -160,6 +160,7 @@ class ExceptionCrue10(Exception):
     """!
     @brief Custom exception for Crue file content check
     """
+
     def __init__(self, message):
         """!
         @param message <str>: error message description
@@ -171,3 +172,47 @@ class ExceptionCrue10(Exception):
 class ExceptionCrue10GeometryNotFound(ExceptionCrue10):
     def __init__(self, emh):
         super().__init__("%s n'a pas de géométrie !" % emh)
+
+
+def duration_seconds_to_iso8601(duration_in_seconds):
+    """
+    Converts a duration in seconds to ISO 8601 text format
+    (See ISO format at https://fr.wikipedia.org/wiki/ISO_8601#Dur%C3%A9e)
+    :param duration_in_seconds: float measuring a duration in seconds
+    :return: ISO 8601 text format (e.g. "P0Y0M0DT0H0M0S". Info: the letter `T` separates days and hours)
+    """
+    txt = 'P0Y0M'
+
+    # Number of days
+    nb_days = duration_in_seconds // (24 * 3600)
+    txt += '%iDT' % nb_days
+    duration_in_seconds = duration_in_seconds - nb_days * 24 * 3600
+
+    # Number of hours
+    nb_hours = duration_in_seconds // 3600
+    txt += '%iH' % nb_hours
+    duration_in_seconds = duration_in_seconds - nb_hours * 3600
+
+    # Number of minutes
+    nb_minutes = duration_in_seconds // 60
+    txt += '%iM' % nb_minutes
+    duration_in_seconds = duration_in_seconds - nb_minutes * 60
+
+    # Number of seconds
+    if duration_in_seconds == 0.0:
+        txt += '0S'
+    elif duration_in_seconds == int(duration_in_seconds):
+        txt += '%.0fS' % duration_in_seconds
+    else:
+        txt += '%.2fS' % duration_in_seconds  # truncation after 2 digits
+
+    return txt
+
+
+def duration_iso8601_to_seconds(duration_in_iso8601):
+    match = re.match(r"^P0Y0M(?P<days>[\d.]+)DT(?P<hours>[\d.]+)H(?P<minutes>[\d.]+)M(?P<seconds>[\d.]+)S$",
+                     duration_in_iso8601)
+    return (float(match.group('seconds')) +
+            60 * (float(match.group('minutes')) +
+                  60 * (float(match.group('hours')) +
+                        24 * float(match.group('days')))))

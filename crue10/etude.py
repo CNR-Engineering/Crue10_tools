@@ -1,8 +1,11 @@
 # coding: utf-8
 from builtins import super  # Python2 fix
 from collections import OrderedDict
+from copy import deepcopy
 from io import open  # Python2 fix
 import os.path
+from shutil import rmtree
+import time
 import xml.etree.ElementTree as ET
 
 from crue10.base import FichierXML
@@ -263,6 +266,8 @@ class Etude(FichierXML):
 
     def ajouter_modele(self, modele):
         check_isinstance(modele, Modele)
+        # if modele.id in self.modeles:
+        #     raise ExceptionCrue10("Le modèle %s est déjà présent" % modele.id)
         self.add_files([file for _, file in modele.files.items()])
         for sous_modele in modele.liste_sous_modeles:
             self.ajouter_sous_modele(sous_modele)
@@ -270,11 +275,15 @@ class Etude(FichierXML):
 
     def ajouter_sous_modele(self, sous_modele):
         check_isinstance(sous_modele, SousModele)
+        # if sous_modele.id in self.sous_modeles:
+        #     raise ExceptionCrue10("Le sous-modèle %s est déjà présent" % sous_modele.id)
         self.add_files([file for _, file in sous_modele.files.items() if file[-8:-4] in SousModele.FILES_XML])
         self.sous_modeles[sous_modele.id] = sous_modele
 
     def ajouter_scenario(self, scenario):
         check_isinstance(scenario, Scenario)
+        if scenario.id in self.scenarios:
+            raise ExceptionCrue10("Le scénario %s est déjà présent" % scenario.id)
         self.add_files([file for _, file in scenario.files.items()])
         self.ajouter_modele(scenario.modele)
         self.scenarios[scenario.id] = scenario
@@ -314,6 +323,47 @@ class Etude(FichierXML):
         except KeyError:
             raise ExceptionCrue10("Le sous-modèle %s n'existe pas !\nLes noms possibles sont: %s"
                                   % (nom_sous_modele, list(self.sous_modeles.keys())))
+
+    def get_liste_modeles(self):
+        for _, modele in self.modeles.items():
+            yield modele
+
+    def get_liste_sous_modeles(self):
+        for _, sous_modele in self.sous_modeles.items():
+            yield sous_modele
+
+    def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible):
+        """
+        Copie d'un scénario existant et ajout à l'étude courante
+        Attention le modèle et les sous-modèles restent partagés avec le scénario source
+        Les Runs existants ne sont pas copiés dans le scénario cible
+        Remarque : une copie profonde n'est pas possible car il faudrait renommer le modèle et les sous-modèles...
+        """
+        scenario_ori = self.get_scenario(nom_scenario_source)
+        scenario = Scenario(nom_scenario_cible, scenario_ori.modele, access='w',
+                            files=scenario_ori.files, metadata=scenario_ori.metadata)
+        scenario.read_all()
+        self.ajouter_scenario(scenario)
+        return scenario
+
+    def supprimer_scenario(self, nom_scenario, ignore=False, sleep=0.0):
+        logger.info("Suppression du scénario %s" % nom_scenario)
+        if not ignore:
+            # Check that is exists if required
+            self.get_scenario(nom_scenario)
+
+        try:
+            del self.scenarios[nom_scenario]
+        except KeyError:  # ignore if not found
+            pass
+
+        # Remove Runs folder once to speedup the deletion and remove potential orphan runs
+        # instead of simply calling scenario.remove_all_runs()
+        run_folder = os.path.join(self.folder, self.folders['RUNS'], nom_scenario)
+        if os.path.exists(run_folder):
+            rmtree(run_folder)
+        if sleep > 0.0:  # Avoid potential conflict if folder is rewritten directly afterwards
+            time.sleep(sleep)
 
     def check_xml_files(self, folder=None):
         errors = {}

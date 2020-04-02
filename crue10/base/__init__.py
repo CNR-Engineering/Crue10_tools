@@ -53,7 +53,7 @@ class FichierXML(ABC):
                     if xml_type != 'etu':
                         self.files[xml_type] = self.id[3:] + '.' + xml_type + '.xml'
             else:
-                raise RuntimeError
+                self.files = files
 
         self.comments = {xml: '' for xml in type(self).FILES_XML}
         self.was_read = False

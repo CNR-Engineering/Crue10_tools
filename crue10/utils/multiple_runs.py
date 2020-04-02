@@ -13,6 +13,7 @@ from crue10.utils.settings import CRUE10_EXE_PATH, NCSIZE
 
 
 def launch_scenario_modifications(function, modifications_liste, ncsize=NCSIZE):
+    logger.info("Lancement de %i calculs en parallèle (sur %i processeurs)" % (len(modifications_liste), ncsize))
     with Pool(processes=ncsize) as pool:
         return pool.map(function, modifications_liste)
 

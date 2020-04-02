@@ -9,3 +9,4 @@ crue10_examples/
 doc/
 venv/
 tmp
+*_all.csv
