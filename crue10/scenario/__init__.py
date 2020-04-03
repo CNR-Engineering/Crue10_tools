@@ -50,6 +50,9 @@ class Scenario(FichierXML):
         self.runs = OrderedDict()
 
     def get_function_apply_modifications(self, etude):
+        curr_etude = deepcopy(etude)
+        curr_etude.ignore_others_scenarios(self.id)
+
         def fun(modifications):
             """
             Applique les modifications demandées sur une copie du scénario courant et lance un Run complet
@@ -64,7 +67,8 @@ class Scenario(FichierXML):
             except KeyError:
                 comment = ''
             curr_scenario.apply_modifications(modifications)
-            return curr_scenario.create_and_launch_new_run(etude, run_id=run_id, comment=comment, force=True)
+            return curr_scenario.create_and_launch_new_run(curr_etude, run_id=run_id, comment=comment, force=True)
+
         return fun
 
     def ajouter_calcul(self, calcul):

@@ -324,13 +324,14 @@ class Etude(FichierXML):
             raise ExceptionCrue10("Le sous-modèle %s n'existe pas !\nLes noms possibles sont: %s"
                                   % (nom_sous_modele, list(self.sous_modeles.keys())))
 
+    def get_liste_scenarios(self):
+        return [scenario for _, scenario in self.scenarios.items()]
+
     def get_liste_modeles(self):
-        for _, modele in self.modeles.items():
-            yield modele
+        return [modele for _, modele in self.modeles.items()]
 
     def get_liste_sous_modeles(self):
-        for _, sous_modele in self.sous_modeles.items():
-            yield sous_modele
+        return [sous_modele for _, sous_modele in self.sous_modeles.items()]
 
     def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible):
         """
@@ -345,6 +346,33 @@ class Etude(FichierXML):
         scenario.read_all()
         self.ajouter_scenario(scenario)
         return scenario
+
+    def ignore_others_scenarios(self, nom_scenario):
+        scenario_to_keep = self.get_scenario(nom_scenario)
+        filepath_to_keep = []  # to purge FichEtudes/FichEtude
+
+        for scenario in self.get_liste_scenarios():
+            if scenario is scenario_to_keep:
+                filepath_to_keep += [filename for _, filename in scenario.files.items()]
+            else:
+                del self.scenarios[scenario.id]
+
+        for modele in self.get_liste_modeles():
+            if modele is scenario_to_keep.modele:
+                filepath_to_keep += [filename for _, filename in modele.files.items()]
+            else:
+                del self.modeles[modele.id]
+
+        for sous_modele in self.get_liste_sous_modeles():
+            if sous_modele in scenario_to_keep.modele.liste_sous_modeles:
+                filepath_to_keep += [filename for _, filename in sous_modele.files.items()]
+            else:
+                del self.sous_modeles[sous_modele.id]
+
+        for filename in deepcopy(self.filename_list):
+            file_path = os.path.join(filename)
+            if file_path not in filepath_to_keep:
+                self.filename_list.remove(filename)
 
     def supprimer_scenario(self, nom_scenario, ignore=False, sleep=0.0):
         logger.info("Suppression du scénario %s" % nom_scenario)
