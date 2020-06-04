@@ -16,7 +16,7 @@ GRAVITE_MIN_ERROR_BLK = 'ERRBLK'
 try:
     from psutil import cpu_count
     NCSIZE = cpu_count(logical=False)  # does not include logical
-except ModuleNotFoundError:
+except ImportError:
     from multiprocessing import cpu_count
     NCSIZE = cpu_count()  # includes logical
 
