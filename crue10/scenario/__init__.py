@@ -223,6 +223,7 @@ class Scenario(FichierXML):
                 self.ajouter_calcul(calc_trans)
 
     def read_all(self):
+        """Lire tous les fichiers du scénario"""
         if not self.was_read:
             self._set_xml_trees()
             self.modele.read_all()
@@ -331,6 +332,7 @@ class Scenario(FichierXML):
         )
 
     def write_all(self, folder, folder_config=None, write_model=True):
+        """Écrire tous les fichiers du scénario"""
         logger.debug("Écriture de %s dans %s" % (self, folder))
 
         # Create folder if not existing

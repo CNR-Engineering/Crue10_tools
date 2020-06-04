@@ -21,13 +21,20 @@ from mascaret.mascaretgeo_file import MascaretGeoFile
 
 class Modele(FichierXML):
     """
-    Crue10 modele
-    - id <str>: modele identifier
-    - liste_sous_modeles <[SousModele]>: list of sous_modeles
-    - noeuds_ic <dict>: initial condition at noeuds
-    - casiers_ic <dict>: initial condition at casiers
-    - branches_ic <dict>: initial condition at branches
-    - graph <networkx.DiGraph>: directed graph with all nodes and active branches
+    Modèle Crue10
+
+    :param id: nom du modèle
+    :type id: str
+    :param liste_sous_modeles: liste des sous-modèles
+    :type liste_sous_modeles: list(SousModele)
+    :param noeuds_ic: conditions initiales aux noeuds
+    :type noeuds_ic: dict
+    :param casiers_ic: conditions initiales aux casiers
+    :type casiers_ic: dict
+    :param branches_ic: conditions initiales aux branches
+    :type branches_ic: dict
+    :param graph: graphe orienté avec tous les noeuds et branches actives
+    :type graph: networkx.DiGraph
     """
 
     FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti']
@@ -36,14 +43,19 @@ class Modele(FichierXML):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, model_name, access='r', files=None, metadata=None):
+    def __init__(self, nom_modele, access='r', files=None, metadata=None):
         """
-        :param model_name: modele name
-        :param files: dict with xml path files
-        :param metadata: dict containing metadata
+        :param nom_modele: nom du modèle
+        :type nom_modele: str
+        :param access: accès en lecture ('r') ou écriture ('w')
+        :type access: str
+        :param files: dictionnaire des chemins vers les fichiers xml
+        :type files: dict(str)
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
         """
-        check_preffix(model_name, 'Mo_')
-        self.id = model_name
+        check_preffix(nom_modele, 'Mo_')
+        self.id = nom_modele
         super().__init__(access, files, metadata)
 
         self.liste_sous_modeles = []
@@ -181,7 +193,7 @@ class Modele(FichierXML):
         """
         Returns the list of the requested sections which are not found (or not active) in the current modele
             (section type is not checked)
-        @param section_id_list: list of section identifiers
+        :param section_id_list: list of section identifiers
         """
         return set([st.id for st in self.get_liste_sections(ignore_inactive=True)]).difference(set(section_id_list))
 
@@ -373,6 +385,7 @@ class Modele(FichierXML):
                         self.branches_ic[branche_id]['values']['Qruis'] = float(emh_ci.find(PREFIX + 'Qruis').text)
 
     def read_all(self):
+        """Lire tous les fichiers du modèle"""
         if not self.was_read:
             self._set_xml_trees()
 
@@ -391,6 +404,8 @@ class Modele(FichierXML):
         )
 
     def write_all(self, folder, folder_config):
+        """Écrire tous les fichiers du modèle"""
+
         logger.debug("Écriture du %s dans %s" % (self, folder))
 
         # Create folder if not existing
@@ -474,12 +489,13 @@ class Modele(FichierXML):
 
     def write_mascaret_geometry(self, geo_path):
         """
-        @brief: Convert modele to Mascaret geometry format (extension: geo or georef)
+        Convert modele to Mascaret geometry format (extension: geo or georef)
         Only active branche of type 20 (SaintVenant) are written
         TODO: Add min/maj delimiter
-        @param geo_path <str>: output file path
-            Submodels branches should only contain SectionProfil
-            (call to method `convert_sectionidem_to_sectionprofil` is highly recommanded)
+        :param geo_path <str>: output file path
+
+        Submodels branches should only contain SectionProfil
+        (call to method `convert_sectionidem_to_sectionprofil` is highly recommanded)
         """
         geofile = MascaretGeoFile(geo_path, access='w')
         i_section = 0

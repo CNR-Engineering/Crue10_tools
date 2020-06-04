@@ -46,15 +46,23 @@ def parse_elem_seuil(elt, with_pdc=False):
 
 class SousModele(FichierXML):
     """
-    Crue10 sous_modele
-    - id <str>: sous_modele identifier
-    - noeuds <{crue10.emh.noeud.Noeud}>: ordered dict of nodes
-    - sections <{crue10.emh.section.Section}>: ordered dict of sections
+    Sous-modèle Crue10
+
+    :param id: nom du sous-modèle
+    :type id: str
+    :param noeuds: dictionnaire ordonné des noeuds
+    :type noeuds: OrderedDict(Noeud)
+    :param sections: dictionnaire ordonné des sections
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
-    - branches <{crue10.emh.branche.Branche}>: ordered dict of branches
-    - casiers <{crue10.emh.casier.Casier}>: ordered dict of casiers
-    - profils_casier <{crue10.emh.casier.ProfilCasier}>: ordered dict of profils casier
-    - lois_frottement <{crue10.emh.section.LoiFrottement}>: ordered dict of friction laws (Strickler coefficients)
+    :type sections: OrderedDict(Section
+    :param branches: dictionnaire ordonné des branches
+    :type branches: OrderedDict(Branche)
+    :param casiers: dictionnaire ordonné des casiers
+    :type casiers: OrderedDict(Casier
+    :param profils_casier: dictionnaire ordonné des profils casier
+    :type profils_casier: OrderedDict(ProfilCasier)
+    :param lois_frottement: dictionnaire ordonné des lois de frottement (coefficients de Strickler)
+    :type lois_frottement: OrderedDict(LoiFrottement)
     """
 
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
@@ -65,6 +73,13 @@ class SousModele(FichierXML):
     def __init__(self, nom_sous_modele, access='r', files=None, metadata=None):
         """
         :param nom_sous_modele: nom du sous-modèle
+        :type nom_sous_modele: str
+        :param access: accès en lecture ('r') ou écriture ('w')
+        :type access: str
+        :param files: dictionnaire des chemins vers les fichiers xml
+        :type files: dict(str)
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
         """
         check_preffix(nom_sous_modele, 'Sm_')
         self.id = nom_sous_modele
@@ -534,6 +549,7 @@ class SousModele(FichierXML):
                 raise ExceptionCrue10GeometryNotFound(casier)
 
     def read_all(self):
+        """Lire tous les fichiers du sous-modèle"""
         if not self.was_read:
             # Read xml files
             self._read_dfrt()
@@ -658,6 +674,10 @@ class SousModele(FichierXML):
                 layer.write(elem)
 
     def write_all(self, folder, folder_config=None):
+        """Écrire tous les fichiers du sous-modèle
+
+        Les fichiers shp sont écrits dans un dossier si `folder_config` est renseigné
+        """
         logger.debug("Écriture du %s dans %s" % (self, folder))
 
         # Create folder if not existing

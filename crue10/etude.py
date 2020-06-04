@@ -26,15 +26,22 @@ def read_metadata(elt, keys):
 
 
 class Etude(FichierXML):
-    """
-    Crue10 etude
-    - access <str>: 'r' to read and 'w' to write
-    - folders <{str}>: dict with folders (keys correspond to `FOLDERS` list)
-    - filename_list <[str]>: list of xml file names
-    - nom_scenario_courant <str>: current scenario identifier
-    - scenarios <{str: Scenario}>: dict with scneario name and Scenario object
-    - modeles <{str: Modele}>: dict with modele name and Modele object
-    - liste_sous_modeles <{str: SousModele}>: dict with sous_modele name and SousModele object
+    """Étude Crue10
+
+    :param access: 'r' to read and 'w' to write
+    :type access: str
+    :param folders: dict with folders (keys correspond to `FOLDERS` list)
+    :type folders: {str}
+    :param filename_list: list of xml file names
+    :type filename_list: [str]
+    :param nom_scenario_courant: current scenario identifier
+    :type nom_scenario_courant: str
+    :param scenarios: dict with scneario name and Scenario object
+    :type scenarios: {str: Scenario}
+    :param modeles: Dict with modele name and Modele object
+    :type modeles: {str: Modele}
+    :param liste_sous_modeles: Dictionnaire des sous-modèles (id: objet)
+    :type liste_sous_modeles: {str: SousModele}
     """
 
     FOLDERS = OrderedDict([('CONFIG', 'Config'), ('FICHETUDES', '.'),
@@ -45,7 +52,16 @@ class Etude(FichierXML):
 
     def __init__(self, etu_path, folders=None, access='r', metadata=None, comment=''):
         """
-        :param etu_path: Crue10 etude file (etu.xml format)
+        :param etu_path: Fichier étude Crue10 (*.etu.xml)
+        :type etu_path: str
+        :param folders: dictionnaire avec les sous-dossiers
+        :type folders: OrderedDict(str)
+        :param access: accès en lecture ('r') ou écriture ('w')
+        :type access: str
+        :param files: dictionnaire des chemins vers les fichiers xml
+        :type files: dict(str)
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
         """
         files = {'etu': etu_path} if access == 'r' else None
         super().__init__(access, files, metadata)
@@ -76,6 +92,7 @@ class Etude(FichierXML):
 
     @property
     def etu_path(self):
+        """Chemin vers le fichier Etude (*.etu.xml)"""
         return self.files['etu']
 
     @property
@@ -89,6 +106,7 @@ class Etude(FichierXML):
         raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filename)
 
     def get_liste_run_names(self):
+        """Liste des noms de Runs"""
         run_names = []
         for _, scenario in self.scenarios.items():
             run_names += scenario.runs.keys()
@@ -224,12 +242,16 @@ class Etude(FichierXML):
             raise ExceptionCrue10("Il faut au moins un scénario !")
 
     def read_all(self):
+        """Lire tous les fichiers de l'étude"""
         # self._read_etu() is done in `__init__` method
         for _, scenario in self.scenarios.items():
             scenario.read_all()
 
     def write_etu(self, folder=None):
-        """If folder is not given, the file is overwritten"""
+        """Écriture du fichier Etude Crue10 (*.etu.xml)
+
+        Si folder n'est pas renseigné alors le fichier lu est remplacé
+        """
         if folder is None:
             etu_path = os.path.join(self.folder, os.path.basename(self.etu_path))
         else:
@@ -248,6 +270,7 @@ class Etude(FichierXML):
             out.write(template_render)
 
     def write_all(self, folder=None):
+        """Écrire tous les fichiers de l'étude"""
         folder = self.folder if folder is None else folder
         logger.debug("Écriture de l'%s dans %s" % (self, folder))
 
@@ -265,6 +288,11 @@ class Etude(FichierXML):
                 self.filename_list.append(file)
 
     def ajouter_modele(self, modele):
+        """Ajouter un modèle à l'étude
+
+        :param modele: modèle à ajouter
+        :type modele: Modele
+        """
         check_isinstance(modele, Modele)
         # if modele.id in self.modeles:
         #     raise ExceptionCrue10("Le modèle %s est déjà présent" % modele.id)
@@ -274,6 +302,11 @@ class Etude(FichierXML):
         self.modeles[modele.id] = modele
 
     def ajouter_sous_modele(self, sous_modele):
+        """Ajouter un sous-modèle à l'étude
+
+        :param sous_modele: sous-modèle à ajouter
+        :type sous_modele: SousModele
+        """
         check_isinstance(sous_modele, SousModele)
         # if sous_modele.id in self.sous_modeles:
         #     raise ExceptionCrue10("Le sous-modèle %s est déjà présent" % sous_modele.id)
@@ -281,6 +314,11 @@ class Etude(FichierXML):
         self.sous_modeles[sous_modele.id] = sous_modele
 
     def ajouter_scenario(self, scenario):
+        """Ajouter un scénario à l'étude
+
+        :param scenario: scénario à ajouter
+        :type scenario: Scenario
+        """
         check_isinstance(scenario, Scenario)
         if scenario.id in self.scenarios:
             raise ExceptionCrue10("Le scénario %s est déjà présent" % scenario.id)
@@ -289,6 +327,14 @@ class Etude(FichierXML):
         self.scenarios[scenario.id] = scenario
 
     def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, comment=''):
+        """
+        Créer scénario vierge (avec son modèle et sous-modèle associé)
+
+        :param nom_scenario: nom du scénario
+        :param nom_modele: nom du modèle
+        :param nom_sous_modele: nom du sous-modèle (optionnel)
+        :param comment: commentaire (optionnel)
+        """
         modele = Modele(nom_modele, access=self.access, metadata={'Commentaire': comment})
         if nom_sous_modele is not None:
             sous_modele = SousModele(nom_sous_modele, access=self.access, metadata={'Commentaire': comment})
@@ -298,19 +344,30 @@ class Etude(FichierXML):
         if not self.nom_scenario_courant:
             self.nom_scenario_courant = scenario.id
 
-    def get_scenario(self, scenario_name):
+    def get_scenario(self, nom_scenario):
+        """
+        Retourne le scénario demandé
+
+        :param nom_scenario: nom du scénario demandé
+        """
         try:
-            return self.scenarios[scenario_name]
+            return self.scenarios[nom_scenario]
         except KeyError:
             raise ExceptionCrue10("Le scénario %s n'existe pas !\nLes noms possibles sont: %s"
-                                  % (scenario_name, list(self.scenarios.keys())))
+                                  % (nom_scenario, list(self.scenarios.keys())))
 
     def get_scenario_courant(self):
+        """Retourne le scénario courant"""
         if self.nom_scenario_courant:
             return self.get_scenario(self.nom_scenario_courant)
         raise ExceptionCrue10("Aucun scénario courant n'est défini dans l'étude")
 
     def get_modele(self, nom_modele):
+        """
+        Retourne le modèle demandé
+
+        :param nom_modele: nom du modèle demandé
+        """
         try:
             return self.modeles[nom_modele]
         except KeyError:
@@ -318,6 +375,11 @@ class Etude(FichierXML):
                                   % (nom_modele, list(self.modeles.keys())))
 
     def get_sous_modele(self, nom_sous_modele):
+        """
+        Retourne le sous-modèle demandé
+
+        :param nom_sous_modele: nom du sous-modèle demandé
+        """
         try:
             return self.sous_modeles[nom_sous_modele]
         except KeyError:
@@ -394,6 +456,7 @@ class Etude(FichierXML):
             time.sleep(sleep)
 
     def check_xml_files(self, folder=None):
+        """Validation des fichiers XML à partir des schémas XSD"""
         errors = {}
         for file_path in self.filename_list:
             errors[file_path] = self._check_xml_file(file_path)

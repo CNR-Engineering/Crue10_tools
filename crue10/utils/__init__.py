@@ -12,6 +12,7 @@ from lxml import etree
 from crue10.utils.filters import float2str, html_escape, typeclim2str_calcpseudoperm, typeclim2str_calctrans
 from crue10.utils.settings import XML_ENCODING
 
+
 DATA_FOLDER_ABSPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data')
 
 XML_DEFAULT_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'default')
@@ -34,6 +35,7 @@ SELF_CLOSING_TAGS = [
 ]
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
+
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
@@ -157,13 +159,11 @@ JINJA_ENV.filters = {
 
 
 class ExceptionCrue10(Exception):
-    """!
-    @brief Custom exception for Crue file content check
-    """
+    """Custom exception for Crue file content check"""
 
     def __init__(self, message):
         """!
-        @param message <str>: error message description
+        :param message <str>: error message description
         """
         super().__init__(message)
         self.message = message
