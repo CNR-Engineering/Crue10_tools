@@ -1,7 +1,6 @@
 # coding: utf-8
 """
-Classes for junctions located in minor or major beds:
-- Noeud
+Class for junctions located in minor or major beds
 """
 from shapely.geometry import Point
 
@@ -11,6 +10,7 @@ from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10
 class Noeud:
     """
     Noeud
+
     - id <str>: node identifier
     - geom <shapely.geometry.Point>: node position
     - comment <str>: optional text explanation

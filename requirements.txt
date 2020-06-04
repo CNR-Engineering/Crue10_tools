@@ -7,6 +7,7 @@ networkx  # only requried for build_graph
 numpy
 # openturns==1.12  # only for snippets.probabilistic_study
 pandas
+psutil  # optional (to define NCSIZE)
 pydot  # only required for crue10.modele.Modele.write_topological_graph
 seaborn  # only required for some snippets
 shapely

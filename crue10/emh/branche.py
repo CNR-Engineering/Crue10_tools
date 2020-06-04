@@ -103,14 +103,16 @@ class Branche(ABC):
         return None
 
     def get_section_amont(self):
+        """Retourne la section amont"""
         return self.liste_sections_dans_branche[0]
 
     def get_section_aval(self):
+        """Retourne la section aval"""
         return self.liste_sections_dans_branche[-1]
 
     @property
     def length(self):
-        """Length displayed in FC (may differ from geometry)"""
+        """Longueur schématique affichée dans FC (peut différer de la longueur géométrique)"""
         if self.type in Branche.TYPES_WITH_LENGTH:
             return self.get_section_aval().xp
         else:
@@ -121,9 +123,17 @@ class Branche(ABC):
         return Branche.TYPES[self.type]
 
     def has_geom(self):
+        """La branche contient des informations géométriques"""
         return self.type in Branche.TYPES_WITH_GEOM
 
     def ajouter_section_dans_branche(self, section, xp):
+        """Ajouter une section à l'abscisse xp le long de la branche
+
+        :param section: section à ajouter
+        :type section: Section
+        :param xp: abscisse curviligne de la section
+        :type xp: float
+        """
         check_isinstance(section, Section)
         if isinstance(section, SectionInterpolee):
             if self.type != 20:
@@ -138,6 +148,7 @@ class Branche(ABC):
         self.liste_sections_dans_branche.append(section)
 
     def supprimer_section_dans_branche(self, pos_section):
+        """Supprimer la section de la branche courante"""
         del self.liste_sections_dans_branche[pos_section]
 
     def set_geom(self, geom):
@@ -204,6 +215,7 @@ class Branche(ABC):
 class BranchePdC(Branche):
     """
     BranchePdC - #1
+
     - loi_QPdc
     - comment_loi <str>: commentaire loi
     """
@@ -220,6 +232,8 @@ class BranchePdC(Branche):
 
 class BrancheAvecElementsSeuil(Branche):
     """
+    Branche avec des éléments de seuil
+
     - formule_pertes_de_charge <str>: 'Borda' or 'Divergent'
     - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns: Largeur, Zseuil, CoefD, CoefPdc)
     """
@@ -274,6 +288,7 @@ class BrancheSeuilLateral(BrancheAvecElementsSeuil):
 class BrancheOrifice(Branche):
     """
     BrancheOrifice - #5
+
     - CoefCtrLim <float>: "Coefficient maximum de contraction de la veine submergée"
     - Largeur <float>: "Largeur"
     - Zseuil <float>: "Cote du radier du clapet"
@@ -304,6 +319,7 @@ class BrancheStrickler(Branche):
 class BrancheNiveauxAssocies(Branche):
     """
     BrancheNiveauxAssocies - #12
+
     - comment <str>: commentaire
     - QLimInf <float>: "Débit  minimum admis dans la branche"
     - QLimSup <float>: "Débit maximum admis dans la branche"
@@ -326,6 +342,7 @@ class BrancheNiveauxAssocies(Branche):
 class BrancheBarrageGenerique(Branche):
     """
     BrancheBarrageGenerique - #14
+
     - section_pilote <crue10.emh.section.Section>: section de pilotage
     - QLimInf: "Débit  minimum admis dans la branche"
     - QLimSup: "Débit maximum admis dans la branche"
@@ -363,6 +380,7 @@ class BrancheBarrageGenerique(Branche):
 class BrancheBarrageFilEau(Branche):
     """
     BrancheBarrageFilEau - #15
+
     - section_pilote <crue10.emh.section.Section>: section de pilotage
     - QLimInf: "Débit  minimum admis dans la branche"
     - QLimSup: "Débit maximum admis dans la branche"
@@ -402,6 +420,7 @@ class BrancheBarrageFilEau(Branche):
 class BrancheSaintVenant(Branche):
     """
     BrancheSaintVenant - #20
+
     - CoefSinuo <float>: "coefficient de sinuosité de la branche, rapport des longueurs des axes hydrauliques
          du lit mineur et du lit majeur"
     - CoefBeta <float>: "coefficient de modulation global à la branche du coefficient de Boussinesq,

@@ -95,8 +95,9 @@ class ProfilCasier:
 
 class Casier:
     """
-    Casier (or storage area/reservoir)
-    - id <str>: casier identifier
+    Casier (ou zone de stockage, réservoir)
+
+    - id <str>: nom du casier
     - is_active <bool>: True if its node is active
     - geom <shapely.geometry.LinearRing>: polygon
     - noeud_reference <Noeud>: related node
