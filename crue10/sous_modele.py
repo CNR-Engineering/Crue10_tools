@@ -15,15 +15,7 @@ from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, \
-    get_optional_commentaire, logger, PREFIX
-
-
-def parse_loi(elt, group='EvolutionFF', line='PointFF'):
-    elt_group = elt.find(PREFIX + group)
-    values = []
-    for point_ff in elt_group.findall(PREFIX + line):
-        values.append([float(v) for v in point_ff.text.split()])
-    return np.array(values)
+    get_optional_commentaire, logger, parse_loi, PREFIX
 
 
 def parse_elem_seuil(elt, with_pdc=False):
@@ -237,8 +229,9 @@ class SousModele(FichierXML):
         """
         root = self._get_xml_root_and_set_comment('dfrt')
         for loi in root.find(PREFIX + 'LoiFFs'):
-            loi_frottement = LoiFrottement(loi.get('Nom'), loi.get('Type'), parse_loi(loi))
-            loi_frottement.comment = get_optional_commentaire(loi)
+            loi_frottement = LoiFrottement(loi.get('Nom'), loi.get('Type'),
+                                           comment=get_optional_commentaire(loi))
+            loi_frottement.set_loi_Fk_values(parse_loi(loi))
             self.ajouter_loi_frottement(loi_frottement)
 
     def _read_drso(self, filter_branch_types=None):
@@ -577,21 +570,21 @@ class SousModele(FichierXML):
     def _write_dfrt(self, folder):
         self._write_xml_file(
             'dfrt', folder,
-            friction_law_list=[fl for _, fl in self.lois_frottement.items()],
+            loi_frottement_liste=[fl for _, fl in self.lois_frottement.items()],
         )
 
     def _write_drso(self, folder):
         self._write_xml_file(
             'drso', folder,
-            noeud_list=[nd for _, nd in self.noeuds.items()],
-            casier_list=[ca for _, ca in self.casiers.items()],
-            section_list=[st for _, st in self.sections.items()],
+            noeud_liste=[nd for _, nd in self.noeuds.items()],
+            casier_liste=[ca for _, ca in self.casiers.items()],
+            section_liste=[st for _, st in self.sections.items()],
             isinstance=isinstance,
             SectionIdem=SectionIdem,
             SectionProfil=SectionProfil,
             SectionSansGeometrie=SectionSansGeometrie,
             SectionInterpolee=SectionInterpolee,
-            branche_list=self.get_liste_branches(),
+            branche_liste=self.get_liste_branches(),
         )
 
     def _write_dptg(self, folder):

@@ -11,22 +11,25 @@ from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, get_optional_commentaire, \
-    logger, PREFIX, write_default_xml_file, write_xml_from_tree
+    logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 from .calcul import Calcul, CalcPseudoPerm, CalcTrans
+from .loi_hydraulique import LoiHydraulique
 
 
 class Scenario(FichierXML):
     """
     Crue10 scenario
-    - id <str>: scenario identifier
-    - modele <[Modele]>: modele
-    - runs <[Runs]>: runs
-    - current_run_id <str>: current run identifier
+    - id <str>: nom du scénario
+    - modele <[Modele]>: modèle
+    - calculs <[Calcul]>: liste des calculs
+    - lois_hydrauliques <[LoiHydraulique]>: liste des lois hydrauliques
+    - runs <[Runs]>: liste des runs
+    - current_run_id <str>: nom du scénario courant
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
-    FILES_XML_WITHOUT_TEMPLATE = ['ocal', 'ores', 'pcal', 'dlhy']
+    FILES_XML_WITHOUT_TEMPLATE = ['ocal', 'ores', 'pcal']
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
@@ -42,6 +45,7 @@ class Scenario(FichierXML):
         super().__init__(access, files, metadata)
 
         self.calculs = []
+        self.lois_hydrauliques = []
 
         self.modele = None
         self.set_modele(modele)
@@ -74,6 +78,10 @@ class Scenario(FichierXML):
     def ajouter_calcul(self, calcul):
         check_isinstance(calcul, Calcul)
         self.calculs.append(calcul)
+
+    def ajouter_loi_hydraulique(self, loi_hydraulique):
+        check_isinstance(loi_hydraulique, LoiHydraulique)
+        self.lois_hydrauliques.append(loi_hydraulique)
 
     def add_run(self, run):
         check_isinstance(run, Run)
@@ -150,7 +158,7 @@ class Scenario(FichierXML):
             # Hydraulic parameters
             elif modification_key.startswith('Fk_'):
                 loi = self.modele.get_loi_frottement(modification_key)
-                loi.set_loi_Fk_values(modification_value)
+                loi.set_loi_constant_value(modification_value)
             elif modification_key.startswith('Qapp_factor.'):
                 nom_noeud = modification_key[12:]
                 for calcul in self.get_liste_calc_pseudoperm():
@@ -222,12 +230,30 @@ class Scenario(FichierXML):
 
                 self.ajouter_calcul(calc_trans)
 
+    def _read_dlhy(self):
+        """
+        Read dlhy.xml file
+        """
+        root = self._get_xml_root_and_set_comment('dlhy')
+
+        for elt_loi in root.find(PREFIX + 'Lois'):  # LoiDF, LoiFF
+            loi_hydraulique = LoiHydraulique(elt_loi.get('Nom'), elt_loi.get('Type'),
+                                             comment=get_optional_commentaire(elt_loi))
+            if loi_hydraulique.has_time():
+                date_zero = elt_loi.find(PREFIX + 'DateZeroLoiDF').text
+                if date_zero is not None:
+                    loi_hydraulique.set_date_zero(date_zero)
+            loi_hydraulique.set_values(parse_loi(elt_loi))
+            self.ajouter_loi_hydraulique(loi_hydraulique)
+
     def read_all(self):
         """Lire tous les fichiers du scénario"""
         if not self.was_read:
             self._set_xml_trees()
             self.modele.read_all()
+
             self._read_dclm()
+            self._read_dlhy()
 
         self.was_read = True
 
@@ -331,6 +357,12 @@ class Scenario(FichierXML):
             calculs=self.calculs,
         )
 
+    def _write_dlhy(self, folder):
+        self._write_xml_file(
+            'dlhy', folder,
+            lois_hydrauliques=self.lois_hydrauliques,
+        )
+
     def write_all(self, folder, folder_config=None, write_model=True):
         """Écrire tous les fichiers du scénario"""
         logger.debug("Écriture de %s dans %s" % (self, folder))
@@ -347,6 +379,7 @@ class Scenario(FichierXML):
                 write_default_xml_file(xml_type, xml_path)
 
         self._write_dclm(folder)
+        self._write_dlhy(folder)
 
         if write_model:
             self.modele.write_all(folder, folder_config)

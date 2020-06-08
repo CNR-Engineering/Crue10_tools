@@ -21,16 +21,16 @@ for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'sharepoint_model
     for etu_path in glob(os.path.join(folder, '*.etu.xml')):
         logger.info(etu_path)
         try:
-            study = Etude(etu_path)
+            etude = Etude(etu_path)
             try:
-                study.check_xml_files()
+                etude.check_xml_files()
             except IOError:  # avoid some Crue9 missing files in `Etu_BV2016_Conc_Etatref - ISfonds2016_K2016`
                 pass
-            study.read_all()
+            etude.read_all()
 
             # Write etude (to check in integrity, see difference in file docstring above)
             out_folder = os.path.join('..', 'tmp', 'sharepoint_modeles_Conc', os.path.basename(folder))
-            study.write_all(out_folder)
+            etude.write_all(out_folder)
 
             # Write topographical graph for each modele
             # for _, modele in etude.modeles.items():

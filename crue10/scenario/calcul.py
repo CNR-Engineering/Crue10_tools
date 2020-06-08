@@ -13,11 +13,20 @@ ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 class Calcul(ABC):
     """
     Abstract class for Sections
+
+    - id
+    - comment
+    - values:
+        * nom_emh
+        * CLIM_TYPE_TO_TAG_VALUE.keys()[*]
+        * IsActive <bool>
+        * value: en permanent valeur flottante, en transitoire nom de la loi
+        * sens: sens ouverture (None si non concerné)
     """
     def __init__(self, nom, comment):
         self.id = nom
         self.comment = comment
-        self.values = []  # (nom_emh, CLIM_TYPE_TO_TAG_VALUE.keys()[*], IsActive, value, sens)
+        self.values = []
 
     def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None):
         check_isinstance(nom_emh, str)  # TODO: check that EMH exists

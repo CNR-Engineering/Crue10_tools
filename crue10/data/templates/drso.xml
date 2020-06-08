@@ -2,14 +2,14 @@
 <DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.2.xsd">
   <Commentaire>{{ comment|html_escape }}</Commentaire>
   <Noeuds>
-    {%- for noeud in noeud_list %}
+    {%- for noeud in noeud_liste %}
     <NoeudNiveauContinu Nom="{{ noeud.id }}">
       <Commentaire>{{ noeud.comment|html_escape }}</Commentaire>
     </NoeudNiveauContinu>
     {%- endfor %}
   </Noeuds>
   <Casiers>
-    {%- for casier in casier_list %}
+    {%- for casier in casier_liste %}
     <CasierProfil Nom="{{ casier.id }}">
       <Commentaire>{{ casier.comment|html_escape }}</Commentaire>
       <IsActive>{% if casier.is_active %}true{% else %}false{% endif %}</IsActive>
@@ -21,7 +21,7 @@
     {%- endfor %}
   </Casiers>
   <Sections>
-    {%- for section in section_list %}
+    {%- for section in section_liste %}
     {%- if isinstance(section, SectionProfil) %}
     <SectionProfil Nom="{{ section.id }}">
       <Commentaire>{{ section.comment|html_escape }}</Commentaire>
@@ -47,7 +47,7 @@
     {%- endfor %}
   </Sections>
   <Branches>
-    {%- for branche in branche_list %}
+    {%- for branche in branche_liste %}
     {%- if branche.type == 20 %}
     <BrancheSaintVenant Nom="{{ branche.id }}">
       <Commentaire>{{ branche.comment|html_escape }}</Commentaire>

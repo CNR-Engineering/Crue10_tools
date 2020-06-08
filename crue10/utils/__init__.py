@@ -4,6 +4,7 @@ from datetime import datetime
 from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
 import logging
+import numpy as np
 import os
 import re
 import shutil
@@ -31,7 +32,7 @@ except AttributeError:
 
 SELF_CLOSING_TAGS = [
     'IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'Lois', 'OrdreDRSO',
-    'HydrogrammeQapp', 'Limnigramme'  # dclm
+    'HydrogrammeQapp', 'Limnigramme',  # dclm
 ]
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
@@ -102,6 +103,14 @@ def get_optional_commentaire(elt):
         if sub_elt.text is not None:
             return sub_elt.text
     return ''
+
+
+def parse_loi(elt, group='EvolutionFF', line='PointFF'):
+    elt_group = elt.find(PREFIX + group)
+    values = []
+    for point_ff in elt_group.findall(PREFIX + line):
+        values.append([float(v) for v in point_ff.text.split()])
+    return np.array(values)
 
 
 def write_default_xml_file(xml_type, file_path):

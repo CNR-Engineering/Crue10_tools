@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DLHY xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dlhy-1.2.xsd">
+  <Commentaire>{{ comment|html_escape }}</Commentaire>
+  {%- if lois_hydrauliques %}
+  <Lois>
+    {%- for loi in lois_hydrauliques %}
+    <Loi{% if loi.has_time() %}D{% else %}F{% endif %}F Nom="{{ loi.id }}" Type="{{ loi.type }}">
+      <Commentaire>{{ loi.comment|html_escape }}</Commentaire>
+      {%- if loi.has_time() %}
+      <DateZeroLoiDF>{% if loi.date_zero is none %}{% else %}{{ loi.date_zero }}{% endif %}</DateZeroLoiDF>
+      {%- endif %}
+      <EvolutionFF>
+        {%- for time, value in loi.values %}
+        <PointFF>{{ time }} {{ value }}</PointFF>
+        {%- endfor %}
+      </EvolutionFF>
+    </Loi{% if loi.has_time() %}D{% else %}F{% endif %}F>
+    {%- endfor %}
+  </Lois>
+  {%- else %}
+  <Lois/>
+  {%- endif %}
+</DLHY>

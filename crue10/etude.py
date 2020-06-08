@@ -269,7 +269,7 @@ class Etude(FichierXML):
         with open(etu_path, 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)
 
-    def write_all(self, folder=None):
+    def write_all(self, folder=None, ignore_shp=False):
         """Écrire tous les fichiers de l'étude"""
         folder = self.folder if folder is None else folder
         logger.debug("Écriture de l'%s dans %s" % (self, folder))
@@ -279,8 +279,13 @@ class Etude(FichierXML):
             os.makedirs(folder)
 
         self.write_etu(folder)
+
+        if ignore_shp:
+            folder_config = None
+        else:
+            folder_config = self.folders['CONFIG']
         for _, scenario in self.scenarios.items():
-            scenario.write_all(folder, self.folders['CONFIG'])
+            scenario.write_all(folder, folder_config)
 
     def add_files(self, file_list):
         for file in file_list:

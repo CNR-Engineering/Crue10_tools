@@ -38,15 +38,22 @@ class LoiFrottement:
 
     TYPES = ['FkSto', 'Fk']
 
-    def __init__(self, nom_loi_frottement, type, loi_Fk):
+    def __init__(self, nom_loi_frottement, type, comment=''):
         check_preffix(nom_loi_frottement, 'Fk')
-        check_isinstance(loi_Fk, np.ndarray)
         if type not in LoiFrottement.TYPES:
-            raise RuntimeError
+            raise NotImplementedError
         self.id = nom_loi_frottement
+        self.loi_Fk = None
         self.type = type
-        self.loi_Fk = loi_Fk
-        self.comment = ''
+        self.comment = comment
+
+    def set_loi_Fk_values(self, loi_values):
+        check_isinstance(loi_values, np.ndarray)
+        self.loi_Fk = loi_values
+
+    def set_loi_constant_value(self, value):
+        check_isinstance(value, float)
+        self.loi_Fk[:, 1] = value
 
     def get_loi_Fk_values(self):
         return self.loi_Fk[:, 1]
@@ -57,10 +64,6 @@ class LoiFrottement:
             raise ExceptionCrue10("La loi de frottement %s contient plus de 1 valeur, "
                                   "cette méthode n'est pas utilisable." % self.id)
         return values[0]
-
-    def set_loi_Fk_values(self, value):
-        check_isinstance(value, float)
-        self.loi_Fk[:, 1] = value
 
 
 DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)]))

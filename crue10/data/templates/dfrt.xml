@@ -2,11 +2,11 @@
 <DFRT xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dfrt-1.2.xsd">
   <Commentaire>{{ comment|html_escape }}</Commentaire>
   <LoiFFs>
-    {%- for friction_law in friction_law_list %}
-    <LoiFF Nom="{{ friction_law.id }}" Type="{{ friction_law.type }}">
-      <Commentaire>{{ friction_law.comment|html_escape }}</Commentaire>
+    {%- for loi_frottement in loi_frottement_liste %}
+    <LoiFF Nom="{{ loi_frottement.id }}" Type="{{ loi_frottement.type }}">
+      <Commentaire>{{ loi_frottement.comment|html_escape }}</Commentaire>
       <EvolutionFF>
-        {%- for z, k in friction_law.loi_Fk %}
+        {%- for z, k in loi_frottement.loi_Fk %}
         <PointFF>{{ z }} {{ k }}</PointFF>
         {%- endfor %}
       </EvolutionFF>
