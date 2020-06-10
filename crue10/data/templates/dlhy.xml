@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DLHY xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dlhy-1.2.xsd">
   <Commentaire>{{ comment|html_escape }}</Commentaire>
-  {%- if lois_hydrauliques %}
+  {%- if loi_hydraulique_liste %}
   <Lois>
-    {%- for loi in lois_hydrauliques %}
+    {%- for loi in loi_hydraulique_liste %}
     <Loi{% if loi.has_time() %}D{% else %}F{% endif %}F Nom="{{ loi.id }}" Type="{{ loi.type }}">
       <Commentaire>{{ loi.comment|html_escape }}</Commentaire>
       {%- if loi.has_time() %}

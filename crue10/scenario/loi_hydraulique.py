@@ -31,3 +31,6 @@ class LoiHydraulique:
         if values.shape[1] != 2:
             raise ExceptionCrue10("La loi hydraulique n'a pas 2 valeurs")
         self.values = values
+
+    def __repr__(self):
+        return "LoiHydraulique %s (%i lignes)" % (self.id, 0 if self.values is None else len(self.values))

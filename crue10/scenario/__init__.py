@@ -23,8 +23,8 @@ class Scenario(FichierXML):
     - id <str>: nom du scénario
     - modele <[Modele]>: modèle
     - calculs <[Calcul]>: liste des calculs
-    - lois_hydrauliques <[LoiHydraulique]>: liste des lois hydrauliques
-    - runs <[Runs]>: liste des runs
+    - lois_hydrauliques <OrderedDict(LoiHydraulique)>: dictionnaire des lois hydrauliques
+    - runs <OrderedDict(Runs)>: dictionnaire des runs
     - current_run_id <str>: nom du scénario courant
     """
 
@@ -45,7 +45,7 @@ class Scenario(FichierXML):
         super().__init__(access, files, metadata)
 
         self.calculs = []
-        self.lois_hydrauliques = []
+        self.lois_hydrauliques = OrderedDict()
 
         self.modele = None
         self.set_modele(modele)
@@ -81,7 +81,7 @@ class Scenario(FichierXML):
 
     def ajouter_loi_hydraulique(self, loi_hydraulique):
         check_isinstance(loi_hydraulique, LoiHydraulique)
-        self.lois_hydrauliques.append(loi_hydraulique)
+        self.lois_hydrauliques[loi_hydraulique.id] = loi_hydraulique
 
     def add_run(self, run):
         check_isinstance(run, Run)
@@ -121,6 +121,12 @@ class Scenario(FichierXML):
 
     def get_liste_run_ids(self):
         return [run_id for run_id, _ in self.runs.items()]
+
+    def get_loi_hydraulique(self, nom_loi):
+        try:
+            return self.lois_hydrauliques[nom_loi]
+        except KeyError:
+            raise ExceptionCrue10("La loi `%s` n'existe pas" % nom_loi)
 
     def set_modele(self, modele):
         check_isinstance(modele, Modele)
@@ -360,7 +366,7 @@ class Scenario(FichierXML):
     def _write_dlhy(self, folder):
         self._write_xml_file(
             'dlhy', folder,
-            lois_hydrauliques=self.lois_hydrauliques,
+            loi_hydraulique_liste=[loi for _, loi in self.lois_hydrauliques.items()],
         )
 
     def write_all(self, folder, folder_config=None, write_model=True):

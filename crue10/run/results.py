@@ -84,7 +84,7 @@ class CalcTrans:
         self.frame_list.append((time_sec, FilePosition(bin_path, byte_offset)))
 
     def time_serie(self):
-        return [frame[0] for frame in self.frame_list]
+        return np.array([frame[0] for frame in self.frame_list])
 
     def __repr__(self):
         return "Calcul non permanent #%s (%i temps)" % (self.name, len(self.frame_list))
@@ -387,4 +387,5 @@ class RunResults:
                                                      'value': FMT_FLOAT_CSV.format(value)})
 
     def __repr__(self):
-        return "Résultats run #%s" % self.run_id
+        return "Résultats run #%s (%i permanents, %i transitoires)" % (self.run_id, len(self.calc_steady_dict),
+                                                                       len(self.calc_unsteady_dict))
