@@ -804,10 +804,11 @@ class SousModele(FichierXML):
 
     def supprimer_noeud_entre_deux_branches_fluviales(self, noeud):
         """
-        Remove noeud in merging the 2 adjacent branches
-        Beware: comment, CoefSinuo, CoefBeta, CoefRuis, CoefRuisQdm of downstream branch are simply ignored
-        :param noeud <Noeud>: node to remove
-        :return branche <Branche>: branche to remove
+        Supprime le noeud du sous-modèle en fusionnant les 2 branches consécutives qui l'entourent
+        Attention: comment, CoefSinuo, CoefBeta, CoefRuis, CoefRuisQdm de la branche aval sont ignorés
+        :param noeud: noeud à supprimer
+        :type noeud: Noeud
+        :return Branche: nouvelle branche fusionnée
         """
         # Check that noeud is not connected to a Casier
         connected_casier = self.get_connected_casier(noeud)
