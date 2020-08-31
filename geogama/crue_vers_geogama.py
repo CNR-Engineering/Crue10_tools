@@ -11,10 +11,8 @@ import re
 import traceback
 
 from crue10.emh.branche import BrancheAvecElementsSeuil
-from crue10.utils import ExceptionCrue10, logger
-from crue10.emh.section import LitNumerote
+from crue10.emh.section import SectionIdem, SectionProfil, SectionSansGeometrie
 from crue10.etude import Etude
-from crue10.emh.section import LimiteGeom, SectionIdem, SectionProfil, SectionSansGeometrie
 from crue10.utils import ExceptionCrue10, logger
 
 
@@ -53,11 +51,6 @@ handler.setLevel(logging.DEBUG)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# handler2 = logging.StreamHandler(sys.stderr)
-# handler2.setLevel(logging.DEBUG)
-# handler2.setFormatter(formatter)
-# logger.addHandler(handler2)
-
 
 def truncateAllClass():
     logger.info("Vidage des tables")
@@ -72,8 +65,10 @@ def truncateAllClass():
     arcpy.DeleteRows_management(GDB+"/"+TABLE_CASIER_LOI)
     arcpy.DeleteRows_management(GDB+"/"+FCLASS_SEUIL_ELEM)
 
+
 def getDist(ptA, ptB):
     return math.sqrt((ptA.X - ptB.X)**2 + (ptA.Y - ptB.Y)**2)  
+
 
 def getMPolyline(coords, distanceTot):
     points = arcpy.Array()
@@ -114,13 +109,10 @@ def getTroncon(emh_name):
 
     
 try:
-# if True:
-
     logger.info("Parametres")
     logger.info(GDB)
     logger.info(EDU_PATH)
     logger.info(LST_SOUSMODELE)
-
 
     #Ouverture session d'édition
     edit = arcpy.da.Editor(arcpy.env.workspace)
@@ -133,7 +125,7 @@ try:
     
     # edit.stopOperation()
     
-    #Liste de snoeuds,pour éviter qu'ils soient insérés en double sur plusieurs sous-modèles
+    # Liste des noeuds pour éviter qu'ils soient insérés en double sur plusieurs sous-modèles
     hashNoeuds = {}
     
     # Get Etude
@@ -167,7 +159,7 @@ try:
 
         edit.stopOperation()
         edit.startOperation()
-        
+
         logger.info("Casiers - " + str(len(sous_modele.casiers)))
         with arcpy.da.InsertCursor(FCLASS_CASIER, ["Nom_casier", "Nom_noeud", "Distance_appli", "SHAPE@"]) as cursor:
             for nomCasier in sous_modele.casiers:
@@ -178,7 +170,7 @@ try:
 
         edit.stopOperation()
         edit.startOperation()
-        
+
         logger.info("Branches - " + str(len(sous_modele.branches)))
         with arcpy.da.InsertCursor(FCLASS_BRANCHE,  ["Troncon", "Nom_branche", "Type_branche", "Longueur", "Nom_noeud_amont", "Nom_noeud_aval", "IsActif", "SHAPE@"]) as cursor:
             for nomBranche in sous_modele.branches:
@@ -186,7 +178,7 @@ try:
                 branche = sous_modele.branches[nomBranche]
                 polyline = getMPolyline(branche.geom.coords, branche.length)
                 cursor.insertRow([getTroncon(nomBranche), nomBranche, branche.type, branche.length, branche.noeud_amont.id, branche.noeud_aval.id, branche.is_active, polyline])
-        
+
         edit.stopOperation()
         edit.startOperation()
        
@@ -223,26 +215,14 @@ try:
             for profil in listSectionProfil:
                 if profil.geom_trace is not None:
                     logger.debug("Profil - " + profil.id)
-                    # logger.debug("XY - " + str(len(profil.geom_trace.coords)))
-                    # logger.debug("XZ - " + str(len(profil.xz)))
-                    
-                    line = arcpy.Polyline(arcpy.Array([arcpy.Point(*coords) for coords in profil.geom_trace.coords[:]]))
-                    i = 0
-                    premier_point_x = 0
+
                     hashOIDPointParAbs = {}
                     for p in profil.xz:
-                        absc_proj = p[0] # x
-                        z = p[1] # z
-                        if i == 0:
-                            point = line.positionAlongLine(p[0])
-                            premier_point_x = p[0]
-                        else:
-                            point = line.positionAlongLine(p[0] - premier_point_x)
-                            
+                        absc_proj, z = p
+                        point = arcpy.Point(*list(profil.interp_point(absc_proj).coords)[0])
                         id = cursor.insertRow([profil.id, absc_proj, z,  point])
-                        hashOIDPointParAbs[absc_proj] =  id
-                        i+=1
-                        # print id
+                        hashOIDPointParAbs[absc_proj] = id
+
                     for limit_geom in profil.limites_geom:
                         oidPoint = hashOIDPointParAbs[limit_geom.xt]
                         if limit_geom.id == "Et_AxeHyd":

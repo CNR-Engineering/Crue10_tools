@@ -14,7 +14,7 @@ import abc
 from builtins import super  # Python2 fix (requires module `future`)
 from copy import deepcopy
 import numpy as np
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point
 
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger
 
@@ -25,6 +25,14 @@ ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 DIFF_XP = 0.1  # m
 
 DISTANCE_TOL = 0.01  # m
+
+
+def extrap(x, xp, yp):
+    """np.interp function with linear extrapolation"""
+    y = np.interp(x, xp, yp)
+    y = np.where(x<xp[0], yp[0]+(x-xp[0])*(yp[0]-yp[1])/(xp[0]-xp[1]), y)
+    y = np.where(x>xp[-1], yp[-1]+(x-xp[-1])*(yp[-1]-yp[-2])/(xp[-1]-xp[-2]), y)
+    return y
 
 
 class LoiFrottement:
@@ -281,15 +289,36 @@ class SectionProfil(Section):
         return np.interp(xt, self.xz[:, 0], self.xz[:, 1])
 
     def interp_point(self, xt):
+        """
+        Interpolation et extrapolation (si en dehors des rives RD et RG) d'un point le long de la trace
+        """
         if not self.lits_numerotes:
             raise ExceptionCrue10('Les lits numerotés doivent être définis au préalable')
         xt_line = xt - self.lits_numerotes[0].xt_min
         diff = xt_line - self.geom_trace.length
         if diff > DISTANCE_TOL:
-            logger.warn("Interpolation d'un point au-delà de la trace (écart=%sm) pour la %s" % (diff, self))
+            logger.debug("Extrapolation d'un point au-delà de la trace (écart=%sm) pour la %s" % (diff, self))
         if xt_line < -DISTANCE_TOL:
-            logger.warn("Interpolation d'un point en-deça de la trace (écart=%sm) pour la %s" % (xt_line, self))
-        return self.geom_trace.interpolate(xt_line)
+            logger.debug("Extrapolation d'un point en-deça de la trace (écart=%sm) pour la %s" % (xt_line, self))
+
+        # Get coordinates from trace
+        x_array = np.array([x for x, _ in self.geom_trace.coords])
+        y_array = np.array([y for _, y in self.geom_trace.coords])
+        distances = np.zeros(len(x_array))
+        distances[1:] = np.cumsum(np.sqrt(np.square(x_array[:-1] - x_array[1:]) +
+                                          np.square(y_array[:-1] - y_array[1:])))
+
+        # Remove duplicated in trace (distances are strictly increasing)
+        to_keep = distances - np.roll(distances, 1) > 0
+        to_keep[0] = True
+        x_array = x_array[to_keep]
+        y_array = y_array[to_keep]
+        distances = distances[to_keep]
+
+        # Extrapolate x and y
+        x = extrap(xt_line, distances, x_array)
+        y = extrap(xt_line, distances, y_array)
+        return Point(x, y)
 
     def get_coord(self, add_z=False):
         if self.xz is None:
