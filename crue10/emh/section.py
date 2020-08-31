@@ -404,7 +404,7 @@ class SectionProfil(Section):
             if lit1.id != lit2.id:
                 assert lit1.xt_max == lit2.xt_min
                 xt_list.append(lit1.xt_max)
-        xt_list.append(self.lits_numerotes[-1].xt_min)
+        xt_list.append(self.lits_numerotes[-1].xt_max)
         self.set_lits_numerotes(xt_list)
 
     def validate(self):
