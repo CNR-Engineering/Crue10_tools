@@ -66,9 +66,12 @@ class LoiFrottement:
         return values[0]
 
 
-DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto', np.array([(0.0, 0.0)]))
-DEFAULT_FK_MAX = LoiFrottement('Fk_DefautMaj', 'Fk', np.array([(-15.0, 8.0)]))
-DEFAULT_FK_MIN = LoiFrottement('Fk_DefautMin', 'Fk', np.array([(-15.0, 8.0)]))
+DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto')
+DEFAULT_FK_STO.set_loi_Fk_values(np.array([(0.0, 0.0)]))
+DEFAULT_FK_MAX = LoiFrottement('Fk_DefautMaj', 'Fk')
+DEFAULT_FK_MAX.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
+DEFAULT_FK_MIN = LoiFrottement('Fk_DefautMin', 'Fk')
+DEFAULT_FK_MIN.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
 
 
 class LitNumerote:
@@ -215,7 +218,18 @@ class SectionProfil(Section):
 
     def set_xz(self, array):
         check_isinstance(array, np.ndarray)
-        self.xz = array
+        new_array = array[0, :]
+        duplicated_xt = []
+        for (xt1, z1), (xt2, z2) in zip(array, array[1:]):
+            if xt1 == xt2:
+                duplicated_xt.append(xt2)
+            else:
+                new_array = np.vstack((new_array, [xt2, z2]))
+        self.xz = new_array
+        if any(x > y for x, y in zip(new_array[:, 0], new_array[1:, 0])):
+            raise ExceptionCrue10("Les valeurs de xt ne sont pas croissantes (points doublons tolérés mais ignorés)")
+        if duplicated_xt:
+            logger.warn("%i points doublons ignorés pour %s: %s" % (len(duplicated_xt), self, duplicated_xt))
 
     def set_geom_trace(self, trace):
         check_isinstance(trace, LineString)
