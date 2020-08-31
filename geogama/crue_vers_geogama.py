@@ -6,14 +6,16 @@ import os.path
 import sys
 import arcpy
 import logging
+import math
 import re
 import traceback
+
 from crue10.emh.branche import BrancheAvecElementsSeuil
 from crue10.utils import ExceptionCrue10, logger
 from crue10.emh.section import LitNumerote
 from crue10.etude import Etude
 from crue10.emh.section import LimiteGeom, SectionIdem, SectionProfil, SectionSansGeometrie
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger
+from crue10.utils import ExceptionCrue10, logger
 
 
 #Parametres

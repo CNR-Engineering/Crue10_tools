@@ -2,8 +2,8 @@
 import logging
 import numpy as np
 import os.path
+import sys
 import traceback
-from operator import attrgetter
 
 from shapely.geometry import Point, LinearRing, LineString
 
