@@ -76,8 +76,8 @@ class LoiFrottement:
 
 DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto')
 DEFAULT_FK_STO.set_loi_Fk_values(np.array([(0.0, 0.0)]))
-DEFAULT_FK_MAX = LoiFrottement('Fk_DefautMaj', 'Fk')
-DEFAULT_FK_MAX.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
+DEFAULT_FK_MAJ = LoiFrottement('Fk_DefautMaj', 'Fk')
+DEFAULT_FK_MAJ.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
 DEFAULT_FK_MIN = LoiFrottement('Fk_DefautMin', 'Fk')
 DEFAULT_FK_MIN.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
 
@@ -104,7 +104,7 @@ class LitNumerote:
             if 'Sto' in nom_lit:
                 loi_frottement = DEFAULT_FK_STO
             elif 'Maj' in nom_lit:
-                loi_frottement = DEFAULT_FK_MAX
+                loi_frottement = DEFAULT_FK_MAJ
             else:
                 loi_frottement = DEFAULT_FK_MIN
         self.loi_frottement = loi_frottement

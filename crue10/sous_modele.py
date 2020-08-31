@@ -12,7 +12,7 @@ from crue10.emh.branche import BRANCHE_CLASSES, Branche, BranchePdC, BrancheSeui
     BrancheBarrageGenerique, BrancheBarrageFilEau, BrancheSaintVenant
 from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
-from crue10.emh.section import DEFAULT_FK_MAX, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
+from crue10.emh.section import DEFAULT_FK_MAJ, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, \
     get_optional_commentaire, logger, parse_loi, PREFIX
@@ -143,7 +143,7 @@ class SousModele(FichierXML):
 
     def ajouter_lois_frottement_par_defaut(self):
         self.ajouter_loi_frottement(DEFAULT_FK_STO)
-        self.ajouter_loi_frottement(DEFAULT_FK_MAX)
+        self.ajouter_loi_frottement(DEFAULT_FK_MAJ)
         self.ajouter_loi_frottement(DEFAULT_FK_MIN)
 
     def get_noeud(self, nom_noeud):
