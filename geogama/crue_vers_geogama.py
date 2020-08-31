@@ -233,17 +233,15 @@ try:
                             continue
                         list_limite_point.append([oidPoint, id_limite])  
                         # print oidPoint     
-                        
-                    for j in range(0, 5):
-                        oidPoint = hashOIDPointParAbs[profil.lits_numerotes[j].xt_min]
-                        id_limite = j+1
-                        list_limite_point.append([oidPoint, id_limite]) 
-                        # print id_limite
-                        if j == 4: # on prend le max
-                            oidPoint = hashOIDPointParAbs[profil.lits_numerotes[j].xt_max]
-                            id_limite = 6
-                            list_limite_point.append([oidPoint, id_limite]) 
-                            # print id_limite
+
+                    for j in range(0, 6):
+                        if j == 5:  # on prend le max
+                            xt = profil.lits_numerotes[j - 1].xt_max
+                        else:
+                            xt = profil.lits_numerotes[j].xt_min
+                        oidPoint = hashOIDPointParAbs[xt]
+                        id_limite = j + 1
+                        list_limite_point.append([oidPoint, id_limite])
                 else:
                     logger.warn("Profil sans geom - " + profil.id)
                     
