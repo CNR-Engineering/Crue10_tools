@@ -195,10 +195,6 @@ def Smoy_FP(results,branch):
         xi_D = [elt[0] for elt in section.xz if (elt[0] >= results.X_intD-results.BD) and (elt[0] <= results.X_intD)]
         zi_D = [elt[1] for elt in section.xz if (elt[0] >= results.X_intD-results.BD) and (elt[0] <= results.X_intD)]
         
-        if len(xi_D)==1:
-            xi_D = [results.X_intD-results.BD] + xi_D
-            zi_D = [zi[zi.index(zi_D)+1]] + zi_D
-
         Z_eau = [results.Z]*len(xi_D)
         Smoy_D = trapz(Z_eau,xi_D)-trapz(zi_D,xi_D)
     else:
