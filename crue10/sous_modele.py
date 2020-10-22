@@ -97,7 +97,7 @@ class SousModele(FichierXML):
         if isinstance(section, SectionIdem):
             if section.section_reference.id not in self.sections:
                 raise ExceptionCrue10("La SectionIdem `%s` fait référence à une SectionProfil inexistante `%s`"
-                                      % (section.id, section.section_ori.id))
+                                      % (section.id, section.section_reference.id))
         if isinstance(section, SectionProfil):
             for lit in section.lits_numerotes:
                 if lit.loi_frottement.id not in self.lois_frottement:
@@ -901,9 +901,11 @@ class SousModele(FichierXML):
             loi_frottement.id = loi_frottement.id + suffix
             self.ajouter_loi_frottement(loi_frottement)
         for _, noeud in sous_modele.noeuds.items():
-            self.ajouter_noeud(noeud)
-        for _, section in sous_modele.sections.items():
-            self.ajouter_section(section)
+            if noeud.id not in self.noeuds:
+                self.ajouter_noeud(noeud)
+        for section_type in [SectionProfil, SectionIdem, SectionSansGeometrie, SectionInterpolee]:
+            for section in sous_modele.get_liste_sections(section_type):
+                self.ajouter_section(section)
         for branche in sous_modele.get_liste_branches():
             self.ajouter_branche(branche)
         for _, profils_casier in sous_modele.profils_casier.items():
