@@ -50,7 +50,7 @@ class SousModele(FichierXML):
     :param branches: dictionnaire ordonné des branches
     :type branches: OrderedDict(Branche)
     :param casiers: dictionnaire ordonné des casiers
-    :type casiers: OrderedDict(Casier
+    :type casiers: OrderedDict(Casier)
     :param profils_casier: dictionnaire ordonné des profils casier
     :type profils_casier: OrderedDict(ProfilCasier)
     :param lois_frottement: dictionnaire ordonné des lois de frottement (coefficients de Strickler)
