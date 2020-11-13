@@ -7,7 +7,7 @@ from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10
 class LoiHydraulique:
     """Loi DF: loi avec temps horodaté"""
 
-    TYPES = ['LoiTQapp', 'LoiTZimp', 'LoiQZimp', 'LoiTOuv', 'LoiTQruis']
+    TYPES = ['LoiTQapp', 'LoiTZimp', 'LoiQZimp', 'LoiTOuv', 'LoiTQruis', 'LoiQQ']
 
     def __init__(self, nom_loi, type, comment=''):
         check_preffix(nom_loi, 'Loi')
@@ -17,12 +17,13 @@ class LoiHydraulique:
         self.type = type
         self.date_zero = None
         self.comment = comment
+        self.values = None
 
     def has_time(self):
         return self.type.startswith('LoiT')
 
     def set_date_zero(self, date_zero):
-        #TODO use a datetime instead of a string
+        # TODO use a datetime instead of a string
         check_isinstance(date_zero, str)
         self.date_zero = date_zero
 

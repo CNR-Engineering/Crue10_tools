@@ -113,7 +113,10 @@
 	<xs:complexType name="TypeCalcTransNoeudQapp">
 		<xs:sequence>
 			<xs:element ref="IsActive" />
-			<xs:element name="HydrogrammeQapp" type="TypeNomRefDistant" />
+			<xs:choice>
+				<xs:element name="HydrogrammeQapp" type="TypeNomRefDistant" />
+				<xs:element name="HydrogrammeQappExt" type="TypeHydrogrammeExt" />
+			</xs:choice>
 		</xs:sequence>
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
 	</xs:complexType>
@@ -122,6 +125,28 @@
 		<xs:sequence>
 			<xs:element ref="IsActive" />
 			<xs:element name="Limnigramme" type="TypeNomRefDistant" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<!-- Spécifique pour la régulation -->
+	<xs:complexType name="TypeCalcTransNoeudBg1">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransNoeudBg2">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransNoeudUsi">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
 		</xs:sequence>
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
 	</xs:complexType>
@@ -144,15 +169,18 @@
 	<!-- L'élément calcul transitoire -->
 	<xs:element name="CalcTrans">
 		<xs:complexType>
-			<xs:sequence>
+			<xs:choice minOccurs="1" maxOccurs="unbounded">
 				<xs:element ref="Commentaire" minOccurs="0" />
-				<xs:element name="CalcTransNoeudQapp" type="TypeCalcTransNoeudQapp" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcTransNoeudNiveauContinuLimnigramme" type="TypeCalcTransNoeudNiveauContinuLimnigramme" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcTransNoeudNiveauContinuTarage" type="TypeCalcTransNoeudNiveauContinuTarage" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcTransBrancheOrificeManoeuvre" type="TypeCalcTransBrancheOrificeManoeuvre" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcTransBrancheSaintVenantQruis" type="TypeCalcTransHydrogrammeQruisBranche" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcTransCasierProfilQruis" type="TypeCalcTransHydrogrammeQruisCasier" maxOccurs="unbounded" minOccurs="0" />
-			</xs:sequence>
+				<xs:element name="CalcTransNoeudQapp" type="TypeCalcTransNoeudQapp" minOccurs="0" />
+				<xs:element name="CalcTransNoeudNiveauContinuLimnigramme" type="TypeCalcTransNoeudNiveauContinuLimnigramme" minOccurs="0" />
+				<xs:element name="CalcTransNoeudNiveauContinuTarage" type="TypeCalcTransNoeudNiveauContinuTarage" minOccurs="0" />
+				<xs:element name="CalcTransBrancheOrificeManoeuvre" type="TypeCalcTransBrancheOrificeManoeuvre" minOccurs="0" />
+				<xs:element name="CalcTransBrancheSaintVenantQruis" type="TypeCalcTransHydrogrammeQruisBranche" minOccurs="0" />
+				<xs:element name="CalcTransCasierProfilQruis" type="TypeCalcTransHydrogrammeQruisCasier" minOccurs="0" />
+				<xs:element name="CalcTransNoeudBg1" type="TypeCalcTransNoeudBg1" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcTransNoeudBg2" type="TypeCalcTransNoeudBg2" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcTransNoeudUsi" type="TypeCalcTransNoeudUsi" maxOccurs="1" minOccurs="0" />
+			</xs:choice>
 			<xs:attribute name="Nom" type="TypeForAttributeNomCalc" use="required" />
 		</xs:complexType>
 	</xs:element>
@@ -167,5 +195,20 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+
+	<!-- Spécifique pour les enchaînements -->
+	<xs:complexType name="TypeHydrogrammeExt">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour les enchaînements
+				afin de désigner un hydrogramme à lire sur une section,
+				pour un certain calcul dans un certain fichier de résultats,
+				externe au scénario courant
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomSection" use="required" />
+		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalc" use="optional"/>
+		<xs:attribute name="NomFic" type="xs:token" use="required" />
+	</xs:complexType>
 
 </xs:schema>

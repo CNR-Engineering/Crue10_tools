@@ -24,6 +24,7 @@ class FichierXML(ABC):
     """
 
     FILES_XML = []
+    FILES_XML_OPTIONAL = []
     SUB_FILES_XML = []
     FILES_SHP = []
     FILES_XML_WITHOUT_TEMPLATE = []
@@ -43,13 +44,14 @@ class FichierXML(ABC):
         if access == 'r':
             if files is None:
                 raise RuntimeError
-            if set(files.keys()) != set(type(self).FILES_XML + type(self).FILES_SHP):
+            if (set(files.keys()) != set(type(self).FILES_XML + type(self).FILES_XML_OPTIONAL + type(self).FILES_SHP))\
+                    and (set(files.keys()) != set(type(self).FILES_XML + type(self).FILES_SHP)):
                 raise RuntimeError
             self.files = files
         elif access == 'w':
             self.files = {}
             if files is None:
-                for xml_type in type(self).FILES_XML:
+                for xml_type in (type(self).FILES_XML + type(self).FILES_XML_OPTIONAL):
                     if xml_type != 'etu':
                         self.files[xml_type] = self.id[3:] + '.' + xml_type + '.xml'
             else:
@@ -88,7 +90,11 @@ class FichierXML(ABC):
 
     def _set_xml_trees(self):
         for xml_type in type(self).FILES_XML_WITHOUT_TEMPLATE:
-            self.xml_trees[xml_type] = get_xml_root_from_file(self.files[xml_type])
+            try:
+                self.xml_trees[xml_type] = get_xml_root_from_file(self.files[xml_type])
+            except KeyError:
+                if xml_type not in type(self).FILES_XML_OPTIONAL:
+                    raise ExceptionCrue10("Le fichier `%s` est absent !" % xml_type)
 
     def _write_xml_file(self, xml, folder, **kwargs):
         template_render = JINJA_ENV.get_template(xml + '.xml').render(

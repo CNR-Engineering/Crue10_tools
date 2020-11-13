@@ -320,6 +320,13 @@ class RunResults:
         return values
 
     def get_res_unsteady_var_at_emhs(self, calc_name, varname, emh_list):
+        """Get results from unsteady calculation, for every timesteps.
+        
+        - calc_name: string Nom du calcul.
+        - varname: nom de la variable à extraire.
+        - emh_lis: liste des EMH concernés.
+        - returns: tableau des résultats avec un pas de temps par ligne.
+        """
         calc = self.get_calc_unsteady(calc_name)
         values = np.empty((len(calc.frame_list), len(emh_list)))
 
@@ -385,6 +392,71 @@ class RunResults:
                                                      'emh': emh_name,
                                                      'variable': variable,
                                                      'value': FMT_FLOAT_CSV.format(value)})
+
+    def export_calc_unsteady_time(self, cal_name):
+        """Exports the time serie for en unsteady calculation.
+        
+        - cal_name: nom du calcul.
+        - returns: tableau des valeurs des pas de temps [s].
+        """
+        values = []
+
+        for date in self.calc_unsteady_dict[cal_name].time_serie(): # Parcours des pas de temps
+            values.append(date)
+        return values
+
+
+    def export_calc_unsteady_as_df(self, lst_var, lst_emh):
+        """Exports as DataFrame tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
+        
+        - lst_var: liste des noms de variables à extraire.
+        - lst_emh: liste des EMH concernés.
+        - returns: pandas DataFrame avec le tableau des résultats, un pas de temps par ligne.
+        """
+        # Parcours des calculs
+        for cal_name in self.calc_unsteady_dict.keys():
+            res = self.get_res_unsteady(cal_name)
+
+            # Préparation des dictionnaires de listes
+            dic_res = {}  # Dictionnaire des résultats, sous forme d'un dictionnaire de listes ayant chacune la dimension du nombre de pdt (pas de temps)
+            lst_time = self.export_calc_unsteady_time(cal_name)
+            lst_calc = []
+            for i in range(len(lst_time)):
+                lst_calc.append(cal_name)
+            dic_res['Calcul'] = lst_calc  # La première colonne est le nom du calcul
+            dic_res['Temps'] = lst_time  # La deuxième colonne est le pdt dans le calcul
+            for emh_name in lst_emh:
+                for var_name in lst_var:
+                    try:
+                        # Les colonnes suivantes sont les valeurs pour chaque nom de variable et nom d'EMH (exemple 'Z St_P146.0a')
+                        lst_emh_name = []
+                        lst_emh_name.append(emh_name)  # On a besoin d'une liste de noms d'EHM avec un seul élément
+                        lst_res = self.get_res_unsteady_var_at_emhs(cal_name, var_name, lst_emh_name)  # Récupération d'une liste de listes (chacune à un seul élément)
+                        lst_res_1d = []
+                        for itm_res in lst_res:
+                            lst_res_1d.append(itm_res[0])  # Chaque ligne de la liste est elle-même une liste à un élément, on le récupère
+                        if len(lst_res_1d) > 0:
+                            dic_res[var_name+" "+emh_name] = lst_res_1d  # L'entrée du dictionnaire (exemple 'Z St_P146.0a') contient la liste des valeurs pour chaque pdt
+                    except ExceptionCrue10:
+                        # A priori, incompatibilité entre nom de variable et type d'EHM: pas grave, on ne sort juste pas ces résultats
+                        pass
+
+            # Le DataFrame en retour est construit à partir d'un dictionnaire de listes
+            return pd.DataFrame(dic_res)  # DataFrame (=tableau de valeurs structuré, Pandas)
+
+    def export_calc_unsteady_as_csv_table(self, csv_path, lst_var, lst_emh):
+        """Write CSV file with tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
+        
+        - csv_path, path: nom long du fichier à écrire.
+        - lst_var: liste des noms de variables à extraire.
+        - lst_emh: liste des EMH concernés.
+        - returns: fichier avec le tableau des résultats, un pas de temps par ligne.
+        """
+        # Préparation des données
+        df = self.export_calc_unsteady_as_df(lst_var, lst_emh)
+
+        # Export
+        df.to_csv(csv_path, sep=CSV_DELIMITER, mode='w', index=False)
 
     def __repr__(self):
         return "Résultats run #%s (%i permanents, %i transitoires)" % (self.run_id, len(self.calc_steady_dict),

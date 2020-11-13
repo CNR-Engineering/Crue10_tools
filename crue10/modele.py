@@ -38,7 +38,8 @@ class Modele(FichierXML):
     """
 
     FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti']
-    FILES_XML_WITHOUT_TEMPLATE = ['optr', 'optg', 'opti', 'pnum']
+    FILES_XML_OPTIONAL = ['dreg']
+    FILES_XML_WITHOUT_TEMPLATE = ['optr', 'optg', 'opti', 'pnum', 'dreg']
 
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
@@ -413,11 +414,15 @@ class Modele(FichierXML):
             os.makedirs(folder)
 
         for xml_type in Modele.FILES_XML_WITHOUT_TEMPLATE:
-            xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
-            if self.xml_trees:
-                write_xml_from_tree(self.xml_trees[xml_type], xml_path)
-            else:
-                write_default_xml_file(xml_type, xml_path)
+            try:
+                xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
+                if self.xml_trees:
+                    write_xml_from_tree(self.xml_trees[xml_type], xml_path)
+                else:
+                    write_default_xml_file(xml_type, xml_path)
+            except KeyError:
+                if xml_type not in Modele.FILES_XML_OPTIONAL:
+                    raise ExceptionCrue10("Le fichier %s est absent !" % xml_type)
 
         self._write_dpti(folder)
 

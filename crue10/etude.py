@@ -36,7 +36,7 @@ class Etude(FichierXML):
     :type filename_list: [str]
     :param nom_scenario_courant: current scenario identifier
     :type nom_scenario_courant: str
-    :param scenarios: dict with scneario name and Scenario object
+    :param scenarios: dict with scenario name and Scenario object
     :type scenarios: {str: Scenario}
     :param modeles: Dict with modele name and Modele object
     :type modeles: {str: Modele}
@@ -47,7 +47,7 @@ class Etude(FichierXML):
     FOLDERS = OrderedDict([('CONFIG', 'Config'), ('FICHETUDES', '.'),
                            ('RAPPORTS', 'Rapports'), ('RUNS', 'Runs')])
     FILES_XML = ['etu']
-    SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + SousModele.FILES_XML
+    SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + Modele.FILES_XML_OPTIONAL + SousModele.FILES_XML
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
     def __init__(self, etu_path, folders=None, access='r', metadata=None, comment=''):
@@ -175,11 +175,12 @@ class Etude(FichierXML):
                 metadata = read_metadata(elt_modele, Modele.METADATA_FIELDS)
 
                 elt_fichiers = elt_modele.find(PREFIX + 'Modele-FichEtudes')
-                for ext in Modele.FILES_XML:
+                for ext in (Modele.FILES_XML + Modele.FILES_XML_OPTIONAL):
                     try:
                         filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                     except AttributeError:
-                        raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
+                        if ext not in Modele.FILES_XML_OPTIONAL:
+                            raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
                     if filename is None:
                         raise ExceptionCrue10("Le modèle n'a pas de fichier %s !" % ext)
                     files[ext] = self.get_chemin_vers_fichier(filename)
@@ -257,6 +258,13 @@ class Etude(FichierXML):
         else:
             etu_path = os.path.join(folder, os.path.basename(self.etu_path))
         xml = 'etu'
+
+        has_regul = False
+        for filename in self.filename_list:
+            if filename.endswith('.dreg.xml'):
+                has_regul = True
+                break
+
         template_render = JINJA_ENV.get_template(xml + '.xml').render(
             folders=[(name, folder_str) for name, folder_str in self.folders.items()],
             metadata=self.metadata,
@@ -265,6 +273,7 @@ class Etude(FichierXML):
             modeles=[mo for _, mo in self.modeles.items()],
             sous_modeles=[sm for _, sm in self.sous_modeles.items()],
             scenarios=[sc for _, sc in self.scenarios.items()],
+            has_regul=has_regul,
         )
         with open(etu_path, 'w', encoding=XML_ENCODING) as out:
             out.write(template_render)

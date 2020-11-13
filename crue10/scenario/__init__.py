@@ -215,7 +215,8 @@ class Scenario(FichierXML):
                         continue
 
                     clim_type = elt_valeur.tag[len(PREFIX):]
-                    if clim_type not in CalcTrans.CLIM_TYPE_TO_TAG_VALUE:
+                    if clim_type not in CalcTrans.CLIM_TYPE_TO_TAG_VALUE and \
+                            clim_type not in CalcTrans.CLIM_TYPE_SPECIAL_VALUE:
                         raise ExceptionCrue10("Type de Clim inconnu: %s" % clim_type)
 
                     if clim_type == 'CalcTransBrancheOrificeManoeuvre':
@@ -223,15 +224,33 @@ class Scenario(FichierXML):
                     else:
                         sens = None
 
-                    value_elt = elt_valeur.find(PREFIX + CalcTrans.CLIM_TYPE_TO_TAG_VALUE[clim_type])
-                    nom_loi = value_elt.get('NomRef')  # TODO: check law exists
-
+                    value_elt = None
+                    nom_loi = None
+                    typ_loi = None
+                    nom_fic = None
+                    if clim_type in CalcTrans.CLIM_TYPE_TO_TAG_VALUE:
+                        typ_loi = CalcTrans.CLIM_TYPE_TO_TAG_VALUE[clim_type]
+                        value_elt = elt_valeur.find(PREFIX + typ_loi)
+                        if value_elt is not None:
+                            nom_loi = value_elt.get('NomRef')  # TODO: check law exists
+                    if value_elt is None and clim_type in CalcTrans.CLIM_TYPE_SPECIAL_VALUE:
+                        typ_loi = CalcTrans.CLIM_TYPE_SPECIAL_VALUE[clim_type]
+                        value_elt = elt_valeur.find(PREFIX + typ_loi)
+                        if value_elt is None:
+                            # CLimM régulation
+                            nom_loi = None
+                        else:
+                            # CLimM externe
+                            nom_loi = value_elt.get('NomRef')
+                            nom_fic = value_elt.get('NomFic')
                     calc_trans.ajouter_valeur(
                         elt_valeur.get('NomRef'),
                         clim_type,
                         elt_valeur.find(PREFIX + 'IsActive').text == 'true',
                         nom_loi,
                         sens,
+                        typ_loi,
+                        nom_fic
                     )
 
                 self.ajouter_calcul(calc_trans)

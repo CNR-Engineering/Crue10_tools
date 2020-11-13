@@ -10,7 +10,7 @@ import re
 import shutil
 from lxml import etree
 
-from crue10.utils.filters import float2str, html_escape, typeclim2str_calcpseudoperm, typeclim2str_calctrans
+from crue10.utils.filters import float2str, html_escape
 from crue10.utils.settings import XML_ENCODING
 
 
@@ -163,8 +163,6 @@ JINJA_ENV.filters = {
     'float2str': float2str,
     'abs': abs,
     'html_escape': html_escape,
-    'typeclim2str_calcpseudoperm': typeclim2str_calcpseudoperm,
-    'typeclim2str_calctrans': typeclim2str_calctrans,
 }
 
 

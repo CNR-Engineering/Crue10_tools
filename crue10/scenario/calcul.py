@@ -28,11 +28,11 @@ class Calcul(ABC):
         self.comment = comment
         self.values = []
 
-    def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None):
+    def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None, typ_loi=None, nom_fic=None):
         check_isinstance(nom_emh, str)  # TODO: check that EMH exists
         check_isinstance(is_active, bool)
         check_isinstance(sens, [type(None), str])
-        self.values.append((nom_emh, clim_tag, is_active, value, sens))
+        self.values.append((nom_emh, clim_tag, is_active, value, sens, typ_loi, nom_fic))
 
 
 class CalcPseudoPerm(Calcul):
@@ -44,10 +44,10 @@ class CalcPseudoPerm(Calcul):
         'CalcPseudoPermCasierProfilQruis': 'Qruis',
     }
 
-    def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None):
+    def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None, typ_loi=None, nom_fic=None):
         check_isinstance(value, float)
         assert clim_tag in CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE.keys()
-        super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens)
+        super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens, typ_loi, nom_fic)
 
     def multiplier_valeur(self, nom_emh, facteur):
         check_isinstance(facteur, float)
@@ -77,10 +77,18 @@ class CalcTrans(Calcul):
         'CalcTransBrancheSaintVenantQruis': 'HydrogrammeQruis',
     }
 
-    def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None):
+    # MEC-Crue10: Ajout de CLimM spéciales (n'ayant pas la forme des autres): enchaînement, régulation
+    CLIM_TYPE_SPECIAL_VALUE = {
+        'CalcTransNoeudQapp': 'HydrogrammeQappExt',
+        'CalcTransNoeudUsi': '',
+        'CalcTransNoeudBg1': '',
+        'CalcTransNoeudBg2': '',
+    }
+
+    def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None, typ_loi=None, nom_fic=None):
         check_isinstance(value, str)
-        assert clim_tag in CalcTrans.CLIM_TYPE_TO_TAG_VALUE.keys()
-        super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens)
+        assert clim_tag in CalcTrans.CLIM_TYPE_TO_TAG_VALUE or clim_tag in CalcTrans.CLIM_TYPE_SPECIAL_VALUE
+        super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens, typ_loi, nom_fic)
 
     def __repr__(self):
         return "Calcul transitoire #%s" % self.id
