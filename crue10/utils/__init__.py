@@ -129,7 +129,7 @@ def write_xml_from_tree(xml_tree, file_path):
     # Avoid some self-closing tags
     def avoid_self_closing_tags(elt):
         """Avoid some elements to be not self-closing"""
-        if isinstance(elt, str):  # ignore comments (type is `lxml.etree._Comment`)
+        if not isinstance(elt, etree._Comment):  # ignore comments
             if elt.tag.replace(PREFIX, '') not in SELF_CLOSING_TAGS:
                 if elt.text is None:
                     elt.text = ''
