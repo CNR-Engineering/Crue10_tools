@@ -197,6 +197,7 @@ class Scenario(FichierXML):
 
                     value_elt = elt_valeur.find(PREFIX + CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE[clim_type])
                     value = float(value_elt.text)
+                    typ_loi = CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE[clim_type]
 
                     calc_perm.ajouter_valeur(
                         elt_valeur.get('NomRef'),
@@ -204,6 +205,7 @@ class Scenario(FichierXML):
                         elt_valeur.find(PREFIX + 'IsActive').text == 'true',
                         value,
                         sens,
+                        typ_loi,
                     )
 
                 self.ajouter_calcul(calc_perm)
