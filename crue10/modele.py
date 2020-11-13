@@ -227,6 +227,9 @@ class Modele(FichierXML):
     def _get_pnum_CalcPseudoPerm(self):
         return self.xml_trees['pnum'].find(PREFIX + 'ParamNumCalcPseudoPerm')
 
+    def _get_pnum_CalcTrans(self):
+        return self.xml_trees['pnum'].find(PREFIX + 'ParamNumCalcTrans')
+
     def get_pnum_CalcPseudoPerm_NbrPdtDecoup(self):
         return int(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'NbrPdtDecoup').text)
 
@@ -243,7 +246,15 @@ class Modele(FichierXML):
         pdt_elt = self._get_pnum_CalcPseudoPerm().find(PREFIX + 'Pdt')
         pdtcst_elt = pdt_elt.find(PREFIX + 'PdtCst')
         if pdtcst_elt is None:
-            print(etree.tostring(pdt_elt))
+            logger.debug(etree.tostring(pdt_elt))
+            raise ExceptionCrue10("Le pas de temps n'est pas constant")
+        return duration_iso8601_to_seconds(pdtcst_elt.text)
+
+    def get_pnum_CalcTrans_PdtCst(self):
+        pdt_elt = self._get_pnum_CalcTrans().find(PREFIX + 'Pdt')
+        pdtcst_elt = pdt_elt.find(PREFIX + 'PdtCst')
+        if pdtcst_elt is None:
+            logger.debug(etree.tostring(pdt_elt))
             raise ExceptionCrue10("Le pas de temps n'est pas constant")
         return duration_iso8601_to_seconds(pdtcst_elt.text)
 
@@ -314,6 +325,20 @@ class Modele(FichierXML):
         """
         check_isinstance(value, float)
         pdt_elt = self._get_pnum_CalcPseudoPerm().find(PREFIX + 'Pdt')
+        # Remove existing elements
+        for elt in pdt_elt:
+            pdt_elt.remove(elt)
+        # Add new single element
+        sub_elt = etree.SubElement(pdt_elt, PREFIX + 'PdtCst')
+        sub_elt.text = duration_seconds_to_iso8601(value)
+
+    def set_pnum_CalcTrans_PdtCst(self, value):
+        """
+        Affecte le pas de temps constant demandé
+        Attention si le pas de temps était variable, il est bien mis constant à la valeur demandée sans avertissement.
+        """
+        check_isinstance(value, float)
+        pdt_elt = self._get_pnum_CalcTrans().find(PREFIX + 'Pdt')
         # Remove existing elements
         for elt in pdt_elt:
             pdt_elt.remove(elt)
