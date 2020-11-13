@@ -51,7 +51,7 @@ class FichierXML(ABC):
         elif access == 'w':
             self.files = {}
             if files is None:
-                for xml_type in (type(self).FILES_XML + type(self).FILES_XML_OPTIONAL):
+                for xml_type in type(self).FILES_XML:
                     if xml_type != 'etu':
                         self.files[xml_type] = self.id[3:] + '.' + xml_type + '.xml'
             else:
