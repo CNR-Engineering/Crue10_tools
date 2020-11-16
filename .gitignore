@@ -6,7 +6,7 @@ __pycache__/
 .cache
 .idea
 crue10_examples/
-doc/
+docs/html
 venv/
 tmp
 *_all.csv

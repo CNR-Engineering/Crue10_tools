@@ -12,15 +12,14 @@
 #
 import os
 import sys
-print(os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../crue10'))
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'Crue10_tools'
-copyright = '2020, LDN'
-author = 'LDN'
+copyright = '2020, CNR-Engineering'
+author = 'CNR-Engineering'
 
 
 # -- General configuration ---------------------------------------------------
@@ -30,7 +29,7 @@ author = 'LDN'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-	'sphinx.ext.autosummary',
+    'sphinx.ext.autosummary',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
