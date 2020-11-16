@@ -16,11 +16,16 @@ class FichierXML(ABC):
     """
     Abstract class for Crue10 XML files
 
-    - xml_trees <{ET.ElementTree}>: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
-    - metadata <{dict}>: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    - files <{str}>: dict with path to xml files (keys correspond to `FILES_XML` list)
-    - comments <{str}>: dict with comment of xml files (keys correspond to `FILES_XML` list)
-    - was_read <bool>
+    :param xml_trees: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
+    :type xml_trees: {ET.ElementTree}
+    :param metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
+    :type metadata: {dict}
+    :param files: dict with path to xml files (keys correspond to `FILES_XML` list)
+    :type files: {str}
+    :param comments: dict with comment of xml files (keys correspond to `FILES_XML` list)
+    :type comments: {str}
+    :param was_read: True si déjà lu
+    :type was_read: bool
     """
 
     FILES_XML = []

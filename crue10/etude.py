@@ -92,7 +92,10 @@ class Etude(FichierXML):
 
     @property
     def etu_path(self):
-        """Chemin vers le fichier Etude (*.etu.xml)"""
+        """
+        :return: Chemin vers le fichier étude (etu.xml)
+        :rtype: str
+        """
         return self.files['etu']
 
     @property
@@ -113,6 +116,7 @@ class Etude(FichierXML):
         return run_names
 
     def _read_etu(self):
+        """Ecrire le fichier etu.xml"""
         root = ET.parse(self.etu_path).getroot()
         folder = os.path.dirname(self.etu_path)
 
@@ -249,7 +253,8 @@ class Etude(FichierXML):
             scenario.read_all()
 
     def write_etu(self, folder=None):
-        """Écriture du fichier Etude Crue10 (*.etu.xml)
+        """
+        Écriture du fichier étude Crue10 (etu.xml)
 
         Si folder n'est pas renseigné alors le fichier lu est remplacé
         """
@@ -328,7 +333,8 @@ class Etude(FichierXML):
         self.sous_modeles[sous_modele.id] = sous_modele
 
     def ajouter_scenario(self, scenario):
-        """Ajouter un scénario à l'étude
+        """
+        Ajouter un scénario à l'étude
 
         :param scenario: scénario à ajouter
         :type scenario: Scenario
@@ -363,6 +369,8 @@ class Etude(FichierXML):
         Retourne le scénario demandé
 
         :param nom_scenario: nom du scénario demandé
+        :return: scénario demandé
+        :rtype: Scenario
         """
         try:
             return self.scenarios[nom_scenario]
@@ -371,16 +379,23 @@ class Etude(FichierXML):
                                   % (nom_scenario, list(self.scenarios.keys())))
 
     def get_scenario_courant(self):
-        """Retourne le scénario courant"""
+        """
+        Retourne le scénario courant
+
+        :return: scénario courant
+        :rtype: Scenario
+        """
         if self.nom_scenario_courant:
             return self.get_scenario(self.nom_scenario_courant)
         raise ExceptionCrue10("Aucun scénario courant n'est défini dans l'étude")
 
     def get_modele(self, nom_modele):
-        """
-        Retourne le modèle demandé
+        """Retourne le modèle demandé
 
         :param nom_modele: nom du modèle demandé
+        :type nom_modele: str
+        :return: modèle demandé
+        :rtype: Modele
         """
         try:
             return self.modeles[nom_modele]
@@ -393,6 +408,9 @@ class Etude(FichierXML):
         Retourne le sous-modèle demandé
 
         :param nom_sous_modele: nom du sous-modèle demandé
+        :type nom_sous_modele: str
+        :return: sous-modèle demandé
+        :rtype: SousModele
         """
         try:
             return self.sous_modeles[nom_sous_modele]
@@ -401,12 +419,30 @@ class Etude(FichierXML):
                                   % (nom_sous_modele, list(self.sous_modeles.keys())))
 
     def get_liste_scenarios(self):
+        """
+        Retourne la liste des scénarios
+
+        :return: liste des scénarios
+        :rtype: [Scenario]
+        """
         return [scenario for _, scenario in self.scenarios.items()]
 
     def get_liste_modeles(self):
+        """
+        Retourne la liste des modèles
+
+        :return: liste des modèles
+        :rtype: [Modele]
+        """
         return [modele for _, modele in self.modeles.items()]
 
     def get_liste_sous_modeles(self):
+        """
+        Retourne la liste des sous-modèles
+
+        :return: liste des sous-modèles
+        :rtype: [SousModele]
+        """
         return [sous_modele for _, sous_modele in self.sous_modeles.items()]
 
     def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible):
@@ -414,7 +450,15 @@ class Etude(FichierXML):
         Copie d'un scénario existant et ajout à l'étude courante
         Attention le modèle et les sous-modèles restent partagés avec le scénario source
         Les Runs existants ne sont pas copiés dans le scénario cible
+
         Remarque : une copie profonde n'est pas possible car il faudrait renommer le modèle et les sous-modèles...
+
+        :param nom_scenario_source: nom du scénario source
+        :type nom_scenario_source: str
+        :param nom_scenario_cible: nom du scénario cible
+        :type nom_scenario_cible: str
+        :return: nouveau scénario
+        :rtype: Scenario
         """
         scenario_ori = self.get_scenario(nom_scenario_source)
         scenario = Scenario(nom_scenario_cible, scenario_ori.modele, access='w',
@@ -424,6 +468,11 @@ class Etude(FichierXML):
         return scenario
 
     def ignore_others_scenarios(self, nom_scenario):
+        """Supprimer les sous-modèles, modèles et scénarios qui ne sont pas liés au scénario demandé
+
+        :param nom_scenario: scénario à conserver
+        :type nom_scenario: str
+        """
         scenario_to_keep = self.get_scenario(nom_scenario)
         filepath_to_keep = []  # to purge FichEtudes/FichEtude
 
@@ -451,6 +500,15 @@ class Etude(FichierXML):
                 self.filename_list.remove(filename)
 
     def supprimer_scenario(self, nom_scenario, ignore=False, sleep=0.0):
+        """Supprimer le scénario spécifié
+
+        :param nom_scenario: nom du scénario à supprimer
+        :type nom_scenario: str
+        :param ignore: True si le scénario peut ne pas exister
+        :type ignore: bool, optional
+        :param sleep: durée d'attente (pour limiter les problèmes d'IO)
+        :type sleep: float, optional
+        """
         logger.info("Suppression du scénario %s" % nom_scenario)
         if not ignore:
             # Check that is exists if required

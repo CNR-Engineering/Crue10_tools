@@ -117,12 +117,24 @@ class Modele(FichierXML):
                 Modele.rename_key_and_obj(self.branches_ic, suffix, replace_obj=False)
 
     def get_sous_modele(self, nom_sous_modele):
+        """
+        :param nom_sous_modele: nom du sous-modèle
+        :type nom_sous_modele: str
+        :return: sous-modèle demandé
+        :rtype: SousModele
+        """
         for sous_modele in self.liste_sous_modeles:
             if sous_modele.id == nom_sous_modele:
                 return sous_modele
         raise ExceptionCrue10("Le sous-modèle %s n'existe pas dans le modèle %s" % (nom_sous_modele, self.id))
 
     def get_noeud(self, nom_noeud):
+        """
+        :param nom_noeud: nom du noeud
+        :type nom_noeud: str
+        :return: noeud demandé
+        :rtype: Noeud
+        """
         noeuds = []
         for noeud in self.get_liste_noeuds():
             if noeud.id == nom_noeud:
@@ -136,42 +148,82 @@ class Modele(FichierXML):
                                   "et ne peut pas être obtenu avec cette méthode" % nom_noeud)
 
     def get_section(self, nom_section):
+        """
+        :param nom_section: nom de la section
+        :type nom_section: str
+        :return: section demandée
+        :rtype: Section
+        """
         for section in self.get_liste_sections():
             if section.id == nom_section:
                 return section
         raise ExceptionCrue10("La section %s n'est pas dans le %s" % (nom_section, self))
 
     def get_branche(self, nom_branche):
+        """
+        :param nom_branche: nom de la branche
+        :type nom_branche: str
+        :return: branche demandée
+        :rtype: crue10.emh.branche.Branche
+        """
         for branche in self.get_liste_branches():
             if branche.id == nom_branche:
                 return branche
         raise ExceptionCrue10("La branche %s n'est pas dans le %s" % (nom_branche, self))
 
     def get_casier(self, nom_casier):
+        """
+        :param nom_casier: nom du casier
+        :type nom_casier: str
+        :return: casier demandé
+        :rtype: crue10.emh.casier.Casier
+        """
         for casier in self.get_liste_casiers():
             if casier.id == nom_casier:
                 return casier
         raise ExceptionCrue10("Le casier %s n'est pas dans le %s" % (nom_casier, self))
 
     def get_loi_frottement(self, nom_loi_frottement):
+        """
+        :param nom_loi_frottement: nom de la loi de frottement
+        :type nom_loi_frottement: str
+        :return: loi de frottement demandée
+        :rtype: crue10.emh.section.LoiFrottement
+        """
         for loi in self.get_liste_lois_frottement():
             if loi.id == nom_loi_frottement:
                 return loi
         raise ExceptionCrue10("La loi de frottement %s n'est pas dans le %s" % (nom_loi_frottement, self))
 
     def get_liste_noeuds(self):
+        """
+        :return: liste des noeuds
+        :rtype: [Noeud]
+        """
         noeuds = []
         for sous_modele in self.liste_sous_modeles:
             noeuds += sous_modele.get_liste_noeuds()
         return noeuds
 
     def get_liste_casiers(self):
+        """
+        :return: liste des casiers
+        :rtype: [Casier]
+        """
         casiers = []
         for sous_modele in self.liste_sous_modeles:
             casiers += sous_modele.get_liste_casiers()
         return casiers
 
     def get_liste_sections(self, section_type=None, ignore_inactive=False):
+        """
+        :param section_type: classe du type de section (ie. classe fille de Section)
+        :type section_type: list, optional
+        :param ignore_inactive:
+        :type ignore_inactive: bool, optional
+        :return: liste des sections
+        :rtype: [Section]
+        """
         sections = []
         for sous_modele in self.liste_sous_modeles:
             sections += sous_modele.get_liste_sections(section_type=section_type,
@@ -179,12 +231,24 @@ class Modele(FichierXML):
         return sections
 
     def get_liste_branches(self, filter_branch_types=None):
+        """
+        :param filter_branch_types: liste des types de branches
+        :type filter_branch_types: [int]
+        :return: liste des branches
+        :rtype: [Branche]
+        """
         branches = []
         for sous_modele in self.liste_sous_modeles:
             branches += sous_modele.get_liste_branches(filter_branch_types=filter_branch_types)
         return branches
 
     def get_liste_lois_frottement(self, ignore_sto=False):
+        """
+        :param ignore_sto: True pour ignorer les lois de type `FkSto`
+        :type ignore_sto: bool, optional
+        :return: liste des lois de frottement
+        :rtype: [LoiFrottement]
+        """
         lois = []
         for sous_modele in self.liste_sous_modeles:
             lois += sous_modele.get_liste_lois_frottement(ignore_sto=ignore_sto)
@@ -194,26 +258,51 @@ class Modele(FichierXML):
         """
         Returns the list of the requested sections which are not found (or not active) in the current modele
             (section type is not checked)
+
         :param section_id_list: list of section identifiers
         """
         return set([st.id for st in self.get_liste_sections(ignore_inactive=True)]).difference(set(section_id_list))
 
     def get_duplicated_noeuds(self):
+        """
+        :return: liste des noeuds dupliqués
+        :rtype: [Noeud]
+        """
         return [nd for nd, count in Counter([noeud.id for noeud in self.get_liste_noeuds()]).items() if count > 1]
 
     def get_duplicated_casiers(self):
+        """
+        :return: liste des casiers dupliqués
+        :rtype: [Casier]
+        """
         return [ca for ca, count in Counter([casier.id for casier in self.get_liste_casiers()]).items() if count > 1]
 
     def get_duplicated_sections(self):
+        """
+        :return: liste des sections dupliquées
+        :rtype: [Section]
+        """
         return [st for st, count in Counter([section.id for section in self.get_liste_sections()]).items() if count > 1]
 
     def get_duplicated_branches(self):
+        """
+        :return: liste des branches dupliquées
+        :rtype: [Branche]
+        """
         return [br for br, count in Counter([branche.id for branche in self.get_liste_branches()]).items() if count > 1]
 
     def get_theta_preissmann(self):
+        """
+        :return: coefficient d'implicitation "Théta Preissmann"
+        :rtype: float
+        """
         return float(self.xml_trees['pnum'].find(PREFIX + 'ParamNumCalcTrans').find(PREFIX + 'ThetaPreissmann').text)
 
     def get_branche_barrage(self):
+        """
+        :return: branche barrage du modèle
+        :rtype: {BrancheBarrageFilEau, BrancheBarrageGenerique}
+        """
         liste_branches = []
         for branche in self.get_liste_branches():
             if isinstance(branche, BrancheBarrageFilEau) or isinstance(branche, BrancheBarrageGenerique):
@@ -231,18 +320,38 @@ class Modele(FichierXML):
         return self.xml_trees['pnum'].find(PREFIX + 'ParamNumCalcTrans')
 
     def get_pnum_CalcPseudoPerm_NbrPdtDecoup(self):
+        """
+        :return: NbrPdtDecoup des calculs pseudo-permanents
+        :rtype: int
+        """
         return int(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'NbrPdtDecoup').text)
 
     def get_pnum_CalcPseudoPerm_NbrPdtMax(self):
+        """
+        :return: NbrPdtMax des calculs pseudo-permanents
+        :rtype: int
+        """
         return int(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'NbrPdtMax').text)
 
     def get_pnum_CalcPseudoPerm_TolMaxZ(self):
+        """
+        :return: TolMaxZ des calculs pseudo-permanents
+        :rtype: float
+        """
         return float(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxZ').text)
 
     def get_pnum_CalcPseudoPerm_TolMaxQ(self):
+        """
+        :return: TolMaxQ des calculs pseudo-permanents
+        :rtype: float
+        """
         return float(self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxQ').text)
 
     def get_pnum_CalcPseudoPerm_PdtCst(self):
+        """
+        :return: pas de temps constant des calculs pseudo-permanents
+        :rtype: float
+        """
         pdt_elt = self._get_pnum_CalcPseudoPerm().find(PREFIX + 'Pdt')
         pdtcst_elt = pdt_elt.find(PREFIX + 'PdtCst')
         if pdtcst_elt is None:
@@ -251,6 +360,10 @@ class Modele(FichierXML):
         return duration_iso8601_to_seconds(pdtcst_elt.text)
 
     def get_pnum_CalcTrans_PdtCst(self):
+        """
+        :return: pas de temps constant des calculs transitoires
+        :rtype: float
+        """
         pdt_elt = self._get_pnum_CalcTrans().find(PREFIX + 'Pdt')
         pdtcst_elt = pdt_elt.find(PREFIX + 'PdtCst')
         if pdtcst_elt is None:
@@ -292,14 +405,14 @@ class Modele(FichierXML):
                 self._graph.add_edge(branche.noeud_amont.id, branche.noeud_aval.id,
                                      branche=branche.id, weight=weight)
 
-    def get_branches_liste_entre_noeuds(self, noeud_amont_id, noeud_aval_id):
+    def get_branches_liste_entre_noeuds(self, nom_noeud_amont, nom_noeud_aval):
         try:
             import networkx as nx
         except ImportError:  # ModuleNotFoundError not available in Python2
             raise ExceptionCrue10("Le module networkx ne fonctionne pas !")
 
         try:
-            path = nx.shortest_path(self.graph, noeud_amont_id, noeud_aval_id, weight='weight')  # minimize weight
+            path = nx.shortest_path(self.graph, nom_noeud_amont, nom_noeud_aval, weight='weight')  # minimize weight
         except nx.exception.NetworkXException as e:
             raise ExceptionCrue10("PROBLÈME AVEC LE GRAPHE : %s" % e)
 
@@ -311,17 +424,32 @@ class Modele(FichierXML):
         return branches_list
 
     def set_pnum_CalcPseudoPerm_TolMaxZ(self, value):
+        """
+        Affecter la tolérance TolMaxZ demandée pour les calculs pseudo-permanents
+
+        :param value: valeur TolMaxZ à affecter
+        :type value: float
+        """
         check_isinstance(value, float)
         self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxZ').text = str(value)
 
     def set_pnum_CalcPseudoPerm_TolMaxQ(self, value):
+        """
+        Affecter la tolérance TolMaxQ demandée pour les calculs pseudo-permanents
+
+        :param value: valeur TolMaxQ à affecter
+        :type value: float
+        """
         check_isinstance(value, float)
         self._get_pnum_CalcPseudoPerm().find(PREFIX + 'TolMaxQ').text = str(value)
 
     def set_pnum_CalcPseudoPerm_PdtCst(self, value):
         """
-        Affecte le pas de temps constant demandé
+        Affecter le pas de temps constant demandé pour les calculs pseudo-permanents
         Attention si le pas de temps était variable, il est bien mis constant à la valeur demandée sans avertissement.
+
+        :param value: pas de temps à affecter
+        :type value: float
         """
         check_isinstance(value, float)
         pdt_elt = self._get_pnum_CalcPseudoPerm().find(PREFIX + 'Pdt')
@@ -334,8 +462,11 @@ class Modele(FichierXML):
 
     def set_pnum_CalcTrans_PdtCst(self, value):
         """
-        Affecte le pas de temps constant demandé
+        Affecter le pas de temps constant demandé pour les calculs transitoires
         Attention si le pas de temps était variable, il est bien mis constant à la valeur demandée sans avertissement.
+
+        :param value: pas de temps à affecter
+        :type value: float
         """
         check_isinstance(value, float)
         pdt_elt = self._get_pnum_CalcTrans().find(PREFIX + 'Pdt')
@@ -411,7 +542,9 @@ class Modele(FichierXML):
                         self.branches_ic[branche_id]['values']['Qruis'] = float(emh_ci.find(PREFIX + 'Qruis').text)
 
     def read_all(self):
-        """Lire tous les fichiers du modèle"""
+        """
+        Lire tous les fichiers du modèle
+        """
         if not self.was_read:
             self._set_xml_trees()
 
@@ -422,6 +555,11 @@ class Modele(FichierXML):
         self.was_read = True
 
     def _write_dpti(self, folder):
+        """
+        Ecrire le fichier dpti.xml
+
+        :param folder: dossier de sortie
+        """
         self._write_xml_file(
             'dpti', folder,
             noeuds_ci=self.noeuds_ic,
@@ -430,7 +568,9 @@ class Modele(FichierXML):
         )
 
     def write_all(self, folder, folder_config):
-        """Écrire tous les fichiers du modèle"""
+        """
+        Écrire tous les fichiers du modèle
+        """
 
         logger.debug("Écriture du %s dans %s" % (self, folder))
 
@@ -575,6 +715,7 @@ class Modele(FichierXML):
                                            'properties': {'id_limite': lit_name, 'id_branche': branche.id}})
 
     def log_duplicated_emh(self):
+        """Logger les EMH dupliqués"""
         duplicated_noeuds = self.get_duplicated_noeuds()
         if duplicated_noeuds:
             logger.info("Noeuds dupliqués: %s" % duplicated_noeuds)

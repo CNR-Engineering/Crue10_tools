@@ -147,42 +147,88 @@ class SousModele(FichierXML):
         self.ajouter_loi_frottement(DEFAULT_FK_MIN)
 
     def get_noeud(self, nom_noeud):
+        """
+        :param nom_noeud: nom du noeud
+        :type nom_noeud: str
+        :return: noeud demandé
+        :rtype: Noeud
+        """
         try:
             return self.noeuds[nom_noeud]
         except KeyError:
             raise ExceptionCrue10("Le noeud %s n'est pas dans le %s" % (nom_noeud, self))
 
     def get_section(self, nom_section):
+        """
+        :param nom_section: nom de la section
+        :type nom_section: str
+        :return: section demandée
+        :rtype: Section
+        """
         try:
             return self.sections[nom_section]
         except KeyError:
             raise ExceptionCrue10("La section %s n'est pas dans le %s" % (nom_section, self))
 
     def get_branche(self, nom_branche):
+        """
+        :param nom_branche: nom de la branche
+        :type nom_branche: str
+        :return: branche demandée
+        :rtype: crue10.emh.branche.Branche
+        """
         try:
             return self.branches[nom_branche]
         except KeyError:
             raise ExceptionCrue10("La branche %s n'est pas dans le %s" % (nom_branche, self))
 
     def get_casier(self, nom_casier):
+        """
+        :param nom_casier: nom du casier
+        :type nom_casier: str
+        :return: casier demandé
+        :rtype: crue10.emh.casier.Casier
+        """
         try:
             return self.casiers[nom_casier]
         except KeyError:
             raise ExceptionCrue10("Le casier %s n'est pas dans le %s" % (nom_casier, self))
 
     def get_loi_frottement(self, nom_loi_frottement):
+        """
+        :param nom_loi_frottement: nom de la loi de frottement
+        :type nom_loi_frottement: str
+        :return: loi de frottement demandée
+        :rtype: crue10.emh.section.LoiFrottement
+        """
         try:
             return self.lois_frottement[nom_loi_frottement]
         except KeyError:
             raise ExceptionCrue10("La loi de frottement %s n'est pas dans le %s" % (nom_loi_frottement, self))
 
     def get_liste_noeuds(self):
-        return [section for _, section in self.noeuds.items()]
+        """
+        :return: liste des noeuds
+        :rtype: [Noeud]
+        """
+        return [noeud for _, noeud in self.noeuds.items()]
 
     def get_liste_casiers(self):
+        """
+        :return: liste des casiers
+        :rtype: [Casier]
+        """
         return [casier for _, casier in self.casiers.items()]
 
     def get_liste_sections(self, section_type=None, ignore_inactive=False):
+        """
+        :param section_type: classe du type de section (ie. classe fille de Section)
+        :type section_type: list, optional
+        :param ignore_inactive: True pour ignorer les sections inactives
+        :type ignore_inactive: bool, optional
+        :return: liste des sections
+        :rtype: [Section]
+        """
         sections = []
         for _, section in self.sections.items():
             if ignore_inactive and not section.is_active:
@@ -195,18 +241,40 @@ class SousModele(FichierXML):
         return sections
 
     def get_liste_sections_profil(self):
+        """
+        :return: liste des sections profil
+        :rtype: [SectionProfil]
+        """
         return self.get_liste_sections(section_type=SectionProfil)
 
     def get_liste_sections_item(self):
+        """
+        :return: liste des sections idem
+        :rtype: [SectionIdem]
+        """
         return self.get_liste_sections(section_type=SectionIdem)
 
     def get_liste_sections_interpolees(self):
+        """
+        :return: liste des sections interpolées
+        :rtype: [SectionInterpolee]
+        """
         return self.get_liste_sections(section_type=SectionInterpolee)
 
     def get_liste_sections_sans_geometrie(self):
+        """
+        :return: liste des sections sans géométrie
+        :rtype: [SectionSansGeometrie]
+        """
         return self.get_liste_sections(section_type=SectionSansGeometrie)
 
     def get_liste_branches(self, filter_branch_types=None):
+        """
+        :param filter_branch_types: liste des types de branches
+        :type filter_branch_types: [int]
+        :return: liste des branches
+        :rtype: [Branche]
+        """
         branches = []
         for _, branche in self.branches.items():
             if filter_branch_types is not None:
@@ -217,6 +285,12 @@ class SousModele(FichierXML):
         return branches
 
     def get_liste_lois_frottement(self, ignore_sto=False):
+        """
+        :param ignore_sto: True pour ignorer les lois de type `FkSto`
+        :type ignore_sto: bool, optional
+        :return: liste des lois de frottement
+        :rtype: [LoiFrottement]
+        """
         lois = []
         for _, loi in self.lois_frottement.items():
             if not ignore_sto or loi.type != 'FkSto':
@@ -225,7 +299,7 @@ class SousModele(FichierXML):
 
     def _read_dfrt(self):
         """
-        Read dfrt.xml file
+        Lire le fichier dfrt.xml
         """
         root = self._get_xml_root_and_set_comment('dfrt')
         for loi in root.find(PREFIX + 'LoiFFs'):
@@ -236,7 +310,7 @@ class SousModele(FichierXML):
 
     def _read_drso(self, filter_branch_types=None):
         """
-        Read drso.xml file
+        Lire le fichier drso.xml
         """
         root = self._get_xml_root_and_set_comment('drso')
         for emh_group in root:
@@ -358,7 +432,7 @@ class SousModele(FichierXML):
 
     def _read_dptg(self):
         """
-        Read dptg.xml file
+        Lire le fichier dptg.xml
         """
         root = self._get_xml_root_and_set_comment('dptg')
         for emh_group in root:
@@ -415,6 +489,9 @@ class SousModele(FichierXML):
                     self.get_branche(nom_branche).CoefSinuo = float(emh.find(PREFIX + 'CoefSinuo').text)
 
     def _read_dcsp(self):
+        """
+        Lire le fichier dcsp.xml
+        """
         root = self._get_xml_root_and_set_comment('dcsp')
         for emh_group in root:
 
@@ -476,10 +553,10 @@ class SousModele(FichierXML):
                         branche.CoefRuisQdm = float(emh.find(PREFIX + 'CoefRuisQdm').text)
 
                     else:
-                        raise NotImplementedError
+                        raise ExceptionCrue10("Données de branche non supportées")
 
     def _read_shp_noeuds(self):
-        """Read geometry of all `Noeuds` from current sous_modele (they are compulsory)"""
+        """Read geometry of all `Noeuds` from current sous-modèle (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['noeuds'], 'r') as src:
             for obj in src:
@@ -493,7 +570,7 @@ class SousModele(FichierXML):
                 raise ExceptionCrue10GeometryNotFound(noeud)
 
     def _read_shp_branches(self):
-        """Read geometry of all `Branches` from current sous_modele (they are compulsory)"""
+        """Read geometry of all `Branches` from current sous-modèle (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['branches'], 'r') as src:
             for obj in src:
@@ -508,7 +585,7 @@ class SousModele(FichierXML):
 
     def _read_shp_traces_sections(self):
         """
-        Read geometry of all `SectionProfils` from current sous_modele
+        Read geometry of all `SectionProfils` from current sous-modèle
         Missing sections are computed orthogonally to the branch
         """
         geoms = {}
@@ -528,7 +605,7 @@ class SousModele(FichierXML):
                 logger.warn("La géométrie manquante de la section %s est reconstruite" % section.id)
 
     def _read_shp_casiers(self):
-        """Read geometry of all `Casiers` from current sous_modele (they are compulsory)"""
+        """Read geometry of all `Casiers` from current sous-modèle (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['casiers'], 'r') as src:
             for obj in src:
@@ -568,17 +645,27 @@ class SousModele(FichierXML):
         self.was_read = True
 
     def _write_dfrt(self, folder):
+        """
+        Ecrire le fichier dfrt.xml
+
+        :param folder: dossier de sortie
+        """
         self._write_xml_file(
             'dfrt', folder,
             loi_frottement_liste=[fl for _, fl in self.lois_frottement.items()],
         )
 
     def _write_drso(self, folder):
+        """
+        Ecrire le fichier drso.xml
+
+        :param folder: dossier de sortie
+        """
         self._write_xml_file(
             'drso', folder,
-            noeud_liste=[nd for _, nd in self.noeuds.items()],
-            casier_liste=[ca for _, ca in self.casiers.items()],
-            section_liste=[st for _, st in self.sections.items()],
+            noeud_liste=self.get_liste_noeuds(),
+            casier_liste=self.get_liste_casiers(),
+            section_liste=self.get_liste_sections(),
             isinstance=isinstance,
             SectionIdem=SectionIdem,
             SectionProfil=SectionProfil,
@@ -588,6 +675,11 @@ class SousModele(FichierXML):
         )
 
     def _write_dptg(self, folder):
+        """
+        Ecrire le fichier dptg.xml
+
+        :param folder: dossier de sortie
+        """
         self._write_xml_file(
             'dptg', folder,
             profil_casier_list=[pc for _, pc in self.profils_casier.items()],
@@ -597,6 +689,11 @@ class SousModele(FichierXML):
         )
 
     def _write_dcsp(self, folder):
+        """
+        Ecrire le fichier dcsp.xml
+
+        :param folder: dossier de sortie
+        """
         self._write_xml_file(
             'dcsp', folder,
             branche_list=self.get_liste_branches(),
@@ -670,6 +767,9 @@ class SousModele(FichierXML):
         """Écrire tous les fichiers du sous-modèle
 
         Les fichiers shp sont écrits dans un dossier si `folder_config` est renseigné
+
+        :param folder: dossier de sortie
+        :param folder_config:
         """
         logger.debug("Écriture du %s dans %s" % (self, folder))
 
@@ -694,6 +794,11 @@ class SousModele(FichierXML):
         self._write_dcsp(folder)
 
     def set_section(self, section):
+        """Ecraser la section fournie
+
+        :param section: nouvelle section
+        :type section: Section
+        """
         check_isinstance(section, Section)
         if section.id not in self.sections:
             raise ExceptionCrue10("La section %s n'existe pas" % section.id)
@@ -718,7 +823,12 @@ class SousModele(FichierXML):
 
     def get_connected_branche(self, nom_section):
         """
-        Returns the connected branche if found, else returns None
+        Retourne la branche associée si elle est trouvée sinon None
+
+        :param nom_section: nom de la section
+        :type nom_section: str
+        :return: branche associée
+        :rtype: Branche
         """
         for branche in self.get_liste_branches():
             if nom_section in [section.id for section in branche.liste_sections_dans_branche]:
@@ -727,7 +837,12 @@ class SousModele(FichierXML):
 
     def get_connected_branches_in(self, nom_noeud):
         """
-        Returns the list of the branches whose downstream node is the requested node
+        Retourne la liste des branches dont le noeud aval est le noeud demandé
+
+        :param nom_noeud: nom du noeud
+        :type nom_noeud: str
+        :return: branches associées
+        :rtype: [Branche]
         """
         branches = []
         for branche in self.get_liste_branches():
@@ -737,7 +852,12 @@ class SousModele(FichierXML):
 
     def get_connected_branches_out(self, nom_noeud):
         """
-        Returns the list of the branches whose upstream node is the requested node
+        Retourne la liste des branches dont le noeud amont est le noeud demandé
+
+        :param nom_noeud: nom du noeud
+        :type nom_noeud: str
+        :return: branches associées
+        :rtype: [Branche]
         """
         branches = []
         for branche in self.get_liste_branches():
@@ -747,15 +867,23 @@ class SousModele(FichierXML):
 
     def get_connected_branches(self, nom_noeud):
         """
-        Returns the list of the branches connected to requested node (direction is not considered)
+        Retourne la liste des branches dont le noeud (amont ou aval) est le noeud demandé
+
+        :param nom_noeud: nom du noeud
+        :type nom_noeud: str
+        :return: branches associées
+        :rtype: [Branche]
         """
         return self.get_connected_branches_in(nom_noeud) + self.get_connected_branches_out(nom_noeud)
 
     def get_connected_casier(self, noeud):
         """
-        Returns the connected casier if found, else returns None
+        Retourne le casier associé au noeud demandé
+
+        :param noeud: noeud à chercher
+        :type noeud: Noeud
         """
-        for _, casier in self.casiers.items():
+        for casier in self.get_liste_casiers():
             if casier.noeud_reference == noeud:
                 return casier
         return None
@@ -804,11 +932,13 @@ class SousModele(FichierXML):
 
     def supprimer_noeud_entre_deux_branches_fluviales(self, noeud):
         """
-        Supprime le noeud du sous-modèle en fusionnant les 2 branches consécutives qui l'entourent
-        Attention: comment, CoefSinuo, CoefBeta, CoefRuis, CoefRuisQdm de la branche aval sont ignorés
+        Supprimer le noeud du sous-modèle en fusionnant les 2 branches consécutives qui l'entourent
+        Attention: comment, CoefSinuo, CoefBeta, CoefRuis, CoefRuisQdm de la branche aval sont perdus
+
         :param noeud: noeud à supprimer
         :type noeud: Noeud
-        :return Branche: nouvelle branche fusionnée
+        :return: nouvelle branche fusionnée
+        :rtype: Branche
         """
         # Check that noeud is not connected to a Casier
         connected_casier = self.get_connected_casier(noeud)
@@ -860,8 +990,8 @@ class SousModele(FichierXML):
         """
         Replace all `SectionIdem` by a `SectionProfil` with an appropriate trace.
         If the SectionIdem is at a branch extremity, which is connected to its original SectionProfil,
-           the original SectionProfil is reused. Else the default behaviour is to build a trace which
-           is orthogonal to the hydraulic axis.
+        the original SectionProfil is reused. Else the default behaviour is to build a trace which
+        is orthogonal to the hydraulic axis.
         """
         for branche in self.get_liste_branches():
             branche.normalize_sections_xp()
@@ -892,11 +1022,19 @@ class SousModele(FichierXML):
                     branche.liste_sections_dans_branche[j] = new_section
 
     def normalize_geometry(self):
+        """Normaliser les géométries pour éviter les artefacts de Fudaa-Crue"""
         for branche in self.get_liste_branches():
             branche.shift_sectionprofil_to_extremity()
         self.convert_sectionidem_to_sectionprofil()
 
     def ajouter_emh_depuis_sous_modele(self, sous_modele, suffix=''):
+        """
+        Ajouter les EMHs d'un sous-modèle au sous-modèle courant
+
+        :param sous_modele: sous-modèle à importer
+        :param suffix: suffixe des EMHs
+        :type suffix: str, optional
+        """
         for _, loi_frottement in sous_modele.lois_frottement.items():
             loi_frottement.id = loi_frottement.id + suffix
             self.ajouter_loi_frottement(loi_frottement)
@@ -904,6 +1042,7 @@ class SousModele(FichierXML):
             if noeud.id not in self.noeuds:
                 self.ajouter_noeud(noeud)
         for section_type in [SectionProfil, SectionIdem, SectionSansGeometrie, SectionInterpolee]:
+            # SectionInterpolee should to be imported after SectionProfil to avoid exception
             for section in sous_modele.get_liste_sections(section_type):
                 self.ajouter_section(section)
         for branche in sous_modele.get_liste_branches():

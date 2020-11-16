@@ -11,18 +11,30 @@ class Noeud:
     """
     Noeud
 
-    - id <str>: node identifier
-    - geom <shapely.geometry.Point>: node position
-    - comment <str>: optional text explanation
+    :param id: nom du noeud
+    :type id: str
+    :param geom: position du noeud
+    :type geom: shapely.geometry.Point
+    :param comment: text optionnel
+    :type comment: str
     """
 
     def __init__(self, nom_noeud):
+        """
+        :param nom_noeud: nom du noeud
+        :type nom_noeud: str
+        """
         check_preffix(nom_noeud, 'Nd_')
         self.id = nom_noeud
         self.geom = None
         self.comment = ''
 
     def set_geom(self, geom):
+        """Affecter la géométrie du noeud
+
+        :param geom: point correspondant à la position du noeud
+        :type geom: shapely.geometry.Point
+        """
         check_isinstance(geom, Point)
         if geom.has_z:
             raise ExceptionCrue10("La géométrie du %s ne doit pas avoir de Z !" % self)

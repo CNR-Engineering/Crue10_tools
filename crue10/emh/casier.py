@@ -1,11 +1,10 @@
 # coding: utf-8
 """
-Classes for `Casier` in major bed (floodplain):
-- ProfilCasier
-- Casier
+Classes pour les caiser du champ majeur :
+    - ProfilCasier
+    - Casier
 
-Not supported yet:
-- TypeDPTGCasiers: SplanBati, ZBatiTotal (dptg.xml)
+TODO: Not supported yet: TypeDPTGCasiers: SplanBati, ZBatiTotal (dptg.xml)
 """
 import numpy as np
 from shapely.geometry import LinearRing
@@ -20,8 +19,11 @@ DX = 0.1
 def get_negative_area(x_array, y_array):
     """
     Integrate negative area (use composite trapezoidal rule with y_array < 0)
-    :param x_array: 1d-array with x values
-    :param y_array: 1d-array with y values
+
+    :param x_array: x values
+    :type x_array: 1d-array
+    :param y_array: y values
+    :yype y_array: 1d-array
     :return: float
     """
     negative_area = 0
@@ -44,13 +46,20 @@ def get_negative_area(x_array, y_array):
 class ProfilCasier:
     """
     ProfilCasier
-    - id <str>: profil casier identifier
-    - distance <float>: applied length (or width) in meters
-    - xz <2D-array>: ndarray(dtype=float, ndim=2)
+
+    :param id: profil casier identifier
+    :type id: str
+    :param distance: applied length (or width) in meters
+    :type distance: float
+    :param xz: ndarray(dtype=float, ndim=2)
         Array containing series of lateral abscissa and elevation (first axis should be strictly increasing)
-    - xt_min <float>: first curvilinear abscissa (for LitUtile)
-    - xt_max <float>: last curvilinear abscissa (for LitUtile)
-    - comment <str>: optional text explanation
+    :type xz: 2D-array
+    :param xt_min: first curvilinear abscissa (for LitUtile)
+    :type xt_min: float
+    :param xt_max: last curvilinear abscissa (for LitUtile)
+    :type xt_max: float
+    :param comment: optional text explanation
+    :type comment: str
     """
 
     DEFAULT_COORDS = np.array([(0, 0), (50, 0), (100, 0)])
@@ -97,13 +106,20 @@ class Casier:
     """
     Casier (ou zone de stockage, réservoir)
 
-    - id <str>: nom du casier
-    - is_active <bool>: True if its node is active
-    - geom <shapely.geometry.LinearRing>: polygon
-    - noeud_reference <Noeud>: related node
-    - profils_casier <[ProfilCaser]>: profils casier (usually only one)
-    - CoefRuis <float>: "coefficient modulation du débit linéique de ruissellement"
-    - comment <str>: optional text explanation
+    :param id: nom du casier
+    :type id: str
+    :param is_active: True if its node is active
+    :type is_active: bool
+    :param geom: polygon
+    :type geom: shapely.geometry.LinearRing
+    :param noeud_reference: related node
+    :type noeud_reference: Noeud
+    :param profils_casier: profils casier (usually only one)
+    :type profils_casier: [ProfilCaser]
+    :param CoefRuis: "coefficient modulation du débit linéique de ruissellement"
+    :type CoefRuis: float
+    :param comment: optional text explanation
+    :type comment: str
     """
 
     def __init__(self, nom_casier, noeud, is_active=True):
@@ -118,28 +134,54 @@ class Casier:
         self.comment = ''
 
     def set_geom(self, geom):
+        """Affecter la géométrie du casier
+
+        :param geom: polygone d'emprise du casier
+        :type geom: shapely.geometry.LinearRing
+        """
         check_isinstance(geom, LinearRing)
         if geom.has_z:
             raise ExceptionCrue10("La géométrie du %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
     def ajouter_profil_casier(self, profil_casier):
+        """Ajouter le profil casier
+
+        :param profil_casier: ProfilCasier
+        """
         check_isinstance(profil_casier, ProfilCasier)
         self.profils_casier.append(profil_casier)
 
     def somme_longueurs(self):
+        """
+        :return: Somme les longueurs des branches
+        """
         distance = 0
         for profil_casier in self.profils_casier:
             distance += profil_casier.longueur
         return distance
 
     def compute_volume(self, z):
+        """Calculer le volume
+
+        :param z: niveau d'eau
+        :type z: float
+        :return: volume
+        :rtype: float
+        """
         volume = 0
         for profil_casier in self.profils_casier:
             volume += profil_casier.compute_volume(z)
         return volume
 
     def compute_surface(self, z):
+        """Calculer la surface
+
+        :param z: niveau d'eau
+        :type z: float
+        :return: surface
+        :rtype: float
+        """
         return self.compute_volume(z) / self.somme_longueurs()
 
     def fusion_profil_casiers(self):
@@ -183,7 +225,7 @@ class Casier:
         errors = []
         if len(self.id) > 32:  # valid.nom.tooLong.short
             errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))
-        #TODO: Casier has at least one ProfilCasier
+        # TODO: Casier has at least one ProfilCasier
         return errors
 
     def __str__(self):

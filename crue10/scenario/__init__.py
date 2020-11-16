@@ -19,13 +19,20 @@ from .loi_hydraulique import LoiHydraulique
 
 class Scenario(FichierXML):
     """
-    Crue10 scenario
-    - id <str>: nom du scénario
-    - modele <[Modele]>: modèle
-    - calculs <[Calcul]>: liste des calculs
-    - lois_hydrauliques <OrderedDict(LoiHydraulique)>: dictionnaire des lois hydrauliques
-    - runs <OrderedDict(Runs)>: dictionnaire des runs
-    - current_run_id <str>: nom du scénario courant
+    Scénario Crue10
+
+    :param id: nom du scénario
+    :type id: str
+    :param modele: modèle
+    :type modele: Modele
+    :param calculs: liste des calculs
+    :type calculs: [Calcul]
+    :param lois_hydrauliques: dictionnaire des lois hydrauliques
+    :type lois_hydrauliques: OrderedDict(LoiHydraulique)
+    :param runs: dictionnaire des runs
+    :type runs: OrderedDict(Run)
+    :param current_run_id: nom du scénario courant
+    :type current_run_id: str
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
@@ -33,15 +40,15 @@ class Scenario(FichierXML):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, scenario_name, modele, access='r', files=None, metadata=None):
+    def __init__(self, nom_scenario, modele, access='r', files=None, metadata=None):
         """
-        :param scenario_name: scenario name
+        :param nom_scenario: scenario name
         :param modele: a Modele instance
         :param files: dict with xml path files
         :param metadata: dict containing metadata
         """
-        check_preffix(scenario_name, 'Sc_')
-        self.id = scenario_name
+        check_preffix(nom_scenario, 'Sc_')
+        self.id = nom_scenario
         super().__init__(access, files, metadata)
 
         self.calculs = []
@@ -175,7 +182,7 @@ class Scenario(FichierXML):
 
     def _read_dclm(self):
         """
-        Read dclm.xml file
+        Lire le fichier dclm.xml
         """
         root = self._get_xml_root_and_set_comment('dclm')
 
@@ -259,7 +266,7 @@ class Scenario(FichierXML):
 
     def _read_dlhy(self):
         """
-        Read dlhy.xml file
+        Lire le fichier dlhy.xml
         """
         root = self._get_xml_root_and_set_comment('dlhy')
 
@@ -376,6 +383,11 @@ class Scenario(FichierXML):
         return run
 
     def _write_dclm(self, folder):
+        """
+        Ecrire le fichier dclm.xml
+
+        :param folder: dossier de sortie
+        """
         self._write_xml_file(
             'dclm', folder,
             isinstance=isinstance,
@@ -385,6 +397,11 @@ class Scenario(FichierXML):
         )
 
     def _write_dlhy(self, folder):
+        """
+        Ecrire le fichier dlhy.xml
+
+        :param folder: dossier de sortie
+        """
         self._write_xml_file(
             'dlhy', folder,
             loi_hydraulique_liste=[loi for _, loi in self.lois_hydrauliques.items()],
@@ -412,7 +429,9 @@ class Scenario(FichierXML):
             self.modele.write_all(folder, folder_config)
 
     def normalize_for_10_2(self):
-        """Remove some variables if they are present in ores"""
+        """
+        Normaliser le scénario pour Crue v10.2 : supprime quelques variables si elles sont présentes dans le ores
+        """
         variables_to_remove = ['Cr', 'J', 'Jf', 'Kact_eq', 'Pact', 'Rhact', 'Tauact', 'Ustaract']
         tree = self.xml_trees['ores']
         elt_section = tree.find(PREFIX + 'OrdResSections').find(PREFIX + 'OrdResSection')

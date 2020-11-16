@@ -28,13 +28,3 @@ def float2str(value):
     # # Conventional rendering
     # text = format(value, '.15f')
     # return re.sub(r'\.([0-9])([0]+)$', r'.\1', text) # remove ending useless zeros
-
-
-def typeclim2str_calcpseudoperm(type_clim):
-    from crue10.scenario.calcul import CalcPseudoPerm
-    return CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE[type_clim]
-
-
-def typeclim2str_calctrans(type_clim):
-    from crue10.scenario.calcul import CalcTrans
-    return CalcTrans.CLIM_TYPE_TO_TAG_VALUE[type_clim]

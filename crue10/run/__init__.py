@@ -37,11 +37,17 @@ def get_run_identifier(datetime_obj=None):
 class Run:
     """
     Run
-    - id: run identifier corresponding to folder name
-    - run_path <str>: path to the folder of the run (exactly one folder before run_mo_path)
-    - run_mo_path <str>: path to the folder of the model (corresponds to the longest path)
-    - metadata <dict>: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    - traces <OrderedDict>: list of traces for each service
+
+    :param id: run identifier corresponding to folder name
+    :type id: str
+    :param run_path: path to the folder of the run (exactly one folder before run_mo_path)
+    :type run_path: str
+    :param run_mo_path: path to the folder of the model (corresponds to the longest path)
+    :type run_mo_path: str
+    :param metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
+    :type metadata: dict
+    :param traces: list of traces for each service
+    :type traces: OrderedDict
     """
 
     SERVICES = ['r', 'g', 'i', 'c']

@@ -1,14 +1,14 @@
 # coding: utf-8
 """
-Classes for cross-section with minor and major beds:
-- LoiFrottement
-- LitNumerote
-- LimiteGeom
-- Section
-    - SectionProfil
-    - SectionIdem
-    - SectionInterpolee
-    - SectionSansGeometrie
+Classes pour les sections :
+    - LoiFrottement
+    - LitNumerote
+    - LimiteGeom
+    - Section
+        - SectionProfil
+        - SectionIdem
+        - SectionInterpolee
+        - SectionSansGeometrie
 """
 import abc
 from builtins import super  # Python2 fix (requires module `future`)
@@ -28,20 +28,34 @@ DISTANCE_TOL = 0.01  # m
 
 
 def extrap(x, xp, yp):
-    """np.interp function with linear extrapolation"""
+    """Linear interpolation (equivalent to np.interp with extrapolation)
+
+    :param x: The x-coordinates at which to evaluate the interpolated values.
+    :type x: The x-coordinates at which to evaluate the interpolated values
+    :param xp: The x-coordinates of the data points, must be increasing
+    :type xp: 1d-array
+    :param yp: The y-coordinates of the data points, same length as xp
+    :type xp: 1d-array
+    :return: he interpolated values, same shape as x
+    """
     y = np.interp(x, xp, yp)
-    y = np.where(x<xp[0], yp[0]+(x-xp[0])*(yp[0]-yp[1])/(xp[0]-xp[1]), y)
-    y = np.where(x>xp[-1], yp[-1]+(x-xp[-1])*(yp[-1]-yp[-2])/(xp[-1]-xp[-2]), y)
+    y = np.where(x < xp[0], yp[0]+(x-xp[0])*(yp[0]-yp[1])/(xp[0]-xp[1]), y)
+    y = np.where(x > xp[-1], yp[-1]+(x-xp[-1])*(yp[-1]-yp[-2])/(xp[-1]-xp[-2]), y)
     return y
 
 
 class LoiFrottement:
     """
     Friction law (Strickler coefficient could vary with Z elevation)
-    - id <str>: friction law identifier
-    - type <str>: friction law type
-    - loi_Fk <2D-array>: ndarray(dtype=float, ndim=2) with Strickler coefficient varying with elevation
-    - comment <str>: optional text explanation
+
+    :param id: friction law identifier
+    :type id: str
+    :param type: friction law type
+    :type type: str
+    :param loi_Fk: ndarray(dtype=float, ndim=2) with Strickler coefficient varying with elevation
+    :type loi_Fk: 2D-array
+    :param comment: optional text explanation
+    :type comment: str
     """
 
     TYPES = ['FkSto', 'Fk']
@@ -85,10 +99,15 @@ DEFAULT_FK_MIN.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
 class LitNumerote:
     """
     Lit numéroté (= intervalle entre 2 limites de lit)
-    - id <str>: bed identifier (a key of `BED_NAMES`)
-    - xt_min <str>: first curvilinear abscissa
-    - xt_max <str>: first curvilinear abscissa
-    - loi_frottement <LoiFrottement>: friction law (take the associated default law if it is not given)
+
+    :param id: bed identifier (a key of `BED_NAMES`)
+    :type id: str
+    :param xt_min: first curvilinear abscissa
+    :type xt_min: str
+    :param xt_max: first curvilinear abscissa
+    :type xt_max: str
+    :param loi_frottement: friction law (take the associated default law if it is not given)
+    :type loi_frottement: LoiFrottement
     """
 
     BED_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
@@ -123,9 +142,12 @@ class LitNumerote:
 
 class LimiteGeom:
     """
-    Geometric limit
-    - id <str>: bed identifier
-    - xt <str>: curvilinear abscissa
+    Limite géométrique
+
+    :param id: nom de la limite
+    :type id: str
+    :param xt: abscisse curviligne
+    :type xt: float
     """
 
     AXE_HYDRAULIQUE = 'Et_AxeHyd'
@@ -142,16 +164,24 @@ class LimiteGeom:
 
 class Section(ABC):
     """
-    Abstract class for Sections
-    - id <str>: section identifier
-    - xp <float>: curvilinear abscissa of section on its associated branch
-    - is_active <bool>: True if the section is connected to an active branch => used to read rcal
-    - CoefPond <float>: "coefficient de pondération amont/aval de la discrétisation de la perte de charge régulière J
+    Méthode abstraite pour les sections
+
+    :param id: section identifier
+    :type id: str
+    :param xp: curvilinear abscissa of section on its associated branch
+    :type xp: float
+    :param is_active: True if the section is connected to an active branch => used to read rcal
+    :type is_active: bool
+    :param CoefPond: "coefficient de pondération amont/aval de la discrétisation de la perte de charge régulière J
         entre la section et sa suivante"
-    - CoefConv <float>: "coefficient de perte de charge ponctuelle en cas de convergence entre la section et sa
+    :type CoefPond: float
+    :param CoefConv: "coefficient de perte de charge ponctuelle en cas de convergence entre la section et sa
         suivante"
-    - CoefDiv <float>: "coefficient de perte de charge ponctuelle en cas de divergence entre la section et sa suivante"
-    - comment <str>: optional text explanation
+    :type CoefConv: float
+    :param CoefDiv: "coefficient de perte de charge ponctuelle en cas de divergence entre la section et sa suivante"
+    :type CoefDiv: float
+    :param comment: optional text explanation
+    :type comment: str
     """
 
     def __init__(self, nom_section):
@@ -176,16 +206,26 @@ class Section(ABC):
 class SectionProfil(Section):
     """
     SectionProfil
-    - nom_profilsection <str>: profil section identifier (should start with `Ps_`)
-    - comment_profilsection <str>: commentaire du ProfilSection
-    - xt_axe <float>: transversal position of hydraulic axis
-    - xz <2D-array>: ndarray(dtype=float, ndim=2)
+
+    :param nom_profilsection: profil section identifier (should start with `Ps_`)
+    :type nom_profilsection: str
+    :param comment_profilsection: commentaire du ProfilSection
+    :type comment_profilsection: str
+    :param xt_axe: transversal position of hydraulic axis
+    :type xt_axe: float
+    :param xz: ndarray(dtype=float, ndim=2)
         Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
-    - geom_trace <LineString>: polyline section trace (only between left and right bank)
-    - largeur_fente <float>: largeur de la fente
-    - profondeur_fente <float>: profondeur de la fente
-    - lits_numerotes <[LitNumerote]>: lits numérotés
-    - limites_geom <[LimiteGeom]>: limites géométriques (thalweg, axe hydraulique...)
+    :type xz: 2D-array
+    :param geom_trace: polyline section trace (only between left and right bank)
+    :type geom_trace: shapely.geometry.LineString
+    :param largeur_fente: largeur de la fente
+    :type largeur_fente: float
+    :param profondeur_fente: profondeur de la fente
+    :type profondeur_fente: float
+    :param lits_numerotes: lits numérotés
+    :type lits_numerotes: [LitNumerote]
+    :param limites_geom: limites géométriques (thalweg, axe hydraulique...)
+    :type limites_geom: [LimiteGeom]
     """
 
     def __init__(self, nom_section, nom_profilsection=None):
@@ -478,8 +518,11 @@ class SectionProfil(Section):
 class SectionIdem(Section):
     """
     SectionIdem
-    - section_reference <SectionProfil>: parent (= initial/reference) section
-    - dz_section_reference <float>: vertical shift (in meters)
+
+    :param section_reference: parent (= initial/reference) section
+    :type section_reference: SectionProfil
+    :param dz_section_reference: vertical shift (in meters)
+    :type dz_section_reference: float
     """
 
     def __init__(self, nom_section, parent_section, dz=0.0):

@@ -93,18 +93,28 @@ class CalcTrans:
 class RunResults:
     """
     Results data for a single Run
-    - rcal_root <ET..Element>: rcal XML element
-    - rcal_path <str>: path to rcal file
-    - rcal_folder <str>: folder path to rcal file
-    - self.emh_types <list>: list of "secondary" EMH types
-        for example: ['Noeud', 'Casier', 'Section', 'BrancheBarrageFilEau', 'BrancheOrifice', 'BrancheSaintVenant'...]
-    - emh <OrderedDict>: dictionary with secondary types as keys giving a list of EMH names
-    - variables <OrderedDict>: dictionary with secondary types as keys giving a list of variable identifiers
-    - calc_steady_dict <OrderedDict>: dictionary with steady calculations
-    - calc_unsteady_dict <OrderedDict>: dictionary with unsteady calculations
 
-    - _emh_type_first_branche <str>: first EMH secondary type for Branche (e.g. 'BrancheBarrageFilEau')
-    - _res_pattern <list>: list with a tuple (emh_type, shape)
+    :param rcal_root: rcal XML element
+    :type rcal_root: ET.etree._Element
+    :param rcal_path: path to rcal file
+    :type rcal_path: str
+    :param rcal_folder: folder path to rcal file
+    :type rcal_folder: str
+    :param emh_types: list of "secondary" EMH types
+        for example: ['Noeud', 'Casier', 'Section', 'BrancheBarrageFilEau', 'BrancheOrifice', 'BrancheSaintVenant'...]
+    :type emh_types: list
+    :param emh: dictionary with secondary types as keys giving a list of EMH names
+    :type emh: OrderedDict
+    :param variables: dictionary with secondary types as keys giving a list of variable identifiers
+    :type variables: OrderedDict
+    :param calc_steady_dict: dictionary with steady calculations
+    :type calc_steady_dict: OrderedDict
+    :param calc_unsteady_dict: dictionary with unsteady calculations
+    :type calc_unsteady_dict: OrderedDict
+    :param _emh_type_first_branche: first EMH secondary type for Branche (e.g. 'BrancheBarrageFilEau')
+    :type _emh_type_first_branche: str
+    :param _res_pattern: list with a tuple (emh_type, shape)
+    :type _res_pattern: list
     """
     EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche']
 
@@ -322,10 +332,14 @@ class RunResults:
     def get_res_unsteady_var_at_emhs(self, calc_name, varname, emh_list):
         """Get results from unsteady calculation, for every timesteps.
         
-        - calc_name: string Nom du calcul.
-        - varname: nom de la variable à extraire.
-        - emh_lis: liste des EMH concernés.
-        - returns: tableau des résultats avec un pas de temps par ligne.
+        :param calc_name: string Nom du calcul.
+    :type calc_name: str
+        :param varname: nom de la variable à extraire.
+    :type varname: str
+        :param emh_list: liste des EMH concernés.
+    :type emh_list: [str]
+        :return: tableau des résultats avec un pas de temps par ligne.
+        :rtype: 2D-array
         """
         calc = self.get_calc_unsteady(calc_name)
         values = np.empty((len(calc.frame_list), len(emh_list)))

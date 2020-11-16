@@ -21,8 +21,8 @@ def launch_scenario_modifications(function, modifications_liste, ncsize=NCSIZE):
 def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_PATH}, overwrite=True):
     """
     :param dossier: dossier contenant des sous-dossiers avec un ou plusieurs .etu.xml
-    :param scenarios_dict: dict avec le scénario à lancer (mettre None pour prendre le scénario par défaut
-    :param crue_exe_dict: dict avec les coeurs à lancer (identifiant et chemin vers crue10.exe)
+    :param scenarios_dict: dictionnaire avec le scénario à lancer (mettre None pour prendre le scénario par défaut
+    :param crue_exe_dict: dictionnaire avec les coeurs à lancer (identifiant et chemin vers crue10.exe)
     :param overwrite: overwrite run if already exists
     :returns pd.DataFrame
     """

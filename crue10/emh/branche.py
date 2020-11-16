@@ -1,7 +1,6 @@
 # coding: utf-8
 """
-Classes for branches (or river reaches) in minor and major beds:
-- Branche
+Classes des branches des lits mineur et majeur :
     - 1 = BranchePdc
     - BrancheAvecElementsSeuil
         - 2 = BrancheSeuilTransversal
@@ -45,15 +44,24 @@ DEFAULT_QLIMSUP = 1.0E30  # m3/s
 
 class Branche(ABC):
     """
-    Abstract class for `Branche`
-    - id <str>: branch identifier
-    - type <int>: branch type (a key from `Branche.TYPES`)
-    - is_active <bool>: True if the branch is active
-    - geom <LineString>: polyline branch trace
-    - noeud_amont <crue10.emh.noeud.Noeud>: upstream node
-    - noeud_aval <crue10.emh.noeud.Noeud>: downstream node
-    - liste_sections_dans_branche <[crue10.emh.section.Section]>: list of sections
-    - comment <str>: optional text explanation
+    Méthode abstraite pour les branches
+
+    :param id: nom de la branche
+    :type id: str
+    :param type: type de branche (une clé de `Branche.TYPES`)
+    :type type: int
+    :param is_active: True si la branche est active
+    :type is_active: bool
+    :param geom: trace de la polyligne de la branche
+    :type geom: LineString
+    :param noeud_amont: noeud amont
+    :type noeud_amont: crue10.emh.noeud.Noeud
+    :param noeud_aval: noeud aval
+    :type noeud_aval: crue10.emh.noeud.Noeud
+    :param liste_sections_dans_branche: liste des sections
+    :type liste_sections_dans_branche: [crue10.emh.section.Section]
+    :param comment: optional text explanation
+    :type comment: str, optional
     """
 
     TYPES = {
@@ -78,6 +86,16 @@ class Branche(ABC):
     TYPES_IN_MINOR_BED = [1, 2, 20]
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, branch_type, is_active=True):
+        """
+        :param nom_branche: nom de la branche
+        :type nom_branche: str
+        :param noeud_amont: noeud amont
+        :type noeud_amont: crue10.emh.noeud.Noeud
+        :param noeud_aval: noeud aval
+        :type noeud_aval: crue10.emh.noeud.Noeud
+        :param is_active: True si la branche est active
+        :type is_active: bool, optional
+        """
         check_preffix(nom_branche, 'Br_')
         check_isinstance(noeud_amont, Noeud)
         check_isinstance(noeud_aval, Noeud)
@@ -97,22 +115,37 @@ class Branche(ABC):
 
     @staticmethod
     def get_id_type_from_name(branch_type_name):
+        """
+        Retourne le numéro du type de branche à partir du nom du type
+
+        :param branch_type_name: nom du type de branche
+        :return: numéro de la branche
+        """
         for type_id, type_name in Branche.TYPES.items():
             if type_name == branch_type_name:
                 return type_id
         return None
 
     def get_section_amont(self):
-        """Retourne la section amont"""
+        """
+        :return: section amont
+        :rtype: crue10.emh.section.Section
+        """
         return self.liste_sections_dans_branche[0]
 
     def get_section_aval(self):
-        """Retourne la section aval"""
+        """
+        :return: section aval
+        :rtype: crue10.emh.section.Section
+        """
         return self.liste_sections_dans_branche[-1]
 
     @property
     def length(self):
-        """Longueur schématique affichée dans FC (peut différer de la longueur géométrique)"""
+        """
+        :return: Longueur schématique affichée dans FC (peut différer de la longueur géométrique)
+        :rtype: float
+        """
         if self.type in Branche.TYPES_WITH_LENGTH:
             return self.get_section_aval().xp
         else:
@@ -120,17 +153,24 @@ class Branche(ABC):
 
     @property
     def type_name(self):
+        """
+        :return: nom du type de branche
+        :rtype: str
+        """
         return Branche.TYPES[self.type]
 
     def has_geom(self):
-        """La branche contient des informations géométriques"""
+        """
+        :return: La branche contient des informations géométriques
+        :rtype: bool
+        """
         return self.type in Branche.TYPES_WITH_GEOM
 
     def ajouter_section_dans_branche(self, section, xp):
         """Ajouter une section à l'abscisse xp le long de la branche
 
         :param section: section à ajouter
-        :type section: Section
+        :type section: crue10.emh.section.Section
         :param xp: abscisse curviligne de la section
         :type xp: float
         """
@@ -148,10 +188,18 @@ class Branche(ABC):
         self.liste_sections_dans_branche.append(section)
 
     def supprimer_section_dans_branche(self, pos_section):
-        """Supprimer la section de la branche courante"""
+        """Supprimer la section de la branche courante
+
+        :param pos_section: index de la section (0-indexed)
+        """
         del self.liste_sections_dans_branche[pos_section]
 
     def set_geom(self, geom):
+        """Affecter la géométrie de la branche
+
+        :param geom: polyligne correspondant à la trace de la branche
+        :type geom: LineString
+        """
         check_isinstance(geom, LineString)
         if geom.has_z:
             raise ExceptionCrue10("La géométrie de la %s ne doit pas avoir de Z !" % self)
@@ -216,8 +264,10 @@ class BranchePdC(Branche):
     """
     BranchePdC - #1
 
-    - loi_QPdc
-    - comment_loi <str>: commentaire loi
+    :param loi_QPdc: loi QPdc
+    :type loi_QPdc: 2D-array
+    :param comment_loi: commentaire loi
+    :type comment_loi: str
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
@@ -234,8 +284,10 @@ class BrancheAvecElementsSeuil(Branche):
     """
     Branche avec des éléments de seuil
 
-    - formule_pertes_de_charge <str>: 'Borda' or 'Divergent'
-    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 4 columns: Largeur, Zseuil, CoefD, CoefPdc)
+    :param formule_pertes_de_charge: 'Borda' or 'Divergent'
+    :type formule_pertes_de_charge: str
+    :param liste_elements_seuil: ndarray(dtype=float, ndim=2 with 4 columns: Largeur, Zseuil, CoefD, CoefPdc)
+    :type liste_elements_seuil: 2D-array
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, type, is_active=True):
@@ -246,7 +298,8 @@ class BrancheAvecElementsSeuil(Branche):
 
     def set_liste_elements_seuil(self, elements_seuil):
         """
-        :param elements_seuil: 2D array with 4 values for axis=1 (Largeur, Zseuil, CoefD, CoefPdc)
+        :param elements_seuil: array avec 4 valeurs pour l'axe n°1 (Largeur, Zseuil, CoefD, CoefPdc)
+        :type elements_seuil: 2D-array
         """
         if elements_seuil.shape[0] < 1:
             raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
@@ -289,12 +342,18 @@ class BrancheOrifice(Branche):
     """
     BrancheOrifice - #5
 
-    - CoefCtrLim <float>: "Coefficient maximum de contraction de la veine submergée"
-    - Largeur <float>: "Largeur"
-    - Zseuil <float>: "Cote du radier du clapet"
-    - CoefD <float>: "Coefficient de débitance"
-    - Haut <float>: "Hauteur du clapet à pleine ouverture"
-    - SensOrifice <str>: "Sens de l'écoulement"
+    :param CoefCtrLim: "Coefficient maximum de contraction de la veine submergée"
+    :type CoefCtrLim: float
+    :param Largeur: "Largeur"
+    :type Largeur: float
+    :param Zseuil: "Cote du radier du clapet"
+    :type Zseuil: float
+    :param CoefD: "Coefficient de débitance"
+    :type CoefD: float
+    :param Haut: "Hauteur du clapet à pleine ouverture"
+    :type Haut: float
+    :param SensOrifice: "Sens de l'écoulement"
+    :type SensOrifice: str
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
@@ -320,11 +379,16 @@ class BrancheNiveauxAssocies(Branche):
     """
     BrancheNiveauxAssocies - #12
 
-    - comment <str>: commentaire
-    - QLimInf <float>: "Débit  minimum admis dans la branche"
-    - QLimSup <float>: "Débit maximum admis dans la branche"
-    - loi_ZavZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
-    - comment_loi <str>: commentaire loi
+    :param comment: commentaire
+    :type comment: str
+    :param QLimInf: "Débit  minimum admis dans la branche"
+    :type QLimInf: float
+    :param QLimSup: "Débit maximum admis dans la branche"
+    :type QLimSup: float
+    :param loi_ZavZam: ndarray(dtype=float, ndim=2 with 2 columns)
+    :type loi_ZavZam: 2D-array
+    :param comment_loi: commentaire loi
+    :type comment_loi: str
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
@@ -343,13 +407,20 @@ class BrancheBarrageGenerique(Branche):
     """
     BrancheBarrageGenerique - #14
 
-    - section_pilote <crue10.emh.section.Section>: section de pilotage
-    - QLimInf: "Débit  minimum admis dans la branche"
-    - QLimSup: "Débit maximum admis dans la branche"
-    - loi_QDz <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
-    - loi_QpilZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
-    - comment_denoye <str>: commentaire loi dénoyée
-    - comment_noye <str>: commentaire loi noyée
+    :param section_pilote: section de pilotage
+    :type section_pilote: crue10.emh.section.Section
+    :param QLimInf: "Débit  minimum admis dans la branche"
+    :type QLimInf: float
+    :param QLimSup: "Débit maximum admis dans la branche"
+    :type QLimSup: float
+    :param loi_QDz: ndarray(dtype=float, ndim=2 with 2 columns)
+    :type loi_QDz: 2D-array
+    :param loi_QpilZam: ndarray(dtype=float, ndim=2 with 2 columns)
+    :type loi_QpilZam: 2D-array
+    :param comment_denoye: commentaire loi dénoyée
+    :type comment_denoye: str
+    :param comment_noye: commentaire loi noyée
+    :type comment_noye: str
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
@@ -381,12 +452,18 @@ class BrancheBarrageFilEau(Branche):
     """
     BrancheBarrageFilEau - #15
 
-    - section_pilote <crue10.emh.section.Section>: section de pilotage
-    - QLimInf: "Débit  minimum admis dans la branche"
-    - QLimSup: "Débit maximum admis dans la branche"
-    - loi_QZam <2D-array>: ndarray(dtype=float, ndim=2 with 2 columns)
-    - liste_elements_seuil <2D-array>: ndarray(dtype=float, ndim=2 with 3 columns: Largeur, Zseuil, CoefD)
-    - comment_denoye <str>: commentaire loi dénoyée
+    :param section_pilote: section de pilotage
+    :type section_pilote: crue10.emh.section.Section
+    :param QLimInf: "Débit  minimum admis dans la branche"
+    :type QLimInf: float
+    :param QLimSup: "Débit maximum admis dans la branche"
+    :type QLimSup: float
+    :param loi_QZam: ndarray(dtype=float, ndim=2 with 2 columns)
+    :type loi_QZam: 2D-array
+    :param liste_elements_seuil: ndarray(dtype=float, ndim=2 with 3 columns: Largeur, Zseuil, CoefD)
+    :type liste_elements_seuil: 2D-array
+    :param comment_denoye: commentaire loi dénoyée
+    :type comment_denoye: str
     """
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 15, is_active)
@@ -402,6 +479,11 @@ class BrancheBarrageFilEau(Branche):
         return 'LoiQpilZam_%s' % self.id[3:]
 
     def set_loi_QZam(self, loi_QZam):
+        """Affecte la loi QZam
+
+        :param loi_QZam: loi QZam
+        :type loi_QZam: 2D-array
+        """
         if loi_QZam.shape[0] < 1:
             raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
         if loi_QZam.shape[1] != 2:
@@ -421,12 +503,16 @@ class BrancheSaintVenant(Branche):
     """
     BrancheSaintVenant - #20
 
-    - CoefSinuo <float>: "coefficient de sinuosité de la branche, rapport des longueurs des axes hydrauliques
+    :param CoefSinuo: "coefficient de sinuosité de la branche, rapport des longueurs des axes hydrauliques
          du lit mineur et du lit majeur"
-    - CoefBeta <float>: "coefficient de modulation global à la branche du coefficient de Boussinesq,
+    :type CoefSinuo: float
+    :param CoefBeta: "coefficient de modulation global à la branche du coefficient de Boussinesq,
          afin de tenir compte de la forme du profil des vitesses sur le calcul de la QdM de l'écoulement"
-    - CoefRuis <float>: "coefficient modulation du débit linéique de ruissellement"
-    - CoefRuisQdm <float>: "coefficient de prise en compte du débit de ruissellement dans la QdM de l'écoulement"
+    :type CoefBeta: float
+    :param CoefRuis: "coefficient modulation du débit linéique de ruissellement"
+    :type CoefRuis: float
+    :param CoefRuisQdm: "coefficient de prise en compte du débit de ruissellement dans la QdM de l'écoulement"
+    :type CoefRuisQdm: float
     """
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
