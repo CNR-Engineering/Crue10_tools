@@ -24,7 +24,7 @@ XSD_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'xsd')
 
 try:
     USERNAME = os.getlogin()
-except AttributeError:
+except:
     try:
         USERNAME = os.environ['USERNAME']
     except:
