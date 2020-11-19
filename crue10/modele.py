@@ -15,8 +15,6 @@ from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_se
     ExceptionCrue10, logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
-from mascaret.mascaret_file import Reach, Section
-from mascaret.mascaretgeo_file import MascaretGeoFile
 
 
 class Modele(FichierXML):
@@ -667,6 +665,9 @@ class Modele(FichierXML):
         Submodels branches should only contain SectionProfil
         (call to method `convert_sectionidem_to_sectionprofil` is highly recommanded)
         """
+        from mascaret.mascaret_file import Reach, Section
+        from mascaret.mascaretgeo_file import MascaretGeoFile
+
         geofile = MascaretGeoFile(geo_path, access='w')
         i_section = 0
         for sous_modele in self.liste_sous_modeles:
