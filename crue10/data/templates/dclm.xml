@@ -5,7 +5,7 @@
   {%- if isinstance(calcul, CalcPseudoPerm) %}
   <CalcPseudoPerm Nom="{{ calcul.id }}">
     <Commentaire>{{ calcul.comment }}</Commentaire>
-    {%- for nom_emh, clim_tag, is_active, value, sens, typ_loi, nom_fic in calcul.values %}
+    {%- for nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic in calcul.values %}
     <{{ clim_tag }} NomRef="{{ nom_emh }}">
       <IsActive>{% if is_active %}true{% else %}false{% endif %}</IsActive>
       {%- if sens is not none %}
@@ -18,14 +18,14 @@
   {%- elif isinstance(calcul, CalcTrans) %}
   <CalcTrans Nom="{{ calcul.id }}">
     <Commentaire>{{ calcul.comment }}</Commentaire>
-    {%- for nom_emh, clim_tag, is_active, value, sens, typ_loi, nom_fic in calcul.values %}
+    {%- for nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic in calcul.values %}
     <{{ clim_tag }} NomRef="{{ nom_emh }}">
       <IsActive>{% if is_active %}true{% else %}false{% endif %}</IsActive>
       {%- if sens is not none %}
       <SensOuv>{{ sens }}</SensOuv>
       {%- endif %}
       {%- if value is not none %}
-      <{{ typ_loi }} NomRef="{{ value }}"{% if nom_fic is not none %} NomFic="{{ nom_fic }}"{% endif %}/>
+      <{{ typ_loi }} NomRef="{{ value }}"{% if nom_fic is not none %} NomFic="{{ nom_fic }}"{% endif %}{% if param_loi is not none %} Param="{{ param_loi }}"{% endif %}/>
       {%- endif %}
     </{{ clim_tag }}>
     {%- endfor %}

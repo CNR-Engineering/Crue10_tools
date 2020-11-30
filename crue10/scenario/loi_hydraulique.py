@@ -7,7 +7,7 @@ from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10
 class LoiHydraulique:
     """Loi DF: loi avec temps horodaté"""
 
-    TYPES = ['LoiTQapp', 'LoiTZimp', 'LoiQZimp', 'LoiTOuv', 'LoiTQruis', 'LoiQQ']
+    TYPES = ['LoiTQapp', 'LoiTZimp', 'LoiQZimp', 'LoiTOuv', 'LoiTQruis', 'LoiQQ', 'LoiQOuv']
 
     def __init__(self, nom_loi, type, comment=''):
         check_preffix(nom_loi, 'Loi')

@@ -228,7 +228,7 @@ class Scenario(FichierXML):
                             clim_type not in CalcTrans.CLIM_TYPE_SPECIAL_VALUE:
                         raise ExceptionCrue10("Type de Clim inconnu: %s" % clim_type)
 
-                    if clim_type == 'CalcTransBrancheOrificeManoeuvre':
+                    if clim_type == 'CalcTransBrancheOrificeManoeuvre' or clim_type == 'CalcTransBrancheOrificeManoeuvreRegul':
                         sens = elt_valeur.find(PREFIX + 'SensOuv').text
                     else:
                         sens = None
@@ -237,6 +237,7 @@ class Scenario(FichierXML):
                     nom_loi = None
                     typ_loi = None
                     nom_fic = None
+                    param_loi = None
                     if clim_type in CalcTrans.CLIM_TYPE_TO_TAG_VALUE:
                         typ_loi = CalcTrans.CLIM_TYPE_TO_TAG_VALUE[clim_type]
                         value_elt = elt_valeur.find(PREFIX + typ_loi)
@@ -245,12 +246,10 @@ class Scenario(FichierXML):
                     if value_elt is None and clim_type in CalcTrans.CLIM_TYPE_SPECIAL_VALUE:
                         typ_loi = CalcTrans.CLIM_TYPE_SPECIAL_VALUE[clim_type]
                         value_elt = elt_valeur.find(PREFIX + typ_loi)
-                        if value_elt is None:
-                            # CLimM régulation
-                            nom_loi = None
-                        else:
-                            # CLimM externe
+                        if value_elt is not None:
+                            # CLimM externe ou CLimM manoeuvre
                             nom_loi = value_elt.get('NomRef')
+                            param_loi = value_elt.get('Param')
                             nom_fic = value_elt.get('NomFic')
                     calc_trans.ajouter_valeur(
                         elt_valeur.get('NomRef'),
@@ -259,6 +258,7 @@ class Scenario(FichierXML):
                         nom_loi,
                         sens,
                         typ_loi,
+                        param_loi,
                         nom_fic
                     )
 
