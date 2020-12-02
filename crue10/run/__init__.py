@@ -4,8 +4,10 @@ from datetime import datetime
 from glob import glob
 from io import open
 import os.path
+import subprocess
 
 from crue10.run.results import RunResults
+from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 from crue10.run.trace import Trace
 from crue10.utils import add_default_missing_metadata, ExceptionCrue10, logger
 from crue10.utils.crueconfigmetier import ENUM_SEVERITE
@@ -57,11 +59,17 @@ class Run:
         'i': 'pré-traitements conditions initiales',
         'c': 'calcul',
     }
-    FILES_CSV = ['cptr', 'cptg', 'cpti', 'ccal']
+    FILES_CSV = {
+        'r': 'cptr',
+        'g': 'cptg',
+        'i': 'cpti',
+        'c': 'ccal',
+    }
     FILES_XML = ['rptr', 'rptg', 'rpti', 'rcal']
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
-    def __init__(self, run_mo_path, metadata=None):
+    def __init__(self, etude_basename, run_mo_path, metadata=None):
+        self.etude_basename = etude_basename
         self.run_path = os.path.normpath(os.path.join(run_mo_path, '..'))
         self.id = os.path.basename(self.run_path)
         self.run_mo_path = run_mo_path
@@ -69,7 +77,51 @@ class Run:
         self.metadata = add_default_missing_metadata(self.metadata, Run.METADATA_FIELDS)
         self.traces = OrderedDict([(service, []) for service in Run.SERVICES])
 
-    def read_traces(self):
+    def _check_service(self, service):
+        if service not in Run.SERVICES:
+            raise ExceptionCrue10("Le service `%s` est inconnu" % service)
+
+    def _check_services(self, services):
+        for service in services:
+            self._check_service(service)
+
+    def launch_services(self, services, exe_path=CRUE10_EXE_PATH):
+        """
+        Exécuter un Run avec plusieurs services
+
+        Attention:
+            - aucune vérification de la pertinence des services (en fonction de ceux déjà lancés)
+            - les fichiers de sortie de crue10.exe sont écrasés s'ils existent déjà
+
+        :param services: liste des services
+        :type services: list(str)
+        :param exe_path: chemin vers l'exécutable crue10.exe
+        :type exe_path: str
+        :return: run lancé
+        :rtype: Run
+        """
+        self._check_services(services)
+
+        exe_opts = ['-' + service for service in services]
+        if not os.path.exists(exe_path) and exe_path.endswith('.exe'):
+            raise ExceptionCrue10("Le chemin vers l'exécutable n'existe pas : `%s`" % exe_path)
+
+        run_folder = self.run_path
+
+        # Run crue10.exe in command line and redirect stdout and stderr in csv files
+        etu_path = os.path.join(run_folder, self.etude_basename)
+        cmd_list = [exe_path] + exe_opts + [etu_path]
+        logger.info("Éxécution : %s" % ' '.join(cmd_list))
+        with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
+            with open(os.path.join(run_folder, 'stderr.csv'), "w") as err_csv:
+                exit_code = subprocess.call(cmd_list, stdout=out_csv, stderr=err_csv)
+                # exit_code is always to 0 even in case of computation error...
+
+        self.read_traces(services)
+
+    def read_traces(self, services=SERVICES):
+        self._check_services(services)
+
         # Check stdout.csv (only compulsory output file)
         csv_path = os.path.join(self.run_path, 'stdout.csv')
         with open(csv_path, 'r') as in_csv:
@@ -81,8 +133,9 @@ class Run:
                     if trace.is_erreur():
                         raise ExceptionCrue10("Une erreur critique dans stdout.csv:\n%s" % trace)
 
-        # Read traces of each 4 services
-        for service, csv_type in zip(Run.SERVICES, Run.FILES_CSV):
+        # Read traces of each services
+        for service in services:
+            csv_type = Run.FILES_CSV[service]
             try:
                 csv_path = get_path_file_unique_matching(self.run_mo_path, '*.' + csv_type + '.csv')
             except IOError as e:
@@ -93,10 +146,9 @@ class Run:
                     self.traces[service].append(Trace(row.replace('\n', '')))
 
     def get_service_traces(self, service, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
+        self._check_service(service)
         gravite_min_int = ENUM_SEVERITE[gravite_min]
         gravite_max_int = ENUM_SEVERITE[gravite_max]
-        if service not in Run.SERVICES:
-            raise ExceptionCrue10("Le service `%s` n'est pas reconnu" % service)
         return [str(trace) for trace in self.traces[service]
                 if gravite_min_int >= trace.gravite_int >= gravite_max_int]
 
@@ -126,9 +178,10 @@ class Run:
         return nb
 
     def get_all_traces(self, services=SERVICES, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
+        self._check_services(services)
         text = ''
         for service in services:
-            text = '~> Traces du service "%s"\n' % Run.SERVICES_NAMES[service]
+            text += '~> Traces du service "%s"\n' % Run.SERVICES_NAMES[service]
             text += '\n'.join(self.get_service_traces(service, gravite_min=gravite_min, gravite_max=gravite_max))
             text += '\n'
         return text
@@ -137,6 +190,7 @@ class Run:
         return self.get_all_traces(services, gravite_min=GRAVITE_AVERTISSEMENT, gravite_max=gravite_max)
 
     def get_service_time(self, service):
+        self._check_service(service)
         if service not in Run.SERVICES:
             raise ExceptionCrue10("Le service `%s` n'est pas reconnu" % service)
         for trace in self.traces[service]:

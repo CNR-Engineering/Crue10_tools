@@ -4,7 +4,6 @@ from collections import OrderedDict
 from copy import deepcopy
 import os.path
 import shutil
-import subprocess
 import time
 
 from crue10.base import FichierXML
@@ -12,7 +11,7 @@ from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, get_optional_commentaire, \
     logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree
-from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
+from crue10.utils.settings import CRUE10_EXE_PATH
 from .calcul import Calcul, CalcPseudoPerm, CalcTrans
 from .loi_hydraulique import LoiHydraulique
 
@@ -305,30 +304,33 @@ class Scenario(FichierXML):
         if sleep > 0.0:  # Avoid potential conflict if folder is rewritten directly afterwards
             time.sleep(sleep)
 
-    def create_and_launch_new_run(self, etude, run_id=None, exe_path=None, comment='', force=False):
+    def create_new_run(self, etude, run_id=None, comment='', force=False):
         """
-        Create and launch a new run
-             The instance of `etude` is modified but the original etu file not overwritten
-             (If necessary, it should be done after calling this method)
+        Créer un nouveau dossier de Run
+             L'instance de `etude` est modifiée mais le fichier etu.xml n'est pas mis à jour
+             (Si nécessaire, cela doit être fait après en appelant la méthode spécifique)
 
         1) Création d'un nouveau run (sans enregistrer la mise à jour du fichier etu.xml en entrée)
         2) Ecriture des fichiers XML dans un nouveau dossier du run
-        3) Lancement de crue10.exe en ligne de commande
 
         Même comportement que Fudaa-Crue :
+
         - Dans le fichier etu.xml:
             - on conserve la liste des Runs précédents (sans copier les fichiers)
             - on conserve les Sm/Mo/Sc qui sont hors du Sc courant
         - Seuls les XML du scénario courant sont écrits dans le dossier du run
         - Les XML du modèle associés sont écrits dans un sous-dossier
         - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
+
+        :param etude: étude courante
+        :param run_id: nom du Run (si vide alors son nom correspondra à l'horodatage)
+        :param comment: commentaire du Run
+        :param force: écraser le Run s'il existe déjà
+        :return: run non lancé
+        :rtype: Run
         """
         if not self.was_read:
             raise ExceptionCrue10("L'appel à read_all doit être fait pour %s" % self)
-        if exe_path is None:
-            exe_path = CRUE10_EXE_PATH
-        if not os.path.exists(exe_path) and exe_path.endswith('.exe'):
-            raise ExceptionCrue10("Le chemin vers l'exécutable n'existe pas : `%s`" % exe_path)
 
         # Create a Run instance
         if run_id is None:
@@ -336,7 +338,8 @@ class Scenario(FichierXML):
         if len(run_id) > 32:
             raise ExceptionCrue10("Le nom du Run dépasse 32 caractères: `%s`" % run_id)
         run_folder = os.path.join(etude.folder, etude.folders['RUNS'], self.id, run_id)
-        run = Run(os.path.join(run_folder, self.modele.id), metadata={'Commentaire': comment})
+        run = Run(os.path.basename(etude.etu_path), os.path.join(run_folder, self.modele.id),
+                  metadata={'Commentaire': comment})
 
         if not force:
             if os.path.exists(run_folder):
@@ -371,15 +374,13 @@ class Scenario(FichierXML):
         #     out.write(folder_to_write + '\n')
         #     out.write(folder_to_write + '\n')
 
-        # Run crue10.exe in command line and redirect stdout and stderr in csv files
-        etu_path = os.path.join(run_folder, os.path.basename(etude.etu_path))
-        cmd_list = [exe_path] + CRUE10_EXE_OPTS + [etu_path]
-        logger.info("Éxécution : %s" % ' '.join(cmd_list))
-        with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
-            with open(os.path.join(run_folder, 'stderr.csv'), "w") as err_csv:
-                exit_code = subprocess.call(cmd_list, stdout=out_csv, stderr=err_csv)
-                # exit_code is always to 0 even in case of computation error
-        run.read_traces()
+        return run
+
+    def create_and_launch_new_run(self, etude, run_id=None, exe_path=CRUE10_EXE_PATH, comment='', force=False):
+        """
+        """
+        run = self.create_new_run(etude, run_id=run_id, comment=comment, force=force)
+        run.launch_services(Run.SERVICES, exe_path=exe_path)
         return run
 
     def _write_dclm(self, folder):

@@ -235,7 +235,7 @@ class Etude(FichierXML):
                         metadata = read_metadata(run_elt, Run.METADATA_FIELDS)
                         run_mo_path = os.path.join(self.folder, self.folders['RUNS'], scenario.id,
                                                      run_id, scenario.modele.id)
-                        scenario.add_run(Run(run_mo_path, metadata=metadata))
+                        scenario.add_run(Run(os.path.basename(self.etu_path), run_mo_path, metadata=metadata))
 
                 elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')
                 if elt_current_run is not None:
