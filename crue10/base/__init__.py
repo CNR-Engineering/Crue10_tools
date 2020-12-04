@@ -1,3 +1,4 @@
+# coding: utf-8
 import abc
 from io import open  # Python2 fix
 from lxml import etree
