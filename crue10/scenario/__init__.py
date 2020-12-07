@@ -60,13 +60,13 @@ class Scenario(FichierXML):
         self.current_run_id = None
         self.runs = OrderedDict()
 
-    def _get_ocal_OrCalcTrans(self, calc_name):
+    def _get_ocal_OrdCalcTrans(self, calc_name):
         elt = self.xml_trees['ocal'].find(PREFIX + 'OrdCalcTrans[@NomRef="%s"]' % calc_name)
         if elt is None:
             raise ExceptionCrue10("Le calcul transitoire `%s` n'est pas trouvé" % calc_name)
         return elt
 
-    def get_ocal_OrCalcTrans_DureeCalc(self, calc_name):
+    def get_ocal_OrdCalcTrans_DureeCalc(self, calc_name):
         """
         Obtenir la durée du calcul transitoire demandé
 
@@ -75,9 +75,9 @@ class Scenario(FichierXML):
         :return: durée du calcul (en secondes)
         :rtype: float
         """
-        return duration_iso8601_to_seconds(self._get_ocal_OrCalcTrans(calc_name).find(PREFIX + 'DureeCalc').text)
+        return duration_iso8601_to_seconds(self._get_ocal_OrdCalcTrans(calc_name).find(PREFIX + 'DureeCalc').text)
 
-    def get_ocal_OrCalcTrans_PdtCst(self, calc_name):
+    def get_ocal_OrdCalcTrans_PdtCst(self, calc_name):
         """
         Obtenir le pas de temps de sortie du calcul transitoire demandé
 
@@ -86,7 +86,7 @@ class Scenario(FichierXML):
         :return: pas de temps (en secondes)
         :rtype: float
         """
-        return duration_iso8601_to_seconds(self._get_ocal_OrCalcTrans(calc_name).
+        return duration_iso8601_to_seconds(self._get_ocal_OrdCalcTrans(calc_name).
                                            find(PREFIX + 'PdtRes').find(PREFIX + 'PdtCst').text)
 
     def get_function_apply_modifications(self, etude):
@@ -173,7 +173,7 @@ class Scenario(FichierXML):
             raise ExceptionCrue10("Le Run '%s' n'existe pas" % run_id)
         self.current_run_id = run_id
 
-    def set_ocal_OrCalcTrans_DureeCalc(self, calc_name, value):
+    def set_ocal_OrdCalcTrans_DureeCalc(self, calc_name, value):
         """
         Affecter la durée fournie pour le calcul transitoire demandé
 
@@ -183,10 +183,10 @@ class Scenario(FichierXML):
         :type value: float
         """
         check_isinstance(value, float)
-        elt = self._get_ocal_OrCalcTrans(calc_name).find(PREFIX + 'DureeCalc')
+        elt = self._get_ocal_OrdCalcTrans(calc_name).find(PREFIX + 'DureeCalc')
         elt.text = duration_seconds_to_iso8601(value)
 
-    def set_ocal_OrCalcTrans_PdtCst(self, calc_name, value):
+    def set_ocal_OrdCalcTrans_PdtCst(self, calc_name, value):
         """
         Affecter le pas de temps de sortie fourni pour le calcul transitoire demandé
 
@@ -196,7 +196,7 @@ class Scenario(FichierXML):
         :type value: float
         """
         check_isinstance(value, float)
-        elt = self._get_ocal_OrCalcTrans(calc_name).find(PREFIX + 'PdtRes').find(PREFIX + 'PdtCst')
+        elt = self._get_ocal_OrdCalcTrans(calc_name).find(PREFIX + 'PdtRes').find(PREFIX + 'PdtCst')
         elt.text = duration_seconds_to_iso8601(value)
 
     def apply_modifications(self, modifications):
