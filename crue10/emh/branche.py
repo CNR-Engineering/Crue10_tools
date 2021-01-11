@@ -14,6 +14,7 @@ Classes des branches des lits mineur et majeur :
 """
 import abc
 from builtins import super  # python2 compatibility, requires module `future`
+from math import ceil
 import numpy as np
 from shapely.affinity import translate
 from shapely.geometry import LineString, Point
@@ -318,6 +319,25 @@ class BrancheAvecElementsSeuil(Branche):
         nb_elem = elements_seuil.shape[0]
         new_array = np.column_stack((elements_seuil, np.ones(nb_elem) * COEFF_D, np.ones(nb_elem) * COEFF_PDC))
         self.set_liste_elements_seuil(new_array)
+
+    def decouper_seuil_elem(self, largeur, delta_z):
+        """
+        Découper les éléments de seuil trop longs
+        :param largeur: largeur maximale des éléments de seuil
+        :type largeur: float
+        :param delta_z: page dans laquelle rediscrétiser les éléments de seuil
+        :type delta_z: float
+        """
+        new_elements_seuil = []
+        for larg, z_seuil, coeff_d, coeff_pdc in self.liste_elements_seuil:
+            if larg < largeur:
+                new_elements_seuil.append([larg, z_seuil, coeff_d, coeff_pdc])
+            else:
+                nb_decoupages = ceil(larg/largeur)
+                new_largeur = larg/nb_decoupages
+                for new_z_seuil in np.linspace(start=z_seuil - delta_z/2, stop=z_seuil + delta_z/2, num=nb_decoupages):
+                    new_elements_seuil.append([new_largeur, new_z_seuil, coeff_d, coeff_pdc])
+        self.set_liste_elements_seuil(np.array(new_elements_seuil))
 
 
 class BrancheSeuilTransversal(BrancheAvecElementsSeuil):

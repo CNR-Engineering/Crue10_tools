@@ -221,6 +221,16 @@ class Casier:
         else:
             logger.debug("Le %s n'est pas fusionné car il a moins de 2 ProfilCasiers" % self)
 
+    def get_min_z(self):
+        """
+        :return: niveau minimum des profils casiers synthétiques
+        :rtype: float
+        """
+        min_z = float('inf')
+        for profil_casier in self.profils_casier:
+            min_z = min(min_z, profil_casier.xz[:, 1].min())
+        return min_z
+
     def validate(self):
         errors = []
         if len(self.id) > 32:  # valid.nom.tooLong.short

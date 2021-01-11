@@ -489,7 +489,8 @@ class Scenario(FichierXML):
         """
         Normaliser le scénario pour Crue v10.2 : supprime quelques variables si elles sont présentes dans le ores
         """
-        variables_to_remove = ['Cr', 'J', 'Jf', 'Kact_eq', 'Pact', 'Rhact', 'Tauact', 'Ustaract']
+        variables_to_remove = ['Cr', 'J', 'Jf', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin',
+                               'Pact', 'Rhact', 'Tauact', 'Ustaract']
         tree = self.xml_trees['ores']
         elt_section = tree.find(PREFIX + 'OrdResSections').find(PREFIX + 'OrdResSection')
         for elt_dde in elt_section:

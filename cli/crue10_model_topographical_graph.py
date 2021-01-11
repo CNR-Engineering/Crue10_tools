@@ -28,8 +28,8 @@ from crue10.etude import Etude
 
 
 def crue10_model_topographical_graph(args):
-    study = Etude(args.etu_path)
-    modele = study.get_modele(args.mo_name)
+    etude = Etude(args.etu_path)
+    modele = etude.get_modele(args.mo_name)
     modele.read_all()
 
     logger.info(modele)
