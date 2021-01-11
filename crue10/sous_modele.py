@@ -559,8 +559,9 @@ class SousModele(FichierXML):
         """Read geometry of all `Noeuds` from current sous-modèle (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['noeuds'], 'r') as src:
+            emh_field = list(src.schema['properties'])[0]
             for obj in src:
-                nom_noeud = obj['properties']['EMH_NAME']
+                nom_noeud = obj['properties'][emh_field]
                 coord = obj['geometry']['coordinates'][:2]  # Ignore Z
                 geoms[nom_noeud] = Point(coord)
         for _, noeud in self.noeuds.items():
@@ -573,8 +574,9 @@ class SousModele(FichierXML):
         """Read geometry of all `Branches` from current sous-modèle (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['branches'], 'r') as src:
+            emh_field = list(src.schema['properties'])[0]
             for obj in src:
-                nom_branche = obj['properties']['EMH_NAME']
+                nom_branche = obj['properties'][emh_field]
                 coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_branche] = LineString(coords)
         for branche in self.get_liste_branches():
@@ -590,8 +592,9 @@ class SousModele(FichierXML):
         """
         geoms = {}
         with fiona.open(self.files['tracesSections'], 'r') as src:
+            emh_field = list(src.schema['properties'])[0]
             for obj in src:
-                nom_section = obj['properties']['EMH_NAME']
+                nom_section = obj['properties'][emh_field]
                 coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_section] = LineString(coords)
         for section in self.get_liste_sections(section_type=SectionProfil):
@@ -608,8 +611,9 @@ class SousModele(FichierXML):
         """Read geometry of all `Casiers` from current sous-modèle (they are compulsory)"""
         geoms = {}
         with fiona.open(self.files['casiers'], 'r') as src:
+            emh_field = list(src.schema['properties'])[0]
             for obj in src:
-                nom_casier = obj['properties']['EMH_NAME']
+                nom_casier = obj['properties'][emh_field]
                 coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_casier] = LinearRing(coords)
         for _, casier in self.casiers.items():
