@@ -47,7 +47,7 @@ class CalcPseudoPerm(Calcul):
     def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None, typ_loi=None, param_loi=None, nom_fic=None):
         check_isinstance(value, float)
         assert clim_tag in CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE.keys()
-        super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens, typ_loi, nom_fic)
+        super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic)
 
     def multiplier_valeur(self, nom_emh, facteur):
         check_isinstance(facteur, float)
@@ -84,6 +84,8 @@ class CalcTrans(Calcul):
         'CalcTransNoeudUsi': '',
         'CalcTransNoeudBg1': '',
         'CalcTransNoeudBg2': '',
+        'CalcTransNoeudBg1Av': '',
+        'CalcTransNoeudBg2Av': '',
     }
 
     def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None, typ_loi=None, param_loi=None, nom_fic=None):
