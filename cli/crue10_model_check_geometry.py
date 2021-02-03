@@ -40,10 +40,8 @@ def crue10_model_check_geometry(args):
             for noeud, section, position in zip([branche.noeud_amont, branche.noeud_aval],
                                                 [branche.get_section_amont(), branche.get_section_aval()], ['amont', 'aval']):
                 casier = sous_modele.get_connected_casier(noeud)
-                if isinstance(section, SectionIdem):
-                    section = section.get_as_sectionprofil()
                 if casier is not None:
-                    min_z = section.xz[:, 1].min()
+                    min_z = section.get_min_z()
                     if min_z < casier.get_min_z():
                         logger.error("La section %s %s est trop profonde (Zmin=%f) par rapport au casier %s (Zmin=%f)"
                                      % (position, section.id, min_z, casier.id, casier.get_min_z()))

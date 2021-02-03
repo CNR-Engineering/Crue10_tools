@@ -339,6 +339,9 @@ class BrancheAvecElementsSeuil(Branche):
                     new_elements_seuil.append([new_largeur, new_z_seuil, coeff_d, coeff_pdc])
         self.set_liste_elements_seuil(np.array(new_elements_seuil))
 
+    def get_min_z(self):
+        return self.liste_elements_seuil[:, 1].min()
+
 
 class BrancheSeuilTransversal(BrancheAvecElementsSeuil):
     """

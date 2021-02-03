@@ -447,6 +447,9 @@ class SectionProfil(Section):
         xt_list.append(self.lits_numerotes[-1].xt_max)
         self.set_lits_numerotes(xt_list)
 
+    def get_min_z(self):
+        return self.xz[:, 1].min()
+
     def validate(self):
         """
         TODO: validate.thalweg.NotInLitMineur, validate.etiquette.definedSeveralTimes
@@ -543,6 +546,10 @@ class SectionIdem(Section):
         new_section.comment = 'Copie de la section parent %s' % self.section_reference.id
         new_section.set_profilsection_name()  # reset ProfilSection name (avoid duplications)
         return new_section
+
+    def get_min_z(self):
+        section = self.get_as_sectionprofil()
+        return section.xz[:, 1].min()
 
 
 class SectionInterpolee(Section):
