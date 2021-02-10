@@ -75,6 +75,13 @@ class ProfilCasier:
 
         self.set_xz(ProfilCasier.DEFAULT_COORDS)
 
+    def get_min_z(self):
+        min_z = float('inf')
+        for x, z in self.xz:
+            if self.xt_min <= x <= self.xt_max:
+                min_z = min(min_z, z)
+        return min_z
+
     def set_longueur(self, longueur):
         self.longueur = longueur
 
@@ -228,7 +235,7 @@ class Casier:
         """
         min_z = float('inf')
         for profil_casier in self.profils_casier:
-            min_z = min(min_z, profil_casier.xz[:, 1].min())
+            min_z = min(min_z, profil_casier.get_min_z())
         return min_z
 
     def validate(self):
