@@ -388,6 +388,9 @@ class BrancheOrifice(Branche):
         self.CoefD = 1.0
         self.SensOrifice = 'Bidirect'
 
+    def get_min_z(self):
+        return self.Zseuil
+
 
 class BrancheStrickler(Branche):
     """

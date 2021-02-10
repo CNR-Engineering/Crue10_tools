@@ -8,6 +8,7 @@ Vérifier la géométrie d'un modèle
 L'outil liste les problèmes potentiels en vérifiant les points suivants :
 * branches de type orifice : PCS amont/aval plus profonds que le radier de l'ouvrage
 * branches de type Strickler : PCS amont/aval plus profonds que le fond des profils amont/aval
+* branches de type seuil : PCS amont/aval plus profonds que le plus bas de éléments de seuil
 """
 import sys
 
@@ -26,14 +27,14 @@ def crue10_model_check_geometry(args):
         logger.info("Vérification du %s" % sous_modele)
 
         # Vérification des branches orifice
-        for branche in sous_modele.get_liste_branches([5]):
+        for branche in sous_modele.get_liste_branches([4, 5]):
             for noeud, position in zip([branche.noeud_amont, branche.noeud_aval], ['amont', 'aval']):
                 casier = sous_modele.get_connected_casier(noeud)
                 if casier is not None:
-                    if casier.get_min_z() > branche.Zseuil:
+                    if casier.get_min_z() > branche.get_min_z():
                         logger.error("Le casier %s %s n'est pas assez profond (Zmin=%f) par rapport"
-                                     " à la branche orifice %s (Zseuil=%f)"
-                                     % (position, casier.id, casier.get_min_z(), branche.id, branche.Zseuil))
+                                     " à la branche %s (Zbas=%f)"
+                                     % (position, casier.id, casier.get_min_z(), branche.id, branche.get_min_z()))
 
         # Vérification des branches Strickler
         for branche in sous_modele.get_liste_branches([6]):
