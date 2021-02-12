@@ -254,6 +254,8 @@ class Branche(ABC):
         else:
             if self.get_section_amont().xp != 0.0:  # validation.branche.firstSectionMustBeAmont
                 errors.append((self, "La Section de position Amont doit avoir une abscisse nulle."))
+        if self.type in Branche.TYPES_WITH_LENGTH and self.length == 0.0:
+            errors.append((self, "La branche est de longueur nulle"))
         return errors
 
     def __repr__(self):
@@ -342,6 +344,14 @@ class BrancheAvecElementsSeuil(Branche):
     def get_min_z(self):
         return self.liste_elements_seuil[:, 1].min()
 
+    def validate(self):
+        errors = super().validate()
+        if len(self.liste_elements_seuil) == 0:
+            errors.append((self, "La branche seuil n'a pas d'éléments de seuil"))
+        if self.liste_elements_seuil[:, 0].min() <= 0.0:
+            errors.append((self, "La branche seuil a un élément de largeur nulle"))
+        return errors
+
 
 class BrancheSeuilTransversal(BrancheAvecElementsSeuil):
     """
@@ -390,6 +400,12 @@ class BrancheOrifice(Branche):
 
     def get_min_z(self):
         return self.Zseuil
+
+    def validate(self):
+        errors = super().validate()
+        if self.Largeur <= 0.0:
+            errors.append((self, "La largeur est nulle"))
+        return errors
 
 
 class BrancheStrickler(Branche):

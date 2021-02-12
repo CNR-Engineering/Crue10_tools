@@ -104,6 +104,11 @@ class ProfilCasier:
     def compute_volume(self, z):
         return self.compute_surface(z) * self.longueur
 
+    def validate(self):
+        if self.xt_min >= self.xt_max or self.longueur <= 0.0:
+            return [(self, "Le profil casier a un volume nul")]
+        return []
+
     def __str__(self):
         return "ProfilCasier #%s: longueur = %f m, Z dans [%f, %f]" \
                % (self.id, self.longueur, self.xz[:, 1].min(), self.xz[:, 1].max())
@@ -242,7 +247,10 @@ class Casier:
         errors = []
         if len(self.id) > 32:  # valid.nom.tooLong.short
             errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))
-        # TODO: Casier has at least one ProfilCasier
+        if len(self.profils_casier) < 1:
+            errors.append((self, "Le casier doit avoir au moins un ProfilCasier"))
+        for profil_casier in self.profils_casier:
+            errors += profil_casier.validate()
         return errors
 
     def __str__(self):
