@@ -1,5 +1,5 @@
 import os
-os.chdir('/home/yassine.kaddi/Scripts/Untitled Folder/Methodo/Script_CNR/Crue10_tools-master')
+os.chdir('/home/yassine.kaddi/Scripts/MyNotebooks/Methodo/Script_CNR/Crue10_tools-master')
 
 import numpy as np
 import pandas as pd
@@ -181,7 +181,7 @@ def Smoy(results):
 
 def Smoy_FP(results,branch):
     section = [sect for sect in branch.liste_sections_dans_branche if sect.id==results.section][0]
-    
+    zi = [elt[1] for elt in section.xz]
     if results.BG !=0:
         xi_G = [elt[0] for elt in section.xz if (elt[0] >= results.X_intG) and (elt[0] <= results.X_intG+results.BG)]
         zi_G = [elt[1] for elt in section.xz if (elt[0] >= results.X_intG) and (elt[0] <= results.X_intG+results.BG)]
@@ -195,6 +195,10 @@ def Smoy_FP(results,branch):
         xi_D = [elt[0] for elt in section.xz if (elt[0] >= results.X_intD-results.BD) and (elt[0] <= results.X_intD)]
         zi_D = [elt[1] for elt in section.xz if (elt[0] >= results.X_intD-results.BD) and (elt[0] <= results.X_intD)]
         
+        if len(xi_D)==1:
+            xi_D = [results.X_intD-results.BD] + xi_D
+            zi_D = [zi[zi.index(zi_D)+1]] + zi_D
+
         Z_eau = [results.Z]*len(xi_D)
         Smoy_D = trapz(Z_eau,xi_D)-trapz(zi_D,xi_D)
     else:
