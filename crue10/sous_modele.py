@@ -36,6 +36,25 @@ def parse_elem_seuil(elt, with_pdc=False):
     return np.array(values)
 
 
+def cut_linestring(line, distance):
+    # Cuts a line in two at a distance from its starting point
+    # This is taken from shapely manual
+    if distance <= 0.0 or distance >= line.length:
+        return [LineString(line)]
+    coords = list(line.coords)
+    for i, p in enumerate(coords):
+        pd = line.project(Point(p))
+        if pd == distance:
+            return [
+                LineString(coords[:i+1]),
+                LineString(coords[i:])]
+        if pd > distance:
+            cp = line.interpolate(distance)
+            return [
+                LineString(coords[:i] + [(cp.x, cp.y)]),
+                LineString([(cp.x, cp.y)] + coords[i:])]
+
+
 class SousModele(FichierXML):
     """
     Sous-modèle Crue10
@@ -989,6 +1008,52 @@ class SousModele(FichierXML):
         self.branches.pop(out_branche.id)
         self.noeuds.pop(noeud.id)
         return out_branche
+
+    def decouper_branche_fluviale(self, nom_branche, nom_branche_nouvelle, nom_section, nom_noeud):
+        """
+        Découper une branche fluviale au niveau de la section cible intermédiaire (doit exister sur la branche)
+        :param section: section cible
+        :return:
+        :rtype: float
+        """
+        in_branche = self.get_branche(nom_branche)
+        in_section = self.get_section(nom_section)
+
+        # Check if splitting is possible
+        if in_section not in in_branche.liste_sections_dans_branche:
+            raise ExceptionCrue10("La section doit appartenir à la branche à découper")
+        section_pos = in_branche.liste_sections_dans_branche.index(in_section)
+        if section_pos == 0 or section_pos == len(in_branche.liste_sections_dans_branche) - 1:
+            raise ExceptionCrue10("La section ne doit pas être au début ou à la fin de la branche à découper")
+
+        # Create new intermediate node
+        section_pos_ratio = in_section.xp / in_branche.length
+        point = in_branche.geom.interpolate(section_pos_ratio, normalized=True)
+        noeud = Noeud(nom_noeud)
+        noeud.geom = point
+        self.ajouter_noeud(noeud)
+
+        # Create new branch
+        out_branche = BrancheSaintVenant(nom_branche_nouvelle, noeud, in_branche.noeud_aval)
+        self.ajouter_branche(out_branche)
+
+        # Update geometries
+        geom_in_branche, geom_out_branche = cut_linestring(in_branche.geom, in_branche.geom.project(point))
+        in_branche.set_geom(geom_in_branche)
+        out_branche.set_geom(geom_out_branche)
+        in_branche.noeud_aval = noeud
+
+        # Add new SectionIdem
+        out_section = SectionIdem(in_section.id + 'a', in_section)
+        out_branche.ajouter_section_dans_branche(out_section, 0.0)
+        self.ajouter_section(out_section)
+
+        # Shift sections
+        for section in in_branche.liste_sections_dans_branche[section_pos + 1:]:
+            out_branche.ajouter_section_dans_branche(section, section.xp - in_section.xp)
+            in_branche.liste_sections_dans_branche.remove(section)
+
+        return section_pos_ratio
 
     def convert_sectionidem_to_sectionprofil(self):
         """

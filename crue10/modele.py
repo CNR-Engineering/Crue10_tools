@@ -9,7 +9,7 @@ import os.path
 from shapely.geometry import LineString, mapping, Point
 
 from crue10.base import FichierXML
-from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
+from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique, BrancheSaintVenant
 from crue10.emh.section import SectionProfil, LitNumerote
 from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
     ExceptionCrue10, logger, PREFIX, write_default_xml_file, write_xml_from_tree
@@ -409,6 +409,10 @@ class Modele(FichierXML):
         except ImportError:  # ModuleNotFoundError not available in Python2
             raise ExceptionCrue10("Le module networkx ne fonctionne pas !")
 
+        # Try if nodes exsit
+        self.get_noeud(nom_noeud_amont)
+        self.get_noeud(nom_noeud_aval)
+
         try:
             path = nx.shortest_path(self.graph, nom_noeud_amont, nom_noeud_aval, weight='weight')  # minimize weight
         except nx.exception.NetworkXException as e:
@@ -489,6 +493,20 @@ class Modele(FichierXML):
                     # Remove obsolete initial conditions
                     self.noeuds_ic.pop(noeud.id)
                     self.branches_ic.pop(old_branche.id)
+
+    def decouper_branche_fluviale(self, nom_sous_modele, nom_branche, nom_branche_nouvelle, nom_section, nom_noeud):
+        sous_modele = self.get_sous_modele(nom_sous_modele)
+        branche = self.get_branche(nom_branche)
+        if not isinstance(branche, BrancheSaintVenant):
+            raise ExceptionCrue10("La branche à découper doit être de type fluviale")
+        nom_noeud_aval = branche.noeud_aval.id
+        niveau_amont = self.noeuds_ic[branche.noeud_amont.id]
+        niveau_aval = self.noeuds_ic[branche.noeud_aval.id]
+        section_pos_ratio = sous_modele.decouper_branche_fluviale(nom_branche, nom_branche_nouvelle,
+                                                                  nom_section, nom_noeud)
+        self.branches_ic[nom_branche_nouvelle] = self.branches_ic[nom_branche]
+        self.noeuds_ic[nom_noeud] = (1 - section_pos_ratio) * niveau_amont + section_pos_ratio * niveau_aval
+        self.noeuds_ic[nom_noeud_aval] = niveau_aval
 
     def reset_initial_conditions(self):
         """Set initial conditions to default values"""
