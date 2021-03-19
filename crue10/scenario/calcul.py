@@ -22,6 +22,9 @@ class Calcul(ABC):
         * IsActive <bool>
         * value: en permanent valeur flottante, en transitoire nom de la loi
         * sens: sens ouverture (None si non concerné)
+        * type loi
+        * param loi
+        * nom_fic
     """
     def __init__(self, nom, comment):
         self.id = nom
@@ -51,13 +54,13 @@ class CalcPseudoPerm(Calcul):
 
     def multiplier_valeur(self, nom_emh, facteur):
         check_isinstance(facteur, float)
-        idx = [emh_id for emh_id, _, _, _, _ in self.values].index(nom_emh)
-        nom_emh, clim_tag, is_active, value, sens = self.values[idx]
-        self.values[idx] = nom_emh, clim_tag, is_active, value * facteur, sens
+        idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
+        nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = self.values[idx]
+        self.values[idx] = nom_emh, clim_tag, is_active, value * facteur, sens, typ_loi, param_loi, nom_fic
 
     def get_somme_positive_Qapp(self):
         sum = 0.0
-        for _, clim_tag, _, value, _ in self.values:
+        for _, clim_tag, _, value, _, _, _, _ in self.values:
             if clim_tag == 'CalcPseudoPermNoeudQapp' and value > 0:
                 sum += value
         return sum
