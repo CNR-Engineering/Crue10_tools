@@ -9,18 +9,17 @@ En sortie, on analyse :
 
 Paramètres hydrauliques incertains :
 - 6 lois de frottement ~> TruncatedNormal
-- 1 débit entrant ~> Uniform
+- 1 débit entrant (sur 3 calculs) ~> Uniform
 
 Attention: le nom de la distribution doit correspondre au mot-clé de la modification à appliquer.
 
 ## Exemple de fin de listing
-INFO: => Temps génération de tous les runs = 119.1s
+INFO: => Temps génération de tous les runs = 140.7s
 INFO: BILAN DES CALCULS CRUE10
 INFO: * Nombre de Run avec au moins une erreur bloquante = 0
-INFO: * Temps total passé dans Crue10.exe = 202.8s (moyenne par run: 0.20s)
-INFO:   Répartition par service : {'pré-traitements réseau': '19%', 'pré-traitements géométriques': '16%', 'pré-traitements conditions initiales': '2%', 'calcul': '61%'}
+INFO: * Temps total passé dans Crue10.exe = 270.6s (moyenne par run: 0.27s)
+INFO:   Répartition par service : {'pré-traitements réseau': '15%', 'pré-traitements géométriques': '8%', 'pré-traitements conditions initiales': '1%', 'calcul': '74%'}
 """
-from copy import deepcopy
 import logging
 import numpy as np
 import openturns as ot
@@ -41,9 +40,9 @@ LOIS_FROTTEMENT = ['Fk_RET1min', 'Fk_RET2min', 'Fk_RET3min', 'Fk_RET4min', 'Fk_R
 SIGMA_STRICKLER = 5.0  # m^(1/3)/s
 ND_QAPP_AMONT = 'Nd_RET162.000'
 DELTA_REL_QAPP = 0.1  # 10%
-IDX_CALC = -1  # index (0-indexed) du calcul pseudo-permanent à étudier (-1 = dernier calcul)
+IDX_CALC = 5  # index (0-indexed) du calcul pseudo-permanent à étudier
 
-SAMPLE, RUN, POST = False, True, True
+SAMPLE, RUN, POST = True, True, True
 
 OUT_FOLDER = os.path.join('out', 'probabilistic_study_hydraulic')
 CSV_SAMPLES = os.path.join(OUT_FOLDER, 'probabilistic_study_hydraulic_sample.csv')
@@ -73,9 +72,10 @@ if SAMPLE:
         distributions.append(distrib)
 
     # Distribution for imposed discharge factor
-    distrib = ot.Uniform(1.0 - DELTA_REL_QAPP, 1.0 + DELTA_REL_QAPP)
-    distrib.setName('Qapp_factor.' + ND_QAPP_AMONT)
-    distributions.append(distrib)
+    for nom_calcul in ['Cc_P2016-01-05', 'Cc_P2015-05-06', 'Cc_P2014-07-22']:
+        distrib = ot.Uniform(1.0 - DELTA_REL_QAPP, 1.0 + DELTA_REL_QAPP)
+        distrib.setName('Qapp_factor.' + nom_calcul + '.' + ND_QAPP_AMONT)
+        distributions.append(distrib)
 
     # Build a ComposedDistribution (with independent copula) and sample it
     input_vector = ot.ComposedDistribution(distributions)
@@ -90,7 +90,6 @@ if SAMPLE:
 
 # Load df_sample from a CSV file and add a column for comments
 df_sample = pd.read_csv(CSV_SAMPLES, index_col=0, header=0, delimiter=CSV_DELIMITER)
-x_vars = list(df_sample.columns)
 df_sample['comment'] = ['\n'.join([' * ' + key + ' = ' + str(value) for key, value in row.to_dict().items()])
                         for run_id, row in df_sample.iterrows()]
 
@@ -131,6 +130,13 @@ if __name__ == '__main__':
         # Build a dataframe with input parameters
         df_all = df_sample
         del df_all['comment']  # Remove column
+
+        # Rename columns (remove `Qapp_factor.`)
+        renaming = {}
+        for col_name in df_all.columns:
+            renaming[col_name] = col_name.replace('Qapp_factor.', '')
+        df_all = df_all.rename(columns=renaming)
+        x_vars = list(df_all.columns)
 
         # Add output parameters
         df_all['has_errors'] = True

@@ -125,6 +125,12 @@ class Scenario(FichierXML):
             raise ExceptionCrue10("Le Run %s est déjà présent" % run.id)
         self.runs[run.id] = run
 
+    def get_calcul(self, nom_calcul):
+        for calcul in self.calculs:
+            if calcul.id == nom_calcul:
+                return calcul
+        raise ExceptionCrue10("Le calcul `%s` n'existe pas" % nom_calcul)
+
     def get_nb_calc_pseudoperm_actif(self):
         return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcPseudoPerm'))
 
@@ -207,8 +213,12 @@ class Scenario(FichierXML):
 
         # Sur le scénario ou modèle
         - `pnum.CalcPseudoPerm.Pdt`: <float> => affection du pas de temps (en secondes) pour les calculs permanents
+        - `pnum.CalcPseudoPerm.TolMaxZ`: <float> => affection de la tolérance en niveau (en m)
+              pour les calculs permanents
+        - `pnum.CalcPseudoPerm.TolMaxQ`: <float> => affection de la tolérance en débit (en m3/s) pour les calculs
+              permanents
         - `Qapp_factor.NomNoeud`: <float> => application du facteur multiplicatif
-              à tous les débits imposés au noeud nommé NomNoeur
+              à tous les débits imposés au noeud nommé NomNoeud
 
         # Sur les sous-modèles
         - `Fk_NomLoi`: <float> => modification du Strickler de la loi de frottement nommée NomLoi
@@ -228,9 +238,9 @@ class Scenario(FichierXML):
                 loi = self.modele.get_loi_frottement(modification_key)
                 loi.set_loi_constant_value(modification_value)
             elif modification_key.startswith('Qapp_factor.'):
-                nom_noeud = modification_key[12:]
-                for calcul in self.get_liste_calc_pseudoperm():
-                    calcul.multiplier_valeur(nom_noeud, modification_value)
+                _, nom_calcul, nom_noeud = modification_key.split('.', 2)
+                calcul = self.get_calcul(nom_calcul)
+                calcul.multiplier_valeur(nom_noeud, modification_value)
             else:
                 raise ExceptionCrue10("La modification `%s` n'est pas reconnue. "
                                       "Voyez la documentation de Scenario.apply_modifications" % modification_key)
