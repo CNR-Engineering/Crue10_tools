@@ -444,10 +444,31 @@ class Scenario(FichierXML):
 
     def create_and_launch_new_run(self, etude, run_id=None, exe_path=CRUE10_EXE_PATH, comment='', force=False):
         """
+        Créé et lance un nouveau run
         """
         run = self.create_new_run(etude, run_id=run_id, comment=comment, force=force)
         run.launch_services(Run.SERVICES, exe_path=exe_path)
         return run
+
+    def create_and_launch_new_multiple_sequential_runs(self, modifications_liste, etude, exe_path=CRUE10_EXE_PATH, force=False):
+        """
+        Créé et lance des runs séquentiels selon les modifications demandées
+        """
+        etude.ignore_others_scenarios(self.id)
+        run_liste = []
+        for modifications in modifications_liste:
+            curr_scenario = deepcopy(self)
+            run_id = modifications.pop('run_id')
+            try:
+                comment = modifications.pop('comment')
+            except KeyError:
+                comment = ''
+            curr_scenario.apply_modifications(modifications)
+
+            run = curr_scenario.create_new_run(etude, run_id=run_id, comment=comment, force=force)
+            run.launch_services(Run.SERVICES, exe_path=exe_path)
+            run_liste.append(run)
+        return run_liste
 
     def _write_dclm(self, folder):
         """
