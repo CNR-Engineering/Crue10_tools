@@ -2,8 +2,8 @@
 import logging
 import numpy as np
 import os.path
-import sys
 import traceback
+from operator import attrgetter
 
 from shapely.geometry import Point, LinearRing, LineString
 
@@ -458,9 +458,9 @@ try:
                 hasLimitesNum = False
                 break
         
-        if not hasLimiteAxe:
-            logger.warn("Section sans limite Et_AxeHyd - " + nomSection)
-            continue 
+        # if not hasLimiteAxe:
+            # logger.warn("Section sans limite Et_AxeHyd - " + nomSection)
+            # continue 
 
         if not hasLimitesNum:
             logger.warn("Section sans limites numerotes - " + nomSection)
