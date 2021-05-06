@@ -283,11 +283,12 @@ class RunResults:
         distances_list = []
         distance = 0.0
         for branche in branches:
-            for section in branche.liste_sections_dans_branche:
-                distance += section.xp
+            for i, section in enumerate(branche.liste_sections_dans_branche):
                 branche_names.append(branche.id)
                 section_names.append(section.id)
-                distances_list.append(distance)
+                distances_list.append(distance + section.xp)
+                if i == len(branche.liste_sections_dans_branche) - 1:
+                    distance += section.xp
 
         pos_sections = [self.emh['Section'].index(section_name) for section_name in section_names]
         pos_variables = [self.variables['Section'].index(var) for var in var_names]
@@ -418,7 +419,6 @@ class RunResults:
         for date in self.calc_unsteady_dict[cal_name].time_serie(): # Parcours des pas de temps
             values.append(date)
         return values
-
 
     def export_calc_unsteady_as_df(self, lst_var, lst_emh):
         """Exports as DataFrame tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
