@@ -58,6 +58,12 @@ class CalcPseudoPerm(Calcul):
         nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = self.values[idx]
         self.values[idx] = nom_emh, clim_tag, is_active, value * facteur, sens, typ_loi, param_loi, nom_fic
 
+    def set_valeur(self, nom_emh, value):
+        check_isinstance(value, float)
+        idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
+        nom_emh, clim_tag, is_active, _, sens, typ_loi, param_loi, nom_fic = self.values[idx]
+        self.values[idx] = nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic
+
     def get_somme_positive_Qapp(self):
         sum = 0.0
         for _, clim_tag, _, value, _, _, _, _ in self.values:

@@ -77,6 +77,10 @@ class LoiFrottement:
         check_isinstance(value, float)
         self.loi_Fk[:, 1] = value
 
+    def shift_loi_Fk_values(self, value):
+        check_isinstance(value, float)
+        self.loi_Fk[:, 1] += value
+
     def get_loi_Fk_values(self):
         return self.loi_Fk[:, 1]
 

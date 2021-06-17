@@ -217,11 +217,14 @@ class Scenario(FichierXML):
               pour les calculs permanents
         - `pnum.CalcPseudoPerm.TolMaxQ`: <float> => affection de la tolérance en débit (en m3/s) pour les calculs
               permanents
-        - `Qapp_factor.NomNoeud`: <float> => application du facteur multiplicatif
-              à tous les débits imposés au noeud nommé NomNoeud
+        - `Qapp_factor.NomCalcul.NomNoeud`: <float> => application du facteur multiplicatif au débit du
+              calcul NomCalcul au noeud nommé NomNoeud
+        - `Zimp.NomCalcul.NomNoeud`: <float> => application de la cote au calcul NomCalcul au noeud nommé NomNoeud
+        - `branche_barrage.CoefD`: <float> => application du coefficient à la branche barrage
 
         # Sur les sous-modèles
         - `Fk_NomLoi`: <float> => modification du Strickler de la loi de frottement nommée NomLoi
+        - `Fk_shift.*`: <float> => modification par somme du Strickler de toutes les lois de frottement (sauf celles du stockage)
         """
         check_isinstance(modifications, dict)
         for modification_key, modification_value in modifications.items():
@@ -234,6 +237,12 @@ class Scenario(FichierXML):
                 self.modele.set_pnum_CalcPseudoPerm_TolMaxQ(modification_value)
 
             # Hydraulic parameters
+            elif modification_key == 'branche_barrage.CoefD':
+                branche_barrage = self.modele.get_branche_barrage()
+                branche_barrage.liste_elements_seuil[:, 2] = modification_value
+            elif modification_key == 'Fk_shift.*':
+                for loi in self.modele.get_liste_lois_frottement(ignore_sto=True):
+                    loi.shift_loi_Fk_values(modification_value)
             elif modification_key.startswith('Fk_'):
                 loi = self.modele.get_loi_frottement(modification_key)
                 loi.set_loi_constant_value(modification_value)
@@ -241,6 +250,10 @@ class Scenario(FichierXML):
                 _, nom_calcul, nom_noeud = modification_key.split('.', 2)
                 calcul = self.get_calcul(nom_calcul)
                 calcul.multiplier_valeur(nom_noeud, modification_value)
+            elif modification_key.startswith('Zimp.'):
+                _, nom_calcul, nom_noeud = modification_key.split('.', 2)
+                calcul = self.get_calcul(nom_calcul)
+                calcul.set_valeur(nom_noeud, modification_value)
             else:
                 raise ExceptionCrue10("La modification `%s` n'est pas reconnue. "
                                       "Voyez la documentation de Scenario.apply_modifications" % modification_key)
