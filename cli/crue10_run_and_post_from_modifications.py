@@ -7,6 +7,8 @@ crue10_run_and_post_from_modifications.py etude.etu.xml inputs.csv outputs.csv
 """
 import csv
 import json
+import random
+import string
 import sys
 
 from crue10.etude import Etude
@@ -26,7 +28,12 @@ def crue10_run_and_post_from_modifications(args):
         inputs[key] = float(value)
 
     scenario.apply_modifications(inputs)
-    run = scenario.create_and_launch_new_run(etude)
+    if args.random_run_ids:
+        string = string.ascii_letters + string.digits
+        run_id = ''.join(random.choice(string) for i in range(21))
+    else:
+        run_id = None
+    run = scenario.create_and_launch_new_run(etude, run_id=run_id)
 
     with open(args.outputs_csv, 'w', newline='') as csvfile:
         fieldnames = ['emh_name', 'Z']
@@ -53,6 +60,7 @@ parser.add_argument('etu_path', help="chemin vers l'étude Crue10 à lire (fichi
 parser.add_argument("inputs_json", help="fichier JSON d'entrée contenant les modifications à appliquer")
 parser.add_argument("calc_name", help="nom du calcul permanent ou transitoire (si transitoire alors prend le max temporel)")
 parser.add_argument("outputs_csv", help="fichier CSV de sortie")
+parser.add_argument("--random_run_ids", help="nom de Run aléatoire (21 caractères alphanumériques)", action='store_true')
 
 
 if __name__ == '__main__':
