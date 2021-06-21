@@ -29,8 +29,9 @@ def crue10_run_and_post_from_modifications(args):
 
     scenario.apply_modifications(inputs)
     if args.random_run_ids:
-        hash = string.ascii_letters + string.digits
-        run_id = ''.join(random.choice(hash) for i in range(21))
+        # /!\ NCNAME (XSD validation) should start by a letter
+        run_id = random.choice(string.ascii_letters) + \
+                ''.join(random.choice(string.ascii_letters + string.digits) for i in range(20))
     else:
         run_id = None
     run = scenario.create_and_launch_new_run(etude, run_id=run_id)
