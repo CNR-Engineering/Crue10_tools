@@ -10,6 +10,7 @@ import json
 import random
 import string
 import sys
+from time import perf_counter
 
 from crue10.etude import Etude
 from crue10.utils.cli_parser import MyArgParse
@@ -17,6 +18,7 @@ from crue10.utils import ExceptionCrue10, logger
 
 
 def crue10_run_and_post_from_modifications(args):
+    t0 = perf_counter()
     etude = Etude(args.etu_path)
     scenario = etude.get_scenario_courant()
     scenario.read_all()
@@ -37,7 +39,7 @@ def crue10_run_and_post_from_modifications(args):
     run = scenario.create_and_launch_new_run(etude, run_id=run_id)
 
     with open(args.outputs_csv, 'w', newline='') as csvfile:
-        fieldnames = ['emh_name', 'Z']
+        fieldnames = ['variable', 'value']
         writer = csv.DictWriter(csvfile, delimiter=';', fieldnames=fieldnames)
         writer.writeheader()
 
@@ -50,8 +52,11 @@ def crue10_run_and_post_from_modifications(args):
             res = results.get_res_steady(args.calc_name)
             pos_Z = results.variables['Section'].index('Z')
             values = res['Section'][:, pos_Z]
+            t1 = perf_counter()
+            writer.writerow({'variable': 'time_crue', 'value': run.get_time()})
+            writer.writerow({'variable': 'time_total', 'value': t1 - t0})
             for emh_name, value in zip(results.emh['Section'], values):
-                writer.writerow({'emh_name': emh_name, 'Z': value})
+                writer.writerow({'variable': emh_name, 'value': value})
         else:
             logger.warn("Le Run `%s` contient des erreurs et sera ignoré" % run.id)
 
