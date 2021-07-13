@@ -19,7 +19,7 @@ from _params import ETATREF_SCENARIO_PAR_AMENAGEMENT
 
 
 DOSSIER = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc')
-WRITE_DATAFRAMES, PLOT_BARPLOT, PLOT_BOXPLOT = False, True, True
+WRITE_DATAFRAMES, PLOT_BARPLOT, PLOT_BOXPLOT = True, True, True
 
 # Nommage des fichiers de sortie du script
 OUT_CSV_STAT_FILE = '../tmp/stat_params_Conc/stat_modeles_Conc.csv'
