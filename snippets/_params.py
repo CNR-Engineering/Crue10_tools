@@ -44,7 +44,7 @@ ETATREF_SCENARIO_PAR_AMENAGEMENT = OrderedDict([
     ('Etu_GE2017_Conc', 'Sc_Calperm_GE_QRef_br14'),
     ('Etu_SY2016_Conc', 'Sc_etats_ref'),
     ('Etu_CE2016_Conc', None),
-    ('Etu_BY2010_Conc', 'Sc_BY2010_conc'),
+    ('Etu_BY2018_Conc', 'Sc_BY20_Conc'),
     ('Etu_BC2012_Conc', None),
     ('Etu_SB2013_Conc', None),
 
@@ -52,12 +52,12 @@ ETATREF_SCENARIO_PAR_AMENAGEMENT = OrderedDict([
     ('Etu_PB2017_Conc', None),
     ('Etu_VS2015_conc', None),
     ('Etu_PR2019_Conc', None),
-    ('Etu_SV2011_Conc', None),
+    ('Etu_SV2019_Conc', 'Sc_SV2019_Conc_EtatRef'),
 
     # DTRS
     ('Etu_BV2016_Conc_Etatref - ISfonds2016_K2016', None),
     ('Etu_BE2016_conc', None),
-    ('Etu_LN_1303_Conc', None),
+    ('Etu_LN2013_Conc', None),
     ('Etu_MO2018_Conc', None),
 
     # DTRM
@@ -65,7 +65,7 @@ ETATREF_SCENARIO_PAR_AMENAGEMENT = OrderedDict([
     ('Etu_CA2013_Conc', 'Sc_CA2013_conc'),
     ('Etu_AV2017_Conc', None),
     ('Etu_VA2018_Conc', None),
-    ('Etu_PA2006_Conc', None),
+    ('Etu_avaVA2018_Conc', None),
 ])
 # Filtre sur les aménagements voulus
 # ETATREF_SCENARIO_PAR_AMENAGEMENT = {etude_dossier: ETATREF_SCENARIO_PAR_AMENAGEMENT[etude_dossier]
