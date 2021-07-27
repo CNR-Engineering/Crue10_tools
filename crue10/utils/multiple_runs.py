@@ -180,6 +180,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
             logger.error("Les résultats de la référence `%s` n'existent pas "
                          "(%s manquant ou résultats non exploitable)" % (reference, scenario))
             continue
+        # TODO : ajouter transitoire?
 
         # Compute difference on available results
         if res_perm_curr.shape[0] != res_perm_ref.shape[0]:
