@@ -183,6 +183,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         # TODO : ajouter transitoire?
 
         # Compute difference on available results
+        nb_common_calc = int(res_perm_ref.shape[0])
         if res_perm_curr.shape[0] != res_perm_ref.shape[0]:
             nb_common_calc = min(int(res_perm_curr.shape[0]), int(res_perm_ref.shape[0]))
             if nb_common_calc == 0:
@@ -196,7 +197,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         nb_calc_perm = len(results.calc_steady_dict)
         if out_csv_diff_by_calc is not None and row['exe_id'] == 'qualif':
             df_diff = pd.DataFrame({
-                'id_calcul': np.repeat(np.arange(nb_calc_perm, dtype=np.int) + 1, diff.shape[1]),
+                'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int) + 1, diff.shape[1]),
                 'diff': diff.flatten()
             })
             df_diff.to_csv(out_csv_diff_by_calc % etude_dossier, sep=';', index=False)
