@@ -12,7 +12,6 @@ L'outil liste les problèmes potentiels en vérifiant les points suivants :
 """
 import sys
 
-from crue10.emh.section import SectionIdem
 from crue10.etude import Etude
 from crue10.utils.cli_parser import MyArgParse
 from crue10.utils import ExceptionCrue10, logger
@@ -26,7 +25,7 @@ def crue10_model_check_geometry(args):
     for sous_modele in modele.liste_sous_modeles:
         logger.info("Vérification du %s" % sous_modele)
 
-        # Vérification des branches orifice
+        # Vérification des branches seuil (latéral) et orifice
         for branche in sous_modele.get_liste_branches([4, 5]):
             for noeud, position in zip([branche.noeud_amont, branche.noeud_aval], ['amont', 'aval']):
                 casier = sous_modele.get_connected_casier(noeud)
@@ -42,7 +41,7 @@ def crue10_model_check_geometry(args):
                                                 [branche.get_section_amont(), branche.get_section_aval()], ['amont', 'aval']):
                 casier = sous_modele.get_connected_casier(noeud)
                 if casier is not None:
-                    min_z = section.get_min_z()
+                    min_z = max([branche.get_section_amont().get_min_z(), branche.get_section_aval().get_min_z()])
                     if min_z < casier.get_min_z():
                         logger.error("La section %s %s est trop profonde (Zmin=%f) par rapport au casier %s (Zmin=%f)"
                                      % (position, section.id, min_z, casier.id, casier.get_min_z()))
