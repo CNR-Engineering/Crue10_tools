@@ -42,7 +42,7 @@ if __name__ == "__main__":
                 script = CommandLineScript(file_path)
 
                 # Write a markdown file (to be integrated within github wiki)
-                with open(os.path.join(FOLDER_DOC, script_name + '.md'), 'w') as fileout:
+                with open(os.path.join(FOLDER_DOC, script_name + '.md'), 'w', encoding='utf8') as fileout:
                     fileout.write('```\n')
                     fileout.write(script.help_msg())
                     fileout.write('```\n')
