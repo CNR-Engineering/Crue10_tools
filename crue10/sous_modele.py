@@ -1012,14 +1012,19 @@ class SousModele(FichierXML):
     def decouper_branche_fluviale(self, nom_branche, nom_branche_nouvelle, nom_section, nom_noeud):
         """
         Découper une branche fluviale au niveau de la section cible intermédiaire (doit exister sur la branche)
-        :param section: section cible
-        :return:
+        :param nom_branche: nom de la branche à découper
+        :param nom_branche_nouvelle: nom de la nouvelle branche (partie aval)
+        :param nom_section: nom de la section servant à la découpe
+        :param nom_noeud: nom du noeud à créer
+        :return: position relative de la section, entre 0 (amont) et 1 (aval)
         :rtype: float
         """
         in_branche = self.get_branche(nom_branche)
         in_section = self.get_section(nom_section)
 
         # Check if splitting is possible
+        if not isinstance(in_branche, BrancheSaintVenant):
+            raise ExceptionCrue10("La branche à découper doit être de type fluviale")
         if in_section not in in_branche.liste_sections_dans_branche:
             raise ExceptionCrue10("La section doit appartenir à la branche à découper")
         section_pos = in_branche.liste_sections_dans_branche.index(in_section)
