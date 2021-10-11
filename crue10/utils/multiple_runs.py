@@ -198,6 +198,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         if out_csv_diff_by_calc is not None and row['exe_id'] == 'qualif':
             df_diff = pd.DataFrame({
                 'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int) + 1, diff.shape[1]),
+                'emh': results.emh[emh_type] * diff.shape[0],
                 'diff': diff.flatten()
             })
             df_diff.to_csv(out_csv_diff_by_calc % etude_dossier, sep=';', index=False)
