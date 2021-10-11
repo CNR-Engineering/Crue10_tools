@@ -272,8 +272,7 @@ class RunResults:
         return calc.file_pos.get_data(self._res_pattern, True, self._emh_type_first_branche)
 
     def get_res_steady_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None):
-        calc = self.get_calc_steady(calc_name)
-        res_perm = calc.file_pos.get_data(self._res_pattern, True, self._emh_type_first_branche)['Section']
+        res_perm = self.get_res_steady(calc_name)['Section']
 
         if var_names is None:
             var_names = self.variables['Section']
@@ -293,6 +292,32 @@ class RunResults:
         pos_sections = [self.emh['Section'].index(section_name) for section_name in section_names]
         pos_variables = [self.variables['Section'].index(var) for var in var_names]
         array = res_perm[pos_sections, :][:, pos_variables]
+
+        values_in_dict = {'branche': branche_names, 'section': section_names, 'distance': distances_list}
+        values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
+        return pd.DataFrame(values_in_dict)
+
+    def get_res_unsteady_max_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None):
+        res_trans = np.max(self.get_res_unsteady(calc_name)['Section'], axis=0)
+
+        if var_names is None:
+            var_names = self.variables['Section']
+
+        branche_names = []
+        section_names = []
+        distances_list = []
+        distance = 0.0
+        for branche in branches:
+            for i, section in enumerate(branche.liste_sections_dans_branche):
+                branche_names.append(branche.id)
+                section_names.append(section.id)
+                distances_list.append(distance + section.xp)
+                if i == len(branche.liste_sections_dans_branche) - 1:
+                    distance += section.xp
+
+        pos_sections = [self.emh['Section'].index(section_name) for section_name in section_names]
+        pos_variables = [self.variables['Section'].index(var) for var in var_names]
+        array = res_trans[pos_sections, :][:, pos_variables]
 
         values_in_dict = {'branche': branche_names, 'section': section_names, 'distance': distances_list}
         values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
@@ -334,11 +359,11 @@ class RunResults:
         """Get results from unsteady calculation, for every timesteps.
         
         :param calc_name: string Nom du calcul.
-    :type calc_name: str
+        :type calc_name: str
         :param varname: nom de la variable à extraire.
-    :type varname: str
+        :type varname: str
         :param emh_list: liste des EMH concernés.
-    :type emh_list: [str]
+        :type emh_list: [str]
         :return: tableau des résultats avec un pas de temps par ligne.
         :rtype: 2D-array
         """
