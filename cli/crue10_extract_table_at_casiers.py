@@ -67,7 +67,7 @@ parser = MyArgParse(description=__doc__)
 parser.add_argument('etu_path', help="chemin vers l'étude Crue10 à lire (fichier etu.xml)")
 parser.add_argument('--sc_name', help="nom du scénario (avec le preffixe Sc_) (si absent alors le scénario courant est pris)")
 parser.add_argument('--run_id', help="identifiant du Run à exploiter (si absent alors le dernier Run est pris)")
-parser.add_argument('--calc_unsteady', help="nom du calcul transitoire")
+parser.add_argument('calc_unsteady', help="nom du calcul transitoire")
 parser.add_argument('csv_path', help="chemin vers le fichier CSV de sortie")
 
 
