@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-Extraire un tableau pour un Run en transitoire
+Extraire un tableau pour un Run en transitoire :
 - zfond : point le plus bas du casier (issu de la géométrie des PCS)
 - zmax : niveau maximum
 - hmoy : hauteur moyenne maximum, calculée comme ratio Vol/Splan
@@ -57,8 +57,8 @@ def crue10_extract_table_at_casiers(args):
         'zfond': [scenario.modele.get_casier(ca_name).get_min_z() for ca_name in emh_names],
         'zmax': np.max(res[:, :, pos_Z], axis=0),
         'hmoy': hmoy,
-        'Volmax': np.max(res[:, :, pos_Vol], axis=0),
-        'Splanmax': np.max(res[:, :, pos_Splan], axis=0),
+        # 'Volmax': np.max(res[:, :, pos_Vol], axis=0),
+        # 'Splanmax': np.max(res[:, :, pos_Splan], axis=0),
     })
     df.to_csv(args.csv_path, sep=';')
 
