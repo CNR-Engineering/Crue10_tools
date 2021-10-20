@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-Classes pour les caiser du champ majeur :
+Classes pour les casiers du champ majeur :
     - ProfilCasier
     - Casier
 
@@ -13,7 +13,7 @@ from crue10.emh.noeud import Noeud
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger
 
 
-DX = 0.1
+DX = 1e-3
 
 
 def get_negative_area(x_array, y_array):
