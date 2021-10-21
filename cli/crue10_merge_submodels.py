@@ -16,22 +16,20 @@ def crue10_merge_sous_modeles(args):
     if len(args.etu_path_list) != len(args.sm_name_list) != len(args.suffix_list):
         raise ExceptionCrue10("Les arguments `etu_path_list`, `suffix_list` et `sm_name_list` n'ont pas la même longueur !")
 
-    first = True
     merged_sous_modele = None
     for etu_path, sm_name, suffix in zip(args.etu_path_list, args.sm_name_list, args.suffix_list):
-        study = Etude(etu_path)
-        sous_modele = study.get_sous_modele(sm_name)
+        etude = Etude(etu_path)
+        sous_modele = etude.get_sous_modele(sm_name)
         sous_modele.read_all()
         print(sous_modele)
 
-        if first:
-            merged_sous_modele = SousModele(sous_modele.id, sous_modele.files)
-            first = False
+        if merged_sous_modele is None:
+            merged_sous_modele = SousModele(sous_modele.id, files=sous_modele.files)
         merged_sous_modele.ajouter_emh_depuis_sous_modele(sous_modele, suffix)
 
-    print("~> Merged sous_modele:")
+    print("~> Sous-modèle fusionné:")
     print(merged_sous_modele)
-    merged_sous_modele.write_all(args.output_folder)
+    merged_sous_modele.write_all(args.output_folder, folder_config='Config')
 
 
 parser = MyArgParse(description=__doc__)
