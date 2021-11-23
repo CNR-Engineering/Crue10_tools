@@ -189,6 +189,8 @@ def duration_seconds_to_iso8601(duration_in_seconds):
     :param duration_in_seconds: float measuring a duration in seconds
     :return: ISO 8601 text format (e.g. "P0Y0M0DT0H0M0S". Info: the letter `T` separates days and hours)
     """
+    if duration_in_seconds < 0:
+        raise ExceptionCrue10("Une durée négative n'est pas possible!")
     txt = 'P0Y0M'
 
     # Number of days
@@ -218,9 +220,52 @@ def duration_seconds_to_iso8601(duration_in_seconds):
 
 
 def duration_iso8601_to_seconds(duration_in_iso8601):
+    """
+    Converts ISO 8601 text format to a duration in seconds
+    :param duration_in_iso8601: ISO 8601 text format (e.g. "P0Y0M0DT0H0M0S". Info: the letter `T` separates days and hours)
+    :return: float measuring a duration in seconds
+    """
     match = re.match(r"^P0Y0M(?P<days>[\d.]+)DT(?P<hours>[\d.]+)H(?P<minutes>[\d.]+)M(?P<seconds>[\d.]+)S$",
                      duration_in_iso8601)
     return (float(match.group('seconds')) +
             60 * (float(match.group('minutes')) +
                   60 * (float(match.group('hours')) +
                         24 * float(match.group('days')))))
+
+
+def extract_pdt_from_elt(elt):
+    """
+    Extract the time step
+    :param elt: XML tree
+    :return: float (if constant) or a list of tuple (if variable)
+
+    # Exemple d'un pas de temps constant
+    <PdtRes>
+      <PdtCst>P0Y0M0DT1H0M0S</PdtCst>
+    </PdtRes>
+
+    # Exemple d'un pas de temps variable (en permanent)
+    <Pdt>
+      <PdtVar>
+        <ElemPdt>
+          <NbrPdt>10</NbrPdt>
+          <DureePdt>P0Y0M0DT0H12M0S</DureePdt>
+        </ElemPdt>
+        <ElemPdt>
+          <NbrPdt>100</NbrPdt>
+          <DureePdt>P0Y0M0DT3H0M0S</DureePdt>
+        </ElemPdt>
+      </PdtVar>
+    </Pdt>
+    """
+    assert len(elt) == 1
+    if elt[0].tag.endswith('PdtCst'):
+        return duration_iso8601_to_seconds(elt[0].text)
+    elif elt[0].tag.endswith('PdtVar'):
+        res = []
+        for elem in elt[0]:
+            res.append((int(elem.find(PREFIX + 'NbrPdt').text),
+                        duration_iso8601_to_seconds(elem.find(PREFIX + 'DureePdt'))))
+        return res
+    else:
+        raise NotImplementedError("Pas de temps impossible à traiter")

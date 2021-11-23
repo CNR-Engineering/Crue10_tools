@@ -26,7 +26,7 @@ class Calcul(ABC):
         * param loi
         * nom_fic
     """
-    def __init__(self, nom, comment):
+    def __init__(self, nom, comment=''):
         self.id = nom
         self.comment = comment
         self.values = []

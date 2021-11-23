@@ -252,6 +252,9 @@ class Etude(FichierXML):
         for _, scenario in self.scenarios.items():
             scenario.read_all()
 
+    def move(self, folder):
+        self.files['etu'] = os.path.join(folder, os.path.basename(self.etu_path))
+
     def write_etu(self, folder=None):
         """
         Écriture du fichier étude Crue10 (etu.xml)

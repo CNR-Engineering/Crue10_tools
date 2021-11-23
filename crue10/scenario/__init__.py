@@ -2,6 +2,7 @@
 from builtins import super  # Python2 fix
 from collections import OrderedDict
 from copy import deepcopy
+import numpy as np
 import os.path
 import shutil
 import time
@@ -10,11 +11,73 @@ from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
-    ExceptionCrue10, get_optional_commentaire, \
+    ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, \
     logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.settings import CRUE10_EXE_PATH
+from crue10.utils.sorties import Sorties
 from .calcul import Calcul, CalcPseudoPerm, CalcTrans
 from .loi_hydraulique import LoiHydraulique
+
+
+class OrdCalcPseudoPerm:
+    """
+    OrdCalcPseudoPerm : paramètres des calculs permanents
+
+    :param id: nom du calcul
+    :type id: str
+    :param init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
+    :type init: (str, str)
+    :param cliche_fin: chemin du cliché
+    :type cliche_fin: str
+    """
+    def __init__(self, calc_id, calc_init, cliche_fin):
+        self.id = calc_id
+        self.init = calc_init
+        self.cliche_fin = cliche_fin
+
+
+class OrdCalcTrans:
+    """
+    OrdCalcTrans : paramètres des calculs transitoires
+
+    :param id: nom du calcul
+    :type id: str
+    :param duree: durée du calcul
+    :type duree: float
+    :param pdt_res: pas de temps de sortie des résultats
+    :type pdt_res: float|list
+    :param init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
+    :type init: (str, str)
+    :param cliche_ponctuel: chemin et temps d'extraction du cliché ponctuel
+    :type cliche_ponctuel: (str, str)
+    :param cliche_periodique: chemin et pas de temps du cliché périodique
+    :type cliche_periodique: (str, str)
+    """
+
+    def __init__(self, calc_id, duree, pdt_res, calc_init, cliche_ponctuel, cliche_periodique):
+        check_isinstance(duree, float)
+        check_isinstance(pdt_res, (float, list))
+        self.id = calc_id
+        self.duree = duree
+        self.pdt_res = pdt_res
+        self.init = calc_init
+        self.cliche_ponctuel = cliche_ponctuel
+        self.cliche_periodique = cliche_periodique
+
+    def get_duree_in_iso8601(self):
+        return duration_seconds_to_iso8601(self.duree)
+
+    def is_pdt_res_cst(self):
+        return isinstance(self.pdt_res, float)
+
+    def get_pdt_res_in_iso8601(self):
+        if self.is_pdt_res_cst():
+            return duration_seconds_to_iso8601(self.pdt_res)
+        else:
+            res = []
+            for (nb_pdt, pdt_float) in self.pdt_res:
+                res.append((nb_pdt, duration_seconds_to_iso8601(pdt_float)))
+            return res
 
 
 class Scenario(FichierXML):
@@ -27,6 +90,10 @@ class Scenario(FichierXML):
     :type modele: Modele
     :param calculs: liste des calculs
     :type calculs: [Calcul]
+    :param liste_ord_calc_pseudoperm: liste des paramètres des calculs permanents
+    :type liste_ord_calc_pseudoperm: [OrdCalcPseudoPerm]
+    :param liste_ord_calc_trans: liste des paramètres des calculs transitoires
+    :type liste_ord_calc_trans: [OrdCalcTrans]
     :param lois_hydrauliques: dictionnaire des lois hydrauliques
     :type lois_hydrauliques: OrderedDict(LoiHydraulique)
     :param runs: dictionnaire des runs
@@ -36,7 +103,7 @@ class Scenario(FichierXML):
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
-    FILES_XML_WITHOUT_TEMPLATE = ['ocal', 'ores', 'pcal']
+    FILES_XML_WITHOUT_TEMPLATE = ['ores', 'pcal']
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
@@ -52,42 +119,17 @@ class Scenario(FichierXML):
         super().__init__(access, files, metadata)
 
         self.calculs = []
+        self.liste_ord_calc_pseudoperm = []  # OrdCalcPseudoPerm
+        self.liste_ord_calc_trans = []  # OrdCalcTrans
         self.lois_hydrauliques = OrderedDict()
 
         self.modele = None
         self.set_modele(modele)
 
+        self.ocal_sorties = Sorties()
+
         self.current_run_id = None
         self.runs = OrderedDict()
-
-    def _get_ocal_OrdCalcTrans(self, calc_name):
-        elt = self.xml_trees['ocal'].find(PREFIX + 'OrdCalcTrans[@NomRef="%s"]' % calc_name)
-        if elt is None:
-            raise ExceptionCrue10("Le calcul transitoire `%s` n'est pas trouvé" % calc_name)
-        return elt
-
-    def get_ocal_OrdCalcTrans_DureeCalc(self, calc_name):
-        """
-        Obtenir la durée du calcul transitoire demandé
-
-        :param calc_name: nom du calcul transitoire
-        :type calc_name: str
-        :return: durée du calcul (en secondes)
-        :rtype: float
-        """
-        return duration_iso8601_to_seconds(self._get_ocal_OrdCalcTrans(calc_name).find(PREFIX + 'DureeCalc').text)
-
-    def get_ocal_OrdCalcTrans_PdtCst(self, calc_name):
-        """
-        Obtenir le pas de temps de sortie du calcul transitoire demandé
-
-        :param calc_name: nom du calcul transitoire
-        :type calc_name: str
-        :return: pas de temps (en secondes)
-        :rtype: float
-        """
-        return duration_iso8601_to_seconds(self._get_ocal_OrdCalcTrans(calc_name).
-                                           find(PREFIX + 'PdtRes').find(PREFIX + 'PdtCst').text)
 
     def get_function_apply_modifications(self, etude):
         curr_etude = deepcopy(etude)
@@ -131,11 +173,25 @@ class Scenario(FichierXML):
                 return calcul
         raise ExceptionCrue10("Le calcul `%s` n'existe pas" % nom_calcul)
 
+    def get_ord_calc_pseudoperm(self, nom_calcul):
+        for ord_calc in self.liste_ord_calc_pseudoperm:
+            if nom_calcul == ord_calc.id:
+                return ord_calc
+        self.get_calcul(nom_calcul)  # Check that the calculation exists
+        raise ExceptionCrue10("Le calcul pseudo-permanent `%s` n'est pas actif" % nom_calcul)
+
+    def get_ord_calc_trans(self, nom_calcul):
+        for ord_calc in self.liste_ord_calc_trans:
+            if nom_calcul == ord_calc.id:
+                return ord_calc
+        self.get_calcul(nom_calcul)  # Check that the calculation exists
+        raise ExceptionCrue10("Le calcul transitoire `%s` n'est pas actif" % nom_calcul)
+
     def get_nb_calc_pseudoperm_actif(self):
-        return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcPseudoPerm'))
+        return len(self.liste_ord_calc_pseudoperm)
 
     def get_nb_calc_trans_actif(self):
-        return len(self.xml_trees['ocal'].findall(PREFIX + 'OrdCalcTrans'))
+        return len(self.liste_ord_calc_trans)
 
     def get_liste_calc_pseudoperm(self):
         return [calcul for calcul in self.calculs if isinstance(calcul, CalcPseudoPerm)]
@@ -358,6 +414,60 @@ class Scenario(FichierXML):
             loi_hydraulique.set_values(parse_loi(elt_loi))
             self.ajouter_loi_hydraulique(loi_hydraulique)
 
+    def _read_ocal(self):
+        """
+        Lire le fichier ocal.xml
+        """
+        root = self._get_xml_root_and_set_comment('ocal')
+
+        # Read Sorties
+        elt = root.find(PREFIX + 'Sorties')
+        self.ocal_sorties.set_avancement(elt.find(PREFIX + 'Avancement'))
+        self.ocal_sorties.set_trace(elt.find(PREFIX + 'Trace'))
+        self.ocal_sorties.set_resultat(elt.find(PREFIX + 'Resultat'))
+
+        # Read active calculations options
+        for elt in root.findall(PREFIX + 'OrdCalcPseudoPerm'):
+            # NomRef ; IniCalcCI|IniCalcPrecedent|IniCalcCliche, PrendreClicheFinPermanent
+
+            elt_init = elt[0]
+
+            elt_cliche_fin = elt.find(PREFIX + 'PrendreClicheFinPermanent')
+            if elt_cliche_fin is None:
+                cliche_fin = None
+            else:
+                cliche_fin = elt_cliche_fin.get('NomFic')
+
+            ord_calc = OrdCalcPseudoPerm(elt.get('NomRef'), (elt_init.tag[len(PREFIX):], elt_init.get('NomFic')),
+                                         cliche_fin)
+            self.liste_ord_calc_pseudoperm.append(ord_calc)
+
+        for elt in root.findall(PREFIX + 'OrdCalcTrans'):
+            # NomRef ; DureeCalc, PdtRes, IniCalcCI|IniCalcPrecedent|IniCalcCliche,
+            #          PrendreClichePonctuel, PrendreClichePeriodique
+
+            elt_init = elt[2]
+
+            elt_cliche_ponctuel = elt.find(PREFIX + 'PrendreClichePonctuel')  # TODO: should support multiple? Or change XSD to add `maxOccurs="1"`
+            if elt_cliche_ponctuel is None:
+                cliche_ponctuel = None
+            else:
+                cliche_ponctuel = (elt_cliche_ponctuel.get('NomFic'), elt_cliche_ponctuel[0].text)
+
+            elt_cliche_periodique = elt.find(PREFIX + 'PrendreClichePeriodique')  # TODO: should support multiple? Or change XSD to add `maxOccurs="1"`
+            if elt_cliche_periodique is None:
+                cliche_periodique = None
+            else:
+                assert elt_cliche_periodique[0][0].tag.endswith('PdtCst')  # TODO: should support PdtVar?
+                cliche_periodique = (elt_cliche_periodique.get('NomFic'), elt_cliche_periodique[0][0].text)
+
+            ord_calc = OrdCalcTrans(elt.get('NomRef'),
+                                    duration_iso8601_to_seconds(elt[0].text),
+                                    extract_pdt_from_elt(elt[1]),
+                                    (elt_init.tag[len(PREFIX):], elt_init.get('NomFic')),
+                                    cliche_ponctuel, cliche_periodique)
+            self.liste_ord_calc_trans.append(ord_calc)
+
     def read_all(self):
         """Lire tous les fichiers du scénario"""
         if not self.was_read:
@@ -366,6 +476,7 @@ class Scenario(FichierXML):
 
             self._read_dclm()
             self._read_dlhy()
+            self._read_ocal()
 
         self.was_read = True
 
@@ -508,6 +619,19 @@ class Scenario(FichierXML):
             loi_hydraulique_liste=[loi for _, loi in self.lois_hydrauliques.items()],
         )
 
+    def _write_ocal(self, folder):
+        """
+        Ecrire le fichier dclm.xml
+
+        :param folder: dossier de sortie
+        """
+        self._write_xml_file(
+            'ocal', folder,
+            sorties=self.ocal_sorties,
+            liste_ord_calc_pseudoperm=self.liste_ord_calc_pseudoperm,
+            liste_ord_calc_trans=self.liste_ord_calc_trans,
+        )
+
     def write_all(self, folder, folder_config=None, write_model=True):
         """Écrire tous les fichiers du scénario"""
         logger.debug("Écriture de %s dans %s" % (self, folder))
@@ -525,6 +649,7 @@ class Scenario(FichierXML):
 
         self._write_dclm(folder)
         self._write_dlhy(folder)
+        self._write_ocal(folder)
 
         if write_model:
             self.modele.write_all(folder, folder_config)
@@ -540,6 +665,19 @@ class Scenario(FichierXML):
         for elt_dde in elt_section:
             if elt_dde.get('NomRef') in variables_to_remove:
                 elt_section.remove(elt_dde)
+
+    def get_CLim_values_from_CalcPseudoPerm(self, nom_noeud, delta_t):
+        res = []
+        for i, calcul in enumerate(self.calculs):
+            if isinstance(calcul, CalcPseudoPerm):
+                for values in calcul.values:
+                     nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = values
+                     if nom_emh == nom_noeud:
+                         res.append([i * delta_t, value])
+                         break
+            else:
+                break  # No CalcPseudoPerm possible afterwards
+        return np.array(res)
 
     def __repr__(self):
         return "Scénario %s" % self.id
