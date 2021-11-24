@@ -666,18 +666,82 @@ class Scenario(FichierXML):
             if elt_dde.get('NomRef') in variables_to_remove:
                 elt_section.remove(elt_dde)
 
-    def get_CLim_values_from_CalcPseudoPerm(self, nom_noeud, delta_t):
+    def get_clim_values_from_all_calc_pseudoperm(self, nom_noeud, delta_t):
+        """
+        Extraction des valeurs imposées à un noeud sous forme de chronique temporelle
+
+        :param nom_noeud: nom du noeud sur lequel extraire la chronique temporelle
+        :param delta_t: durée entre 2 calculs pseudo-permanents
+        :return: 2D-array
+        """
         res = []
         for i, calcul in enumerate(self.calculs):
             if isinstance(calcul, CalcPseudoPerm):
                 for values in calcul.values:
-                     nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = values
-                     if nom_emh == nom_noeud:
-                         res.append([i * delta_t, value])
-                         break
+                    nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = values
+                    if nom_emh == nom_noeud:
+                        res.append([i * delta_t, value])
+                        break
             else:
                 break  # No CalcPseudoPerm possible afterwards
         return np.array(res)
+
+    def convert_all_calc_pseudoperm_to_trans(self, delta_t, nom_calcul='Cc_T01'):
+        """
+        Convertir tous les calculs pseudo-permanents en un calcul transitoire
+        (le premier calcul permanent est conservé car il faut en avoir un pour démarrer le transitoire)
+
+        :param delta_t: durée entre 2 calculs pseudo-permanents
+        :param nom_calcul: nom du calcul transitoire à créer
+        """
+        if not all([isinstance(calcul, CalcPseudoPerm) for calcul in self.calculs]):
+            raise ExceptionCrue10("Tous les calculs ne sont pas permanents")
+        if len(self.calculs) < 2:
+            raise ExceptionCrue10("Il faut au moins 2 calculs permanents")
+
+        # Ajout des lois hydrauliques
+        calcul = self.calculs[0]
+        nom_lois = []
+        duree_float = 0.0
+        for values in calcul.values:
+            nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = values
+            if typ_loi == 'Zimp':
+                loi_type = 'LoiTZimp'
+            elif typ_loi == 'Qapp':
+                loi_type = 'LoiTQapp'
+            else:
+                raise NotImplementedError("Le type de loi n'est pas convertible : %s" % typ_loi)
+            nom_loi = loi_type + '_' + nom_emh
+            nom_lois.append(nom_loi)
+            loi_hydraulique = LoiHydraulique(nom_loi, loi_type)
+            values = self.get_clim_values_from_all_calc_pseudoperm(nom_emh, delta_t)
+            duree_float = max(duree_float, values[-1, 0])
+            loi_hydraulique.set_values(values)
+            self.ajouter_loi_hydraulique(loi_hydraulique)
+
+        # Création du calcul transitoire
+        new_calcul = CalcTrans(nom_calcul)
+
+        for values, nom_loi in zip(calcul.values, nom_lois):
+            nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = values
+            loi = self.get_loi_hydraulique(nom_loi)
+
+            # Change clim_tag for unsteady calculation
+            if loi.type == 'LoiTZimp':
+                clim_tag = 'CalcTransNoeudNiveauContinuLimnigramme'
+            elif loi.type == 'LoiTQapp':
+                clim_tag = 'CalcTransNoeudQapp'
+            else:
+                raise NotImplementedError
+            typ_loi = CalcTrans.CLIM_TYPE_TO_TAG_VALUE[clim_tag]
+
+            new_calcul.ajouter_valeur(nom_emh, clim_tag, is_active, nom_loi, sens, typ_loi, param_loi, nom_fic)
+
+        # Mise à jour de la liste des calculs
+        self.calculs = [calcul, new_calcul]
+        self.liste_ord_calc_pseudoperm = [OrdCalcPseudoPerm(calcul.id, ('IniCalcCI', None), None)]
+        self.liste_ord_calc_trans = [OrdCalcTrans(new_calcul.id, duree_float, self.modele.get_pnum_CalcTrans_PdtCst(),
+                                                  ('IniCalcPrecedent', None), None, None)]
 
     def __repr__(self):
         return "Scénario %s" % self.id
