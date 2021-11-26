@@ -45,7 +45,7 @@ ETATREF_SCENARIO_PAR_AMENAGEMENT = OrderedDict([
     ('Etu_SY2016_Conc', 'Sc_etats_ref'),
     ('Etu_CE2016_Conc', None),
     ('Etu_BY2018_Conc', 'Sc_BY20_Conc'),
-    ('Etu_BC2012_Conc', None),
+    ('Etu_BC2020_Conc', None),
     ('Etu_SB2013_Conc', None),
 
     # DTRI
@@ -63,7 +63,7 @@ ETATREF_SCENARIO_PAR_AMENAGEMENT = OrderedDict([
     # DTRM
     ('Etu_DM2018_Conc', None),
     ('Etu_CA2020_Conc', None),
-    ('Etu_AV2017_Conc', None),
+    ('Etu_AV2020_Conc', None),
     ('Etu_VA2018_Conc', None),
     ('Etu_avaVA2018_Conc', None),
 ])
