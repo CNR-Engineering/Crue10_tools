@@ -17,7 +17,7 @@
       <PdtCst>P0Y0M0DT1H0M0S</PdtCst>
     </Pdt>
     <TolMaxQ>0.01</TolMaxQ>
-    <TolMaxZ>0.0010</TolMaxZ>
+    <TolMaxZ>0.001</TolMaxZ>
   </ParamNumCalcPseudoPerm>
   <ParamNumCalcTrans>
     <CrMaxFlu>1.0E30</CrMaxFlu>

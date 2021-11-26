@@ -1,54 +1,29 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <OPTR xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/optr-1.2.xsd">
-	<Commentaire></Commentaire>
-	<!-- Section commune à tous les fichiers O* en v1.2 pour commander la sortie des traces, de l'avancement et des résultats -->
-	<Sorties>
-		<Avancement>
-			<SortieFichier>true</SortieFichier>
-		</Avancement>
-		<Trace>
-			<SortieEcran>true</SortieEcran>
-			<SortieFichier>true</SortieFichier>
-			<VerbositeEcran>INFO</VerbositeEcran>
-			<VerbositeFichier>INFO</VerbositeFichier>
-		</Trace>
-		<Resultat>
-			<SortieFichier>true</SortieFichier>
-		</Resultat>
-	</Sorties>
-	
-	<MethodeOrdonnancement>
-		<!-- Ordre du DRSO pour les noeuds -->
-		<OrdreDRSO/>
-		<!-- Méthode future alternative : minimiser largeur bande
-		<OrdreMinLargBande/>
-		-->
-		<!-- Quelle que soit la méthode d'ordonnancement appliquée, le PrtReseau indique à la fin si
-			l'ordre des noeuds calculé est différent de l'ordre initial dans le DRSO.
-			Il indique aussi la largeur de bande avant et après --> 
-	</MethodeOrdonnancement>
-	
-	<Regles>
-		<!-- Règles à mettre en oeuvre dès la première version -->
-		<!-- Vérifier la compatibilité entre le type d'EMH et le type de CLimM : erreur bloquante -->
-		<RegleCompatibiliteCLimM>
-			<IsActive>true</IsActive>
-		</RegleCompatibiliteCLimM>
-		<!-- Signaler tous les objets nommés inactifs, par décision utilisateur ou par filiation : avertissement -->
-		<RegleSignalerObjetsInactifs>
-			<IsActive>true</IsActive>
-		</RegleSignalerObjetsInactifs>
-		
-		<!-- Règles futures -->
-		<!-- Vérif connexité réseau : pour chaque noeud il existe un parcours qui le relie à tous les autres noeuds
-		<RegleConnexiteReseau>
-			<IsActive>true</IsActive>
-		</RegleConnexiteReseau>
-		-->
-		<!-- Vérif conditionnement réseau :
-			- un et un seul conditionnement en cote à l'aval,
-			- surabondance (ou sur-conditionnement) de CLimM
-			- sous-abondance (ou sous-conditionnement) de CLimM
-		-->
-	</Regles>
+  <Commentaire></Commentaire>
+  <Sorties>
+    <Avancement>
+      <SortieFichier>true</SortieFichier>
+    </Avancement>
+    <Trace>
+      <SortieEcran>true</SortieEcran>
+      <SortieFichier>true</SortieFichier>
+      <VerbositeEcran>INFO</VerbositeEcran>
+      <VerbositeFichier>INFO</VerbositeFichier>
+    </Trace>
+    <Resultat>
+      <SortieFichier>true</SortieFichier>
+    </Resultat>
+  </Sorties>
+  <MethodeOrdonnancement>
+    <OrdreDRSO/>
+  </MethodeOrdonnancement>
+  <Regles>
+    <RegleCompatibiliteCLimM>
+      <IsActive>true</IsActive>
+    </RegleCompatibiliteCLimM>
+    <RegleSignalerObjetsInactifs>
+      <IsActive>true</IsActive>
+    </RegleSignalerObjetsInactifs>
+  </Regles>
 </OPTR>
