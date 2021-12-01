@@ -206,20 +206,23 @@ class Branche(ABC):
             raise ExceptionCrue10("La géométrie de la %s ne doit pas avoir de Z !" % self)
         self.geom = geom
 
-    def shift_sectionprofil_to_extremity(self):
+    def shift_sectionprofil_to_xp_position(self):
         """
-        Shift first and last SectionProfil to branch extremity
-        (a constant biais is introduced by Fudaa-Crue for the graphical representation)
+        Translate les SectionProfil aux positions de leur Xp
+        (Permet de pallier le biais introduit par Fudaa-Crue, en particulier aux sections proches des noeuds)
         """
         if self.geom is None:
             raise ExceptionCrue10GeometryNotFound(self)
-        for pos in (0, -1):
+        for pos in range(len(self.liste_sections_dans_branche)):
             section = self.liste_sections_dans_branche[pos]
             if isinstance(section, SectionProfil):
                 if pos == 0:
                     node = self.noeud_amont.geom
-                else:
+                elif pos == len(self.liste_sections_dans_branche) - 1:
                     node = self.noeud_aval.geom
+                else:
+                    node = self.geom.interpolate(section.xp / self.length, normalized=True)
+
                 if section.geom_trace is None:
                     raise ExceptionCrue10GeometryNotFound(section)
                 section_point = section.geom_trace.intersection(self.geom)

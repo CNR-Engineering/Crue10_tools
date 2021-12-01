@@ -1098,7 +1098,7 @@ class SousModele(FichierXML):
     def normalize_geometry(self):
         """Normaliser les géométries pour éviter les artefacts de Fudaa-Crue"""
         for branche in self.get_liste_branches():
-            branche.shift_sectionprofil_to_extremity()
+            branche.shift_sectionprofil_to_xp_position()
         self.convert_sectionidem_to_sectionprofil()
 
     def ajouter_emh_depuis_sous_modele(self, sous_modele, suffix=''):
