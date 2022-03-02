@@ -269,18 +269,20 @@ class Scenario(FichierXML):
 
         # Sur le scénario ou modèle
         - `pnum.CalcPseudoPerm.Pdt`: <float> => affection du pas de temps (en secondes) pour les calculs permanents
-        - `pnum.CalcPseudoPerm.TolMaxZ`: <float> => affection de la tolérance en niveau (en m)
-              pour les calculs permanents
+        - `pnum.CalcPseudoPerm.TolMaxZ`: <float> => affection de la tolérance en niveau (en m) pour les calculs
+            permanents
         - `pnum.CalcPseudoPerm.TolMaxQ`: <float> => affection de la tolérance en débit (en m3/s) pour les calculs
-              permanents
-        - `Qapp_factor.NomCalcul.NomNoeud`: <float> => application du facteur multiplicatif au débit du
-              calcul NomCalcul au noeud nommé NomNoeud
+            permanents
+        - `Qapp_factor.NomCalcul.NomNoeud`: <float> => application du facteur multiplicatif au débit du calcul
+            NomCalcul au noeud nommé NomNoeud
         - `Zimp.NomCalcul.NomNoeud`: <float> => application de la cote au calcul NomCalcul au noeud nommé NomNoeud
         - `branche_barrage.CoefD`: <float> => application du coefficient à la branche barrage
 
         # Sur les sous-modèles
         - `Fk_NomLoi`: <float> => modification du Strickler de la loi de frottement nommée NomLoi
         - `Fk_shift.*`: <float> => modification par somme du Strickler de toutes les lois de frottement (sauf celles du stockage)
+
+        :@param modifications: dict of modifications
         """
         check_isinstance(modifications, dict)
         for modification_key, modification_value in modifications.items():

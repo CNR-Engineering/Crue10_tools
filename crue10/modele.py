@@ -498,6 +498,7 @@ class Modele(FichierXML):
         """
         Découper une branche fluviale au niveau de la section cible intermédiaire (doit exister sur la branche),
             tout en conservant les conditions aux limites
+
         :param nom_branche: nom de la branche à découper
         :param nom_branche_nouvelle: nom de la nouvelle branche (partie aval)
         :param nom_section: nom de la section servant à la découpe
