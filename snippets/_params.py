@@ -24,14 +24,17 @@ CRUE10_EXE_REFERENCE = 'prod'
 CRUE10_EXE = OrderedDict([
     # Liste des exécutables Crue10 à comparer
 
+    ('prod', 'C:/softs/CNR/FudaaCrue_PROD/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
+    ('qualif', 'C:/softs/CNR/FudaaCrue_QUALIF/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
+
     # Référence utilisée pour les calculs de différences
-    ('prod', 'P:/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
+    # ('prod', 'P:/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
 
     # Calculs à comparer à la référence
     # failed .STO/.STR missing: ('qualif_c10m9', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/c10m9/exe/crue10.exe'.replace('/', sep)),
     # same as prod: ('qualif_old_c10m10', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/old_c10m10/exe/crue10.exe'.replace('/', sep)),
     # ('qualif_c10m10v111', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/c10m10v111/exe/crue10.exe'.replace('/', os.sep)),
-    ('qualif', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
+    # ('qualif', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
 
     # ('local_v10.2', 'C:/PROJETS/SHY_C10_Crue10/BRANCHES/v10.2/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),  # CCM = copie lazy
     # ('local_v10.3', 'C:/PROJETS/SHY_C10_Crue10/BRANCHES/v10.3 (VS2017)/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),  # CCM = copie depuis Q

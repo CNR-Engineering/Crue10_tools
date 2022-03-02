@@ -86,11 +86,12 @@ if PLOT_DIFF_BARPLOT:
     # Read data to plot
     df_diff_stat = pd.read_csv(OUT_CSV_DIFF_FILE, delimiter=CSV_DELIMITER)
     df_diff_stat = df_diff_stat[df_diff_stat['exe_id'] != CRUE10_EXE_REFERENCE]
-    df_diff_stat = df_diff_stat[df_diff_stat['scenario'] != 'Sc_AV2011_c10']
+    # df_diff_stat = df_diff_stat[df_diff_stat['scenario'] != 'Sc_AV2011_c10']
+    # df_diff_stat = df_diff_stat[df_diff_stat['scenario'] != 'Sc_M31-4_c10']
     df_diff_stat = df_diff_stat.sort_values(by='scenario')
 
     # Build a FacetGrid object with barplots
-    g = sns.FacetGrid(df_diff_stat, row='variable', sharey='row', height=2, aspect=22)
+    g = sns.FacetGrid(df_diff_stat, row='variable', sharey='row', height=2, aspect=25)
     g = g.map(sns.barplot, 'scenario', 'value', 'exe_id', palette="husl")
 
     # Sets xlabels and ylabels from titles
@@ -117,11 +118,10 @@ if PLOT_DIFF_HEATMAP:
     # Read data to plot
     df_diff_stat = pd.read_csv(OUT_CSV_DIFF_FILE, delimiter=CSV_DELIMITER)
     df_diff_stat = df_diff_stat[df_diff_stat['exe_id'] == CRUE10_EXE_HEATMAP]
-    df_diff_stat = df_diff_stat[df_diff_stat['scenario'] != 'Sc_AV2011_c10']
     df_diff_stat = df_diff_stat.sort_values(by='scenario')
 
     # Build a FacetGrid object
-    g = sns.FacetGrid(df_diff_stat, row='variable', sharey='row', height=2, aspect=22)
+    g = sns.FacetGrid(df_diff_stat, row='variable', sharey='row', height=2, aspect=25)
     fig = g.fig
 
     def draw_heatmap(*args, **kwargs):

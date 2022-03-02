@@ -10,13 +10,13 @@ from crue10.utils import ExceptionCrue10, logger
 
 try:
     # Read modele
-    model_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
-    study = Etude(os.path.join(model_folder, 'Etu_VS2003_Conc.etu.xml'))
-    modele = study.get_modele('Mo_VS2013_c10_octobre_2014')
+    folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
+    etude = Etude(os.path.join(folder, 'Etu_VS2003_Conc.etu.xml'))
+    modele = etude.get_modele('Mo_VS2013_c10_octobre_2014')
     modele.read_all()
 
     # Read rcal result file and its results
-    run = study.get_scenario('Sc_EtatsRef2015').get_run('R2019-04-16-14h09m19s')
+    run = etude.get_scenario('Sc_EtatsRef2015').get_run('R2019-04-16-14h09m19s')
     results = run.get_results()
     calc_name = 'Cc_Avr_2006'
 
@@ -34,7 +34,7 @@ try:
         'properties': {'id_branche': 'str'}
     }
     schema['properties'].update({var: 'float' for var in variables})
-    with fiona.open(os.path.join(model_folder, 'check_at_branches.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
+    with fiona.open(os.path.join(folder, 'check_at_branches.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for sous_modele in modele.liste_sous_modeles:
             sous_modele.convert_sectionidem_to_sectionprofil()
             print(sous_modele.summary())
