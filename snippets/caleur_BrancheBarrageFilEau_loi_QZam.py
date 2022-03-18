@@ -1,15 +1,22 @@
 # coding: utf-8
 """
 Calage de la loi QZam de la branche 15 par un processus itératif sur tous les calculs pseudo-permanents
+Si le processus converge et s'arrête sans erreur alors la loi de la consigne QZam est à extraire dans le dernier run.
+
+Pré-requis :
+- Une branche BarrageFilEau doit exister dans le modèle de manière unique
+- Les variables `Q` aux sections et `RegimeBarrage` aux branches BarrageFilEau sont nécessaires
 
 Méthodologie :
 - Le scénario courant est utilisé et tous les précédents runs sont supprimés
 - La consigne est appliquée au début dans la loi QZam puis l'écart de niveau (calculé - consigne) au PR est ajouté
-    jusqu'à ce que l'écart maxmimum soit inférieur à un seuil (fixé à 1.5cm dans l'exemple).
+    jusqu'à ce que l'écart maxmimum soit inférieur à un seuil (fixé à 2.5cm dans l'exemple).
 - Pour les débits avec le barrage non manoeuvrant, la cote n'est plus actualisée
     et l'écart pour ces débits n'est pas pris en compte dans le critère d'arrêt
 - Les débits de la loi QZam initiale sont conservés, sa discrétisation doit donc être correcte
 - Un plantage lors d'un run (sur un des pseudo-permanents) arrête le processus brutalement
+
+/!\ Ne fonctionne que si le barrage est noyé lorsqu'il n'est plus manoeuvrant... à cause du bug de la variable RegimeBarrage
 """
 from crue10.utils import ExceptionCrue10, logger
 from crue10.etude import Etude
@@ -29,7 +36,7 @@ logger.setLevel(logging.INFO)
 # Chemin vers l'étude à traiter (le scénario courant sera utilisé)
 ETUDE_PATH = os.path.join('..', '..', 'Crue10_examples',
                           'Etudes-tests', 'Etu_SV2019_Conc_Br15', 'Etu_SV2019_Conc.etu.xml')
-ECART_MAX = 0.015  # Différence de niveau (en m) maximale utilisée comme critère d'arrêt
+ECART_MAX = 0.025  # Différence de niveau (en m) maximale utilisée comme critère d'arrêt
 
 # Consigne de SV (2019)
 section_PR1 = 'St_RET75.700B'
@@ -37,10 +44,10 @@ section_PR2 = 'St_RET82.000'
 QLimPR1 = 4600  # m3/s
 # Lois de pilotage pour les 2 PR = tableaux avec les couples de valeurs : débit (en m3/s) et niveau (en mGNFO)
 Z_cible_PR1 = np.array([(0, 128.20), (4600, 128.20)])
-Z_cible_PR2 = np.array([(4600, 127.30), (8000, 127.30)])  # la dernière cote est utilisée pour l'extrapolation
+Z_cible_PR2 = np.array([(4600, 127.20), (8000, 127.20)])  # la dernière cote est utilisée pour l'extrapolation
 
 
-VALEUR_MANOEUVRANT = 2  # FIXME: ça devrait être 0 mais Crue10 ne le sort pas...
+VALEUR_MANOEUVRANT = 2  # FIXME: ça devrait être 0 mais Crue10 ne le sort pas... la version v10.3.6 devrait le corriger
 
 
 def interp_target_PR(q_array):
@@ -98,6 +105,9 @@ while True:
     try:
         # Lancement du calcul
         run = scenario.create_and_launch_new_run(etude, run_id, force=True)
+
+        # Ecriture dans l'étude du nouveau run
+        etude.write_etu()
 
         # Lecture du Run (traces et résultats disponibles)
         logger.info('Lecture du Run `%s`' % run.id)
@@ -160,9 +170,6 @@ while True:
                                                new_loi_QZam[:, 0], new_loi_QZam[:, 1])
 
     i += 1
-
-# Ecriture dans l'étude des runs du scénario courant
-etude.write_etu()
 
 
 # Ajout de la consigne dans df_lois (pour le graphique ensuite)

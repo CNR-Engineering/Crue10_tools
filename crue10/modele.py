@@ -298,7 +298,7 @@ class Modele(FichierXML):
 
     def get_branche_barrage(self):
         """
-        :return: branche barrage du modèle
+        :return: branche barrage du modèle (active ou non)
         :rtype: {BrancheBarrageFilEau, BrancheBarrageGenerique}
         """
         liste_branches = []
@@ -306,9 +306,9 @@ class Modele(FichierXML):
             if isinstance(branche, BrancheBarrageFilEau) or isinstance(branche, BrancheBarrageGenerique):
                 liste_branches.append(branche)
         if len(liste_branches) == 0:
-            raise ExceptionCrue10("Aucune branche barrage (14 ou 15) dans le sous-modèle")
+            raise ExceptionCrue10("Aucune branche barrage (14 ou 15) dans le modèle")
         if len(liste_branches) > 1:
-            raise ExceptionCrue10("Plusieurs branches barrages (14 ou 15) dans le sous-modèle : %s" % liste_branches)
+            raise ExceptionCrue10("Plusieurs branches barrages (14 ou 15) dans le modèle : %s" % liste_branches)
         return liste_branches[0]
 
     def _get_pnum_CalcPseudoPerm(self):
