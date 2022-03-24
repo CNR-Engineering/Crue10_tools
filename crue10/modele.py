@@ -730,18 +730,15 @@ class Modele(FichierXML):
         with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
             for sous_modele in self.liste_sous_modeles:
                 for branche in sous_modele.get_liste_branches():
-                    for i_lit, lit_name in enumerate(LitNumerote.LIMIT_NAMES):
+                    for i_limite, nom_limite in enumerate(LitNumerote.LIMIT_NAMES):
                         coords = []
                         for section in branche.liste_sections_dans_branche:
                             if isinstance(section, SectionProfil):
-                                if i_lit == 0:
-                                    point = section.interp_point(section.lits_numerotes[0].xt_min)
-                                else:
-                                    point = section.interp_point(section.lits_numerotes[i_lit - 1].xt_max)
+                                point = section.interp_point(section.get_xt_limite_lit(nom_limite))
                                 coords.append((point.x, point.y))
                         if len(coords) > 2:
                             out_shp.write({'geometry': mapping(LineString(coords)),
-                                           'properties': {'id_limite': lit_name, 'id_branche': branche.id}})
+                                           'properties': {'id_limite': nom_limite, 'id_branche': branche.id}})
 
     def log_duplicated_emh(self):
         """Logger les EMH dupliqués"""

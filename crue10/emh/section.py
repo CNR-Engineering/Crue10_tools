@@ -414,6 +414,14 @@ class SectionProfil(Section):
                 return lit
         raise ExceptionCrue10("Aucun lit `%s` pour la %s" % (nom, self))
 
+    def get_xt_limite_lit(self, nom_limite):
+        idx_limite = LitNumerote.LIMIT_NAMES.index(nom_limite)
+        if idx_limite == 0:
+            return self.get_premier_lit_numerote(LitNumerote.BED_NAMES[0]).xt_min
+        else:
+            nom_lit = LitNumerote.BED_NAMES[idx_limite - 1]
+            return self.get_dernier_lit_numerote(nom_lit).xt_max
+
     def get_limite_geom(self, nom):
         for limite in self.limites_geom:
             if limite.id == nom:
