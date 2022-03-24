@@ -5,8 +5,8 @@ Extraire un tableau pour un Run en transitoire avec comme colonne :
 - emh: nom de l'EMH
 - Q: débit maximum (m3/s)
 - Z: niveau maximum (mNGF)
-- surf(m2): surface (m²)
-- vol.(mm3): volume (m³)
+- surf(m2): surface planimétrique (m²)
+- vol.(mm3): volume (Mm³)
 - hmoy : hauteur moyenne maximum, calculée comme ratio Vol/Splan (m)
 
 Pour avoir un fichier ERS exploitable, il faut appeler IMPRES avec la carte `EXCEL` et une série de cartes `CASIER`
@@ -28,7 +28,7 @@ VARNAME_VOLUME = 'vol.(mm3)'
 def crue9_extract_table_at_casiers(args):
     # Read IMPRES result file
     df_wide = read_impres_as_wide_df(args.ers_path)
-    df_wide['hmoy'] = np.divide(df_wide[VARNAME_VOLUME] * 1e9, df_wide[VARNAME_SPLAN],
+    df_wide['hmoy'] = np.divide(df_wide[VARNAME_VOLUME] * 1e6, df_wide[VARNAME_SPLAN],
                                 out=np.zeros_like(df_wide[VARNAME_VOLUME]), where=df_wide[VARNAME_SPLAN] != 0)
     df_wide = df_wide.drop('time', axis=1)
 
