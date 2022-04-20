@@ -47,11 +47,9 @@ def crue10_extract_table_at_casiers(args):
         logger.critical("Au moins une variable aux casiers est manquante : %s" % e)
         sys.exit(2)
 
-    # Select time
-    print(res.shape)
+    # Select time range
     time = results.get_calc_unsteady(args.calc_unsteady).time_serie()
     res = res[np.logical_and(args.start_time <= time, time <= args.end_time), :, :]
-    print(res.shape)
 
     # Compute Vol/Splan (except when Splan=0 to avoid division by zero) and extract the max over the time
     hmoy = np.max(np.divide(res[:, :, pos_Vol], res[:, :, pos_Splan],
