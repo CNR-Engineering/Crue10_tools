@@ -297,8 +297,11 @@ class RunResults:
         values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
         return pd.DataFrame(values_in_dict)
 
-    def get_res_unsteady_max_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None):
-        res_trans = np.max(self.get_res_unsteady(calc_name)['Section'], axis=0)
+    def get_res_unsteady_max_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None,
+                                                                     start_time=-float('inf'), end_time=float('inf')):
+        time = self.get_calc_unsteady(calc_name).time_serie()
+        res = self.get_res_unsteady(calc_name)['Section']
+        res_trans = np.max(res[np.logical_and(start_time <= time, time <= end_time), :, :], axis=0)
 
         if var_names is None:
             var_names = self.variables['Section']
