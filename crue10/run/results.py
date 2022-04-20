@@ -423,7 +423,7 @@ class RunResults:
                 res = self.get_res_unsteady(calc_name)
                 for emh_type in self.emh_types:
                     variables = self.variables[emh_type]
-                    for time_sec, res_frame in zip(self.calc_unsteady_dict[calc_name].time_serie(), res[emh_type]):
+                    for time_sec, res_frame in zip(self.get_calc_unsteady(calc_name).time_serie(), res[emh_type]):
                         for emh_name, row in zip(self.emh[emh_type], res_frame):
                             for variable, value in zip(variables, row):
                                 csv_writer.writerow({'calc': calc_name,
@@ -440,8 +440,7 @@ class RunResults:
         - returns: tableau des valeurs des pas de temps [s].
         """
         values = []
-
-        for date in self.calc_unsteady_dict[cal_name].time_serie(): # Parcours des pas de temps
+        for date in self.get_calc_unsteady(cal_name).time_serie():  # Parcours des pas de temps
             values.append(date)
         return values
 
