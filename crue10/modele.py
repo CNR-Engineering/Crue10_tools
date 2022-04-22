@@ -479,6 +479,11 @@ class Modele(FichierXML):
         sub_elt = etree.SubElement(pdt_elt, PREFIX + 'PdtCst')
         sub_elt.text = duration_seconds_to_iso8601(value)
 
+    def renommer(self, nom_modele_cible, folder):
+        self.id = nom_modele_cible
+        for xml_type in Modele.FILES_XML:
+            self.files[xml_type] = os.path.join(folder, nom_modele_cible[3:] + '.' + xml_type + '.xml')
+
     def supprimer_noeuds_entre_deux_branches_fluviales(self):
         """
         Remove all intermediate removable nodes which are located between 2 adjacent fluvial branches

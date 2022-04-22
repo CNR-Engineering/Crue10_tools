@@ -911,6 +911,15 @@ class SousModele(FichierXML):
                 return casier
         return None
 
+    def renommer(self, nom_sous_modele_cible, folder, folder_config=None):
+        self.id = nom_sous_modele_cible
+        for xml_type in SousModele.FILES_XML:
+            self.files[xml_type] = os.path.join(folder, nom_sous_modele_cible[3:] + '.' + xml_type + '.xml')
+        if folder_config is not None:
+            for shp_name in SousModele.FILES_SHP:
+                sm_folder = os.path.join(folder, folder_config, self.id.upper())
+                self.files[shp_name] = os.path.join(sm_folder, shp_name + '.shp')
+
     def remove_sectioninterpolee(self):
         """Remove all `SectionInterpolee` which are internal sections"""
         for branche in self.get_liste_branches():

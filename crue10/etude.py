@@ -454,8 +454,6 @@ class Etude(FichierXML):
         Attention le modèle et les sous-modèles restent partagés avec le scénario source
         Les Runs existants ne sont pas copiés dans le scénario cible
 
-        Remarque : une copie profonde n'est pas encore implémentée...
-
         :param nom_scenario_source: nom du scénario source
         :type nom_scenario_source: str
         :param nom_scenario_cible: nom du scénario cible
@@ -463,6 +461,7 @@ class Etude(FichierXML):
         :return: nouveau scénario
         :rtype: Scenario
         """
+        # TODO: optimize to avoid copyfile and read_all (it should be copied directly in memory)
         scenario_ori = self.get_scenario(nom_scenario_source)
         scenario_files = deepcopy(scenario_ori.files)
         for xml_type in Scenario.FILES_XML:
@@ -473,6 +472,34 @@ class Etude(FichierXML):
         scenario = Scenario(nom_scenario_cible, scenario_ori.modele, access='w',
                             files=scenario_files, metadata=scenario_ori.metadata)
         scenario.read_all()
+        self.ajouter_scenario(scenario)
+        return scenario
+
+    def ajouter_scenario_par_copie_profonde(self, nom_scenario_source, suffixe):
+        """
+        Copie profonde d'un scénario existant et ajout à l'étude courante
+        Le modèle et les sous-modèles sont dupliqués et ne sont pas partagés avec le scénario source
+        Les Runs existants ne sont pas copiés dans le scénario cible
+
+        :param nom_scenario_source: nom du scénario source
+        :type nom_scenario_source: str
+        :param suffixe: suffixe utilisée pour renommer les sous-modèles, le modèle et le scénario cibles
+        :type suffixe: str
+        :return: nouveau scénario
+        :rtype: Scenario
+        """
+        scenario_ori = self.get_scenario(nom_scenario_source)
+        scenario = deepcopy(scenario_ori)
+
+        nom_scenario_cible = nom_scenario_source + suffixe
+        scenario.renommer(nom_scenario_cible, self.folder)
+
+        modele = scenario.modele
+        modele.renommer(modele.id + suffixe, self.folder)
+
+        for sous_modele in modele.liste_sous_modeles:
+            sous_modele.renommer(sous_modele.id + suffixe, self.folder, folder_config=self.folders['CONFIG'])
+
         self.ajouter_scenario(scenario)
         return scenario
 

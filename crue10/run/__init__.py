@@ -226,6 +226,9 @@ class Run:
         rcal_path = get_path_file_unique_matching(self.run_mo_path, '*.rcal.xml')
         return RunResults(rcal_path)
 
+    def set_comment(self, comment):
+        self.metadata['Commentaire'] = comment
+
     def __repr__(self):
         text = "Run %s" % self.id
         if self.traces[Run.SERVICES[0]]:

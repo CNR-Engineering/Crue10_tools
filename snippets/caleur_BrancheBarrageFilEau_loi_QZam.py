@@ -5,7 +5,9 @@ Si le processus converge et s'arrête sans erreur alors la loi de la consigne QZ
 
 Pré-requis :
 - Une branche BarrageFilEau doit exister dans le modèle de manière unique
-- Les variables `Q` aux sections et `RegimeBarrage` aux branches BarrageFilEau sont nécessaires
+- Les variables suivantes sont obligatoires :
+    - `Z` et `Q` aux sections
+    - `RegimeBarrage` aux branches BarrageFilEau
 
 Méthodologie :
 - Le scénario courant est utilisé et tous les précédents runs sont supprimés
@@ -42,7 +44,7 @@ ECART_MAX = 0.025  # Différence de niveau (en m) maximale utilisée comme crit�
 section_PR1 = 'St_RET75.700B'
 section_PR2 = 'St_RET82.000'
 QLimPR1 = 4600  # m3/s
-# Lois de pilotage pour les 2 PR = tableaux avec les couples de valeurs : débit (en m3/s) et niveau (en mGNFO)
+# Lois de pilotage pour les 2 PR = tableaux avec les couples de valeurs : débit (en m3/s) et niveau (en mNGFO)
 Z_cible_PR1 = np.array([(0, 128.20), (4600, 128.20)])
 Z_cible_PR2 = np.array([(4600, 127.20), (8000, 127.20)])  # la dernière cote est utilisée pour l'extrapolation
 
@@ -81,15 +83,15 @@ try:
     scenario = etude.get_scenario_courant()
     scenario.remove_all_runs()
 
-    # Récupération de la branche 15
-    branche_bararge = scenario.modele.get_branche_barrage()
-    section_barrage = branche_bararge.get_section_amont().id
-    section_pilote = branche_bararge.section_pilote.id
+    # Récupération de la branche BarrageFilEau
+    branche_barrage = scenario.modele.get_branche_barrage()
+    section_barrage = branche_barrage.get_section_amont().id
+    section_pilote = branche_barrage.section_pilote.id
 
     # La première itération correspond à la consigne appliquée à l'amont barrage
-    q_pilote, _ = branche_bararge.loi_QZam.T
+    q_pilote, _ = branche_barrage.loi_QZam.T
     z_barrage = interp_target_PR(q_pilote)
-    branche_bararge.set_loi_QZam(np.column_stack((q_pilote, z_barrage)))
+    branche_barrage.set_loi_QZam(np.column_stack((q_pilote, z_barrage)))
 
 except ExceptionCrue10 as e:
     logger.critical(e)
@@ -103,6 +105,9 @@ while True:
     run_id = 'Iter' + str(i)
 
     try:
+        # Ecriture du scénario pour conserver la loi calée dans le scénario courant
+        scenario.write_all(etude.folder, folder_config=etude.folders['CONFIG'])
+
         # Lancement du calcul
         run = scenario.create_and_launch_new_run(etude, run_id, force=True)
 
@@ -123,7 +128,7 @@ while True:
 
     z_PR1, z_PR2, z_barrage = results.get_res_all_steady_var_at_emhs('Z',
                                                                      [section_PR1, section_PR2, section_barrage]).T
-    regime_barrage = results.get_res_all_steady_var_at_emhs('RegimeBarrage', [branche_bararge.id])[:, 0]
+    regime_barrage = results.get_res_all_steady_var_at_emhs('RegimeBarrage', [branche_barrage.id])[:, 0]
     q_pilote = results.get_res_all_steady_var_at_emhs('Q', [section_pilote])[:, 0]
 
     # Résultat
@@ -153,8 +158,10 @@ while True:
     # Vérification du critère d'arrêt
     dz = z_res_at_PR - z_target_at_PR
     dz_filtre = dz[regime_barrage == VALEUR_MANOEUVRANT]
-    logger.info("Ecart: moyen=%f, max=%f, Qnon manoeuvrant=%f"
-                % (dz_filtre.mean(), dz_filtre.max(), q_debut_non_manoeuvrant))
+    txt = "Ecart: moyen=%f, max=%f, Qnon manoeuvrant=%f" \
+          % (dz_filtre.mean(), dz_filtre.max(), q_debut_non_manoeuvrant)
+    run.set_comment('Itération %i' % i + ': ' + txt)
+    logger.info(txt)
     if dz_filtre.max() < ECART_MAX:
         logger.info("=> Calage réussi avec succès !")
         break
@@ -163,10 +170,10 @@ while True:
     if i == 0:
         z_consigne_prev = z_target_at_PR
     else:
-        z_consigne_prev = np.interp(q_pilote, branche_bararge.loi_QZam[:, 0], branche_bararge.loi_QZam[:, 1])
+        z_consigne_prev = np.interp(q_pilote, branche_barrage.loi_QZam[:, 0], branche_barrage.loi_QZam[:, 1])
     new_loi_QZam = np.column_stack((q_pilote, z_consigne_prev - dz))
     new_loi_QZam = new_loi_QZam[new_loi_QZam[:, 0].argsort(), :]
-    branche_bararge.loi_QZam[:, 1] = np.interp(branche_bararge.loi_QZam[:, 0],
+    branche_barrage.loi_QZam[:, 1] = np.interp(branche_barrage.loi_QZam[:, 0],
                                                new_loi_QZam[:, 0], new_loi_QZam[:, 1])
 
     i += 1

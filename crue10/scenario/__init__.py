@@ -482,6 +482,11 @@ class Scenario(FichierXML):
 
         self.was_read = True
 
+    def renommer(self, nom_scenario_cible, folder):
+        self.id = nom_scenario_cible
+        for xml_type in Scenario.FILES_XML:
+            self.files[xml_type] = os.path.join(folder, nom_scenario_cible[3:] + '.' + xml_type + '.xml')
+
     def remove_run(self, run_id):
         run_path = os.path.join(self.runs[run_id].run_mo_path, '..')
         logger.debug("Suppression du Run #%s (%s)" % (run_id, run_path))
