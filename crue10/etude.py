@@ -4,7 +4,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from io import open  # Python2 fix
 import os.path
-from shutil import rmtree
+from shutil import copyfile, rmtree
 import time
 import xml.etree.ElementTree as ET
 
@@ -454,7 +454,7 @@ class Etude(FichierXML):
         Attention le modèle et les sous-modèles restent partagés avec le scénario source
         Les Runs existants ne sont pas copiés dans le scénario cible
 
-        Remarque : une copie profonde n'est pas possible car il faudrait renommer le modèle et les sous-modèles...
+        Remarque : une copie profonde n'est pas encore implémentée...
 
         :param nom_scenario_source: nom du scénario source
         :type nom_scenario_source: str
@@ -464,8 +464,14 @@ class Etude(FichierXML):
         :rtype: Scenario
         """
         scenario_ori = self.get_scenario(nom_scenario_source)
+        scenario_files = deepcopy(scenario_ori.files)
+        for xml_type in Scenario.FILES_XML:
+            in_path = scenario_ori.files[xml_type]
+            out_path = os.path.join(self.folder, nom_scenario_cible[3:] + '.' + xml_type + '.xml')
+            copyfile(in_path, out_path)
+            scenario_files[xml_type] = out_path  # overwrite Scenario file path
         scenario = Scenario(nom_scenario_cible, scenario_ori.modele, access='w',
-                            files=scenario_ori.files, metadata=scenario_ori.metadata)
+                            files=scenario_files, metadata=scenario_ori.metadata)
         scenario.read_all()
         self.ajouter_scenario(scenario)
         return scenario
