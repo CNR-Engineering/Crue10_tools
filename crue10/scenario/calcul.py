@@ -52,6 +52,11 @@ class CalcPseudoPerm(Calcul):
         assert clim_tag in CalcPseudoPerm.CLIM_TYPE_TO_TAG_VALUE.keys()
         super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic)
 
+    def get_valeur(self, nom_emh):
+        idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
+        nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = self.values[idx]
+        return value
+
     def multiplier_valeur(self, nom_emh, facteur):
         check_isinstance(facteur, float)
         idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
@@ -63,6 +68,13 @@ class CalcPseudoPerm(Calcul):
         idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
         nom_emh, clim_tag, is_active, _, sens, typ_loi, param_loi, nom_fic = self.values[idx]
         self.values[idx] = nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic
+
+    def get_somme_Qapp(self):
+        sum = 0.0
+        for _, clim_tag, _, value, _, _, _, _ in self.values:
+            if clim_tag == 'CalcPseudoPermNoeudQapp':
+                sum += value
+        return sum
 
     def get_somme_positive_Qapp(self):
         sum = 0.0
