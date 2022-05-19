@@ -193,11 +193,27 @@ class Scenario(FichierXML):
     def get_nb_calc_trans_actif(self):
         return len(self.liste_ord_calc_trans)
 
-    def get_liste_calc_pseudoperm(self):
-        return [calcul for calcul in self.calculs if isinstance(calcul, CalcPseudoPerm)]
+    def get_liste_calc_pseudoperm(self, ignore_inactive=False):
+        calculs = []
+        for calcul in self.calculs:
+            if isinstance(calcul, CalcPseudoPerm):
+                if ignore_inactive:
+                    if calcul.id in [ord.id for ord in self.liste_ord_calc_pseudoperm]:
+                        calculs.append(calcul)
+                else:
+                    calculs.append(calcul)
+        return calculs
 
-    def get_liste_calc_trans(self):
-        return [calcul for calcul in self.calculs if isinstance(calcul, CalcTrans)]
+    def get_liste_calc_trans(self, ignore_inactive=False):
+        calculs = []
+        for calcul in self.calculs:
+            if isinstance(calcul, CalcTrans):
+                if ignore_inactive:
+                    if calcul.id in [ord.id for ord in self.liste_ord_calc_trans]:
+                        calculs.append(calcul)
+                else:
+                    calculs.append(calcul)
+        return calculs
 
     def get_run(self, run_id):
         if not self.runs:
