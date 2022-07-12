@@ -297,6 +297,33 @@ class RunResults:
         values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
         return pd.DataFrame(values_in_dict)
 
+    def get_res_unsteady_at_sections_along_branches_as_dataframe(self, calc_name, branches, idx_time, var_names=None):
+        res = self.get_res_unsteady(calc_name)['Section']
+        res_trans = res[idx_time, :, :]
+
+        if var_names is None:
+            var_names = self.variables['Section']
+
+        branche_names = []
+        section_names = []
+        distances_list = []
+        distance = 0.0
+        for branche in branches:
+            for i, section in enumerate(branche.liste_sections_dans_branche):
+                branche_names.append(branche.id)
+                section_names.append(section.id)
+                distances_list.append(distance + section.xp)
+                if i == len(branche.liste_sections_dans_branche) - 1:
+                    distance += section.xp
+
+        pos_sections = [self.emh['Section'].index(section_name) for section_name in section_names]
+        pos_variables = [self.variables['Section'].index(var) for var in var_names]
+        array = res_trans[pos_sections, :][:, pos_variables]
+
+        values_in_dict = {'branche': branche_names, 'section': section_names, 'distance': distances_list}
+        values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
+        return pd.DataFrame(values_in_dict)
+
     def get_res_unsteady_max_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None,
                                                                      start_time=-float('inf'), end_time=float('inf')):
         time = self.get_calc_unsteady(calc_name).time_serie()
