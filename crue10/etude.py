@@ -475,7 +475,7 @@ class Etude(FichierXML):
         self.ajouter_scenario(scenario)
         return scenario
 
-    def ajouter_scenario_par_copie_profonde(self, nom_scenario_source, suffixe):
+    def ajouter_scenario_par_copie_profonde(self, nom_scenario_source, suffixe, overwrite=False):
         """
         Copie profonde d'un scénario existant et ajout à l'étude courante
         Le modèle et les sous-modèles sont dupliqués et ne sont pas partagés avec le scénario source
@@ -485,10 +485,13 @@ class Etude(FichierXML):
         :type nom_scenario_source: str
         :param suffixe: suffixe utilisée pour renommer les sous-modèles, le modèle et le scénario cibles
         :type suffixe: str
+        :param overwrite: écrase le scénario s'il est déjà présent dans l'étude
+        :type overwrite: bool
         :return: nouveau scénario
         :rtype: Scenario
         """
         scenario_ori = self.get_scenario(nom_scenario_source)
+        scenario_ori.read_all()
         scenario = deepcopy(scenario_ori)
 
         nom_scenario_cible = nom_scenario_source + suffixe
@@ -500,6 +503,8 @@ class Etude(FichierXML):
         for sous_modele in modele.liste_sous_modeles:
             sous_modele.renommer(sous_modele.id + suffixe, self.folder, folder_config=self.folders['CONFIG'])
 
+        if overwrite and scenario.id in self.scenarios:
+            del self.scenarios[scenario.id]
         self.ajouter_scenario(scenario)
         return scenario
 
