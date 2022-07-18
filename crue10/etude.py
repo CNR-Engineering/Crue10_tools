@@ -104,7 +104,7 @@ class Etude(FichierXML):
 
     def get_chemin_vers_fichier(self, filename):
         for fich_path in self.filename_list:
-            if fich_path.endswith(filename):
+            if os.path.basename(fich_path) == filename:
                 return fich_path
         raise ExceptionCrue10("Le fichier %s n'est pas dans la liste des fichiers !" % filename)
 
