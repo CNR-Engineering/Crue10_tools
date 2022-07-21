@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.3 Release 0
+			Ce schema est utilise pour valider les
+			références inter-fichier d'un scenario.
+			Son nom reste à déterminer.
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:include schemaLocation="nomRef-fichierConcat-1.3.xsd" />
+	<xs:include schemaLocation="frag-common-1.3.xsd" />
+	<xs:include schemaLocation="CrueConfigMetier-1.3.xsd" />
+
+	<!-- Les 5 fichiers niveau scenario dans l'ordre-->
+	<xs:include schemaLocation="frag-ocal-1.3.xsd" />
+	<xs:include schemaLocation="frag-ores-1.3.xsd" />
+	<xs:include schemaLocation="frag-pcal-1.3.xsd" />
+	<xs:include schemaLocation="frag-dclm-1.3.xsd" />
+	<xs:include schemaLocation="frag-dlhy-1.3.xsd" />
+
+	<!-- Les 7 fichiers niveau modèle dans l'ordre-->
+	<!-- un scenario peut avoir plusieurs modeles -->
+	<xs:include schemaLocation="frag-optr-1.3.xsd" />
+	<xs:include schemaLocation="frag-optg-1.3.xsd" />
+	<xs:include schemaLocation="frag-opti-1.3.xsd" />
+	<xs:include schemaLocation="frag-pnum-1.3.xsd" />
+	<xs:include schemaLocation="frag-dpti-1.3.xsd" />
+	<xs:include schemaLocation="frag-rptr-1.3.xsd" />
+	<xs:include schemaLocation="frag-rpti-1.3.xsd" />
+
+	<!-- Les 4 fichiers niveau sous-modèle dans l'ordre-->
+	<!-- un modèle peut avoir plusieurs sous-modeles -->
+	<xs:include schemaLocation="frag-drso-1.3.xsd" />
+	<xs:include schemaLocation="frag-dcsp-1.3.xsd" />
+	<xs:include schemaLocation="frag-dptg-1.3.xsd" />
+	<xs:include schemaLocation="frag-dfrt-1.3.xsd" />
+
+	<!--
+		Pour valider un scenario, il faut concaténer tous les fichiers entre
+		les balises ValidationScenario.
+	-->
+	<xs:element name="ValidationScenario">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CrueConfigMetier" />
+				<xs:element name="ScenarioFichiers">
+					<xs:complexType>
+						<xs:all>
+							<xs:element ref="OCAL" />
+							<xs:element ref="ORES" />
+							<xs:element ref="PCAL" />
+							<xs:element ref="DCLM" />
+							<xs:element ref="DLHY" />
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+				<!--
+					un scenario peut avoir plusieur modeles. Tous les fichiers seront
+					concaténés à la suite ici
+				-->
+				<xs:element name="ValidationModele" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="ModeleFichiers" >
+								<xs:complexType>
+									<xs:all>
+										<xs:element ref="OPTR" />
+										<xs:element ref="OPTG" />
+										<xs:element ref="OPTI" />
+										<xs:element ref="PNUM" />
+										<xs:element ref="DPTI" />
+										<xs:element ref="RPTR" minOccurs="0"/>
+										<xs:element ref="RPTI" minOccurs="0"/>
+										<!--un Modele peut avoir plusieurs sous-modeles.-->
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="SousModeleFichiers" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:all>
+										<xs:element ref="DRSO" />
+										<xs:element ref="DCSP" />
+										<xs:element ref="DPTG" />
+										<xs:element ref="DFRT" />
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+</xs:schema>

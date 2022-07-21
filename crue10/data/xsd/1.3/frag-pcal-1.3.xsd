@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.3 Release 3
+			schema incomplet: voir le meme sans le préfixe frag-
+			pour la validation par fichier
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="PCAL">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element name="DateDebSce" type="TypeDateDebSce" nillable="true" minOccurs="0"/>
+				<!-- Les éléments DureeSce et PdtRes sont transférés dans OCAL en v1.2
+							L'élément Verbosité est supprimé en v1.2 au profit des éléments Verbosité des fichiers O*
+				-->
+				<!-- L'élément PdtCouplage apparaitra dans de futures versions
+				<xs:element name="PdtCouplage" type="TypePdtCst" minOccurs="0" />-->
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

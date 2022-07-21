@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.3 Release 1
+			schema incomplet: voir le meme sans le préfixe frag-
+			pour la validation par fichier
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="ContexteCliche">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="DateSimulation" type="xs:dateTime" />
+				<xs:element ref="VersionCrue" />
+				<xs:element name="Etude" type="xs:token" />
+				<xs:element name="Scenario" type="TypeNomRefDistant" />
+				<xs:element name="Run" type="TypeNomRefDistant" />
+				<xs:element name="Modele" type="TypeNomRefDistant" />
+				<xs:element name="StockageHexa" type="xs:boolean"/>
+				<xs:element name="TempsSimu" type="TypeDoubleOuHexBinary64Bits" />
+				<xs:element name="ParamNum">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Zref" type="TypeDoubleOuHexBinary64Bits" minOccurs="0" />
+							<xs:element name="CrMaxFlu" type="TypeDoubleOuHexBinary64Bits" minOccurs="0" />
+							<xs:element name="CrMaxTor" type="TypeDoubleOuHexBinary64Bits" minOccurs="0" />
+							<xs:element name="Pdt" type="TypeDoubleOuHexBinary64Bits" minOccurs="0" />
+							<xs:element name="Qualite" type="TypeQualiteCliche" minOccurs="0" />
+							<xs:element name="Origine" type="TypeOrigineCliche" minOccurs="0" />
+						</xs:sequence>
+						<xs:attribute name="NomRef" type="TypeForAttributeNomRefCalc" use="required" />
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!--
+		restriction pour la qualité des clichés : Normale ou Erreur
+	-->
+	<xs:simpleType name="TypeQualiteCliche">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Normale" />
+			<xs:enumeration value="Erreur" />
+		</xs:restriction>
+	</xs:simpleType>
+	<!--
+		restriction pour l'origine des clichés : CalculPseudoPermanent, CalculTransitoire ou Initialisation
+	-->
+	<xs:simpleType name="TypeOrigineCliche">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CalculPseudoPermanent" />
+			<xs:enumeration value="CalculTransitoire" />
+			<xs:enumeration value="Initialisation" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!--
+		restriction pour le Sens d'ouverture des ouvrages : soit OUV_VERS_HAUT
+		soit OUV_VERS_BAS, selon Ten_SensOuv dans CCM
+	-->
+	<xs:element name="SensOuv">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="OUV_VERS_HAUT" />
+				<xs:enumeration value="OUV_VERS_BAS" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<!--
+		Les types pour les conditions aux limites instantanées
+	-->
+
+	<xs:complexType name="TypeCLimMNoeudQapp">
+		<xs:sequence>
+			<xs:element name="Qapp" type="TypeDoubleOuHexBinary64Bits" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCLimMNoeudNiveauContinuZimp">
+		<xs:sequence>
+			<xs:element name="Zimp" type="TypeDoubleOuHexBinary64Bits" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCLimMBrancheOrificeManoeuvre">
+		<xs:sequence>
+			<!--
+				restriction pour le Sens d'ouverture des ouvrages : soit OUV_VERS_HAUT
+				soit OUV_VERS_BAS, selon Ten_SensOuv dans CCM
+			-->
+			<xs:element name="SensOuv">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="OUV_VERS_HAUT" />
+						<xs:enumeration value="OUV_VERS_BAS" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Ouv" type="TypeDoubleOuHexBinary64Bits" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCLimMQruisBranche">
+		<xs:sequence>
+			<xs:element name="Qruis" type="TypeDoubleOuHexBinary64Bits" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCLimMQruisCasierProfil">
+		<xs:sequence>
+			<xs:element name="Qruis" type="TypeDoubleOuHexBinary64Bits" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefCasier" use="required" />
+	</xs:complexType>
+
+	<xs:element name="CLimM">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="NoeudQapp" type="TypeCLimMNoeudQapp" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="NoeudNiveauContinuZimp" type="TypeCLimMNoeudNiveauContinuZimp" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="BrancheOrificeManoeuvre" type="TypeCLimMBrancheOrificeManoeuvre" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="BrancheSaintVenantQruis" type="TypeCLimMQruisBranche" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="CasierProfilQruis" type="TypeCLimMQruisCasierProfil" maxOccurs="unbounded" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="TypeCliche">
+		<xs:sequence>
+			<xs:element name="Casiers">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Casier" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Qech" type="TypeDoubleOuHexBinary64Bits"/>
+									<xs:element name="Z" type="TypeDoubleOuHexBinary64Bits"/>
+								</xs:sequence>
+								<xs:attribute name="NomRef" type="TypeForAttributeNomRefCasier" />
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Sections">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Section" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Q" type="TypeDoubleOuHexBinary64Bits" />
+									<xs:element name="Z" type="TypeDoubleOuHexBinary64Bits" />
+								</xs:sequence>
+								<xs:attribute name="NomRef" type="TypeForAttributeNomRefSection" />
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="RCLI">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element ref="ContexteCliche"/>
+				<xs:element ref="CLimM"/>
+				<xs:element name="ClichePdt" type="TypeCliche"/>
+				<xs:element name="ClichePdtAnt" type="TypeCliche"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

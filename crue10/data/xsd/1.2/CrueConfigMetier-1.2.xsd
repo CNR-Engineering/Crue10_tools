@@ -1,0 +1,383 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.2 Release 1
+			Fichier de configuration métier, commun à Fudaa-Crue et Crue10
+		</xs:documentation>
+	</xs:annotation>
+	
+	<xs:simpleType name="TypeForAttributeConfigNom">
+		<xs:restriction base="xs:ID"/>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeCtrlLoi">
+		<xs:restriction base="TypeForAttributeConfigNom">
+			<xs:pattern value="Tco_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeExtraLoi">
+		<xs:restriction base="TypeForAttributeConfigNom">
+			<xs:pattern value="Tex_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeNumerique">
+		<xs:restriction base="TypeForAttributeConfigNom">
+			<xs:pattern value="Tnu_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeEnum">
+		<xs:restriction base="TypeForAttributeConfigNom">
+			<xs:pattern value="Ten_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeNature">
+		<xs:restriction base="TypeForAttributeConfigNom">
+			<xs:pattern value="Nat_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomRef">
+		<xs:restriction base="xs:IDREF" />
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeCtrlLoiRef">
+		<xs:restriction base="TypeForAttributeConfigNomRef">
+			<xs:pattern value="Tco_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeExtraLoiRef">
+		<xs:restriction base="TypeForAttributeConfigNomRef">
+			<xs:pattern value="Tex_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeNumeriqueRef">
+		<xs:restriction base="TypeForAttributeConfigNomRef">
+			<xs:pattern value="Tnu_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeEnumRef">
+		<xs:restriction base="TypeForAttributeConfigNomRef">
+			<xs:pattern value="Ten_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeConfigNomTypeNatureRef">
+		<xs:restriction base="TypeForAttributeConfigNomRef">
+			<xs:pattern value="Nat_.*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeInfini">
+	    <xs:restriction base="xs:string">
+	    	<xs:enumeration value="+Infini"/>
+	    	<xs:enumeration value="-Infini"/>
+	    </xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeDoubleInfini">
+		<xs:union memberTypes="xs:double xs:dateTime TypeInfini"/>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeNull">
+	    <xs:restriction base="xs:string">
+	    	<xs:length value="0"/>
+	    </xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeToken32">
+		<xs:restriction base="xs:token">
+			<xs:minLength value="1" />
+			<xs:maxLength value="32" />
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="TypeEnumValeur">
+		<xs:union memberTypes="TypeToken32"/>
+	</xs:simpleType>
+	
+	<xs:simpleType name="TypeEnumValeurDefaut">
+		<xs:union memberTypes="TypeNull TypeEnumValeur"/>
+	</xs:simpleType>
+	
+	<xs:simpleType name="TypeValeur">
+		<xs:union memberTypes="TypeDoubleInfini"/>
+	</xs:simpleType>
+	
+	<xs:simpleType name="TypeValeurDefaut">
+		<xs:union memberTypes="TypeNull TypeValeur"/>
+	</xs:simpleType>
+	
+	<xs:simpleType name="TypeDoublePositif">
+		<xs:restriction base="xs:double">
+			<xs:minInclusive value="0.0"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeVecteur">
+		<xs:annotation>
+			<xs:documentation>
+				Permet de spécifier des valeurs du style vecteur. Exemple 0.00 1.00 2.00 3.00 ...
+			</xs:documentation>
+		</xs:annotation>
+		<xs:list itemType="xs:double" />
+	</xs:simpleType>
+
+	<xs:complexType name="TypeValeurStrictable">
+		<xs:simpleContent>
+			<xs:extension base="TypeValeur">
+				<xs:attribute name="Strict" type="xs:boolean" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:element name="ItemTypeControleLoi">
+		<xs:complexType>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNomTypeCtrlLoi" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="TypeControleLois">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemTypeControleLoi" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="ItemTypeExtrapolLoi">
+		<xs:complexType>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNom" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="TypeExtrapolLois">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemTypeExtrapolLoi" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="ItemTypeNumerique">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Infini" type="xs:double"/>
+			</xs:sequence>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNomTypeNumerique" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="TypeNumeriques">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemTypeNumerique" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ItemTypeEnum">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ItemEnum" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="TypeToken32">
+								<xs:attribute name="Id" type="xs:nonNegativeInteger" use="required"/>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNomTypeEnum" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="TypeEnums">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemTypeEnum" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="ItemNature">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="TypeNumerique">
+					<xs:complexType>
+						<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeNumeriqueRef" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="EpsilonComparaison" type="TypeDoublePositif"/>
+				<xs:element name="EpsilonComparaisonFC" type="TypeDoublePositif"/>
+				<xs:element name="EpsilonPresentation" type="TypeDoublePositif"/>
+				<xs:element name="Unite" type="xs:string"/>
+			</xs:sequence>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNom" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="Natures">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemNature" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ItemConstante">
+		<xs:complexType>
+			<xs:choice>
+				<xs:sequence>
+					<xs:element name="TypeEnum">
+						<xs:complexType>
+							<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeEnumRef" use="required"/>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="EnumValeur" type="TypeEnumValeur"/>
+				</xs:sequence>
+				<xs:sequence>
+					<xs:element name="Nature">
+						<xs:complexType>
+							<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeNatureRef" use="required"/>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="Valeur" type="TypeValeur"/>
+					<xs:element name="MinValidite" type="TypeValeurStrictable"/>
+					<xs:element name="MaxValidite" type="TypeValeurStrictable"/>
+					<xs:element name="MinNormalite" type="TypeValeurStrictable"/>
+					<xs:element name="MaxNormalite" type="TypeValeurStrictable"/>
+				</xs:sequence>
+			</xs:choice>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNom" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ItemConstanteVecteur">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Nature">
+					<xs:complexType>
+						<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeNatureRef" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ValeurVecteur" type="TypeVecteur"/>
+			</xs:sequence>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNom" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="Constantes">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemConstante" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ItemConstanteVecteur" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ItemVariable">
+		<xs:complexType>
+			<xs:choice>
+				<xs:sequence>
+					<xs:element name="TypeEnum">
+						<xs:complexType>
+							<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeEnumRef" use="required"/>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="EnumValeurDefaut" type="TypeEnumValeurDefaut"/>
+				</xs:sequence>
+				<xs:sequence>
+					<xs:element name="Nature">
+						<xs:complexType>
+							<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeNatureRef" use="required"/>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="ValeurDefaut" type="TypeValeurDefaut"/>
+					<xs:element name="MinValidite" type="TypeValeurStrictable"/>
+					<xs:element name="MaxValidite" type="TypeValeurStrictable"/>
+					<xs:element name="MinNormalite" type="TypeValeurStrictable"/>
+					<xs:element name="MaxNormalite" type="TypeValeurStrictable"/>
+				</xs:sequence>
+			</xs:choice>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNom" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="Variables">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemVariable" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="ItemConfigLoi">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Commentaire" type="xs:string" minOccurs="0"/>
+				<xs:element name="TypeControleLoi">
+					<xs:complexType>
+						<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeCtrlLoiRef" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ExtrapolInf">
+					<xs:complexType>
+						<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeExtraLoiRef" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ExtrapolSup">
+					<xs:complexType>
+						<xs:attribute name="NomRef" type="TypeForAttributeConfigNomTypeExtraLoiRef" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="VarAbscisse">
+					<xs:complexType>
+						<xs:attribute name="NomRef" type="TypeForAttributeConfigNomRef" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="VarOrdonnee">
+					<xs:complexType>
+						<xs:attribute name="NomRef" type="TypeForAttributeConfigNomRef" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="Nom" type="TypeForAttributeConfigNom" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ConfigLois">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemConfigLoi" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="CrueConfigMetier">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="TypeControleLois"/>
+				<xs:element ref="TypeExtrapolLois"/>
+				<xs:element ref="TypeNumeriques"/>
+				<xs:element ref="TypeEnums"/>
+				<xs:element ref="Natures"/>
+				<xs:element ref="Constantes"/>
+				<xs:element ref="Variables"/>
+				<xs:element ref="ConfigLois"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

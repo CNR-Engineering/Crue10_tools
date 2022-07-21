@@ -1,0 +1,299 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.3 Release 1
+			schema incomplet: voir le meme sans le préfixe frag-
+			pour la validation par fichier
+		</xs:documentation>
+	</xs:annotation>
+
+	<!--
+		restriction pour le Sens d'ouverture des ouvrages : soit OuvVersHaut
+		soit OuvVersBas
+	-->
+	<xs:element name="SensOuv">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="OuvVersHaut" />
+				<xs:enumeration value="OuvVersBas" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<!--
+		Spécialisation de TypeNomRefDistant pour MEC-Crue10
+	-->
+	<xs:complexType name="TypeManoeuvreRegul">
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef" use="required" />
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="Param" use="required" />
+	</xs:complexType>
+
+	<!--
+		Elément IsActive de référence
+	-->
+	<xs:element name="IsActive" type="xs:boolean" />
+
+	<!--
+		Les types pour les calculs pseudo-permanents
+	-->
+	<xs:complexType name="TypeCalcPseudoPermQruisCasier">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="Qruis" type="xs:double" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefCasier" use="required" />
+	</xs:complexType>
+	
+	<xs:complexType name="TypeCalcPseudoPermQruisBranche">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="Qruis" type="xs:double" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcPseudoPermNoeudNiveauContinuZimp">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="Zimp" type="xs:double" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcPseudoPermNoeudQapp">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="Qapp" type="xs:double" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcPseudoPermBrancheOrificeManoeuvre">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element ref="SensOuv" />
+			<xs:element name="Ouv" type="TypeDoublePositiveOrNull" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcPseudoPermBrancheOrificeManoeuvreRegul">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element ref="SensOuv" />
+			<xs:element name="ManoeuvreRegul" type="TypeManoeuvreRegul" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" />
+	</xs:complexType>
+
+	<!-- Spécifique pour la régulation -->
+	<xs:complexType name="TypeCalcPseudoPermNoeudBg1">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcPseudoPermNoeudBg2">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcPseudoPermNoeudUsi">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcPseudoPermNoeudBg1Av">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcPseudoPermNoeudBg2Av">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<!--
+		Les types pour les calculs transitoires
+	-->
+	<xs:complexType name="TypeCalcTransBrancheOrificeManoeuvre">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element ref="SensOuv" />
+			<xs:element name="Manoeuvre" type="TypeNomRefDistant" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransBrancheOrificeManoeuvreRegul">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element ref="SensOuv" />
+			<xs:element name="ManoeuvreRegul" type="TypeManoeuvreRegul" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransHydrogrammeQruisBranche">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="HydrogrammeQruis" type="TypeNomRefDistant" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" use="required" />
+	</xs:complexType>
+	
+	<xs:complexType name="TypeCalcTransHydrogrammeQruisCasier">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="HydrogrammeQruis" type="TypeNomRefDistant" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefCasier" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransNoeudNiveauContinuTarage">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="Tarage" type="TypeNomRefDistant" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransNoeudQapp">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:choice>
+				<xs:element name="HydrogrammeQapp" type="TypeNomRefDistant" />
+				<xs:element name="HydrogrammeQappExt" type="TypeHydrogrammeExt" />
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+	
+	<xs:complexType name="TypeCalcTransNoeudNiveauContinuLimnigramme">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="Limnigramme" type="TypeNomRefDistant" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<!-- Spécifique pour la régulation -->
+	<xs:complexType name="TypeCalcTransNoeudBg1">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransNoeudBg2">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransNoeudUsi">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransNoeudBg1Av">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeCalcTransNoeudBg2Av">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+
+	<!-- L'élément calcul pseudo permanent -->
+	<xs:element name="CalcPseudoPerm">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element name="CalcPseudoPermNoeudQapp" type="TypeCalcPseudoPermNoeudQapp" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="CalcPseudoPermNoeudNiveauContinuZimp" type="TypeCalcPseudoPermNoeudNiveauContinuZimp" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="CalcPseudoPermBrancheOrificeManoeuvre" type="TypeCalcPseudoPermBrancheOrificeManoeuvre" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="CalcPseudoPermBrancheOrificeManoeuvreRegul" type="TypeCalcPseudoPermBrancheOrificeManoeuvreRegul" minOccurs="0" />
+				<xs:element name="CalcPseudoPermBrancheSaintVenantQruis" type="TypeCalcPseudoPermQruisBranche" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="CalcPseudoPermCasierProfilQruis" type="TypeCalcPseudoPermQruisCasier" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="CalcPseudoPermNoeudBg1" type="TypeCalcPseudoPermNoeudBg1" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcPseudoPermNoeudBg2" type="TypeCalcPseudoPermNoeudBg2" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcPseudoPermNoeudUsi" type="TypeCalcPseudoPermNoeudUsi" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcPseudoPermNoeudBg1Av" type="TypeCalcPseudoPermNoeudBg1Av" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcPseudoPermNoeudBg2Av" type="TypeCalcPseudoPermNoeudBg2Av" maxOccurs="1" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute name="Nom" type="TypeForAttributeNomCalc" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<!-- L'élément calcul transitoire -->
+	<xs:element name="CalcTrans">
+		<xs:complexType>
+			<xs:choice minOccurs="1" maxOccurs="unbounded">
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element name="CalcTransNoeudQapp" type="TypeCalcTransNoeudQapp" minOccurs="0" />
+				<xs:element name="CalcTransNoeudNiveauContinuLimnigramme" type="TypeCalcTransNoeudNiveauContinuLimnigramme" minOccurs="0" />
+				<xs:element name="CalcTransNoeudNiveauContinuTarage" type="TypeCalcTransNoeudNiveauContinuTarage" minOccurs="0" />
+				<xs:element name="CalcTransBrancheOrificeManoeuvre" type="TypeCalcTransBrancheOrificeManoeuvre" minOccurs="0" />
+				<xs:element name="CalcTransBrancheOrificeManoeuvreRegul" type="TypeCalcTransBrancheOrificeManoeuvreRegul" minOccurs="0" />
+				<xs:element name="CalcTransBrancheSaintVenantQruis" type="TypeCalcTransHydrogrammeQruisBranche" minOccurs="0" />
+				<xs:element name="CalcTransCasierProfilQruis" type="TypeCalcTransHydrogrammeQruisCasier" minOccurs="0" />
+				<xs:element name="CalcTransNoeudBg1" type="TypeCalcTransNoeudBg1" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcTransNoeudBg2" type="TypeCalcTransNoeudBg2" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcTransNoeudUsi" type="TypeCalcTransNoeudUsi" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcTransNoeudBg1Av" type="TypeCalcTransNoeudBg1Av" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcTransNoeudBg2Av" type="TypeCalcTransNoeudBg2Av" maxOccurs="1" minOccurs="0" />
+			</xs:choice>
+			<xs:attribute name="Nom" type="TypeForAttributeNomCalc" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<!-- GENERAL -->
+	<xs:element name="DCLM">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element ref="CalcPseudoPerm" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element ref="CalcTrans" maxOccurs="unbounded" minOccurs="0" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Spécifique pour les enchaînements -->
+	<xs:complexType name="TypeHydrogrammeExt">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour les enchaînements
+				afin de désigner un hydrogramme à lire sur une section,
+				pour un certain calcul dans un certain fichier de résultats,
+				externe au scénario courant
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomSection" use="required" />
+		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalc" use="optional" />
+		<xs:attribute name="NomFic" type="xs:token" use="required" />
+	</xs:complexType>
+
+</xs:schema>
