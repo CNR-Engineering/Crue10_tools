@@ -55,9 +55,6 @@
         <OPTI NomRef="{{ modele.file_basenames.opti }}"/>
         <PNUM NomRef="{{ modele.file_basenames.pnum }}"/>
         <DPTI NomRef="{{ modele.file_basenames.dpti }}"/>
-        {%- if has_regul %}
-        <DREG NomRef="{{ modele.file_basenames.dreg }}"/>
-        {%- endif %}
       </Modele-FichEtudes>
       <Modele-SousModeles>
         {%- for sous_modele in modele.liste_sous_modeles %}

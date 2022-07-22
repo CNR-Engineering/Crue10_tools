@@ -107,7 +107,7 @@ class Scenario(FichierXML):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_scenario, modele, access='r', files=None, metadata=None):
+    def __init__(self, nom_scenario, modele, access='r', files=None, metadata=None, version_grammaire=None):
         """
         :param nom_scenario: scenario name
         :param modele: a Modele instance
@@ -116,7 +116,7 @@ class Scenario(FichierXML):
         """
         check_preffix(nom_scenario, 'Sc_')
         self.id = nom_scenario
-        super().__init__(access, files, metadata)
+        super().__init__(access, files, metadata, version_grammaire=version_grammaire)
 
         self.calculs = []
         self.liste_ord_calc_pseudoperm = []  # OrdCalcPseudoPerm
@@ -336,7 +336,7 @@ class Scenario(FichierXML):
         """
         Lire le fichier dclm.xml
         """
-        root = self._get_xml_root_and_set_comment('dclm')
+        root = self._get_xml_root_set_version_grammaire_and_comment('dclm')
 
         for elt_calc in root:
             if elt_calc.tag == PREFIX + 'CalcPseudoPerm':
@@ -420,7 +420,7 @@ class Scenario(FichierXML):
         """
         Lire le fichier dlhy.xml
         """
-        root = self._get_xml_root_and_set_comment('dlhy')
+        root = self._get_xml_root_set_version_grammaire_and_comment('dlhy')
 
         for elt_loi in root.find(PREFIX + 'Lois'):  # LoiDF, LoiFF
             loi_hydraulique = LoiHydraulique(elt_loi.get('Nom'), elt_loi.get('Type'),
@@ -436,7 +436,7 @@ class Scenario(FichierXML):
         """
         Lire le fichier ocal.xml
         """
-        root = self._get_xml_root_and_set_comment('ocal')
+        root = self._get_xml_root_set_version_grammaire_and_comment('ocal')
 
         # Read Sorties
         elt = root.find(PREFIX + 'Sorties')
@@ -657,7 +657,7 @@ class Scenario(FichierXML):
 
     def write_all(self, folder, folder_config=None, write_model=True):
         """Écrire tous les fichiers du scénario"""
-        logger.debug("Écriture de %s dans %s" % (self, folder))
+        logger.debug("Écriture de %s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 
         # Create folder if not existing
         if not os.path.exists(folder):
@@ -668,7 +668,7 @@ class Scenario(FichierXML):
             if self.xml_trees:
                 write_xml_from_tree(self.xml_trees[xml_type], xml_path)
             else:
-                write_default_xml_file(xml_type, xml_path)
+                write_default_xml_file(xml_type, self.version_grammaire, xml_path)
 
         self._write_dclm(folder)
         self._write_dlhy(folder)
@@ -676,6 +676,10 @@ class Scenario(FichierXML):
 
         if write_model:
             self.modele.write_all(folder, folder_config)
+
+    def changer_grammaire(self, version_grammaire):
+        super().changer_version_grammaire(version_grammaire)
+        self.modele.changer_grammaire(version_grammaire)
 
     def normalize_for_10_2(self):
         """

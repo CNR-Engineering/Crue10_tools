@@ -2,19 +2,16 @@
 from builtins import super  # Python2 fix
 from collections import OrderedDict
 from copy import deepcopy
-from io import open  # Python2 fix
 import os.path
 from shutil import copyfile, rmtree
 import time
-import xml.etree.ElementTree as ET
 
 from crue10.base import FichierXML
 from crue10.modele import Modele
 from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
-from crue10.utils import check_isinstance, ExceptionCrue10, JINJA_ENV, logger, PREFIX
-from crue10.utils.settings import XML_ENCODING
+from crue10.utils import check_isinstance, ExceptionCrue10, logger, PREFIX
 
 
 def read_metadata(elt, keys):
@@ -47,7 +44,7 @@ class Etude(FichierXML):
     FOLDERS = OrderedDict([('CONFIG', 'Config'), ('FICHETUDES', '.'),
                            ('RAPPORTS', 'Rapports'), ('RUNS', 'Runs')])
     FILES_XML = ['etu']
-    SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + Modele.FILES_XML_OPTIONAL + SousModele.FILES_XML
+    SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + SousModele.FILES_XML
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
     def __init__(self, etu_path, folders=None, access='r', metadata=None, comment=''):
@@ -116,8 +113,10 @@ class Etude(FichierXML):
         return run_names
 
     def _read_etu(self):
-        """Ecrire le fichier etu.xml"""
-        root = ET.parse(self.etu_path).getroot()
+        """Lire le fichier etu.xml"""
+        if os.path.isdir(self.etu_path):
+            raise ExceptionCrue10("Le chemin vers l'étude est un dossier, il faut spécifier le fichier .etu.xml")
+        root = self._get_xml_root_set_version_grammaire_and_comment('etu')
         folder = os.path.dirname(self.etu_path)
 
         # Etude metadata
@@ -164,7 +163,8 @@ class Etude(FichierXML):
                 files[shp_name] = os.path.join(folder, self.folders['CONFIG'],
                                                nom_sous_modele.upper(), shp_name + '.shp')
 
-            sous_modele = SousModele(nom_sous_modele, files=files, metadata=metadata)
+            sous_modele = SousModele(nom_sous_modele, files=files, metadata=metadata,
+                                     version_grammaire=self.version_grammaire)
             self.ajouter_sous_modele(sous_modele)
         if not self.sous_modeles:
             raise ExceptionCrue10("Il faut au moins un sous-modèle !")
@@ -179,17 +179,20 @@ class Etude(FichierXML):
                 metadata = read_metadata(elt_modele, Modele.METADATA_FIELDS)
 
                 elt_fichiers = elt_modele.find(PREFIX + 'Modele-FichEtudes')
-                for ext in (Modele.FILES_XML + Modele.FILES_XML_OPTIONAL):
+                files_xml = deepcopy(Modele.FILES_XML)
+                if self.version_grammaire == '1.2':  # HARDCODED to support g1.2
+                    files_xml.remove('dreg')
+                for ext in files_xml:
                     try:
                         filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                     except AttributeError:
-                        if ext not in Modele.FILES_XML_OPTIONAL:
-                            raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
+                        raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
                     if filename is None:
                         raise ExceptionCrue10("Le modèle n'a pas de fichier %s !" % ext)
                     files[ext] = self.get_chemin_vers_fichier(filename)
 
-                modele = Modele(model_name, files=files, metadata=metadata)
+                modele = Modele(model_name, files=files, metadata=metadata,
+                                version_grammaire=self.version_grammaire)
 
                 elt_sous_modeles = elt_modele.find(PREFIX + 'Modele-SousModeles')
                 for elt_sm in elt_sous_modeles:
@@ -226,7 +229,8 @@ class Etude(FichierXML):
                         raise NotImplementedError  # A single Modele for a Scenario!
 
                 metadata = read_metadata(elt_scenario, Scenario.METADATA_FIELDS)
-                scenario = Scenario(nom_scenario, modele, files=files, metadata=metadata)
+                scenario = Scenario(nom_scenario, modele, files=files, metadata=metadata,
+                                    version_grammaire=self.version_grammaire)
 
                 runs = elt_scenario.find(PREFIX + 'Runs')
                 if runs is not None:
@@ -262,18 +266,13 @@ class Etude(FichierXML):
         Si folder n'est pas renseigné alors le fichier lu est remplacé
         """
         if folder is None:
-            etu_path = os.path.join(self.folder, os.path.basename(self.etu_path))
+            etu_folder = self.folder
         else:
-            etu_path = os.path.join(folder, os.path.basename(self.etu_path))
+            etu_folder = folder
         xml = 'etu'
 
-        has_regul = False
-        for filename in self.filename_list:
-            if filename.endswith('.dreg.xml'):
-                has_regul = True
-                break
-
-        template_render = JINJA_ENV.get_template(xml + '.xml').render(
+        self._write_xml_file(
+            xml, etu_folder,
             folders=[(name, folder_str) for name, folder_str in self.folders.items()],
             metadata=self.metadata,
             current_scenario_id=self.nom_scenario_courant,
@@ -281,15 +280,12 @@ class Etude(FichierXML):
             modeles=[mo for _, mo in self.modeles.items()],
             sous_modeles=[sm for _, sm in self.sous_modeles.items()],
             scenarios=[sc for _, sc in self.scenarios.items()],
-            has_regul=has_regul,
         )
-        with open(etu_path, 'w', encoding=XML_ENCODING) as out:
-            out.write(template_render)
 
     def write_all(self, folder=None, ignore_shp=False):
         """Écrire tous les fichiers de l'étude"""
         folder = self.folder if folder is None else folder
-        logger.debug("Écriture de l'%s dans %s" % (self, folder))
+        logger.debug("Écriture de l'%s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 
         # Create folder if not existing
         if not os.path.exists(folder):
@@ -303,6 +299,11 @@ class Etude(FichierXML):
             folder_config = self.folders['CONFIG']
         for _, scenario in self.scenarios.items():
             scenario.write_all(folder, folder_config)
+
+    def changer_grammaire(self, version_grammaire):
+        super().changer_version_grammaire(version_grammaire)
+        for scenario in self.get_liste_scenarios():
+            scenario.changer_grammaire(version_grammaire)
 
     def add_files(self, file_list):
         for file in file_list:
@@ -569,7 +570,7 @@ class Etude(FichierXML):
             time.sleep(sleep)
 
     def check_xml_files(self, folder=None):
-        """Validation des fichiers XML à partir des schémas XSD"""
+        """Validation des fichiers XML à partir des schémas XSD de la grammaire d el'étude"""
         errors = {}
         for file_path in self.filename_list:
             errors[file_path] = self._check_xml_file(file_path)

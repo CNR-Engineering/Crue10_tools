@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-Check against XSD validation every crue10 xml files
-included in the target study (etu.xml file)
+Lancement de la validation XSD sur chaque fichier XML composant l'étude
+Les éventuelles erreurs sont affichées à l'écran
 """
 import sys
 
@@ -13,8 +13,8 @@ from crue10.utils.cli_parser import MyArgParse
 
 def crue10_xsd_validator(args):
     has_error = False
-    study = Etude(args.etu_path)
-    errors = study.check_xml_files()
+    etude = Etude(args.etu_path)
+    errors = etude.check_xml_files()
 
     for file, errors in errors.items():
         if errors:

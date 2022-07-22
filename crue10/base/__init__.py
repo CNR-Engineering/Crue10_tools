@@ -1,12 +1,14 @@
 # coding: utf-8
 import abc
+from copy import deepcopy
 from io import open  # Python2 fix
 from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
 
-from crue10.utils import add_default_missing_metadata, ExceptionCrue10, JINJA_ENV, \
-    get_xml_root_from_file, logger, PREFIX, XML_ENCODING, XSD_FOLDER
+from crue10.utils import add_default_missing_metadata, ExceptionCrue10, ExceptionCrue10Grammar, JINJA_ENV, \
+    get_xml_root_from_file, logger, PREFIX, XSD_FOLDER, XSI_SCHEMA_LOCATION
+from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE, VERSION_GRAMMAIRE_PRECEDENTE, XML_ENCODING
 
 
 # ABC below is compatible with Python 2 and 3
@@ -17,6 +19,8 @@ class FichierXML(ABC):
     """
     Abstract class for Crue10 XML files
 
+    :param version_grammaire: version de la grammaire
+    :type version_grammaire: str
     :param xml_trees: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
     :type xml_trees: {ET.ElementTree}
     :param metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
@@ -30,13 +34,12 @@ class FichierXML(ABC):
     """
 
     FILES_XML = []
-    FILES_XML_OPTIONAL = []
     SUB_FILES_XML = []
     FILES_SHP = []
     FILES_XML_WITHOUT_TEMPLATE = []
     METADATA_FIELDS = []
 
-    def __init__(self, access, files, metadata):
+    def __init__(self, access, files, metadata, version_grammaire=None):
         """
         id attribute has to be defined before calling this super method
         """
@@ -48,13 +51,21 @@ class FichierXML(ABC):
         self.metadata = add_default_missing_metadata(self.metadata, type(self).METADATA_FIELDS)
 
         if access == 'r':
+            self.version_grammaire = version_grammaire
             if files is None:
                 raise RuntimeError
-            if (set(files.keys()) != set(type(self).FILES_XML + type(self).FILES_XML_OPTIONAL + type(self).FILES_SHP))\
-                    and (set(files.keys()) != set(type(self).FILES_XML + type(self).FILES_SHP)):
+
+            files_xml = deepcopy(type(self).FILES_XML)
+            if version_grammaire == '1.2':
+                try:  # Modele: HARDCODED to support g1.2
+                    files_xml.remove('dreg')
+                except ValueError:  # Etude, Scenario, SousModele
+                    pass
+            if set(files.keys()) != set(files_xml + type(self).FILES_SHP):
                 raise RuntimeError
             self.files = files
         elif access == 'w':
+            self.version_grammaire = VERSION_GRAMMAIRE_COURANTE
             self.files = {}
             if files is None:
                 for xml_type in type(self).FILES_XML:
@@ -78,14 +89,44 @@ class FichierXML(ABC):
     def file_basenames(self):
         return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
+    def set_version_grammaire(self, version_grammaire):
+        # Check version_grammaire consistency
+        grammaires_supportees = [VERSION_GRAMMAIRE_PRECEDENTE, VERSION_GRAMMAIRE_COURANTE]
+        if version_grammaire not in grammaires_supportees:
+            raise ExceptionCrue10Grammar("Seules les grammaires %s sont supportées (pas `%s`)"
+                                         % (grammaires_supportees, version_grammaire))
+        if version_grammaire == self.version_grammaire:
+            logger.warn("Changement de grammaire vers %s ignoré car %s est déjà dans cette grammaire"
+                        % (self, version_grammaire))
+            return  # nothing to do
+
+        self.version_grammaire = version_grammaire
+
+    def changer_version_grammaire(self, version_grammaire):
+        self.set_version_grammaire(version_grammaire)
+
+        # Change version_grammaire in all FILES_WITHOUT_TEMPLATE
+        for xml_type, root in self.xml_trees.items():
+            old_xsi = root.get(XSI_SCHEMA_LOCATION)
+            new_xsi = old_xsi.replace('-%s.xsd' % self.version_grammaire, '-%s.xsd' % version_grammaire)
+            root.set(XSI_SCHEMA_LOCATION, new_xsi)
+
     def set_comment(self, comment):
         self.metadata['Commentaire'] = comment
 
-    def _get_xml_root_and_set_comment(self, xml):
+    def _get_xml_root_set_version_grammaire_and_comment(self, xml):
         try:
             root = ET.parse(self.files[xml]).getroot()
         except ET.ParseError as e:
             raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (self.files[xml], e))
+
+        # Set version_grammaire
+        version_grammaire = root.get(XSI_SCHEMA_LOCATION)[-7:-4]
+        if self.version_grammaire is None:
+            self.set_version_grammaire(version_grammaire)
+        elif version_grammaire != self.version_grammaire:
+            raise ExceptionCrue10Grammar("La version de la grammaire du fichier %s est %s (valeur attendue : %s)"
+                                         % (xml, version_grammaire, self.version_grammaire))
 
         # Sets comment if the tag is found
         comment_elt = root.find(PREFIX + 'Commentaire')
@@ -95,15 +136,32 @@ class FichierXML(ABC):
         return root
 
     def _set_xml_trees(self):
-        for xml_type in type(self).FILES_XML_WITHOUT_TEMPLATE:
+        files_xml = deepcopy(type(self).FILES_XML_WITHOUT_TEMPLATE)
+        if self.version_grammaire == '1.2':  # Modele: HARDCODED to support g1.2
             try:
-                self.xml_trees[xml_type] = get_xml_root_from_file(self.files[xml_type])
+                files_xml.remove('dreg')
+            except ValueError:  # Scenario
+                pass
+        for xml_type in files_xml:
+            try:
+                root = get_xml_root_from_file(self.files[xml_type])
             except KeyError:
-                if xml_type not in type(self).FILES_XML_OPTIONAL:
-                    raise ExceptionCrue10("Le fichier `%s` est absent !" % xml_type)
+                raise ExceptionCrue10("Le fichier `%s` est absent !" % xml_type)
+
+            # Set version_grammaire
+            version_grammaire = root.get(XSI_SCHEMA_LOCATION)[-7:-4]
+            if self.version_grammaire is None:
+                self.set_version_grammaire(version_grammaire)
+            elif version_grammaire != self.version_grammaire:
+                raise ExceptionCrue10Grammar(
+                    "La version de la grammaire du fichier %s est %s (valeur attendue : %s)"
+                    % (xml_type, version_grammaire, self.version_grammaire))
+
+            self.xml_trees[xml_type] = root
 
     def _write_xml_file(self, xml, folder, **kwargs):
-        template_render = JINJA_ENV.get_template(xml + '.xml').render(
+        template_path = self.version_grammaire + '/' + xml + '.xml'  # os.path.join not working on Windows
+        template_render = JINJA_ENV.get_template(template_path).render(
             comment=self.comments[xml],
             **kwargs
         )
@@ -112,12 +170,13 @@ class FichierXML(ABC):
             out.write(template_render)
 
     def _check_xml_file(self, file_path):
-        logger.debug("Checking XSD validation on %s" % file_path)
+        logger.debug("Checking XSD validation (grammaire %s) on %s" % (self.version_grammaire, file_path))
         errors_list = []
         file_splitted = file_path.split('.')
         if len(file_splitted) > 2:
             xml_type = file_splitted[-2]
-            xsd_tree = etree.parse(os.path.join(XSD_FOLDER, '%s-1.2.xsd' % xml_type))
+            xsd_tree = etree.parse(os.path.join(XSD_FOLDER, self.version_grammaire,
+                                                '%s-%s.xsd' % (xml_type, self.version_grammaire)))
 
             with open(file_path, 'r', encoding=XML_ENCODING) as in_xml:
                 content = '\n'.join(in_xml.readlines())

@@ -20,5 +20,8 @@ except ImportError:
     from multiprocessing import cpu_count
     NCSIZE = cpu_count()  # includes logical
 
+VERSION_GRAMMAIRE_PRECEDENTE = '1.2'
+
+VERSION_GRAMMAIRE_COURANTE = '1.3'  # Grammaire par défaut pour écrire les fichiers XML
 
 XML_ENCODING = 'utf-8'

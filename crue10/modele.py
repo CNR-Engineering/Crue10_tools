@@ -9,10 +9,10 @@ import os.path
 from shapely.geometry import LineString, mapping, Point
 
 from crue10.base import FichierXML
-from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique, BrancheSaintVenant
+from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
 from crue10.emh.section import SectionProfil, LitNumerote
 from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
-    ExceptionCrue10, logger, PREFIX, write_default_xml_file, write_xml_from_tree
+    logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
 
@@ -35,14 +35,13 @@ class Modele(FichierXML):
     :type graph: networkx.DiGraph
     """
 
-    FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti']
-    FILES_XML_OPTIONAL = ['dreg']
+    FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti', 'dreg']
     FILES_XML_WITHOUT_TEMPLATE = ['optr', 'optg', 'opti', 'pnum', 'dreg']
 
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_modele, access='r', files=None, metadata=None):
+    def __init__(self, nom_modele, access='r', files=None, metadata=None, version_grammaire=None):
         """
         :param nom_modele: nom du modèle
         :type nom_modele: str
@@ -55,7 +54,7 @@ class Modele(FichierXML):
         """
         check_preffix(nom_modele, 'Mo_')
         self.id = nom_modele
-        super().__init__(access, files, metadata)
+        super().__init__(access, files, metadata, version_grammaire=version_grammaire)
 
         self.liste_sous_modeles = []
         self._graph = None
@@ -547,7 +546,7 @@ class Modele(FichierXML):
         """
         self.reset_initial_conditions()
 
-        for emh_group in self._get_xml_root_and_set_comment('dpti'):
+        for emh_group in self._get_xml_root_set_version_grammaire_and_comment('dpti'):
 
             if emh_group.tag == (PREFIX + 'DonPrtCIniNoeuds'):
                 for emh_ci in emh_group.findall(PREFIX + 'DonPrtCIniNoeudNiveauContinu'):
@@ -577,12 +576,11 @@ class Modele(FichierXML):
         Lire tous les fichiers du modèle
         """
         if not self.was_read:
-            self._set_xml_trees()
-
             for sous_modele in self.liste_sous_modeles:
                 sous_modele.read_all()
 
             self._read_dpti()
+            self._set_xml_trees()  # should be after read_dpi to set version_grmamaire and check if dreg is expected
         self.was_read = True
 
     def _write_dpti(self, folder):
@@ -603,27 +601,39 @@ class Modele(FichierXML):
         Écrire tous les fichiers du modèle
         """
 
-        logger.debug("Écriture du %s dans %s" % (self, folder))
+        logger.debug("Écriture du %s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 
         # Create folder if not existing
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        for xml_type in Modele.FILES_XML_WITHOUT_TEMPLATE:
+        files_xml = deepcopy(Modele.FILES_XML_WITHOUT_TEMPLATE)
+        if self.version_grammaire == '1.2':  # HARDCODED to support g1.2
+            files_xml.remove('dreg')
+        for xml_type in files_xml:
             try:
                 xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
                 if self.xml_trees:
                     write_xml_from_tree(self.xml_trees[xml_type], xml_path)
                 else:
-                    write_default_xml_file(xml_type, xml_path)
+                    write_default_xml_file(xml_type, self.version_grammaire, xml_path)
             except KeyError:
-                if xml_type not in Modele.FILES_XML_OPTIONAL:
-                    raise ExceptionCrue10("Le fichier %s est absent !" % xml_type)
+                raise ExceptionCrue10("Le fichier %s est absent !" % xml_type)
 
         self._write_dpti(folder)
 
         for sous_modele in self.liste_sous_modeles:
             sous_modele.write_all(folder, folder_config)
+
+    def changer_grammaire(self, version_grammaire):
+        super().changer_version_grammaire(version_grammaire)
+
+        if version_grammaire == '1.3':  # HARDCODED to support g1.2
+            # Add dreg in self.xml_trees if missing (because is from grammar v1.2)
+            raise NotImplementedError  # TODO
+
+        for sous_modele in self.liste_sous_modeles:
+            sous_modele.changer_grammaire(version_grammaire)
 
     def write_topological_graph(self, out_files, nodesep=0.8, prog='dot'):
         try:

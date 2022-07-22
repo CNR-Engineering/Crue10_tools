@@ -33,10 +33,12 @@ except:
 SELF_CLOSING_TAGS = [
     'IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'Lois', 'OrdreDRSO',
     'HydrogrammeQapp', 'Limnigramme',  # dclm
+    'Qmode', 'DefQregul', 'DefZregul', 'Qabs', 'Zabs', 'CondMode',  #dreg
 ]
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
 
+XSI_SCHEMA_LOCATION = '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation'
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
@@ -113,8 +115,8 @@ def parse_loi(elt, group='EvolutionFF', line='PointFF'):
     return np.array(values)
 
 
-def write_default_xml_file(xml_type, file_path):
-    shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
+def write_default_xml_file(xml_type, version_grammaire, file_path):
+    shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, version_grammaire, xml_type + '.xml'), file_path)
 
 
 def get_xml_root_from_file(file_path):
@@ -180,6 +182,15 @@ class ExceptionCrue10(Exception):
 class ExceptionCrue10GeometryNotFound(ExceptionCrue10):
     def __init__(self, emh):
         super().__init__("%s n'a pas de géométrie !" % emh)
+
+
+class ExceptionCrue10Grammar(ExceptionCrue10):
+    def __init__(self, message):
+        """!
+        :param message <str>: error message description
+        """
+        super().__init__(message)
+        self.message = message
 
 
 def duration_seconds_to_iso8601(duration_in_seconds):

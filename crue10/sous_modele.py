@@ -15,7 +15,7 @@ from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAJ, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, \
-    get_optional_commentaire, logger, parse_loi, PREFIX
+    ExceptionCrue10Grammar, get_optional_commentaire, logger, parse_loi, PREFIX
 
 
 def parse_elem_seuil(elt, with_pdc=False):
@@ -81,7 +81,7 @@ class SousModele(FichierXML):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_sous_modele, access='r', files=None, metadata=None):
+    def __init__(self, nom_sous_modele, access='r', files=None, metadata=None, version_grammaire=None):
         """
         :param nom_sous_modele: nom du sous-modèle
         :type nom_sous_modele: str
@@ -94,7 +94,7 @@ class SousModele(FichierXML):
         """
         check_preffix(nom_sous_modele, 'Sm_')
         self.id = nom_sous_modele
-        super().__init__(access, files, metadata)
+        super().__init__(access, files, metadata, version_grammaire=version_grammaire)
 
         self.noeuds = OrderedDict()
         self.sections = OrderedDict()
@@ -320,7 +320,7 @@ class SousModele(FichierXML):
         """
         Lire le fichier dfrt.xml
         """
-        root = self._get_xml_root_and_set_comment('dfrt')
+        root = self._get_xml_root_set_version_grammaire_and_comment('dfrt')
         for loi in root.find(PREFIX + 'LoiFFs'):
             loi_frottement = LoiFrottement(loi.get('Nom'), loi.get('Type'),
                                            comment=get_optional_commentaire(loi))
@@ -331,7 +331,7 @@ class SousModele(FichierXML):
         """
         Lire le fichier drso.xml
         """
-        root = self._get_xml_root_and_set_comment('drso')
+        root = self._get_xml_root_set_version_grammaire_and_comment('drso')
         for emh_group in root:
 
             if emh_group.tag == (PREFIX + 'Noeuds'):
@@ -453,7 +453,7 @@ class SousModele(FichierXML):
         """
         Lire le fichier dptg.xml
         """
-        root = self._get_xml_root_and_set_comment('dptg')
+        root = self._get_xml_root_set_version_grammaire_and_comment('dptg')
         for emh_group in root:
 
             if emh_group.tag == (PREFIX + 'DonPrtGeoProfilCasiers'):
@@ -511,7 +511,7 @@ class SousModele(FichierXML):
         """
         Lire le fichier dcsp.xml
         """
-        root = self._get_xml_root_and_set_comment('dcsp')
+        root = self._get_xml_root_set_version_grammaire_and_comment('dcsp')
         for emh_group in root:
 
             if emh_group.tag == (PREFIX + 'DonCalcSansPrtBranches'):
@@ -794,7 +794,7 @@ class SousModele(FichierXML):
         :param folder: dossier de sortie
         :param folder_config:
         """
-        logger.debug("Écriture du %s dans %s" % (self, folder))
+        logger.debug("Écriture du %s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 
         # Create folder if not existing
         if folder_config is not None:
@@ -815,6 +815,9 @@ class SousModele(FichierXML):
         self._write_drso(folder)
         self._write_dptg(folder)
         self._write_dcsp(folder)
+
+    def changer_grammaire(self, version_grammaire):
+        super().changer_version_grammaire(version_grammaire)
 
     def set_section(self, section):
         """Ecraser la section fournie
@@ -1118,6 +1121,9 @@ class SousModele(FichierXML):
         :param suffix: suffixe des EMHs
         :type suffix: str, optional
         """
+        if sous_modele.version_grammaire != self.version_grammaire:
+            raise ExceptionCrue10Grammar("La grammaire du %s à reprendre n'est pas compatible avec le %s"
+                                         % (sous_modele, self))
         for _, loi_frottement in sous_modele.lois_frottement.items():
             loi_frottement.id = loi_frottement.id + suffix
             self.ajouter_loi_frottement(loi_frottement)
@@ -1125,7 +1131,7 @@ class SousModele(FichierXML):
             if noeud.id not in self.noeuds:
                 self.ajouter_noeud(noeud)
         for section_type in [SectionProfil, SectionIdem, SectionSansGeometrie, SectionInterpolee]:
-            # SectionInterpolee should to be imported after SectionProfil to avoid exception
+            # SectionInterpolee should be imported after SectionProfil to avoid exception
             for section in sous_modele.get_liste_sections(section_type):
                 self.ajouter_section(section)
         for branche in sous_modele.get_liste_branches():
