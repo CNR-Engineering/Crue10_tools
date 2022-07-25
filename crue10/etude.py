@@ -6,7 +6,7 @@ import os.path
 from shutil import copyfile, rmtree
 import time
 
-from crue10.base import FichierXML
+from crue10.base import EnsembleFichiersXML
 from crue10.modele import Modele
 from crue10.run import Run
 from crue10.scenario import Scenario
@@ -22,23 +22,24 @@ def read_metadata(elt, keys):
     return metadata
 
 
-class Etude(FichierXML):
-    """Étude Crue10
+class Etude(EnsembleFichiersXML):
+    """
+    Étude Crue10
 
-    :param access: 'r' to read and 'w' to write
-    :type access: str
-    :param folders: dict with folders (keys correspond to `FOLDERS` list)
-    :type folders: {str}
-    :param filename_list: list of xml file names
-    :type filename_list: [str]
-    :param nom_scenario_courant: current scenario identifier
-    :type nom_scenario_courant: str
-    :param scenarios: dict with scenario name and Scenario object
-    :type scenarios: {str: Scenario}
-    :param modeles: Dict with modele name and Modele object
-    :type modeles: {str: Modele}
-    :param liste_sous_modeles: Dictionnaire des sous-modèles (id: objet)
-    :type liste_sous_modeles: {str: SousModele}
+    :ivar mode: accès en lecture ('r') ou écriture ('w')
+    :vartype mode: str
+    :ivar folders: dictionnaire avec les dossiers (les valeurs par défaut sont dans `FOLDERS`)
+    :vartype folders: {str}
+    :ivar filename_list: liste des fichiers XML de l'étude
+    :vartype filename_list: [str]
+    :ivar nom_scenario_courant: nom du scnéario courant (None si aucun)
+    :vartype nom_scenario_courant: str
+    :ivar scenarios: dictionnaire avec le nom du scénario et l'instance Scenario associée
+    :vartype scenarios: OrderedDict(Scenario)
+    :ivar modeles: dictionnaire avec le nom du modèle et l'instance Modele associée
+    :vartype modeles: OrderedDict(Modele)
+    :ivar sous_modeles: dictionnaire avec le nom du sous-modèle et l'instance SousModeles associée
+    :vartype sous_modeles: OrderedDict(SousModele)
     """
 
     FOLDERS = OrderedDict([('CONFIG', 'Config'), ('FICHETUDES', '.'),
@@ -47,23 +48,21 @@ class Etude(FichierXML):
     SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + SousModele.FILES_XML
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
-    def __init__(self, etu_path, folders=None, access='r', metadata=None, comment=''):
+    def __init__(self, etu_path, folders=None, mode='r', metadata=None, comment=''):
         """
-        :param etu_path: Fichier étude Crue10 (*.etu.xml)
+        :param etu_path: Fichier étude Crue10 (etu.xml)
         :type etu_path: str
         :param folders: dictionnaire avec les sous-dossiers
         :type folders: OrderedDict(str)
-        :param access: accès en lecture ('r') ou écriture ('w')
-        :type access: str
-        :param files: dictionnaire des chemins vers les fichiers xml
-        :type files: dict(str)
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
         :param metadata: dictionnaire avec les méta-données
         :type metadata: dict(str)
         """
-        files = {'etu': etu_path} if access == 'r' else None
-        super().__init__(access, files, metadata)
+        files = {'etu': etu_path} if mode == 'r' else None
+        super().__init__(mode, files, metadata)
         self.files['etu'] = etu_path  # FIXME: hack to overwrite the special key 'etu'
-        self.access = access
+        self.mode = mode
         if folders is None:
             self.folders = Etude.FOLDERS
         else:
@@ -80,9 +79,9 @@ class Etude(FichierXML):
         self.modeles = OrderedDict()
         self.sous_modeles = OrderedDict()
 
-        if access == 'r':
+        if mode == 'r':
             self._read_etu()
-        elif access == 'w':
+        elif mode == 'w':
             pass
         else:
             raise NotImplementedError
@@ -359,11 +358,11 @@ class Etude(FichierXML):
         :param nom_sous_modele: nom du sous-modèle (optionnel)
         :param comment: commentaire (optionnel)
         """
-        modele = Modele(nom_modele, access=self.access, metadata={'Commentaire': comment})
+        modele = Modele(nom_modele, mode=self.mode, metadata={'Commentaire': comment})
         if nom_sous_modele is not None:
-            sous_modele = SousModele(nom_sous_modele, access=self.access, metadata={'Commentaire': comment})
+            sous_modele = SousModele(nom_sous_modele, access=self.mode, metadata={'Commentaire': comment})
             modele.ajouter_sous_modele(sous_modele)
-        scenario = Scenario(nom_scenario, modele, access=self.access, metadata={'Commentaire': comment})
+        scenario = Scenario(nom_scenario, modele, access=self.mode, metadata={'Commentaire': comment})
         self.ajouter_scenario(scenario)
         if not self.nom_scenario_courant:
             self.nom_scenario_courant = scenario.id

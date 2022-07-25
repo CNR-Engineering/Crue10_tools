@@ -11,6 +11,7 @@ crue10.utils.cli\_parser module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.utils.crueconfigmetier module
 ------------------------------------
@@ -19,6 +20,7 @@ crue10.utils.crueconfigmetier module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.utils.filters module
 ---------------------------
@@ -27,6 +29,7 @@ crue10.utils.filters module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.utils.graph\_1d\_model module
 ------------------------------------
@@ -35,6 +38,7 @@ crue10.utils.graph\_1d\_model module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.utils.message module
 ---------------------------
@@ -43,6 +47,7 @@ crue10.utils.message module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.utils.multiple\_runs module
 ----------------------------------
@@ -51,6 +56,7 @@ crue10.utils.multiple\_runs module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.utils.settings module
 ----------------------------
@@ -67,6 +73,7 @@ crue10.utils.write\_cli\_usage module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 
 Module contents
@@ -76,3 +83,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__

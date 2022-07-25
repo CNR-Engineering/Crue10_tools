@@ -11,6 +11,7 @@ crue10.scenario.calcul module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.scenario.loi\_hydraulique module
 ---------------------------------------
@@ -19,6 +20,7 @@ crue10.scenario.loi\_hydraulique module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 
 Module contents
@@ -28,3 +30,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__

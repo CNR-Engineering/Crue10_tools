@@ -11,6 +11,7 @@ crue10.run.results module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.run.trace module
 -----------------------
@@ -19,6 +20,7 @@ crue10.run.trace module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 
 Module contents
@@ -28,3 +30,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__

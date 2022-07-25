@@ -24,7 +24,7 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
     :param scenarios_dict: dictionnaire avec le scénario à lancer (mettre None pour prendre le scénario par défaut
     :param crue_exe_dict: dictionnaire avec les coeurs à lancer (identifiant et chemin vers crue10.exe)
     :param overwrite: overwrite run if already exists
-    :returns pd.DataFrame
+    :rtype: pd.DataFrame
     """
     LOGGER_LEVEL = logger.level
     df_runs = pd.DataFrame({'etude_dossier': [], 'etude_basename': [], 'scenario': [], 'exe_id': [],
@@ -136,7 +136,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
     :param reference:
     :param variable:
     :param emh_type:
-    :returns pd.DataFrame
+    :rtype: pd.DataFrame
     """
     # Sort df_runs_unique to have 'prod' in first position to compute differences
     df_runs_unique = df_runs_unique.sort_values(['etude_dossier', 'scenario', 'exe_id'],

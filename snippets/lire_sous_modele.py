@@ -25,7 +25,7 @@ try:
     #          for xml in SousModele.FILES_XML}
     # for shp_name in SousModele.FILES_SHP:
     #     files[shp_name] = os.path.join(dossier, 'Config', nom_sous_modele.upper(), shp_name + '.shp')
-    # sous_modele = SousModele(nom_sous_modele, access='r', files=files, metadata=None)
+    # sous_modele = SousModele(nom_sous_modele, mode='r', files=files, metadata=None)
     # sous_modele.read_all()
 
     # Do something with `sous_modele`...

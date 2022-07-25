@@ -38,34 +38,42 @@ def get_run_identifier(datetime_obj=None):
 
 class Run:
     """
-    Run
+    Run = sorties suite à l'exécution d'un ou plusieurs services Crue10
 
-    :param id: run identifier corresponding to folder name
-    :type id: str
-    :param run_path: path to the folder of the run (exactly one folder before run_mo_path)
-    :type run_path: str
-    :param run_mo_path: path to the folder of the model (corresponds to the longest path)
-    :type run_mo_path: str
-    :param metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    :type metadata: dict
-    :param traces: list of traces for each service
-    :type traces: OrderedDict
+    :ivar id: run identifier corresponding to folder name
+    :vartype id: str
+    :ivar run_path: path to the folder of the run (exactly one folder before run_mo_path)
+    :vartype run_path: str
+    :ivar run_mo_path: path to the folder of the model (corresponds to the longest path)
+    :vartype run_mo_path: str
+    :ivar metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
+    :vartype metadata: dict
+    :ivar traces: list of traces for each service
+    :vartype traces: OrderedDict
     """
 
+    #: Liste des abréviations des services (dans l'ordre d'exécution par Crue10)
     SERVICES = ['r', 'g', 'i', 'c']
+
+    #: Noms usuels des services
     SERVICES_NAMES = {
         'r': 'pré-traitements réseau',
         'g': 'pré-traitements géométriques',
         'i': 'pré-traitements conditions initiales',
         'c': 'calcul',
     }
+
+    #: Noms des fichiers de compte-rendu des services
     FILES_CSV = {
         'r': 'cptr',
         'g': 'cptg',
         'i': 'cpti',
         'c': 'ccal',
     }
+
+    #: Noms des fichiers XML de sortie pour chacun des services
     FILES_XML = ['rptr', 'rptg', 'rpti', 'rcal']
+
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
     def __init__(self, etude_basename, run_mo_path, metadata=None):

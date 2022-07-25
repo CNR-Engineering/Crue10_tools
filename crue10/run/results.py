@@ -27,7 +27,8 @@ def get_time_in_seconds(time_str):
 
 class FilePosition:
     """
-    Binary file is in little endian with only 8-bytes values (ie. double precision for numeric values)
+    Fichier binaire est en "little endian" avec des valeurs sur 8 bytes
+    (ie. double precision pour les valeurs numériques)
     """
     ENCODING = 'utf-8'
     FLOAT_SIZE = 8
@@ -63,7 +64,7 @@ class FilePosition:
 
 
 class CalcPseudoPerm:
-    """Metadata for a steady calculation"""
+    """Métadonnées pour un calcul pseudo-permanent"""
 
     def __init__(self, name, bin_path, byte_offset):
         self.name = name
@@ -74,7 +75,7 @@ class CalcPseudoPerm:
 
 
 class CalcTrans:
-    """Metadata for an unsteady calculation"""
+    """Métadonnées pour un calcul transitoire"""
 
     def __init__(self, name):
         self.name = name
@@ -92,29 +93,29 @@ class CalcTrans:
 
 class RunResults:
     """
-    Results data for a single Run
+    Données résultats d'un Run
 
-    :param rcal_root: rcal XML element
-    :type rcal_root: ET.etree._Element
-    :param rcal_path: path to rcal file
-    :type rcal_path: str
-    :param rcal_folder: folder path to rcal file
-    :type rcal_folder: str
-    :param emh_types: list of "secondary" EMH types
-        for example: ['Noeud', 'Casier', 'Section', 'BrancheBarrageFilEau', 'BrancheOrifice', 'BrancheSaintVenant'...]
-    :type emh_types: list
-    :param emh: dictionary with secondary types as keys giving a list of EMH names
-    :type emh: OrderedDict
-    :param variables: dictionary with secondary types as keys giving a list of variable identifiers
-    :type variables: OrderedDict
-    :param calc_steady_dict: dictionary with steady calculations
-    :type calc_steady_dict: OrderedDict
-    :param calc_unsteady_dict: dictionary with unsteady calculations
-    :type calc_unsteady_dict: OrderedDict
-    :param _emh_type_first_branche: first EMH secondary type for Branche (e.g. 'BrancheBarrageFilEau')
-    :type _emh_type_first_branche: str
-    :param _res_pattern: list with a tuple (emh_type, shape)
-    :type _res_pattern: list
+    :ivar rcal_root: racine de l'élément XML rcal
+    :vartype rcal_root: ET.etree._Element
+    :ivar rcal_path: chemin vers le fichier rcal
+    :vartype rcal_path: str
+    :ivar rcal_folder: chemin vers le dossier du fichier rcal
+    :vartype rcal_folder: str
+    :ivar emh_types: liste des types EMH "secondaires",
+        par exemple : ['Noeud', 'Casier', 'Section', 'BrancheBarrageFilEau', 'BrancheOrifice', 'BrancheSaintVenant'...]
+    :vartype emh_types: list(str)
+    :ivar emh: dictionary with secondary types as keys giving a list of EMH names
+    :vartype emh: OrderedDict
+    :ivar variables: dictionary with secondary types as keys giving a list of variable identifiers
+    :vartype variables: OrderedDict
+    :ivar calc_steady_dict: dictionary with steady calculations
+    :vartype calc_steady_dict: OrderedDict
+    :ivar calc_unsteady_dict: dictionary with unsteady calculations
+    :vartype calc_unsteady_dict: OrderedDict
+    :ivar _emh_type_first_branche: first EMH secondary type for Branche (e.g. 'BrancheBarrageFilEau')
+    :vartype _emh_type_first_branche: str
+    :ivar _res_pattern: liste de tuples du type (emh_type, shape)
+    :vartype _res_pattern: list(tuple)
     """
     EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche']
 
@@ -166,11 +167,12 @@ class RunResults:
 
     def _read_structure(self):
         """
-        EMH are read from following xpaths :
-        - Noeuds/NoeudNiveauContinu/Noeud
-        - Casiers/CasierProfil/Casier
-        - Sections/{SectionIdem,SectionInterpolee,SectionProfil,SectionSansGeometrie}/Section (mêmes variables)
-        - Branches/Branche*/Branche
+        Les EMH sont lues à partir des xpaths suivants :
+
+        - `Noeuds/NoeudNiveauContinu/Noeud`
+        - `Casiers/CasierProfil/Casier`
+        - `Sections/{SectionIdem,SectionInterpolee,SectionProfil,SectionSansGeometrie}/Section` (mêmes variables)
+        - `Branches/Branche*/Branche`
         """
         for emh_list in self.rcal_root.find(PREFIX + 'StructureResultat'):
             emh_type = emh_list.tag[len(PREFIX):-1]
@@ -393,7 +395,7 @@ class RunResults:
         :param varname: nom de la variable à extraire.
         :type varname: str
         :param emh_list: liste des EMH concernés.
-        :type emh_list: [str]
+        :type emh_list: list(str)
         :return: tableau des résultats avec un pas de temps par ligne.
         :rtype: 2D-array
         """
@@ -464,7 +466,8 @@ class RunResults:
                                                      'value': FMT_FLOAT_CSV.format(value)})
 
     def export_calc_unsteady_time(self, cal_name):
-        """Exports the time serie for en unsteady calculation.
+        """
+        Exports the time serie for en unsteady calculation.
         
         - cal_name: nom du calcul.
         - returns: tableau des valeurs des pas de temps [s].
@@ -513,7 +516,8 @@ class RunResults:
             return pd.DataFrame(dic_res)  # DataFrame (=tableau de valeurs structuré, Pandas)
 
     def export_calc_unsteady_as_csv_table(self, csv_path, lst_var, lst_emh):
-        """Write CSV file with tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
+        """
+        Write CSV file with tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
         
         - csv_path, path: nom long du fichier à écrire.
         - lst_var: liste des noms de variables à extraire.

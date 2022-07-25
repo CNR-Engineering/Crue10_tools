@@ -94,6 +94,12 @@ def check_isinstance(obj, type):
 
 
 def check_preffix(name, preffix):
+    """
+    Lève une exception si le nom de l'élément ne commence par le préffixe
+
+    :param name: nom de l'élément
+    :param preffix: préffixe à vérifier
+    """
     if not name.startswith(preffix):
         raise ExceptionCrue10("Le nom `%s` ne commence pas par `%s`" % (name, preffix))
 
@@ -169,7 +175,7 @@ JINJA_ENV.filters = {
 
 
 class ExceptionCrue10(Exception):
-    """Custom exception for Crue file content check"""
+    """Exception Crue10 générale"""
 
     def __init__(self, message):
         """!
@@ -180,11 +186,15 @@ class ExceptionCrue10(Exception):
 
 
 class ExceptionCrue10GeometryNotFound(ExceptionCrue10):
+    """Exception Crue10 pour les problèmes de géométrie (fichiers SHP en particulier)"""
+
     def __init__(self, emh):
         super().__init__("%s n'a pas de géométrie !" % emh)
 
 
 class ExceptionCrue10Grammar(ExceptionCrue10):
+    """Exception Crue10 pour les problèmes de grammaire"""
+
     def __init__(self, message):
         """!
         :param message <str>: error message description
@@ -246,28 +256,36 @@ def duration_iso8601_to_seconds(duration_in_iso8601):
 
 def extract_pdt_from_elt(elt):
     """
-    Extract the time step
+    Extraction du pas de temps (constant ou variable) à partir de l'élément XML
+
     :param elt: XML tree
-    :return: float (if constant) or a list of tuple (if variable)
+    :return: flottant (si pas de temps constant) ou une liste de tuple (si variable)
 
     # Exemple d'un pas de temps constant
-    <PdtRes>
-      <PdtCst>P0Y0M0DT1H0M0S</PdtCst>
-    </PdtRes>
+
+    .. code-block:: xml
+
+       <PdtRes>
+         <PdtCst>P0Y0M0DT1H0M0S</PdtCst>
+       </PdtRes>
 
     # Exemple d'un pas de temps variable (en permanent)
-    <Pdt>
-      <PdtVar>
-        <ElemPdt>
-          <NbrPdt>10</NbrPdt>
-          <DureePdt>P0Y0M0DT0H12M0S</DureePdt>
-        </ElemPdt>
-        <ElemPdt>
-          <NbrPdt>100</NbrPdt>
-          <DureePdt>P0Y0M0DT3H0M0S</DureePdt>
-        </ElemPdt>
-      </PdtVar>
-    </Pdt>
+
+    .. code-block:: xml
+
+       <Pdt>
+         <PdtVar>
+           <ElemPdt>
+             <NbrPdt>10</NbrPdt>
+             <DureePdt>P0Y0M0DT0H12M0S</DureePdt>
+           </ElemPdt>
+           <ElemPdt>
+             <NbrPdt>100</NbrPdt>
+             <DureePdt>P0Y0M0DT3H0M0S</DureePdt>
+           </ElemPdt>
+         </PdtVar>
+       </Pdt>
+
     """
     assert len(elt) == 1
     if elt[0].tag.endswith('PdtCst'):

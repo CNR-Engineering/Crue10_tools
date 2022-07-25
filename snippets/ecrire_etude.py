@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 etu_path = os.path.join('out', 'Etu_from_scratch', 'Etu_from_scratch.etu.xml')
 
 # Write an empty etude
-etude_out = Etude(etu_path, access='w')
+etude_out = Etude(etu_path, mode='w')
 etude_out.create_empty_scenario('Sc_from_scratch', 'Mo_from_scratch', 'Sm_from_scratch')
 sous_modele_out = etude_out.get_sous_modele('Sm_from_scratch')
 
@@ -31,7 +31,7 @@ etude_out.write_all()
 
 
 # Read this new etude to check its integrity
-etude_in = Etude(etu_path, access='r')
+etude_in = Etude(etu_path, mode='r')
 try:
     etude_in.read_all()
     logger.debug('-' * 32 + '\nVérification ré-ouverture étude:')

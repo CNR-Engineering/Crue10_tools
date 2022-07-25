@@ -7,7 +7,7 @@ import os.path
 import shutil
 import time
 
-from crue10.base import FichierXML
+from crue10.base import EnsembleFichiersXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
@@ -23,12 +23,12 @@ class OrdCalcPseudoPerm:
     """
     OrdCalcPseudoPerm : paramètres des calculs permanents
 
-    :param id: nom du calcul
-    :type id: str
-    :param init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
-    :type init: (str, str)
-    :param cliche_fin: chemin du cliché
-    :type cliche_fin: str
+    :ivar id: nom du calcul
+    :vartype id: str
+    :ivar init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
+    :vartype init: (str, str)
+    :ivar cliche_fin: chemin du cliché
+    :vartype cliche_fin: str
     """
     def __init__(self, calc_id, calc_init, cliche_fin):
         self.id = calc_id
@@ -40,18 +40,18 @@ class OrdCalcTrans:
     """
     OrdCalcTrans : paramètres des calculs transitoires
 
-    :param id: nom du calcul
-    :type id: str
-    :param duree: durée du calcul
-    :type duree: float
-    :param pdt_res: pas de temps de sortie des résultats
-    :type pdt_res: float|list
-    :param init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
-    :type init: (str, str)
-    :param cliche_ponctuel: chemin et temps d'extraction du cliché ponctuel
-    :type cliche_ponctuel: (str, str)
-    :param cliche_periodique: chemin et pas de temps du cliché périodique
-    :type cliche_periodique: (str, str)
+    :ivar id: nom du calcul
+    :vartype id: str
+    :ivar duree: durée du calcul
+    :vartype duree: float
+    :ivar pdt_res: pas de temps de sortie des résultats
+    :vartype pdt_res: float|list
+    :ivar init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
+    :vartype init: (str, str)
+    :ivar cliche_ponctuel: chemin et temps d'extraction du cliché ponctuel
+    :vartype cliche_ponctuel: (str, str)
+    :ivar cliche_periodique: chemin et pas de temps du cliché périodique
+    :vartype cliche_periodique: (str, str)
     """
 
     def __init__(self, calc_id, duree, pdt_res, calc_init, cliche_ponctuel, cliche_periodique):
@@ -80,26 +80,26 @@ class OrdCalcTrans:
             return res
 
 
-class Scenario(FichierXML):
+class Scenario(EnsembleFichiersXML):
     """
     Scénario Crue10
 
-    :param id: nom du scénario
-    :type id: str
-    :param modele: modèle
-    :type modele: Modele
-    :param calculs: liste des calculs
-    :type calculs: [Calcul]
-    :param liste_ord_calc_pseudoperm: liste des paramètres des calculs permanents
-    :type liste_ord_calc_pseudoperm: [OrdCalcPseudoPerm]
-    :param liste_ord_calc_trans: liste des paramètres des calculs transitoires
-    :type liste_ord_calc_trans: [OrdCalcTrans]
-    :param lois_hydrauliques: dictionnaire des lois hydrauliques
-    :type lois_hydrauliques: OrderedDict(LoiHydraulique)
-    :param runs: dictionnaire des runs
-    :type runs: OrderedDict(Run)
-    :param current_run_id: nom du scénario courant
-    :type current_run_id: str
+    :ivar id: nom du scénario
+    :vartype id: str
+    :ivar modele: modèle
+    :vartype modele: Modele
+    :ivar calculs: liste des calculs
+    :vartype calculs: list(Calcul)
+    :ivar liste_ord_calc_pseudoperm: liste des paramètres des calculs permanents
+    :vartype liste_ord_calc_pseudoperm: [OrdCalcPseudoPerm]
+    :ivar liste_ord_calc_trans: liste des paramètres des calculs transitoires
+    :vartype liste_ord_calc_trans: [OrdCalcTrans]
+    :ivar lois_hydrauliques: dictionnaire des lois hydrauliques
+    :vartype lois_hydrauliques: OrderedDict(LoiHydraulique)
+    :ivar runs: dictionnaire des runs
+    :vartype runs: OrderedDict(Run)
+    :ivar current_run_id: nom du scénario courant
+    :vartype current_run_id: str
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
@@ -283,7 +283,8 @@ class Scenario(FichierXML):
 
         Les modifications possibles sont :
 
-        # Sur le scénario ou modèle
+        ## Sur le scénario ou modèle
+
         - `pnum.CalcPseudoPerm.Pdt`: <float> => affection du pas de temps (en secondes) pour les calculs permanents
         - `pnum.CalcPseudoPerm.TolMaxZ`: <float> => affection de la tolérance en niveau (en m) pour les calculs
             permanents
@@ -294,11 +295,13 @@ class Scenario(FichierXML):
         - `Zimp.NomCalcul.NomNoeud`: <float> => application de la cote au calcul NomCalcul au noeud nommé NomNoeud
         - `branche_barrage.CoefD`: <float> => application du coefficient à la branche barrage
 
-        # Sur les sous-modèles
+        ## Sur les sous-modèles
+
         - `Fk_NomLoi`: <float> => modification du Strickler de la loi de frottement nommée NomLoi
         - `Fk_shift.*`: <float> => modification par somme du Strickler de toutes les lois de frottement (sauf celles du stockage)
 
-        :@param modifications: dict of modifications
+        :param modifications: dictionnaire des modifications
+        :type modifications: dict
         """
         check_isinstance(modifications, dict)
         for modification_key, modification_value in modifications.items():
@@ -529,8 +532,10 @@ class Scenario(FichierXML):
         Même comportement que Fudaa-Crue :
 
         - Dans le fichier etu.xml:
+        
             - on conserve la liste des Runs précédents (sans copier les fichiers)
             - on conserve les Sm/Mo/Sc qui sont hors du Sc courant
+        
         - Seuls les XML du scénario courant sont écrits dans le dossier du run
         - Les XML du modèle associés sont écrits dans un sous-dossier
         - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
@@ -591,7 +596,7 @@ class Scenario(FichierXML):
 
     def create_and_launch_new_run(self, etude, run_id=None, exe_path=CRUE10_EXE_PATH, comment='', force=False):
         """
-        Créé et lance un nouveau run
+        Créer et lancer un nouveau run
         """
         run = self.create_new_run(etude, run_id=run_id, comment=comment, force=force)
         run.launch_services(Run.SERVICES, exe_path=exe_path)
@@ -599,7 +604,7 @@ class Scenario(FichierXML):
 
     def create_and_launch_new_multiple_sequential_runs(self, modifications_liste, etude, exe_path=CRUE10_EXE_PATH, force=False):
         """
-        Créé et lance des runs séquentiels selon les modifications demandées
+        Créer et lancer des runs séquentiels selon les modifications demandées
         """
         etude.ignore_others_scenarios(self.id)
         run_liste = []
@@ -619,7 +624,7 @@ class Scenario(FichierXML):
 
     def _write_dclm(self, folder):
         """
-        Ecrire le fichier dclm.xml
+        Écrire le fichier dclm.xml
 
         :param folder: dossier de sortie
         """
@@ -633,7 +638,7 @@ class Scenario(FichierXML):
 
     def _write_dlhy(self, folder):
         """
-        Ecrire le fichier dlhy.xml
+        Écrire le fichier dlhy.xml
 
         :param folder: dossier de sortie
         """
@@ -644,7 +649,7 @@ class Scenario(FichierXML):
 
     def _write_ocal(self, folder):
         """
-        Ecrire le fichier dclm.xml
+        Écrire le fichier dclm.xml
 
         :param folder: dossier de sortie
         """

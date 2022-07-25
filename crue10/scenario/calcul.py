@@ -12,7 +12,7 @@ ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 class Calcul(ABC):
     """
-    Abstract class for Sections
+    Classe abstraite pour les sections
 
     - id
     - comment

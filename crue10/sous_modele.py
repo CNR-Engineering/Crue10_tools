@@ -6,7 +6,7 @@ import numpy as np
 import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
 
-from crue10.base import FichierXML
+from crue10.base import EnsembleFichiersXML
 from crue10.emh.branche import BRANCHE_CLASSES, Branche, BranchePdC, BrancheSeuilTransversal, \
     BrancheSeuilLateral, BrancheOrifice, BrancheStrickler, BrancheNiveauxAssocies, \
     BrancheBarrageGenerique, BrancheBarrageFilEau, BrancheSaintVenant
@@ -55,25 +55,25 @@ def cut_linestring(line, distance):
                 LineString([(cp.x, cp.y)] + coords[i:])]
 
 
-class SousModele(FichierXML):
+class SousModele(EnsembleFichiersXML):
     """
     Sous-modèle Crue10
 
     :param id: nom du sous-modèle
-    :type id: str
+    :vartype id: str
     :param noeuds: dictionnaire ordonné des noeuds
-    :type noeuds: OrderedDict(Noeud)
+    :vartype noeuds: OrderedDict(Noeud)
     :param sections: dictionnaire ordonné des sections
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
-    :type sections: OrderedDict(Section
+    :vartype sections: OrderedDict(Section
     :param branches: dictionnaire ordonné des branches
-    :type branches: OrderedDict(Branche)
+    :vartype branches: OrderedDict(Branche)
     :param casiers: dictionnaire ordonné des casiers
-    :type casiers: OrderedDict(Casier)
+    :vartype casiers: OrderedDict(Casier)
     :param profils_casier: dictionnaire ordonné des profils casier
-    :type profils_casier: OrderedDict(ProfilCasier)
+    :vartype profils_casier: OrderedDict(ProfilCasier)
     :param lois_frottement: dictionnaire ordonné des lois de frottement (coefficients de Strickler)
-    :type lois_frottement: OrderedDict(LoiFrottement)
+    :vartype lois_frottement: OrderedDict(LoiFrottement)
     """
 
     FILES_SHP = ['noeuds', 'branches', 'casiers', 'tracesSections']
@@ -669,7 +669,7 @@ class SousModele(FichierXML):
 
     def _write_dfrt(self, folder):
         """
-        Ecrire le fichier dfrt.xml
+        Écrire le fichier dfrt.xml
 
         :param folder: dossier de sortie
         """
@@ -680,7 +680,7 @@ class SousModele(FichierXML):
 
     def _write_drso(self, folder):
         """
-        Ecrire le fichier drso.xml
+        Écrire le fichier drso.xml
 
         :param folder: dossier de sortie
         """
@@ -699,7 +699,7 @@ class SousModele(FichierXML):
 
     def _write_dptg(self, folder):
         """
-        Ecrire le fichier dptg.xml
+        Écrire le fichier dptg.xml
 
         :param folder: dossier de sortie
         """
@@ -713,7 +713,7 @@ class SousModele(FichierXML):
 
     def _write_dcsp(self, folder):
         """
-        Ecrire le fichier dcsp.xml
+        Écrire le fichier dcsp.xml
 
         :param folder: dossier de sortie
         """
@@ -968,6 +968,7 @@ class SousModele(FichierXML):
     def supprimer_noeud_entre_deux_branches_fluviales(self, noeud):
         """
         Supprimer le noeud du sous-modèle en fusionnant les 2 branches consécutives qui l'entourent
+
         Attention: comment, CoefSinuo, CoefBeta, CoefRuis, CoefRuisQdm de la branche aval sont perdus
 
         :param noeud: noeud à supprimer

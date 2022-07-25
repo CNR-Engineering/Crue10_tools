@@ -1,8 +1,9 @@
 # coding: utf-8
 """
 Classes pour les casiers du champ majeur :
-    - ProfilCasier
-    - Casier
+
+- :class:`ProfilCasier`
+- :class:`Casier`
 
 TODO: Not supported yet: TypeDPTGCasiers: SplanBati, ZBatiTotal (dptg.xml)
 """
@@ -45,26 +46,32 @@ def get_negative_area(x_array, y_array):
 
 class ProfilCasier:
     """
-    ProfilCasier
+    ProfilCasier = données permettant de calculer une loi de volume fonction d'une cote à partir d'un profil
+    en travers à appliquer sur une certaine distance
 
-    :param id: profil casier identifier
-    :type id: str
-    :param distance: applied length (or width) in meters
-    :type distance: float
-    :param xz: ndarray(dtype=float, ndim=2)
-        Array containing series of lateral abscissa and elevation (first axis should be strictly increasing)
-    :type xz: 2D-array
-    :param xt_min: first curvilinear abscissa (for LitUtile)
-    :type xt_min: float
-    :param xt_max: last curvilinear abscissa (for LitUtile)
-    :type xt_max: float
-    :param comment: optional text explanation
-    :type comment: str
+    :ivar id: nom du profil casier
+    :vartype id: str
+    :ivar longueur: distance d'application (ou largeur) en mètres
+    :vartype longueur: float
+    :ivar xz: Tableau avec les abscisses curvilignes et les cotes (l'abscisse doit être strictement croissante),
+        shape(nb_values, 2)
+    :vartype xz: np.ndarray
+    :ivar xt_min: première abscisse curviligne à considérer (pour le début du LitUtile)
+    :vartype xt_min: float
+    :ivar xt_max: dernière abscisse curviligne à considérer (pour la fin du LitUtile)
+    :vartype xt_max: float
+    :ivar comment: commentaire optionnel
+    :vartype comment: str
     """
 
+    #: Profil casier par défaut
     DEFAULT_COORDS = np.array([(0, 0), (50, 0), (100, 0)])
 
     def __init__(self, nom_profil_casier):
+        """
+        :param nom_profil_casier: nom du profil casier
+        :type nom_profil_casier: str
+        """
         check_preffix(nom_profil_casier, 'Pc_')
         self.id = nom_profil_casier
         self.longueur = 0.0
@@ -76,6 +83,10 @@ class ProfilCasier:
         self.set_xz(ProfilCasier.DEFAULT_COORDS)
 
     def get_min_z(self):
+        """
+        :return: cote minimale du profil casier
+        :rtype: float
+        """
         min_z = float('inf')
         for x, z in self.xz:
             if self.xt_min <= x <= self.xt_max:
@@ -83,9 +94,21 @@ class ProfilCasier:
         return min_z
 
     def set_longueur(self, longueur):
+        """
+        Affecter la longueur (ou distance d'application)
+
+        :param longueur: distance d'application
+        """
         self.longueur = longueur
 
     def set_xz(self, array):
+        """
+        Affecter le tableau avec les abscisses curvilignes et les cotes
+        Les valeurs xt_min et xt_max sont également mis à jour (mis aux extrémités du profil)
+
+        :param array: tableau avec les abscisses curvilignes et les cotes, shape(nb_values, 2)
+        :type array: np.ndarray
+        """
         check_isinstance(array, np.ndarray)
         if any(x > y for x, y in zip(array[:, 0], array[1:, 0])):
             raise ExceptionCrue10("Les valeurs de xt ne sont pas strictement croissantes %s" % array[:, 0])
@@ -94,17 +117,37 @@ class ProfilCasier:
         self.xt_max = self.xz[-1, 0]
 
     def interp_z(self, xt):
+        """
+        Interpoler la cote à partir d'une absicisse donnée
+
+        :param xt: abscisse curviligne
+        :return: niveau interpolé
+        :rtype: np.ndarray
+        """
         if xt < self.xt_min or xt > self.xt_max:
             raise ExceptionCrue10("xt=%f en dehors de la plage [%f, %f] pour %s" % (xt, self.xt_min, self.xt_max, self))
         return np.interp(xt, self.xz[:, 0], self.xz[:, 1])
 
     def compute_surface(self, z):
+        """
+        Calculer la surface pour un niveau donné
+
+        :param z: niveau à tester
+        :type z: float
+        """
         return get_negative_area(self.xz[:, 0], self.xz[:, 1] - z)
 
     def compute_volume(self, z):
+        """
+        Calculer le volume pour un niveau donné
+
+        :param z: niveau à tester
+        :type z: float
+        """
         return self.compute_surface(z) * self.longueur
 
     def validate(self):
+        """Valider"""
         if self.xt_min >= self.xt_max or self.longueur <= 0.0:
             return [(self, "Le profil casier a un volume nul")]
         return []
@@ -116,25 +159,33 @@ class ProfilCasier:
 
 class Casier:
     """
-    Casier (ou zone de stockage, réservoir)
+    Casier ou zone de stockage, réservoir
 
-    :param id: nom du casier
-    :type id: str
-    :param is_active: True if its node is active
-    :type is_active: bool
-    :param geom: polygon
-    :type geom: shapely.geometry.LinearRing
-    :param noeud_reference: related node
-    :type noeud_reference: Noeud
-    :param profils_casier: profils casier (usually only one)
-    :type profils_casier: [ProfilCaser]
-    :param CoefRuis: "coefficient modulation du débit linéique de ruissellement"
-    :type CoefRuis: float
-    :param comment: optional text explanation
-    :type comment: str
+    :ivar id: nom du casier
+    :vartype id: str
+    :ivar is_active: True si le noeud associé est actif
+    :vartype is_active: bool
+    :ivar geom: polygon
+    :vartype geom: shapely.geometry.LinearRing
+    :ivar noeud_reference: noeud associé
+    :vartype noeud_reference: Noeud
+    :ivar profils_casier: liste des profils casier (en général un seul)
+    :vartype profils_casier: list(ProfilCasier)
+    :ivar CoefRuis: "coefficient modulation du débit linéique de ruissellement"
+    :vartype CoefRuis: float
+    :ivar comment: commentaire optionnel
+    :vartype comment: str
     """
 
     def __init__(self, nom_casier, noeud, is_active=True):
+        """
+        :param nom_casier: nom du casier
+        :type nom_casier: str
+        :param noeud: noeud associé
+        :type noeud: Noeud
+        :param is_active: est actif
+        :type is_active: bool
+        """
         check_preffix(nom_casier, 'Ca_')
         check_isinstance(noeud, Noeud)
         self.id = nom_casier
@@ -146,7 +197,8 @@ class Casier:
         self.comment = ''
 
     def set_geom(self, geom):
-        """Affecter la géométrie du casier
+        """
+        Affecter la géométrie du casier
 
         :param geom: polygone d'emprise du casier
         :type geom: shapely.geometry.LinearRing
@@ -157,7 +209,8 @@ class Casier:
         self.geom = geom
 
     def ajouter_profil_casier(self, profil_casier):
-        """Ajouter le profil casier
+        """
+        Ajouter le profil casier
 
         :param profil_casier: ProfilCasier
         """
@@ -166,7 +219,8 @@ class Casier:
 
     def somme_longueurs(self):
         """
-        :return: Somme les longueurs des branches
+        :return: Somme les longueurs des profils casier
+        :rtype: float
         """
         distance = 0
         for profil_casier in self.profils_casier:
@@ -174,7 +228,8 @@ class Casier:
         return distance
 
     def compute_volume(self, z):
-        """Calculer le volume
+        """
+        Calculer le volume
 
         :param z: niveau d'eau
         :type z: float
@@ -187,7 +242,8 @@ class Casier:
         return volume
 
     def compute_surface(self, z):
-        """Calculer la surface
+        """
+        Calculer la surface
 
         :param z: niveau d'eau
         :type z: float
@@ -197,7 +253,7 @@ class Casier:
         return self.compute_volume(z) / self.somme_longueurs()
 
     def fusion_profil_casiers(self):
-        """Replace multiple ProfilCasiers by a combined ProfilCasier giving a similar volume law"""
+        """Remplace plusieurs profils casier par un unique profil casier donnant la même loi de volume"""
         if len(self.profils_casier) > 2:
             # Extract a sequence of bottom elevation
             z_array_combine = np.array([], dtype=np.float)
@@ -244,6 +300,7 @@ class Casier:
         return min_z
 
     def validate(self):
+        """Valider"""
         errors = []
         if len(self.id) > 32:  # valid.nom.tooLong.short
             errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))

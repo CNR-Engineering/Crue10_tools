@@ -15,33 +15,42 @@ from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE, VERSION_GRAMMAIRE_
 ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 
-class FichierXML(ABC):
+class EnsembleFichiersXML(ABC):
     """
     Abstract class for Crue10 XML files
 
-    :param version_grammaire: version de la grammaire
-    :type version_grammaire: str
-    :param xml_trees: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
-    :type xml_trees: {ET.ElementTree}
-    :param metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    :type metadata: {dict}
-    :param files: dict with path to xml files (keys correspond to `FILES_XML` list)
-    :type files: {str}
-    :param comments: dict with comment of xml files (keys correspond to `FILES_XML` list)
-    :type comments: {str}
-    :param was_read: True si déjà lu
-    :type was_read: bool
+    :ivar version_grammaire: version de la grammaire
+    :vartype version_grammaire: str
+    :ivar xml_trees: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
+    :vartype xml_trees: {ET.ElementTree}
+    :ivar metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
+    :vartype metadata: {dict}
+    :ivar files: dict with path to xml files (keys correspond to `FILES_XML` list)
+    :vartype files: {str}
+    :ivar comments: dict with comment of xml files (keys correspond to `FILES_XML` list)
+    :vartype comments: {str}
+    :ivar was_read: True si déjà lu
+    :vartype was_read: bool
     """
 
+    #: Fichiers XML
     FILES_XML = []
+
+    #: Sous-fichiers XML pour Etude (l'ensemble des types composant une étude Crue10)
     SUB_FILES_XML = []
+
+    #: Fichiers SHP pour SousModele
     FILES_SHP = []
+
+    #: Fichiers XML sans template jinja2 (le fichier est lu/écrit par l'utilisation d'un simple parseur XML)
     FILES_XML_WITHOUT_TEMPLATE = []
+
+    #: Nom des métadonnées présentes dans le fichier etu.xml
     METADATA_FIELDS = []
 
     def __init__(self, access, files, metadata, version_grammaire=None):
         """
-        id attribute has to be defined before calling this super method
+        L'attribut `id` doit être défini avant d'appeler cette méthode mère (super)
         """
         self.xml_trees = {}
 
@@ -56,8 +65,8 @@ class FichierXML(ABC):
                 raise RuntimeError
 
             files_xml = deepcopy(type(self).FILES_XML)
-            if version_grammaire == '1.2':
-                try:  # Modele: HARDCODED to support g1.2
+            if version_grammaire == '1.2':  # Modele: HARDCODED to support g1.2
+                try:
                     files_xml.remove('dreg')
                 except ValueError:  # Etude, Scenario, SousModele
                     pass
@@ -79,17 +88,26 @@ class FichierXML(ABC):
 
     @property
     def is_active(self):
+        """Est actif"""
         return self.metadata['IsActive'] == 'true'
 
     @property
     def comment(self):
+        """Commentaire"""
         return self.metadata['Commentaire']
 
     @property
     def file_basenames(self):
+        """Retourne la liste des fichiers par type"""
         return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
     def set_version_grammaire(self, version_grammaire):
+        """
+        Définir la version de la grammaire
+
+        :param version_grammaire: version de la grammaire à définir
+        :type version_grammaire: str
+        """
         # Check version_grammaire consistency
         grammaires_supportees = [VERSION_GRAMMAIRE_PRECEDENTE, VERSION_GRAMMAIRE_COURANTE]
         if version_grammaire not in grammaires_supportees:
@@ -103,15 +121,22 @@ class FichierXML(ABC):
         self.version_grammaire = version_grammaire
 
     def changer_version_grammaire(self, version_grammaire):
+        """
+        Changer la version de la grammaire
+
+        :param version_grammaire: version de la grammaire cible
+        :type version_grammaire: str
+        """
         self.set_version_grammaire(version_grammaire)
 
-        # Change version_grammaire in all FILES_WITHOUT_TEMPLATE
+        # Change version_grammaire in all `FILES_WITHOUT_TEMPLATE`
         for xml_type, root in self.xml_trees.items():
             old_xsi = root.get(XSI_SCHEMA_LOCATION)
             new_xsi = old_xsi.replace('-%s.xsd' % self.version_grammaire, '-%s.xsd' % version_grammaire)
             root.set(XSI_SCHEMA_LOCATION, new_xsi)
 
     def set_comment(self, comment):
+        """Définir le commentaire"""
         self.metadata['Commentaire'] = comment
 
     def _get_xml_root_set_version_grammaire_and_comment(self, xml):
@@ -192,6 +217,7 @@ class FichierXML(ABC):
         return errors_list
 
     def check_xml_files(self, folder=None):
+        """Vérifier les fichiers XML"""
         if folder is None:
             filename_list = [filename for _, filename in self.files.items()]
         else:
@@ -202,6 +228,7 @@ class FichierXML(ABC):
         return errors
 
     def log_check_xml(self, folder=None):
+        """Afficher le bilan de la vérification des fichiers XML"""
         errors = self.check_xml_files(folder)
         nb_errors = 0
         for xml_file, liste_errors in errors.items():

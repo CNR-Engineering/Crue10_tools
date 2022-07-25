@@ -1,7 +1,7 @@
 from glob import glob
 import os.path
 
-from crue10.base import FichierXML
+from crue10.base import EnsembleFichiersXML
 from crue10.etude import Etude
 from crue10.utils import check_isinstance
 
@@ -21,7 +21,7 @@ class Campagne:
         self.nom_scenario = nom_scenario
 
 
-class FichierOtfa(FichierXML):
+class FichierOtfa(EnsembleFichiersXML):
     """
     Fichier OTFA
     """
@@ -52,7 +52,8 @@ class FichierOtfa(FichierXML):
         )
 
 
-otfa = FichierOtfa('Conc', access='w', files={'otfa': 'Conc.otfa.xml'}, metadata={'Commentaire': "OTFA pour les derniers modèles de concession"})
+otfa = FichierOtfa('Conc', access='w', files={'otfa': 'Conc.otfa.xml'},
+                   metadata={'Commentaire': "OTFA pour les derniers modèles de concession"})
 
 for etude_dossier, nom_scenario in ETATREF_SCENARIO_PAR_AMENAGEMENT.items():
     for etu_path in glob(os.path.join(DOSSIER, etude_dossier, '*.etu.xml')):  # FIXME: only one etu.xml should be found by folder!

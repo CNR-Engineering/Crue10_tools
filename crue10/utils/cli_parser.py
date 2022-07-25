@@ -17,7 +17,7 @@ class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescri
 
 class MyArgParse(argparse.ArgumentParser):
     """
-    Derived ArgumentParser with improved help message rendering
+    Classe dérivée de ArgumentParser avec un message d'aide dont le rendu est amélioré et traduit en français
     """
     def __init__(self, description=None, *args, **kwargs):
         kwargs['formatter_class'] = CustomFormatter

@@ -8,7 +8,7 @@ import numpy as np
 import os.path
 from shapely.geometry import LineString, mapping, Point
 
-from crue10.base import FichierXML
+from crue10.base import EnsembleFichiersXML
 from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
 from crue10.emh.section import SectionProfil, LitNumerote
 from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
@@ -17,22 +17,22 @@ from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
 
 
-class Modele(FichierXML):
+class Modele(EnsembleFichiersXML):
     """
     Modèle Crue10
 
     :param id: nom du modèle
-    :type id: str
+    :vartype id: str
     :param liste_sous_modeles: liste des sous-modèles
-    :type liste_sous_modeles: list(SousModele)
+    :vartype liste_sous_modeles: list(SousModele)
     :param noeuds_ic: conditions initiales aux noeuds
-    :type noeuds_ic: dict
+    :vartype noeuds_ic: dict
     :param casiers_ic: conditions initiales aux casiers
-    :type casiers_ic: dict
+    :vartype casiers_ic: dict
     :param branches_ic: conditions initiales aux branches
-    :type branches_ic: dict
+    :vartype branches_ic: dict
     :param graph: graphe orienté avec tous les noeuds et branches actives
-    :type graph: networkx.DiGraph
+    :vartype graph: networkx.DiGraph
     """
 
     FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti', 'dreg']
@@ -41,12 +41,12 @@ class Modele(FichierXML):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_modele, access='r', files=None, metadata=None, version_grammaire=None):
+    def __init__(self, nom_modele, mode='r', files=None, metadata=None, version_grammaire=None):
         """
         :param nom_modele: nom du modèle
         :type nom_modele: str
-        :param access: accès en lecture ('r') ou écriture ('w')
-        :type access: str
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
         :param files: dictionnaire des chemins vers les fichiers xml
         :type files: dict(str)
         :param metadata: dictionnaire avec les méta-données
@@ -54,7 +54,7 @@ class Modele(FichierXML):
         """
         check_preffix(nom_modele, 'Mo_')
         self.id = nom_modele
-        super().__init__(access, files, metadata, version_grammaire=version_grammaire)
+        super().__init__(mode, files, metadata, version_grammaire=version_grammaire)
 
         self.liste_sous_modeles = []
         self._graph = None
@@ -585,7 +585,7 @@ class Modele(FichierXML):
 
     def _write_dpti(self, folder):
         """
-        Ecrire le fichier dpti.xml
+        Écrire le fichier dpti.xml
 
         :param folder: dossier de sortie
         """
@@ -711,7 +711,7 @@ class Modele(FichierXML):
         from mascaret.mascaret_file import Reach, Section
         from mascaret.mascaretgeo_file import MascaretGeoFile
 
-        geofile = MascaretGeoFile(geo_path, access='w')
+        geofile = MascaretGeoFile(geo_path, mode='w')
         i_section = 0
         for sous_modele in self.liste_sous_modeles:
             for i_branche, branche in enumerate(sous_modele.get_liste_branches([20])):

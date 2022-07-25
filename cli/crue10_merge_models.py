@@ -50,12 +50,12 @@ def crue10_merge_models(args):
             if not reference_found:
                 raise ExceptionCrue10("Le noeud de référence n'a pas pu être trouvé pour : `%s`" % nodes_str)
 
-    study_out = Etude(args.etu_path_out, access='w')
+    study_out = Etude(args.etu_path_out, mode='w')
     study_out.create_empty_scenario('Sc_%s' % args.out_name, 'Mo_%s' % args.out_name, nom_sous_modele=None)
     model_out = study_out.get_modele('Mo_%s' % args.out_name)
 
     for i, (etu_path, mo_name, suffix) in enumerate(zip(args.etu_path_list, args.mo_name_list, args.suffix_list)):
-        study_in = Etude(etu_path, access='r')
+        study_in = Etude(etu_path, mode='r')
         model_in = study_in.get_modele(mo_name)
         model_in.read_all()
 
