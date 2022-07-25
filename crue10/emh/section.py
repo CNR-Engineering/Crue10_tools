@@ -52,13 +52,13 @@ class LoiFrottement:
     Loi de frottement (coefficient(s) de Strickler éventuellement variable(s) avec le niveau d'eau)
 
     :ivar id: nom de la loi de frottement
-    :type id: str
+    :vartype id: str
     :ivar type: type de loi de frottement
-    :type type: str
+    :vartype type: str
     :ivar loi_Fk: tableau de coefficients de Strickler fonction de la cote, shape=(nb_values, 2)
-    :type loi_Fk: np.ndarray
+    :vartype loi_Fk: np.ndarray
     :ivar comment: optional text explanation
-    :type comment: str
+    :vartype comment: str
     """
 
     #: Types possibles de loi de frottement
@@ -135,9 +135,9 @@ class LitNumerote:
     Lit numéroté = intervalle entre 2 limites de lit
 
     :ivar id: identifiant du lit numéroté (une clé de `BED_NAMES`)
-    :type id: str
+    :vartype id: str
     :ivar xt_min: première abscisse curviligne
-    :type xt_min: float
+    :vartype xt_min: float
     :ivar xt_max: dernière abscisse curviligne
     :vartype xt_max: float
     :ivar loi_frottement: loi de frottement
@@ -242,7 +242,8 @@ class Section(ABC):
     def __init__(self, nom_section):
         """
         :param nom_section: nom de la section
-        :type nom_section: str        """
+        :type nom_section: str
+        """
         self.id = nom_section
         self.is_active = False
         self.xp = -1
@@ -576,8 +577,8 @@ class SectionProfil(Section):
 
         :param nom_limite: nom de la limite géométrique à rechercher
         :type nom_limite: str
-        :return: abscisse curviligne
-        :rtype: float
+        :return: limite géométrique
+        :rtype: LimiteGeom
         """
         for limite in self.limites_geom:
             if limite.id == nom:
@@ -625,10 +626,10 @@ class SectionProfil(Section):
 
     def get_min_z(self):
         """
-        :return: cote minimale du profil en travers
+        :return: cote minimale du profil en travers (entre les rives gauche et droite)
         :rtype: float
         """
-        return self.xz[:, 1].min()
+        return self.xz_filtered[:, 1].min()
 
     def validate(self):
         """

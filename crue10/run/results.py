@@ -101,22 +101,23 @@ class RunResults:
     :vartype rcal_path: str
     :ivar rcal_folder: chemin vers le dossier du fichier rcal
     :vartype rcal_folder: str
-    :ivar emh_types: liste des types EMH "secondaires",
+    :ivar emh_types: liste des types d'EMH secondaires,
         par exemple : ['Noeud', 'Casier', 'Section', 'BrancheBarrageFilEau', 'BrancheOrifice', 'BrancheSaintVenant'...]
     :vartype emh_types: list(str)
-    :ivar emh: dictionary with secondary types as keys giving a list of EMH names
+    :ivar emh: dictionnaires avec les types d'EMH secondaires donnant la liste des EMHs disponibles
     :vartype emh: OrderedDict
-    :ivar variables: dictionary with secondary types as keys giving a list of variable identifiers
+    :ivar variables: dictionnaires avec les types d'EMH secondaires donnant la liste des variables disponibles
     :vartype variables: OrderedDict
-    :ivar calc_steady_dict: dictionary with steady calculations
-    :vartype calc_steady_dict: OrderedDict
-    :ivar calc_unsteady_dict: dictionary with unsteady calculations
-    :vartype calc_unsteady_dict: OrderedDict
-    :ivar _emh_type_first_branche: first EMH secondary type for Branche (e.g. 'BrancheBarrageFilEau')
+    :ivar calc_steady_dict: dictionnaires avec les calculs pseudo-permanents
+    :vartype calc_steady_dict: OrderedDict(CalcPseudoPerm)
+    :ivar calc_unsteady_dict: dictionnaires avec les calculs transitoires
+    :vartype calc_unsteady_dict: OrderedDict(CalcTrans)
+    :ivar _emh_type_first_branche: premier type d'EMH "secondaire" pour Branche (pa ex. 'BrancheBarrageFilEau')
     :vartype _emh_type_first_branche: str
     :ivar _res_pattern: liste de tuples du type (emh_type, shape)
     :vartype _res_pattern: list(tuple)
     """
+    #: Noms des EMHs primaires
     EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche']
 
     def __init__(self, rcal_path):
@@ -241,6 +242,12 @@ class RunResults:
             raise ExceptionCrue10("L'EMH `%s` n'est pas dans la liste des %s" % (emh_name, emh_type.lower()))
 
     def get_calc_steady(self, calc_name):
+        """
+        Obtenir le calcul pseudo-permanent demandé
+
+        :param calc_name: nom du calcul
+        :rtype: CalcPseudoPerm
+        """
         try:
             return self.calc_steady_dict[calc_name]
         except KeyError:
@@ -251,6 +258,12 @@ class RunResults:
                 raise ExceptionCrue10("Calcul permanent `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
 
     def get_calc_unsteady(self, calc_name):
+        """
+        Obtenir le calcul transitoire demandé
+
+        :param calc_name: nom du calcul
+        :rtype: CalcTrans
+        """
         try:
             return self.calc_unsteady_dict[calc_name]
         except KeyError:
@@ -270,6 +283,13 @@ class RunResults:
         return text
 
     def get_res_steady(self, calc_name):
+        """
+        Obtenir tous les tableaux (numpy) de résultats du calcul pseudo-permanent demandé.
+        Le nom des EMHs secondaires permet d'avoir un array avec les données (ligne = calcul, colonne = variable).
+
+        :param calc_name: nom du calcul
+        :return: dict(np.ndarray)
+        """
         calc = self.get_calc_steady(calc_name)
         return calc.file_pos.get_data(self._res_pattern, True, self._emh_type_first_branche)
 
@@ -356,6 +376,13 @@ class RunResults:
         return pd.DataFrame(values_in_dict)
 
     def get_res_unsteady(self, calc_name):
+        """
+        Obtenir tous les tableaux (numpy) de résultats du calcul transitoire demandé.
+        Le nom des EMHs secondaires permet d'avoir un array avec les données (ligne = temps, colonne = variable).
+
+        :param calc_name: nom du calcul
+        :return: dict(np.ndarray)
+        """
         calc = self.get_calc_unsteady(calc_name)
 
         # Append arrays
@@ -394,7 +421,7 @@ class RunResults:
         :type calc_name: str
         :param varname: nom de la variable à extraire.
         :type varname: str
-        :param emh_list: liste des EMH concernés.
+        :param emh_list: liste des EMHs concernés.
         :type emh_list: list(str)
         :return: tableau des résultats avec un pas de temps par ligne.
         :rtype: 2D-array
@@ -481,7 +508,7 @@ class RunResults:
         """Exports as DataFrame tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
         
         - lst_var: liste des noms de variables à extraire.
-        - lst_emh: liste des EMH concernés.
+        - lst_emh: liste des EMHs concernés.
         - returns: pandas DataFrame avec le tableau des résultats, un pas de temps par ligne.
         """
         # Parcours des calculs
@@ -517,12 +544,12 @@ class RunResults:
 
     def export_calc_unsteady_as_csv_table(self, csv_path, lst_var, lst_emh):
         """
-        Write CSV file with tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
+        Ecrire un fichier CSV avec les colonnes: time, val1, val2, etc.XXX
+        (où chaque vali correspond à une variable des EMHs)
         
-        - csv_path, path: nom long du fichier à écrire.
-        - lst_var: liste des noms de variables à extraire.
-        - lst_emh: liste des EMH concernés.
-        - returns: fichier avec le tableau des résultats, un pas de temps par ligne.
+        :param csv_path: nom long du fichier à écrire.
+        :param lst_var: liste des noms de variables à extraire.
+        :param lst_emh: liste des EMHs concernés.
         """
         # Préparation des données
         df = self.export_calc_unsteady_as_df(lst_var, lst_emh)

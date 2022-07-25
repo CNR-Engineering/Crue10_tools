@@ -24,7 +24,7 @@ def get_negative_area(x_array, y_array):
     :param x_array: x values
     :type x_array: 1d-array
     :param y_array: y values
-    :yype y_array: 1d-array
+    :type y_array: 1d-array
     :return: float
     """
     negative_area = 0
@@ -229,7 +229,7 @@ class Casier:
 
     def compute_volume(self, z):
         """
-        Calculer le volume
+        Calculer le volume pour une cote donnée
 
         :param z: niveau d'eau
         :type z: float
@@ -243,7 +243,7 @@ class Casier:
 
     def compute_surface(self, z):
         """
-        Calculer la surface
+        Calculer la surface pour une cote donnée
 
         :param z: niveau d'eau
         :type z: float

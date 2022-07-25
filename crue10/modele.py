@@ -23,15 +23,15 @@ class Modele(EnsembleFichiersXML):
 
     :param id: nom du modèle
     :vartype id: str
-    :param liste_sous_modeles: liste des sous-modèles
+    :ivar liste_sous_modeles: liste des sous-modèles
     :vartype liste_sous_modeles: list(SousModele)
-    :param noeuds_ic: conditions initiales aux noeuds
+    :ivar noeuds_ic: conditions initiales aux noeuds
     :vartype noeuds_ic: dict
-    :param casiers_ic: conditions initiales aux casiers
+    :ivar casiers_ic: conditions initiales aux casiers
     :vartype casiers_ic: dict
-    :param branches_ic: conditions initiales aux branches
+    :ivar branches_ic: conditions initiales aux branches
     :vartype branches_ic: dict
-    :param graph: graphe orienté avec tous les noeuds et branches actives
+    :ivar graph: graphe orienté avec tous les noeuds et branches actives
     :vartype graph: networkx.DiGraph
     """
 
@@ -161,7 +161,7 @@ class Modele(EnsembleFichiersXML):
         :param nom_branche: nom de la branche
         :type nom_branche: str
         :return: branche demandée
-        :rtype: crue10.emh.branche.Branche
+        :rtype: Branche
         """
         for branche in self.get_liste_branches():
             if branche.id == nom_branche:
@@ -173,7 +173,7 @@ class Modele(EnsembleFichiersXML):
         :param nom_casier: nom du casier
         :type nom_casier: str
         :return: casier demandé
-        :rtype: crue10.emh.casier.Casier
+        :rtype: Casier
         """
         for casier in self.get_liste_casiers():
             if casier.id == nom_casier:
@@ -185,7 +185,7 @@ class Modele(EnsembleFichiersXML):
         :param nom_loi_frottement: nom de la loi de frottement
         :type nom_loi_frottement: str
         :return: loi de frottement demandée
-        :rtype: crue10.emh.section.LoiFrottement
+        :rtype: LoiFrottement
         """
         for loi in self.get_liste_lois_frottement():
             if loi.id == nom_loi_frottement:

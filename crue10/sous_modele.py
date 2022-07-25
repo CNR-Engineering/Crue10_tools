@@ -59,20 +59,20 @@ class SousModele(EnsembleFichiersXML):
     """
     Sous-modèle Crue10
 
-    :param id: nom du sous-modèle
+    :ivar id: nom du sous-modèle
     :vartype id: str
-    :param noeuds: dictionnaire ordonné des noeuds
+    :ivar noeuds: dictionnaire ordonné des noeuds
     :vartype noeuds: OrderedDict(Noeud)
-    :param sections: dictionnaire ordonné des sections
+    :ivar sections: dictionnaire ordonné des sections
         (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
     :vartype sections: OrderedDict(Section
-    :param branches: dictionnaire ordonné des branches
+    :ivar branches: dictionnaire ordonné des branches
     :vartype branches: OrderedDict(Branche)
-    :param casiers: dictionnaire ordonné des casiers
+    :ivar casiers: dictionnaire ordonné des casiers
     :vartype casiers: OrderedDict(Casier)
-    :param profils_casier: dictionnaire ordonné des profils casier
+    :ivar profils_casier: dictionnaire ordonné des profils casier
     :vartype profils_casier: OrderedDict(ProfilCasier)
-    :param lois_frottement: dictionnaire ordonné des lois de frottement (coefficients de Strickler)
+    :ivar lois_frottement: dictionnaire ordonné des lois de frottement (coefficients de Strickler)
     :vartype lois_frottement: OrderedDict(LoiFrottement)
     """
 
