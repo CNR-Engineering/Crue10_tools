@@ -38,7 +38,7 @@ class Etude(EnsembleFichiersXML):
     :vartype scenarios: OrderedDict(Scenario)
     :ivar modeles: dictionnaire avec le nom du modèle et l'instance Modele associée
     :vartype modeles: OrderedDict(Modele)
-    :ivar sous_modeles: dictionnaire avec le nom du sous-modèle et l'instance SousModeles associée
+    :ivar sous_modeles: dictionnaire avec le nom du sous-modèle et l'instance SousModele associée
     :vartype sous_modeles: OrderedDict(SousModele)
     """
 
@@ -360,9 +360,9 @@ class Etude(EnsembleFichiersXML):
         """
         modele = Modele(nom_modele, mode=self.mode, metadata={'Commentaire': comment})
         if nom_sous_modele is not None:
-            sous_modele = SousModele(nom_sous_modele, access=self.mode, metadata={'Commentaire': comment})
+            sous_modele = SousModele(nom_sous_modele, mode=self.mode, metadata={'Commentaire': comment})
             modele.ajouter_sous_modele(sous_modele)
-        scenario = Scenario(nom_scenario, modele, access=self.mode, metadata={'Commentaire': comment})
+        scenario = Scenario(nom_scenario, modele, mode=self.mode, metadata={'Commentaire': comment})
         self.ajouter_scenario(scenario)
         if not self.nom_scenario_courant:
             self.nom_scenario_courant = scenario.id
@@ -469,7 +469,7 @@ class Etude(EnsembleFichiersXML):
             out_path = os.path.join(self.folder, nom_scenario_cible[3:] + '.' + xml_type + '.xml')
             copyfile(in_path, out_path)
             scenario_files[xml_type] = out_path  # overwrite Scenario file path
-        scenario = Scenario(nom_scenario_cible, scenario_ori.modele, access='w',
+        scenario = Scenario(nom_scenario_cible, scenario_ori.modele, mode='w',
                             files=scenario_files, metadata=scenario_ori.metadata)
         scenario.read_all()
         self.ajouter_scenario(scenario)

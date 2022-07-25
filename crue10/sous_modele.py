@@ -81,12 +81,12 @@ class SousModele(EnsembleFichiersXML):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_sous_modele, access='r', files=None, metadata=None, version_grammaire=None):
+    def __init__(self, nom_sous_modele, mode='r', files=None, metadata=None, version_grammaire=None):
         """
         :param nom_sous_modele: nom du sous-modèle
         :type nom_sous_modele: str
-        :param access: accès en lecture ('r') ou écriture ('w')
-        :type access: str
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
         :param files: dictionnaire des chemins vers les fichiers xml
         :type files: dict(str)
         :param metadata: dictionnaire avec les méta-données
@@ -94,7 +94,7 @@ class SousModele(EnsembleFichiersXML):
         """
         check_preffix(nom_sous_modele, 'Sm_')
         self.id = nom_sous_modele
-        super().__init__(access, files, metadata, version_grammaire=version_grammaire)
+        super().__init__(mode, files, metadata, version_grammaire=version_grammaire)
 
         self.noeuds = OrderedDict()
         self.sections = OrderedDict()

@@ -14,7 +14,7 @@ from crue10.sous_modele import SousModele
 
 
 # Build a submodel
-sous_modele = SousModele('Sm_fromscratch', access='w')
+sous_modele = SousModele('Sm_fromscratch', mode='w')
 sous_modele.ajouter_lois_frottement_par_defaut()
 
 # Add nodes

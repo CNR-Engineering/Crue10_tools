@@ -1,3 +1,15 @@
+"""
+Automate de sauvegarde
+
+NH = niveau haut => procédure : ouverture barrage avec lâcher d'alerte si besoin
+NTH = niveau très haut => procédure : gradient barrage
+
+Principes :
+
+* 3 calculs successifs pour un calcul AS
+* Aucune temporisation n'est prise en compte
+* DeltaH n'est pas considéré
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import os.path
@@ -30,7 +42,9 @@ def get_time_of_first_value_above(x_array, y_array, y_target):
 
 
 def xy_array_tronquer_avant(xy_array, x_target):
-    """Tronquer une loi avant une abscisse cible
+    """
+    Tronquer une loi avant une abscisse cible
+
     :param xy_array: tableau en entrée
     :param x_target: valeur de x avant laquelle tronquer
     :return: np.ndarray
@@ -42,7 +56,9 @@ def xy_array_tronquer_avant(xy_array, x_target):
 
 
 def xy_array_ajouter_gradient_apres(xy_array, gradient, duration):
-    """Ajouter un point après la loi actuelle pour modélisation un gradient constant sur une durée définie
+    """
+    Ajouter un point après la loi actuelle pour modélisation un gradient constant sur une durée définie
+
     :param xy_array: tableau en entrée
     :param gradient: gradient en m3/s/h
     :param duration: durée en s
@@ -55,16 +71,7 @@ def xy_array_ajouter_gradient_apres(xy_array, gradient, duration):
 
 
 class AutomateSauvegarde:
-    """Automate de sauvegarde
 
-    NH = niveau haut => procédure : ouverture barrage avec lâcher d'alerte si besoin
-    NTH = niveau très haut => procédure : gradient barrage
-
-    Principes :
-    * 3 calculs successifs pour un calcul AS
-    * Aucune temporisation n'est prise en compte
-    * DeltaH n'est pas considéré
-    """
     def __init__(self, scenario, nh_z, nth_z, nh_gradient, nth_gradient):
         self.scenario = scenario
         self.loi_hydraulique = scenario.get_loi_hydraulique(LOI_BARRAGE)

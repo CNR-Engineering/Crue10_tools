@@ -358,7 +358,7 @@ try:
     logger.info("##Ecriture sous modele##")
 
     # Build a sous_modele
-    sous_modele = SousModele(SM_NAME, access='w')
+    sous_modele = SousModele(SM_NAME, mode='w')
     sous_modele.ajouter_lois_frottement_par_defaut()
 
 

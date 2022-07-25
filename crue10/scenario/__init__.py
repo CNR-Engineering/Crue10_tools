@@ -107,7 +107,7 @@ class Scenario(EnsembleFichiersXML):
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_scenario, modele, access='r', files=None, metadata=None, version_grammaire=None):
+    def __init__(self, nom_scenario, modele, mode='r', files=None, metadata=None, version_grammaire=None):
         """
         :param nom_scenario: scenario name
         :param modele: a Modele instance
@@ -116,7 +116,7 @@ class Scenario(EnsembleFichiersXML):
         """
         check_preffix(nom_scenario, 'Sc_')
         self.id = nom_scenario
-        super().__init__(access, files, metadata, version_grammaire=version_grammaire)
+        super().__init__(mode, files, metadata, version_grammaire=version_grammaire)
 
         self.calculs = []
         self.liste_ord_calc_pseudoperm = []  # OrdCalcPseudoPerm

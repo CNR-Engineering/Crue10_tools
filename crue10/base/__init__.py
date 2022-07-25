@@ -48,7 +48,7 @@ class EnsembleFichiersXML(ABC):
     #: Nom des métadonnées présentes dans le fichier etu.xml
     METADATA_FIELDS = []
 
-    def __init__(self, access, files, metadata, version_grammaire=None):
+    def __init__(self, mode, files, metadata, version_grammaire=None):
         """
         L'attribut `id` doit être défini avant d'appeler cette méthode mère (super)
         """
@@ -59,7 +59,7 @@ class EnsembleFichiersXML(ABC):
             self.metadata['Type'] = 'Crue10'
         self.metadata = add_default_missing_metadata(self.metadata, type(self).METADATA_FIELDS)
 
-        if access == 'r':
+        if mode == 'r':
             self.version_grammaire = version_grammaire
             if files is None:
                 raise RuntimeError
@@ -73,7 +73,7 @@ class EnsembleFichiersXML(ABC):
             if set(files.keys()) != set(files_xml + type(self).FILES_SHP):
                 raise RuntimeError
             self.files = files
-        elif access == 'w':
+        elif mode == 'w':
             self.version_grammaire = VERSION_GRAMMAIRE_COURANTE
             self.files = {}
             if files is None:
