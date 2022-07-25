@@ -82,13 +82,22 @@ class ProfilCasier:
 
         self.set_xz(ProfilCasier.DEFAULT_COORDS)
 
+    @property
+    def xz_filtered(self):
+        """
+        :return: Tableau avec les abscisses transversales et la cote pour le lit utile seulement
+        :rtype: np.ndarray
+        """
+        #return self.xz[np.logical_and(self.xt_min <= self.xz[:, 0], self.xz[:, 0] <= self.xt_max), :]
+        return self.xz
+
     def get_min_z(self):
         """
-        :return: cote minimale du profil casier
+        :return: cote minimale du profil casier (dans le lit utile)
         :rtype: float
         """
         min_z = float('inf')
-        for x, z in self.xz:
+        for x, z in self.xz_filtered:
             if self.xt_min <= x <= self.xt_max:
                 min_z = min(min_z, z)
         return min_z
@@ -135,7 +144,7 @@ class ProfilCasier:
         :param z: niveau à tester
         :type z: float
         """
-        return get_negative_area(self.xz[:, 0], self.xz[:, 1] - z)
+        return get_negative_area(self.xz_filtered[:, 0], self.xz_filtered[:, 1] - z)
 
     def compute_volume(self, z):
         """
