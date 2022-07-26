@@ -270,7 +270,7 @@ class Modele(EnsembleFichiersXML):
     def get_missing_active_sections(self, section_id_list):
         """
         Returns the list of the requested sections which are not found (or not active) in the current modele
-            (section type is not checked)
+        (section type is not checked)
 
         :param section_id_list: list of section identifiers
         """
@@ -429,7 +429,7 @@ class Modele(EnsembleFichiersXML):
                 self._graph.add_edge(branche.noeud_amont.id, branche.noeud_aval.id,
                                      branche=branche.id, weight=weight)
 
-    def get_liste_branches_entre_noeuds(self, nom_noeud_amont, nom_noeud_aval):
+    def get_liste_branches_entre_deux_noeuds(self, nom_noeud_amont, nom_noeud_aval):
         """
         Obtenir la liste des branches entre 2 noeuds
         (le chemin le plus court, en passant par des branches Saint-Venant est retenu)
@@ -452,7 +452,7 @@ class Modele(EnsembleFichiersXML):
         try:
             path = nx.shortest_path(self.graph, nom_noeud_amont, nom_noeud_aval, weight='weight')  # minimize weight
         except nx.exception.NetworkXException as e:
-            raise ExceptionCrue10("PROBLÈME AVEC LE GRAPHE : %s" % e)
+            raise ExceptionCrue10("PROBLÈME AVEC LE GRAPHE :\n%s" % e)
 
         branches = []
         for u, v in zip(path, path[1:]):

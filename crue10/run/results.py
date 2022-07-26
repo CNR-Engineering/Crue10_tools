@@ -16,10 +16,18 @@ from crue10.utils.settings import CSV_DELIMITER
 
 FMT_FLOAT_CSV = '{:.6e}'
 
+#: Regex pour le format des durées de Crue10
 TIME_REGEX = re.compile(r'P(?P<days>[0-9]+)DT(?P<hours>[0-9]+)H(?P<mins>[0-9]+)M(?P<secs>[0-9]+)S')
 
 
 def get_time_in_seconds(time_str):
+    """
+    Convertir une durée au format Crue10 en secondes
+
+    :param time_str: durée au format Crue10
+    :type time_str: str
+    :rtype: float
+    """
     match = TIME_REGEX.match(time_str)
     values = {duration: int(counter) for duration, counter in match.groupdict().items()}
     return ((values['days'] * 24 + values['hours']) * 60 + values['mins']) * 60 + values['secs']
@@ -29,9 +37,19 @@ class FilePosition:
     """
     Fichier binaire est en "little endian" avec des valeurs sur 8 bytes
     (ie. double precision pour les valeurs numériques)
+
+    :ivar rbin_path: chemin complet vers le fichier RBIN
+    :vartype rbin_path: str
+    :ivar byte_offset: position dans le fichier
+    :vartype byte_offset: int
     """
+    #: Encodage des chaînes de caractères
     ENCODING = 'utf-8'
+
+    #: Nombre de bytes pour représenter un flottant
     FLOAT_SIZE = 8
+
+    #: Précision des flottants
     FLOAT_TYPE = 'd'
 
     def __init__(self, rbin_path, byte_offset):
@@ -39,6 +57,17 @@ class FilePosition:
         self.byte_offset = byte_offset
 
     def get_data(self, res_pattern, is_steady, emh_type_first_branche):
+        """
+        :param res_pattern: schéma d'organisation des résultats. Par exemple :
+        [('Noeud', (120, 1)), ('Casier', (48, 4)), ('Section', (593, 8)), ('BrancheBarrageFilEau', (1, 1)), ...]
+        :type res_pattern: list(tuple(str, (int, int)))
+        :param is_steady: les données correspondent à un calcul permanent (pour vérifier la cohérence d'un délimiteur)
+        :type is_steady: bool
+        :param emh_type_first_branche: premier type d'EMH secondaire pour Branche (pa ex. 'BrancheBarrageFilEau')
+        :type emh_type_first_branche: str
+        :return: dictionnaire avec les types d'EMH secondaires et le tableau de données (shape=(nb_emh, nb_var))
+        :rtype: dict(np.ndarray)
+        """
         res = {}
         with io.open(self.rbin_path, 'rb') as resin:
             resin.seek(self.byte_offset * FilePosition.FLOAT_SIZE)
@@ -63,10 +92,25 @@ class FilePosition:
         return res
 
 
-class CalcPseudoPerm:
-    """Métadonnées pour un calcul pseudo-permanent"""
+class ResCalcPseudoPerm:
+    """
+    Métadonnées des résultats pour un calcul pseudo-permanent
+
+    :ivar name: nom du calcul pseudo-permanent
+    :vartype name: str
+    :ivar file_pos: position dans les fichiers RBIN
+    :vartype file_pos: FilePosition
+    """
 
     def __init__(self, name, bin_path, byte_offset):
+        """
+        :param name: nom du calcul pseudo-permanent
+        :type name: str
+        :param bin_path: chemin complet vers le fichier RBIN
+        :type bin_path: str
+        :param byte_offset: position dans le fichier
+        :type byte_offset: int
+        """
         self.name = name
         self.file_pos = FilePosition(bin_path, byte_offset)
 
@@ -74,8 +118,12 @@ class CalcPseudoPerm:
         return "Calcul permanent #%s" % self.name
 
 
-class CalcTrans:
-    """Métadonnées pour un calcul transitoire"""
+class ResCalcTrans:
+    """
+    Métadonnées des résultats pour un calcul transitoire
+
+    XXX
+    """
 
     def __init__(self, name):
         self.name = name
@@ -108,10 +156,10 @@ class RunResults:
     :vartype emh: OrderedDict
     :ivar variables: dictionnaires avec les types d'EMH secondaires donnant la liste des variables disponibles
     :vartype variables: OrderedDict
-    :ivar calc_steady_dict: dictionnaires avec les calculs pseudo-permanents
-    :vartype calc_steady_dict: OrderedDict(CalcPseudoPerm)
-    :ivar calc_unsteady_dict: dictionnaires avec les calculs transitoires
-    :vartype calc_unsteady_dict: OrderedDict(CalcTrans)
+    :ivar res_calc_pseudoperm: dictionnaires avec les calculs pseudo-permanents
+    :vartype res_calc_pseudoperm: OrderedDict(ResCalcPseudoPerm)
+    :ivar res_calc_trans: dictionnaires avec les calculs transitoires
+    :vartype res_calc_trans: OrderedDict(ResCalcTrans)
     :ivar _emh_type_first_branche: premier type d'EMH "secondaire" pour Branche (pa ex. 'BrancheBarrageFilEau')
     :vartype _emh_type_first_branche: str
     :ivar _res_pattern: liste de tuples du type (emh_type, shape)
@@ -127,8 +175,8 @@ class RunResults:
         self.emh_types = []
         self.emh = OrderedDict()
         self.variables = OrderedDict()
-        self.calc_steady_dict = OrderedDict()
-        self.calc_unsteady_dict = OrderedDict()
+        self.res_calc_pseudoperm = OrderedDict()
+        self.res_calc_trans = OrderedDict()
 
         self._emh_type_first_branche = None
         self._res_pattern = []
@@ -199,16 +247,16 @@ class RunResults:
 
     def _read_rescalc(self):
         for calc in self.rcal_root.find(PREFIX + 'ResCalcPerms'):
-            calc_steady = CalcPseudoPerm(calc.get('NomRef'), os.path.join(self.rcal_folder, calc.get('Href')),
-                                         int(calc.get('OffsetMot')))
-            self.calc_steady_dict[calc_steady.name] = calc_steady
+            calc_steady = ResCalcPseudoPerm(calc.get('NomRef'), os.path.join(self.rcal_folder, calc.get('Href')),
+                                            int(calc.get('OffsetMot')))
+            self.res_calc_pseudoperm[calc_steady.name] = calc_steady
 
         for calc in self.rcal_root.find(PREFIX + 'ResCalcTranss'):
-            calc_unsteady = CalcTrans(calc.get('NomRef'))
+            calc_unsteady = ResCalcTrans(calc.get('NomRef'))
             for pdt in calc:
                 calc_unsteady.add_frame(get_time_in_seconds(pdt.get('TempsSimu')),
                                         os.path.join(self.rcal_folder, pdt.get('Href')), int(pdt.get('OffsetMot')))
-            self.calc_unsteady_dict[calc_unsteady.name] = calc_unsteady
+            self.res_calc_trans[calc_unsteady.name] = calc_unsteady
 
     def _set_res_pattern(self):
         emh_types_with_res = []
@@ -249,11 +297,11 @@ class RunResults:
         :rtype: CalcPseudoPerm
         """
         try:
-            return self.calc_steady_dict[calc_name]
+            return self.res_calc_pseudoperm[calc_name]
         except KeyError:
-            if len(self.calc_steady_dict) > 0:
+            if len(self.res_calc_pseudoperm) > 0:
                 raise ExceptionCrue10("Calcul permanent `%s` non trouvé !\nLes noms de calculs possibles sont : %s."
-                                      % (calc_name, ', '.join(self.calc_steady_dict.keys())))
+                                      % (calc_name, ', '.join(self.res_calc_pseudoperm.keys())))
             else:
                 raise ExceptionCrue10("Calcul permanent `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
 
@@ -265,11 +313,11 @@ class RunResults:
         :rtype: CalcTrans
         """
         try:
-            return self.calc_unsteady_dict[calc_name]
+            return self.res_calc_trans[calc_name]
         except KeyError:
-            if len(self.calc_unsteady_dict) > 0:
+            if len(self.res_calc_trans) > 0:
                 raise ExceptionCrue10("Calcul transitoire `%s` non trouvé !\nLes noms de calculs possibles sont : %s."
-                                      % (calc_name, ', '.join(self.calc_unsteady_dict.keys())))
+                                      % (calc_name, ', '.join(self.res_calc_trans.keys())))
             else:
                 raise ExceptionCrue10("Calcul transitoire `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
 
@@ -279,7 +327,7 @@ class RunResults:
             if len(self.emh[emh_type]) > 0 and len(self.variables[emh_type]) > 0:
                 text += "~> %i %s (avec %i variables)\n" % (len(self.emh[emh_type]), emh_type,
                                                             len(self.variables[emh_type]))
-        text += "=> %s calculs permanents et %i calculs transitoires\n" % (len(self.calc_steady_dict), len(self.calc_unsteady_dict))
+        text += "=> %s calculs permanents et %i calculs transitoires\n" % (len(self.res_calc_pseudoperm), len(self.res_calc_trans))
         return text
 
     def get_res_steady(self, calc_name):
@@ -400,13 +448,13 @@ class RunResults:
         return res_all
 
     def get_res_all_steady_var_at_emhs(self, varname, emh_list):
-        values = np.empty((len(self.calc_steady_dict), len(emh_list)))
+        values = np.empty((len(self.res_calc_pseudoperm), len(emh_list)))
 
         emh_types = []
         for emh_name in emh_list:
             emh_types.append(self.emh_type(emh_name))
 
-        for i, calc_name in enumerate(self.calc_steady_dict.keys()):
+        for i, calc_name in enumerate(self.res_calc_pseudoperm.keys()):
             res = self.get_res_steady(calc_name)
             for j, (emh_name, emh_type) in enumerate(zip(emh_list, emh_types)):
                 emh_pos = self.get_emh_position(emh_type, emh_name)
@@ -453,7 +501,7 @@ class RunResults:
             fieldnames = ['calc', 'emh_type', 'emh', 'variable', 'value']
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=CSV_DELIMITER)
             csv_writer.writeheader()
-            for calc_name in self.calc_steady_dict.keys():
+            for calc_name in self.res_calc_pseudoperm.keys():
                 res = self.get_res_steady(calc_name)
                 for emh_type in self.emh_types:
                     variables = self.variables[emh_type]
@@ -478,7 +526,7 @@ class RunResults:
             fieldnames = ['calc', 'time', 'emh_type', 'emh', 'variable', 'value']
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=CSV_DELIMITER)
             csv_writer.writeheader()
-            for calc_name in self.calc_unsteady_dict.keys():
+            for calc_name in self.res_calc_trans.keys():
                 res = self.get_res_unsteady(calc_name)
                 for emh_type in self.emh_types:
                     variables = self.variables[emh_type]
@@ -512,7 +560,7 @@ class RunResults:
         - returns: pandas DataFrame avec le tableau des résultats, un pas de temps par ligne.
         """
         # Parcours des calculs
-        for cal_name in self.calc_unsteady_dict.keys():
+        for cal_name in self.res_calc_trans.keys():
             res = self.get_res_unsteady(cal_name)
 
             # Préparation des dictionnaires de listes
@@ -558,5 +606,5 @@ class RunResults:
         df.to_csv(csv_path, sep=CSV_DELIMITER, mode='w', index=False)
 
     def __repr__(self):
-        return "Résultats run #%s (%i permanents, %i transitoires)" % (self.run_id, len(self.calc_steady_dict),
-                                                                       len(self.calc_unsteady_dict))
+        return "Résultats run #%s (%i permanents, %i transitoires)" % (self.run_id, len(self.res_calc_pseudoperm),
+                                                                       len(self.res_calc_trans))

@@ -18,7 +18,7 @@ print(results.summary())
 casier_names = results.emh['Casier']
 res = results.get_res_all_steady_var_at_emhs('Z', casier_names)
 
-df_time = pd.DataFrame(results.calc_steady_dict.keys(), columns=['calcul'])
+df_time = pd.DataFrame(results.res_calc_pseudoperm.keys(), columns=['calcul'])
 df_res = pd.DataFrame(res, columns=casier_names)
 
 df_all = pd.concat([df_time, df_res], axis=1)

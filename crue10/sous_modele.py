@@ -999,7 +999,7 @@ class SousModele(EnsembleFichiersXML):
     @staticmethod
     def are_sections_similar(section1, section2):
         """
-        Vérifier si 2 sections sont identiques (les arguments sont permutables), c'est-à-dire se référence l'une
+        Vérifier si 2 sections sont identiques (les arguments sont permutables), c'est-à-dire se référencent l'une
         l'autre sans décalage vertical (ie. SectionIdem avec dz nul)
 
         TODO: ajouter le cas où les 2 sections sont des SectionIdem de la même SectionProfil

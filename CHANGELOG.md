@@ -6,7 +6,7 @@ Journal des modifications
 ### Added
 - Support en lecture/écriture des grammaires v1.2 et v1.3 :
     * Ajout de 2 variables utilisateurs : `VERSION_GRAMMAIRE_PRECEDENTE` et `VERSION_GRAMMAIRE_COURANTE`
-    * [MAJOR] `crue10.emh.branche.BrancheBarrageFilEau`: attribut `liste_elements_seuil` se nomme maintenant
+    * [MAJEUR] `crue10.emh.branche.BrancheBarrageFilEau`: attribut `liste_elements_seuil` devient
         `liste_elements_barrage`
 
 Détails :
@@ -17,8 +17,12 @@ Détails :
     * `crue10.base`: la classe `FichierXML` devient `EnsembleFichiersXML`, son attribut `access` devient `mode`
         (par héritage, l'attribut change aussi pour `Etude`, `Scenario`, `Modele`, `SousModele`, `FichierOtfa`)
     * `crue10.scenario.Scenario`:
-        * [MAJOR] la méthode `get_branches_liste_entre_noeuds` devient `get_liste_branches_entre_noeuds`
         * la méthode `add_run` devient `ajouter_run`
+    * `crue10.modele.Modele`:
+        * [MAJEUR] la méthode `get_branches_liste_entre_noeuds` devient `get_liste_branches_entre_deux_noeuds`
+    * `crue10.run.results`:
+        * la méthode `CalcPseudoPerm` devient `ResCalcPseudoPerm` (pour éviter le conflit avec `crue10.scenario.calcul`)
+        * la méthode `CalcTrans` devient `ResCalcTrans` (pour éviter le conflit avec `crue10.scenario.calcul`)
 
 ### Fixed
 - `etude.Etude._read_etu`: génère une exception `ExceptionCrue10` au lieu d'une `PermissionError` s'il s'agit d'un

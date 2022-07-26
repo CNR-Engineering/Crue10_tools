@@ -93,7 +93,7 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                         # Get nb_calc_perm
                         try:
                             results = run.get_results()
-                            values['nb_calc_perm'] = len(results.calc_steady_dict)
+                            values['nb_calc_perm'] = len(results.res_calc_pseudoperm)
                         except IOError as e:
                             logger.warn("Aucun résultat trouvé (fichier rcal manquant) pour le Run #%s" % run_id)
                             values['nb_calc_perm'] = 0
@@ -194,7 +194,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         diff = res_perm_curr - res_perm_ref
         diff_abs = np.abs(diff)
 
-        nb_calc_perm = len(results.calc_steady_dict)
+        nb_calc_perm = len(results.res_calc_pseudoperm)
         if out_csv_diff_by_calc is not None and row['exe_id'] == 'qualif':
             df_diff = pd.DataFrame({
                 'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int) + 1, diff.shape[1]),
