@@ -96,6 +96,10 @@ class Etude(EnsembleFichiersXML):
 
     @property
     def folder(self):
+        """
+        :return: Dossier racine de l'étude
+        :rtype: str
+        """
         return os.path.abspath(os.path.dirname(self.etu_path))
 
     def get_chemin_vers_fichier(self, filename):
@@ -300,6 +304,12 @@ class Etude(EnsembleFichiersXML):
             scenario.write_all(folder, folder_config)
 
     def changer_grammaire(self, version_grammaire):
+        """
+        Changer la version de grammaire
+
+        :param version_grammaire: version cible de la grammaire
+        :type version_grammaire: str
+        """
         super().changer_version_grammaire(version_grammaire)
         for scenario in self.get_liste_scenarios():
             scenario.changer_grammaire(version_grammaire)
@@ -310,7 +320,8 @@ class Etude(EnsembleFichiersXML):
                 self.filename_list.append(file)
 
     def ajouter_modele(self, modele):
-        """Ajouter un modèle à l'étude
+        """
+        Ajouter un modèle à l'étude
 
         :param modele: modèle à ajouter
         :type modele: Modele
@@ -324,7 +335,8 @@ class Etude(EnsembleFichiersXML):
         self.modeles[modele.id] = modele
 
     def ajouter_sous_modele(self, sous_modele):
-        """Ajouter un sous-modèle à l'étude
+        """
+        Ajouter un sous-modèle à l'étude
 
         :param sous_modele: sous-modèle à ajouter
         :type sous_modele: SousModele
@@ -426,7 +438,7 @@ class Etude(EnsembleFichiersXML):
         Retourne la liste des scénarios
 
         :return: liste des scénarios
-        :rtype: [Scenario]
+        :rtype: list(Scenario)
         """
         return [scenario for _, scenario in self.scenarios.items()]
 
@@ -435,7 +447,7 @@ class Etude(EnsembleFichiersXML):
         Retourne la liste des modèles
 
         :return: liste des modèles
-        :rtype: [Modele]
+        :rtype: list(Modele)
         """
         return [modele for _, modele in self.modeles.items()]
 
@@ -444,7 +456,7 @@ class Etude(EnsembleFichiersXML):
         Retourne la liste des sous-modèles
 
         :return: liste des sous-modèles
-        :rtype: [SousModele]
+        :rtype: list(SousModele)
         """
         return [sous_modele for _, sous_modele in self.sous_modeles.items()]
 

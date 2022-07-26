@@ -30,9 +30,9 @@ class FichierOtfa(EnsembleFichiersXML):
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_campagne, access='r', files=None, metadata=None):
+    def __init__(self, nom_campagne, mode='r', files=None, metadata=None):
         self.id = nom_campagne
-        super().__init__(access, files, metadata)
+        super().__init__(mode, files, metadata)
         self.campagnes = []
 
     def ajouter_campagne(self, campagne):
@@ -52,7 +52,7 @@ class FichierOtfa(EnsembleFichiersXML):
         )
 
 
-otfa = FichierOtfa('Conc', access='w', files={'otfa': 'Conc.otfa.xml'},
+otfa = FichierOtfa('Conc', mode='w', files={'otfa': 'Conc.otfa.xml'},
                    metadata={'Commentaire': "OTFA pour les derniers modèles de concession"})
 
 for etude_dossier, nom_scenario in ETATREF_SCENARIO_PAR_AMENAGEMENT.items():

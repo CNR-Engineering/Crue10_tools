@@ -55,7 +55,7 @@ try:
     res = res_perm['Section']
 
     # Export a longitudinal profile between 2 nodes in CSV
-    branches = modele.get_branches_liste_entre_noeuds('Nd_CAF4.000', 'Nd_RET33.700')
+    branches = modele.get_liste_branches_entre_noeuds('Nd_CAF4.000', 'Nd_RET33.700')
     df_res = results.get_res_steady_at_sections_along_branches_as_dataframe('Cc_360m3-s', branches, VARIABLES)
     df_res.to_csv('../tmp/LE.csv', sep=CSV_DELIMITER)
 

@@ -19,6 +19,14 @@ from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, Excep
 
 
 def parse_elem_seuil(elt, with_pdc=False):
+    """
+    Parser un élément XML pour construire un tableau avec les éléments de seuil
+
+    :param elt: élément XML
+    :type elt: xml.etree.ElementTree.Element
+    :param with_pdc: True si avec pertes de charge
+    :rtype: np.ndarray
+    """
     length = 4 if with_pdc else 3
     elt_group = elt.findall(PREFIX + ('ElemSeuilAvecPdc' if with_pdc else 'ElemSeuil'))
     values = []
@@ -37,6 +45,14 @@ def parse_elem_seuil(elt, with_pdc=False):
 
 
 def cut_linestring(line, distance):
+    """
+    Couper une ligne à une abscisse curviligne donnée
+
+    :param line: line à découper
+    :type line: shapely.geometry.LineString
+    :param distance: distance curviligne
+    :return: [shapely.geometry.LineString, shapely.geometry.LineString]
+    """
     # Cuts a line in two at a distance from its starting point
     # This is taken from shapely manual
     if distance <= 0.0 or distance >= line.length:
@@ -125,6 +141,12 @@ class SousModele(EnsembleFichiersXML):
         self.sections[section.id] = section
 
     def ajouter_branche(self, branche):
+        """
+        Ajouter une branche au sous-modèle
+
+        :param branche: branche à ajouter
+        :type branche: Branche
+        """
         check_isinstance(branche, BRANCHE_CLASSES)
         if branche.id in self.branches:
             raise ExceptionCrue10("La branche `%s` est déjà présente" % branche.id)
@@ -137,6 +159,12 @@ class SousModele(EnsembleFichiersXML):
         self.branches[branche.id] = branche
 
     def ajouter_casier(self, casier):
+        """
+        Ajouter un casier au sous-modèle
+
+        :param casier: casier à ajouter
+        :type casier: Casier
+        """
         check_isinstance(casier, Casier)
         if casier.id in self.casiers:
             raise ExceptionCrue10("Le casier %s est déjà présent" % casier.id)
@@ -149,18 +177,33 @@ class SousModele(EnsembleFichiersXML):
         self.casiers[casier.id] = casier
 
     def ajouter_profil_casier(self, profil_casier):
+        """
+        Ajouter un profil casier au sous-modèle
+
+        :param casier: profil casier à ajouter
+        :type casier: ProfilCasier
+        """
         check_isinstance(profil_casier, ProfilCasier)
         if profil_casier.id in self.profils_casier:
             raise ExceptionCrue10("Le profil casier %s est déjà présent" % profil_casier.id)
         self.profils_casier[profil_casier.id] = profil_casier
 
     def ajouter_loi_frottement(self, loi_frottement):
+        """
+        Ajouter une loi de frottement au sous-modèle
+
+        :param loi_frottement: loi de frottement à ajouter
+        :type loi_frottement: Casier
+        """
         check_isinstance(loi_frottement, LoiFrottement)
         if loi_frottement.id in self.lois_frottement:
             raise ExceptionCrue10("La loi de frottement %s est déjà présente" % loi_frottement.id)
         self.lois_frottement[loi_frottement.id] = loi_frottement
 
     def ajouter_lois_frottement_par_defaut(self):
+        """
+        Ajouter les lois de frottement par défaut
+        """
         self.ajouter_loi_frottement(DEFAULT_FK_STO)
         self.ajouter_loi_frottement(DEFAULT_FK_MAJ)
         self.ajouter_loi_frottement(DEFAULT_FK_MIN)
@@ -194,7 +237,7 @@ class SousModele(EnsembleFichiersXML):
         :param nom_branche: nom de la branche
         :type nom_branche: str
         :return: branche demandée
-        :rtype: crue10.emh.branche.Branche
+        :rtype: Branche
         """
         try:
             return self.branches[nom_branche]
@@ -206,7 +249,7 @@ class SousModele(EnsembleFichiersXML):
         :param nom_casier: nom du casier
         :type nom_casier: str
         :return: casier demandé
-        :rtype: crue10.emh.casier.Casier
+        :rtype: Casier
         """
         try:
             return self.casiers[nom_casier]
@@ -218,7 +261,7 @@ class SousModele(EnsembleFichiersXML):
         :param nom_loi_frottement: nom de la loi de frottement
         :type nom_loi_frottement: str
         :return: loi de frottement demandée
-        :rtype: crue10.emh.section.LoiFrottement
+        :rtype: LoiFrottement
         """
         try:
             return self.lois_frottement[nom_loi_frottement]
@@ -228,14 +271,14 @@ class SousModele(EnsembleFichiersXML):
     def get_liste_noeuds(self):
         """
         :return: liste des noeuds
-        :rtype: [Noeud]
+        :rtype: list(Noeud)
         """
         return [noeud for _, noeud in self.noeuds.items()]
 
     def get_liste_casiers(self):
         """
         :return: liste des casiers
-        :rtype: [Casier]
+        :rtype: list(Casier)
         """
         return [casier for _, casier in self.casiers.items()]
 
@@ -246,7 +289,7 @@ class SousModele(EnsembleFichiersXML):
         :param ignore_inactive: True pour ignorer les sections inactives
         :type ignore_inactive: bool, optional
         :return: liste des sections
-        :rtype: [Section]
+        :rtype: list(Section)
         """
         sections = []
         for _, section in self.sections.items():
@@ -262,28 +305,28 @@ class SousModele(EnsembleFichiersXML):
     def get_liste_sections_profil(self):
         """
         :return: liste des sections profil
-        :rtype: [SectionProfil]
+        :rtype: list(SectionProfil)
         """
         return self.get_liste_sections(section_type=SectionProfil)
 
     def get_liste_sections_item(self):
         """
         :return: liste des sections idem
-        :rtype: [SectionIdem]
+        :rtype: list(SectionIdem)
         """
         return self.get_liste_sections(section_type=SectionIdem)
 
     def get_liste_sections_interpolees(self):
         """
         :return: liste des sections interpolées
-        :rtype: [SectionInterpolee]
+        :rtype: list(SectionInterpolee)
         """
         return self.get_liste_sections(section_type=SectionInterpolee)
 
     def get_liste_sections_sans_geometrie(self):
         """
         :return: liste des sections sans géométrie
-        :rtype: [SectionSansGeometrie]
+        :rtype: list(SectionSansGeometrie)
         """
         return self.get_liste_sections(section_type=SectionSansGeometrie)
 
@@ -292,7 +335,7 @@ class SousModele(EnsembleFichiersXML):
         :param filter_branch_types: liste des types de branches
         :type filter_branch_types: [int]
         :return: liste des branches
-        :rtype: [Branche]
+        :rtype: list(Branche)
         """
         branches = []
         for _, branche in self.branches.items():
@@ -308,7 +351,7 @@ class SousModele(EnsembleFichiersXML):
         :param ignore_sto: True pour ignorer les lois de type `FkSto`
         :type ignore_sto: bool, optional
         :return: liste des lois de frottement
-        :rtype: [LoiFrottement]
+        :rtype: list(LoiFrottement)
         """
         lois = []
         for _, loi in self.lois_frottement.items():
@@ -817,10 +860,17 @@ class SousModele(EnsembleFichiersXML):
         self._write_dcsp(folder)
 
     def changer_grammaire(self, version_grammaire):
+        """
+        Changer la version de la grammaire
+
+        :param version_grammaire: version de la grammaire cible
+        :type version_grammaire: str
+        """
         super().changer_version_grammaire(version_grammaire)
 
     def set_section(self, section):
-        """Ecraser la section fournie
+        """
+        Écraser (ou mettre à jour) la section fournie
 
         :param section: nouvelle section
         :type section: Section
@@ -868,7 +918,7 @@ class SousModele(EnsembleFichiersXML):
         :param nom_noeud: nom du noeud
         :type nom_noeud: str
         :return: branches associées
-        :rtype: [Branche]
+        :rtype: list(Branche)
         """
         branches = []
         for branche in self.get_liste_branches():
@@ -883,7 +933,7 @@ class SousModele(EnsembleFichiersXML):
         :param nom_noeud: nom du noeud
         :type nom_noeud: str
         :return: branches associées
-        :rtype: [Branche]
+        :rtype: list(Branche)
         """
         branches = []
         for branche in self.get_liste_branches():
@@ -898,7 +948,7 @@ class SousModele(EnsembleFichiersXML):
         :param nom_noeud: nom du noeud
         :type nom_noeud: str
         :return: branches associées
-        :rtype: [Branche]
+        :rtype: list(Branche)
         """
         return self.get_connected_branches_in(nom_noeud) + self.get_connected_branches_out(nom_noeud)
 
@@ -915,6 +965,16 @@ class SousModele(EnsembleFichiersXML):
         return None
 
     def renommer(self, nom_sous_modele_cible, folder, folder_config=None):
+        """
+        Renommer le sous-modèle courant
+
+        :param nom_sous_modele_cible: nouveau nom du sous-modèle
+        :type nom_sous_modele_cible: str
+        :param folder: dossier pour les fichiers XML
+        :type folder: str
+        :param folder_config: dossier pour les fichiers SHP (en général `Config`), ignoré si None
+        :type folder_config: str
+        """
         self.id = nom_sous_modele_cible
         for xml_type in SousModele.FILES_XML:
             self.files[xml_type] = os.path.join(folder, nom_sous_modele_cible[3:] + '.' + xml_type + '.xml')
@@ -936,6 +996,18 @@ class SousModele(EnsembleFichiersXML):
 
     @staticmethod
     def are_sections_similar(section1, section2):
+        """
+        Vérifier si 2 sections sont identiques (les arguments sont permutables), c'est-à-dire se référence l'une
+        l'autre sans décalage vertical (ie. SectionIdem avec dz nul)
+
+        TODO: ajouter le cas où les 2 sections sont des SectionIdem de la même SectionProfil
+
+        :param section1: section 1
+        :type section1: Section
+        :param section2: section 2
+        :type section2: Section
+        :rtype: bool
+        """
         if isinstance(section1, SectionIdem) and isinstance(section2, SectionProfil):
             section_idem = section1
             section_profil = section2
@@ -947,6 +1019,15 @@ class SousModele(EnsembleFichiersXML):
         return section_idem.section_reference is section_profil and section_idem.dz_section_reference == 0.0
 
     def is_noeud_supprimable(self, noeud):
+        """
+        Vérifier si le noeud demandé est supprimable, c'est-à-dire s'il n'est pas associé à un casier et que s'il est
+        connecté à des branches, il s'agit seulement de deux branches Saint-Venant qui ont une section identique à
+        leur interface (ie au niveau du noeud).
+        
+        :param nom_noeud: noeud à vérifier
+        :type nom_noeud: Noeud
+        :rtype: bool
+        """
         connected_casier = self.get_connected_casier(noeud)
         has_casier = connected_casier is not None
 
@@ -1025,10 +1106,15 @@ class SousModele(EnsembleFichiersXML):
     def decouper_branche_fluviale(self, nom_branche, nom_branche_nouvelle, nom_section, nom_noeud):
         """
         Découper une branche fluviale au niveau de la section cible intermédiaire (doit exister sur la branche)
+
         :param nom_branche: nom de la branche à découper
+        :type nom_branche: str
         :param nom_branche_nouvelle: nom de la nouvelle branche (partie aval)
+        :type nom_branche_nouvelle: str
         :param nom_section: nom de la section servant à la découpe
+        :type nom_section: str
         :param nom_noeud: nom du noeud à créer
+        :type nom_noeud: str
         :return: position relative de la section, entre 0 (amont) et 1 (aval)
         :rtype: float
         """
@@ -1109,7 +1195,7 @@ class SousModele(EnsembleFichiersXML):
                     branche.liste_sections_dans_branche[j] = new_section
 
     def normalize_geometry(self):
-        """Normaliser les géométries pour éviter les artefacts de Fudaa-Crue"""
+        """Normaliser les géométries pour corriger les artefacts visuels liés à l'utilisation de Fudaa-Crue"""
         for branche in self.get_liste_branches():
             branche.shift_sectionprofil_to_xp_position()
         self.convert_sectionidem_to_sectionprofil()
