@@ -58,6 +58,7 @@ html_logo = '../media/LogoFC.128x128.png'
 html_favicon = '../media/LogoFC.32x32.ico'
 html_title = 'Crue10_tools'
 html_last_updated_fmt = '%d %B %Y'  # add generation date
+html_css_files = ["custom.css"]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
