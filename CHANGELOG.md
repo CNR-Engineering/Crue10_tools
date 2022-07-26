@@ -16,7 +16,9 @@ Détails :
 - Refactoring :
     * `crue10.base`: la classe `FichierXML` devient `EnsembleFichiersXML`, son attribut `access` devient `mode`
         (par héritage, l'attribut change aussi pour `Etude`, `Scenario`, `Modele`, `SousModele`, `FichierOtfa`)
-    * `crue10.scenario.Scenario`: la méthode `get_branches_liste_entre_noeuds` devient `get_liste_branches_entre_noeuds`
+    * `crue10.scenario.Scenario`:
+        * [MAJOR] la méthode `get_branches_liste_entre_noeuds` devient `get_liste_branches_entre_noeuds`
+        * la méthode `add_run` devient `ajouter_run`
 
 ### Fixed
 - `etude.Etude._read_etu`: génère une exception `ExceptionCrue10` au lieu d'une `PermissionError` s'il s'agit d'un

@@ -107,6 +107,8 @@ class SousModele(EnsembleFichiersXML):
         :type files: dict(str)
         :param metadata: dictionnaire avec les méta-données
         :type metadata: dict(str)
+        :param version_grammaire: version de la grammaire
+        :type version_grammaire: str
         """
         check_preffix(nom_sous_modele, 'Sm_')
         self.id = nom_sous_modele

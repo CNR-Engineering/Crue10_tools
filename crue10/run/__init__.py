@@ -40,16 +40,16 @@ class Run:
     """
     Run = sorties suite à l'exécution d'un ou plusieurs services Crue10
 
-    :ivar id: run identifier corresponding to folder name
+    :ivar id: nom du run
     :vartype id: str
-    :ivar run_path: path to the folder of the run (exactly one folder before run_mo_path)
+    :ivar run_path: chemin vers le dossier du run (exactement un niveau de moins que `run_mo_path`)
     :vartype run_path: str
-    :ivar run_mo_path: path to the folder of the model (corresponds to the longest path)
+    :ivar run_mo_path: chemin vers le dossier du modèle (correspond au chemin le plus profond)
     :vartype run_mo_path: str
-    :ivar metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    :vartype metadata: dict
-    :ivar traces: list of traces for each service
-    :vartype traces: OrderedDict
+    :ivar metadata: dictionnaire avec les méta-données
+    :vartype metadata: dict(str)
+    :ivar traces: liste des traces de chaque service
+    :vartype traces: OrderedDict(list(str))
     """
 
     #: Liste des abréviations des services (dans l'ordre d'exécution par Crue10)
@@ -77,6 +77,15 @@ class Run:
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
     def __init__(self, etude_basename, run_mo_path, metadata=None):
+        """
+
+        :param etude_basename: nom de l'étude
+        :type etude_basename: str
+        :param run_mo_path: chemin vers le dossier du modèle (correspond au chemin le plus profond)
+        :type run_mo_path: str
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
+        """
         self.etude_basename = etude_basename
         self.run_path = os.path.normpath(os.path.join(run_mo_path, '..'))
         self.id = os.path.basename(self.run_path)
@@ -98,8 +107,8 @@ class Run:
         Exécuter un Run avec plusieurs services
 
         Attention:
-            - aucune vérification de la pertinence des services (en fonction de ceux déjà lancés)
-            - les fichiers de sortie de crue10.exe sont écrasés s'ils existent déjà
+        - aucune vérification de la pertinence des services (en fonction de ceux déjà lancés)
+        - les fichiers de sortie de Crue10 sont écrasés s'ils existent déjà
 
         :param services: liste des services
         :type services: list(str)
@@ -128,6 +137,12 @@ class Run:
         self.read_traces(services)
 
     def read_traces(self, services=SERVICES):
+        """
+        Lire les traces des différents services
+
+        :param services: liste des services
+        :type services: list(str)
+        """
         self._check_services(services)
 
         # Check stdout.csv (only compulsory output file)
@@ -154,6 +169,17 @@ class Run:
                     self.traces[service].append(Trace(row.replace('\n', '')))
 
     def get_service_traces(self, service, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
+        """
+        Obtenir les traces du service qui ont une gravité entre les 2 bornes
+
+        :param service: identifiant du service
+        :type service: str
+        :param gravite_min: niveau de gravité minimal
+        :type gravite_min: str
+        :param gravite_max: niveau de gravité maximal
+        :type gravite_max: str
+        :return: list(str)
+        """
         self._check_service(service)
         gravite_min_int = ENUM_SEVERITE[gravite_min]
         gravite_max_int = ENUM_SEVERITE[gravite_max]
@@ -161,6 +187,11 @@ class Run:
                 if gravite_min_int >= trace.gravite_int >= gravite_max_int]
 
     def nb_avertissements(self, services=SERVICES):
+        """
+        :param services: liste des services
+        :type services: list(str)
+        :return: nombre total d'avertissements
+        """
         nb = 0
         for service in services:
             nb += len(self.get_service_traces(service, gravite_min=GRAVITE_AVERTISSEMENT,
@@ -168,24 +199,51 @@ class Run:
         return nb
 
     def nb_avertissements_calcul(self):
+        """
+        :return: nombre total d'avertissements du service de calculs
+        """
         return self.nb_avertissements(['c'])
 
     def nb_erreurs(self, services=SERVICES):
+        """
+        :param services: liste des services
+        :type services: list(str)
+        :return: nombre total d'erreurs
+        """
         nb = 0
         for service in services:
             nb += len(self.get_service_traces(service, gravite_min=GRAVITE_MIN_ERROR))
         return nb
 
     def nb_erreurs_calcul(self):
+        """
+        :return: nombre total d'erreurs du service de calculs
+        """
         return self.nb_erreurs(['c'])
 
     def nb_erreurs_bloquantes(self, services=SERVICES):
+        """
+        :param services: liste des services
+        :type services: list(str)
+        :return: nombre total d'erreurs bloquantes
+        """
         nb = 0
         for service in services:
             nb += len(self.get_service_traces(service, gravite_min=GRAVITE_MIN_ERROR_BLK))
         return nb
 
     def get_all_traces(self, services=SERVICES, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
+        """
+        Obtenir les traces de tous les services qui ont une gravité entre les 2 bornes
+
+        :param service: liste des services
+        :type service: list(str)
+        :param gravite_min: niveau de gravité minimal
+        :type gravite_min: str
+        :param gravite_max: niveau de gravité maximal
+        :type gravite_max: str
+        :return: str
+        """
         self._check_services(services)
         text = ''
         for service in services:
@@ -195,17 +253,38 @@ class Run:
         return text
 
     def get_all_traces_above_warn(self, services=SERVICES, gravite_max=GRAVITE_MAX):
+        """
+        Obtenir les traces d'avertissement et éventuellement d'erreurs de tous les services
+
+        :param service: liste des services
+        :type service: list(str)
+        :param gravite_max: niveau de gravité maximal
+        :type gravite_max: str
+        :return: str
+        """
         return self.get_all_traces(services, gravite_min=GRAVITE_AVERTISSEMENT, gravite_max=gravite_max)
 
     def get_service_time(self, service):
+        """
+        Obtenir le temps écoulé du service demandé
+
+        :param service: identifiant du service
+        :type service: str
+        :rtype: float
+        """
         self._check_service(service)
-        if service not in Run.SERVICES:
-            raise ExceptionCrue10("Le service `%s` n'est pas reconnu" % service)
         for trace in self.traces[service]:
             if trace.id == 'ID_TIMING':
                 return float(trace.parametres[0].replace('"', ''))
 
     def get_time(self, services=SERVICES):
+        """
+        Obtenir le temps écoulé par plusieurs services
+
+        :param services: liste des services
+        :type services: list(str)
+        :rtype: float
+        """
         time = 0
         for service in services:
             time += self.get_service_time(service)
@@ -215,9 +294,16 @@ class Run:
         raise NotImplementedError  # TODO
 
     def has_computation_traces(self):
+        """A des traces de calculs"""
         return len(self.traces['c']) != 0
 
     def get_results(self):
+        """
+        Obtenir une instance RunResults pour post-traiter les résultats du Run.
+        Il faut que le Run contiennent des résultats (même partiels) du service de calcul.
+
+        :rtype: RunResults
+        """
         # Check that some traces were read
         if not self.has_computation_traces:
             # Remark: rcal.xml should not exist in this case (a previous service encountered a problem)
@@ -235,6 +321,7 @@ class Run:
         return RunResults(rcal_path)
 
     def set_comment(self, comment):
+        """Définir le commentaire"""
         self.metadata['Commentaire'] = comment
 
     def __repr__(self):

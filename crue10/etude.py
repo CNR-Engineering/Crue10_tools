@@ -29,9 +29,9 @@ class Etude(EnsembleFichiersXML):
     :ivar mode: accès en lecture ('r') ou écriture ('w')
     :vartype mode: str
     :ivar folders: dictionnaire avec les dossiers (les valeurs par défaut sont dans `FOLDERS`)
-    :vartype folders: {str}
+    :vartype folders: OrderedDict(str)
     :ivar filename_list: liste des fichiers XML de l'étude
-    :vartype filename_list: [str]
+    :vartype filename_list: list(str)
     :ivar nom_scenario_courant: nom du scnéario courant (None si aucun)
     :vartype nom_scenario_courant: str
     :ivar scenarios: dictionnaire avec le nom du scénario et l'instance Scenario associée
@@ -242,7 +242,7 @@ class Etude(EnsembleFichiersXML):
                         metadata = read_metadata(run_elt, Run.METADATA_FIELDS)
                         run_mo_path = os.path.join(self.folder, self.folders['RUNS'], scenario.id,
                                                      run_id, scenario.modele.id)
-                        scenario.add_run(Run(os.path.basename(self.etu_path), run_mo_path, metadata=metadata))
+                        scenario.ajouter_run(Run(os.path.basename(self.etu_path), run_mo_path, metadata=metadata))
 
                 elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')
                 if elt_current_run is not None:

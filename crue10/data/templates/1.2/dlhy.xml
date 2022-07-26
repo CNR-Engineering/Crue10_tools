@@ -4,9 +4,9 @@
   {%- if loi_hydraulique_liste %}
   <Lois>
     {%- for loi in loi_hydraulique_liste %}
-    <Loi{% if loi.has_time() %}D{% else %}F{% endif %}F Nom="{{ loi.id }}" Type="{{ loi.type }}">
+    <Loi{% if loi.est_temporel() %}D{% else %}F{% endif %}F Nom="{{ loi.id }}" Type="{{ loi.type }}">
       <Commentaire>{{ loi.comment|html_escape }}</Commentaire>
-      {%- if loi.has_time() %}
+      {%- if loi.est_temporel() %}
       <DateZeroLoiDF>{% if loi.date_zero is none %}{% else %}{{ loi.date_zero }}{% endif %}</DateZeroLoiDF>
       {%- endif %}
       <EvolutionFF>
@@ -14,7 +14,7 @@
         <PointFF>{{ time }} {{ value }}</PointFF>
         {%- endfor %}
       </EvolutionFF>
-    </Loi{% if loi.has_time() %}D{% else %}F{% endif %}F>
+    </Loi{% if loi.est_temporel() %}D{% else %}F{% endif %}F>
     {%- endfor %}
   </Lois>
   {%- else %}

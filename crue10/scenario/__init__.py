@@ -21,7 +21,7 @@ from .loi_hydraulique import LoiHydraulique
 
 class OrdCalcPseudoPerm:
     """
-    OrdCalcPseudoPerm : paramètres des calculs permanents
+    OrdCalcPseudoPerm = paramètres des calculs permanents
 
     :ivar id: nom du calcul
     :vartype id: str
@@ -38,7 +38,7 @@ class OrdCalcPseudoPerm:
 
 class OrdCalcTrans:
     """
-    OrdCalcTrans : paramètres des calculs transitoires
+    OrdCalcTrans = paramètres des calculs transitoires
 
     :ivar id: nom du calcul
     :vartype id: str
@@ -55,6 +55,18 @@ class OrdCalcTrans:
     """
 
     def __init__(self, calc_id, duree, pdt_res, calc_init, cliche_ponctuel, cliche_periodique):
+        """
+        :param calc_id: nom du calcul
+        :type calc_id: str
+        :param duree: durée en secondes
+        :type duree: float
+        :param pdt_res: pas de temps (constant ou variable)
+        :type pdt_res: float|list
+        :param calc_init: initialisation du calcul
+        :type calc_init: tuple
+        :param cliche_ponctuel: cliché ponctuel
+        :param cliche_periodique: cliché périodique
+        """
         check_isinstance(duree, float)
         check_isinstance(pdt_res, (float, list))
         self.id = calc_id
@@ -65,12 +77,15 @@ class OrdCalcTrans:
         self.cliche_periodique = cliche_periodique
 
     def get_duree_in_iso8601(self):
+        """Obtenir la durée en ISO8601"""
         return duration_seconds_to_iso8601(self.duree)
 
     def is_pdt_res_cst(self):
+        """Dispose d'un pas de temps constant"""
         return isinstance(self.pdt_res, float)
 
     def get_pdt_res_in_iso8601(self):
+        """Obtenir le pas de temps (constant ou variable) en ISO8601"""
         if self.is_pdt_res_cst():
             return duration_seconds_to_iso8601(self.pdt_res)
         else:
@@ -91,9 +106,9 @@ class Scenario(EnsembleFichiersXML):
     :ivar calculs: liste des calculs
     :vartype calculs: list(Calcul)
     :ivar liste_ord_calc_pseudoperm: liste des paramètres des calculs permanents
-    :vartype liste_ord_calc_pseudoperm: [OrdCalcPseudoPerm]
+    :vartype liste_ord_calc_pseudoperm: list(OrdCalcPseudoPerm)
     :ivar liste_ord_calc_trans: liste des paramètres des calculs transitoires
-    :vartype liste_ord_calc_trans: [OrdCalcTrans]
+    :vartype liste_ord_calc_trans: list(OrdCalcTrans)
     :ivar lois_hydrauliques: dictionnaire des lois hydrauliques
     :vartype lois_hydrauliques: OrderedDict(LoiHydraulique)
     :ivar runs: dictionnaire des runs
@@ -109,10 +124,18 @@ class Scenario(EnsembleFichiersXML):
 
     def __init__(self, nom_scenario, modele, mode='r', files=None, metadata=None, version_grammaire=None):
         """
-        :param nom_scenario: scenario name
-        :param modele: a Modele instance
-        :param files: dict with xml path files
-        :param metadata: dict containing metadata
+        :param nom_scenario: nom du scénario
+        :type nom_scenario: str
+        :param modele: modèle
+        :type modele: Modele
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
+        :param files: dictionnaire des chemins vers les fichiers xml
+        :type files: dict(str)
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
+        :param version_grammaire: version de la grammaire
+        :type version_grammaire: str
         """
         check_preffix(nom_scenario, 'Sc_')
         self.id = nom_scenario
@@ -132,6 +155,13 @@ class Scenario(EnsembleFichiersXML):
         self.runs = OrderedDict()
 
     def get_function_apply_modifications(self, etude):
+        """
+        Obtenir la fonction qui permet d'appliquer les modifications et de lancer un Run associé
+
+        :param etude: étude
+        :type etude: Etude
+        :return: function
+        """
         curr_etude = deepcopy(etude)
         curr_etude.ignore_others_scenarios(self.id)
 
@@ -154,26 +184,52 @@ class Scenario(EnsembleFichiersXML):
         return fun
 
     def ajouter_calcul(self, calcul):
+        """
+        Ajouter un calcul au scénario
+
+        :param calcul: calcul (pseudo-permanent ou transitoire) à ajouter
+        :type calcul: CalcPseudoPerm | CalcTrans
+        """
         check_isinstance(calcul, Calcul)
         self.calculs.append(calcul)
 
     def ajouter_loi_hydraulique(self, loi_hydraulique):
+        """
+        Ajouter une loi hydraulique au scénario
+
+        :param run: loi hydraulique à ajouter
+        :type run: LoiHydraulique
+        """
         check_isinstance(loi_hydraulique, LoiHydraulique)
         self.lois_hydrauliques[loi_hydraulique.id] = loi_hydraulique
 
-    def add_run(self, run):
+    def ajouter_run(self, run):
+        """
+        Ajouter un Run au scénario
+
+        :param run: run à ajouter
+        :type run: Run
+        """
         check_isinstance(run, Run)
         if run.id in self.runs:
             raise ExceptionCrue10("Le Run %s est déjà présent" % run.id)
         self.runs[run.id] = run
 
     def get_calcul(self, nom_calcul):
+        """
+        :param nom_calcul: nom du calcul demandé
+        :rtype: Calcul
+        """
         for calcul in self.calculs:
             if calcul.id == nom_calcul:
                 return calcul
         raise ExceptionCrue10("Le calcul `%s` n'existe pas" % nom_calcul)
 
     def get_ord_calc_pseudoperm(self, nom_calcul):
+        """
+        :param nom_calcul: nom du calcul pseudo-permanent demandé
+        :rtype: OrdCalcPseudoPerm
+        """
         for ord_calc in self.liste_ord_calc_pseudoperm:
             if nom_calcul == ord_calc.id:
                 return ord_calc
@@ -181,6 +237,10 @@ class Scenario(EnsembleFichiersXML):
         raise ExceptionCrue10("Le calcul pseudo-permanent `%s` n'est pas actif" % nom_calcul)
 
     def get_ord_calc_trans(self, nom_calcul):
+        """
+        :param nom_calcul: nom du calcul transitoire demandé
+        :rtype: OrdCalcTrans
+        """
         for ord_calc in self.liste_ord_calc_trans:
             if nom_calcul == ord_calc.id:
                 return ord_calc
@@ -188,12 +248,26 @@ class Scenario(EnsembleFichiersXML):
         raise ExceptionCrue10("Le calcul transitoire `%s` n'est pas actif" % nom_calcul)
 
     def get_nb_calc_pseudoperm_actif(self):
+        """
+        :return: nombre de calculs pseudo-permanents actifs
+        :rtype: int
+        """
         return len(self.liste_ord_calc_pseudoperm)
 
     def get_nb_calc_trans_actif(self):
+        """
+        :return: nombre de calculs transitoires actifs
+        :rtype: int
+        """
         return len(self.liste_ord_calc_trans)
 
     def get_liste_calc_pseudoperm(self, ignore_inactive=False):
+        """
+        Obtenir la liste des calculs pseudo-permanents
+
+        :param ignore_inactive: True pour ignorer les calculs inactifs
+        :rtype: list(CalcPseudoPerm)
+        """
         calculs = []
         for calcul in self.calculs:
             if isinstance(calcul, CalcPseudoPerm):
@@ -205,6 +279,12 @@ class Scenario(EnsembleFichiersXML):
         return calculs
 
     def get_liste_calc_trans(self, ignore_inactive=False):
+        """
+        Obtenir la liste des calculs transitoires
+
+        :param ignore_inactive: True pour ignorer les calculs inactifs
+        :rtype: list(CalcTrans)
+        """
         calculs = []
         for calcul in self.calculs:
             if isinstance(calcul, CalcTrans):
@@ -216,6 +296,12 @@ class Scenario(EnsembleFichiersXML):
         return calculs
 
     def get_run(self, run_id):
+        """
+        Obtenir un run à patir de son nom
+
+        :param run_id: nom du run
+        :rtype: Run
+        """
         if not self.runs:
             raise ExceptionCrue10("Aucun run n'existe pour ce scénario")
         run = None
@@ -228,21 +314,45 @@ class Scenario(EnsembleFichiersXML):
         return run
 
     def get_last_run(self):
+        """
+        Obtenir le dernier run
+
+        :return: dernier run
+        :rtype: Run
+        """
         if not self.runs:
             raise ExceptionCrue10("Aucun run n'existe pour ce scénario")
         run_id = list(self.runs.keys())[-1]
         return self.get_run(run_id)
 
     def get_liste_run_ids(self):
+        """
+        Obtenir la liste des noms de runs
+
+        :return: liste des noms des runs
+        :rtype: list(str)
+        """
         return [run_id for run_id, _ in self.runs.items()]
 
     def get_loi_hydraulique(self, nom_loi):
+        """
+        Obtenir la loi hydraulique à partir de son nom
+
+        :param nom_loi: nom de la loi hydraulique
+        :rtype: LoiHydraulique
+        """
         try:
             return self.lois_hydrauliques[nom_loi]
         except KeyError:
             raise ExceptionCrue10("La loi `%s` n'existe pas" % nom_loi)
 
     def set_modele(self, modele):
+        """
+        Affecter le modèle au scénario
+
+        :param modele: modèle à affecter
+        :type modele: Modele
+        """
         check_isinstance(modele, Modele)
         self.modele = modele
 
@@ -287,11 +397,11 @@ class Scenario(EnsembleFichiersXML):
 
         - `pnum.CalcPseudoPerm.Pdt`: <float> => affection du pas de temps (en secondes) pour les calculs permanents
         - `pnum.CalcPseudoPerm.TolMaxZ`: <float> => affection de la tolérance en niveau (en m) pour les calculs
-            permanents
+          permanents
         - `pnum.CalcPseudoPerm.TolMaxQ`: <float> => affection de la tolérance en débit (en m3/s) pour les calculs
-            permanents
+          permanents
         - `Qapp_factor.NomCalcul.NomNoeud`: <float> => application du facteur multiplicatif au débit du calcul
-            NomCalcul au noeud nommé NomNoeud
+          NomCalcul au noeud nommé NomNoeud
         - `Zimp.NomCalcul.NomNoeud`: <float> => application de la cote au calcul NomCalcul au noeud nommé NomNoeud
         - `branche_barrage.CoefD`: <float> => application du coefficient à la branche barrage
 
@@ -428,7 +538,7 @@ class Scenario(EnsembleFichiersXML):
         for elt_loi in root.find(PREFIX + 'Lois'):  # LoiDF, LoiFF
             loi_hydraulique = LoiHydraulique(elt_loi.get('Nom'), elt_loi.get('Type'),
                                              comment=get_optional_commentaire(elt_loi))
-            if loi_hydraulique.has_time():
+            if loi_hydraulique.est_temporel():
                 date_zero = elt_loi.find(PREFIX + 'DateZeroLoiDF').text
                 if date_zero is not None:
                     loi_hydraulique.set_date_zero(date_zero)
@@ -502,19 +612,37 @@ class Scenario(EnsembleFichiersXML):
         self.was_read = True
 
     def renommer(self, nom_scenario_cible, folder):
+        """
+        Renommer le scénario courant
+
+        :param nom_scenario_cible: nouveau nom du scénario
+        :type nom_scenario_cible: str
+        :param folder: dossier pour les fichiers XML
+        :type folder: str
+        """
         self.id = nom_scenario_cible
         for xml_type in Scenario.FILES_XML:
             self.files[xml_type] = os.path.join(folder, nom_scenario_cible[3:] + '.' + xml_type + '.xml')
 
     def remove_run(self, run_id):
-        run_path = os.path.join(self.runs[run_id].run_mo_path, '..')
+        """
+        Supprimer un run
+
+        :param run_id: nom du run à supprimer
+        """
+        run_path = os.path.join(self.get_run(run_id).run_mo_path, '..')
         logger.debug("Suppression du Run #%s (%s)" % (run_id, run_path))
         del self.runs[run_id]
         if os.path.exists(run_path):
             shutil.rmtree(run_path)
 
     def remove_all_runs(self, sleep=0.0):
-        """Suppression de tous les Runs existants"""
+        """
+        Supprimer tous les Runs existants
+
+        :param sleep: temps d'attente (en secondes)
+        :type sleep: float
+        """
         for run_id in self.get_liste_run_ids():
             self.remove_run(run_id)
         if sleep > 0.0:  # Avoid potential conflict if folder is rewritten directly afterwards
@@ -522,28 +650,33 @@ class Scenario(EnsembleFichiersXML):
 
     def create_new_run(self, etude, run_id=None, comment='', force=False):
         """
-        Créer un nouveau dossier de Run
-             L'instance de `etude` est modifiée mais le fichier etu.xml n'est pas mis à jour
-             (Si nécessaire, cela doit être fait après en appelant la méthode spécifique)
+        Description détaillée:
+            Créer un nouveau dossier de Run
+            L'instance de `etude` est modifiée mais le fichier etu.xml n'est pas mis à jour
+            (Si nécessaire, cela doit être fait après en appelant la méthode spécifique)
 
-        1) Création d'un nouveau run (sans enregistrer la mise à jour du fichier etu.xml en entrée)
-        2) Ecriture des fichiers XML dans un nouveau dossier du run
+            1) Création d'un nouveau run (sans enregistrer la mise à jour du fichier etu.xml en entrée)
+            2) Ecriture des fichiers XML dans un nouveau dossier du run
 
-        Même comportement que Fudaa-Crue :
+            Même comportement que Fudaa-Crue :
 
-        - Dans le fichier etu.xml:
-        
-            - on conserve la liste des Runs précédents (sans copier les fichiers)
-            - on conserve les Sm/Mo/Sc qui sont hors du Sc courant
-        
-        - Seuls les XML du scénario courant sont écrits dans le dossier du run
-        - Les XML du modèle associés sont écrits dans un sous-dossier
-        - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
+            - Dans le fichier etu.xml:
+
+                - on conserve la liste des Runs précédents (sans copier les fichiers)
+                - on conserve les Sm/Mo/Sc qui sont hors du Sc courant
+
+            - Seuls les XML du scénario courant sont écrits dans le dossier du run
+            - Les XML du modèle associés sont écrits dans un sous-dossier
+            - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
 
         :param etude: étude courante
+        :type etude: Etude
         :param run_id: nom du Run (si vide alors son nom correspondra à l'horodatage)
+        :type run_id: str
         :param comment: commentaire du Run
+        :type comment: str
         :param force: écraser le Run s'il existe déjà
+        :type force: bool
         :return: run non lancé
         :rtype: Run
         """
@@ -570,7 +703,7 @@ class Scenario(EnsembleFichiersXML):
         if run_id in etude.get_liste_run_names():
             raise ExceptionCrue10("Le Run `%s` existe déjà dans l'étude" % run_id)
 
-        self.add_run(run)
+        self.ajouter_run(run)
         self.set_current_run_id(run.id)
 
         # Update etude attribute
@@ -597,14 +730,37 @@ class Scenario(EnsembleFichiersXML):
     def create_and_launch_new_run(self, etude, run_id=None, exe_path=CRUE10_EXE_PATH, comment='', force=False):
         """
         Créer et lancer un nouveau run
+
+        :param etude: étude courante
+        :type etude: Etude
+        :param run_id: nom du Run (si vide alors son nom correspondra à l'horodatage)
+        :type run_id: str
+        :param exe_path: chemin vers l'exécutable crue10.exe
+        :type exe_path: str
+        :param comment: commentaire du Run
+        :type comment: str
+        :param force: écraser le Run s'il existe déjà
+        :type force: bool
         """
         run = self.create_new_run(etude, run_id=run_id, comment=comment, force=force)
         run.launch_services(Run.SERVICES, exe_path=exe_path)
         return run
 
-    def create_and_launch_new_multiple_sequential_runs(self, modifications_liste, etude, exe_path=CRUE10_EXE_PATH, force=False):
+    def create_and_launch_new_multiple_sequential_runs(self, modifications_liste, etude,
+                                                       exe_path=CRUE10_EXE_PATH, force=False):
         """
         Créer et lancer des runs séquentiels selon les modifications demandées
+
+        :param modifications: liste avec les dictionnaires contenant les modifications
+        :type modifications: list(dict(str))
+        :param etude: étude courante
+        :type etude: Etude
+        :param exe_path: chemin vers l'exécutable crue10.exe
+        :type exe_path: str
+        :param force: écraser le Run s'il existe déjà
+        :type force: bool
+        :return: liste des runs lancés
+        :rtype: list(Run)
         """
         etude.ignore_others_scenarios(self.id)
         run_liste = []
@@ -683,10 +839,16 @@ class Scenario(EnsembleFichiersXML):
             self.modele.write_all(folder, folder_config)
 
     def changer_grammaire(self, version_grammaire):
+        """
+        Changer la version de grammaire
+
+        :param version_grammaire: version cible de la grammaire
+        :type version_grammaire: str
+        """
         super().changer_version_grammaire(version_grammaire)
         self.modele.changer_grammaire(version_grammaire)
 
-    def normalize_for_10_2(self):
+    def normalize_for_10_2(self):  # HARDCODED to support g1.2.1 ?
         """
         Normaliser le scénario pour Crue v10.2 : supprime quelques variables si elles sont présentes dans le ores
         """
@@ -703,17 +865,15 @@ class Scenario(EnsembleFichiersXML):
         Extraction des valeurs imposées à un noeud sous forme de chronique temporelle
 
         :param nom_noeud: nom du noeud sur lequel extraire la chronique temporelle
+        :type nom_noeud: str
         :param delta_t: durée entre 2 calculs pseudo-permanents
+        :type delta_t: float
         :return: 2D-array
         """
         res = []
         for i, calcul in enumerate(self.calculs):
             if isinstance(calcul, CalcPseudoPerm):
-                for values in calcul.values:
-                    nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = values
-                    if nom_emh == nom_noeud:
-                        res.append([i * delta_t, value])
-                        break
+                res.append([i * delta_t, calcul.get_valeur(nom_noeud)])
             else:
                 break  # No CalcPseudoPerm possible afterwards
         return np.array(res)
@@ -724,7 +884,9 @@ class Scenario(EnsembleFichiersXML):
         (le premier calcul permanent est conservé car il faut en avoir un pour démarrer le transitoire)
 
         :param delta_t: durée entre 2 calculs pseudo-permanents
+        :type delta_t: float
         :param nom_calcul: nom du calcul transitoire à créer
+        :type nom_calcul: str
         """
         if not all([isinstance(calcul, CalcPseudoPerm) for calcul in self.calculs]):
             raise ExceptionCrue10("Tous les calculs ne sont pas permanents")
