@@ -246,7 +246,7 @@ class Etude(EnsembleFichiersXML):
 
                 elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')
                 if elt_current_run is not None:
-                    scenario.set_current_run_id(elt_current_run.get('NomRef'))
+                    scenario.set_run_courant(elt_current_run.get('NomRef'))
 
                 self.ajouter_scenario(scenario)
 

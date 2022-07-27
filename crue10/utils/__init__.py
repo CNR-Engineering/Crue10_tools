@@ -178,8 +178,9 @@ class ExceptionCrue10(Exception):
     """Exception Crue10 générale"""
 
     def __init__(self, message):
-        """!
-        :param message <str>: error message description
+        """
+        :param message <str>: messsage décrivant l'erreur
+        :type message: str
         """
         super().__init__(message)
         self.message = message
@@ -196,8 +197,9 @@ class ExceptionCrue10Grammar(ExceptionCrue10):
     """Exception Crue10 pour les problèmes de grammaire"""
 
     def __init__(self, message):
-        """!
-        :param message <str>: error message description
+        """
+        :param message: messsage décrivant l'erreur
+        :type message: str
         """
         super().__init__(message)
         self.message = message
@@ -207,7 +209,9 @@ def duration_seconds_to_iso8601(duration_in_seconds):
     """
     Converts a duration in seconds to ISO 8601 text format
     (See ISO format at https://fr.wikipedia.org/wiki/ISO_8601#Dur%C3%A9e)
+
     :param duration_in_seconds: float measuring a duration in seconds
+    :type duration_in_seconds: float
     :return: ISO 8601 text format (e.g. "P0Y0M0DT0H0M0S". Info: the letter `T` separates days and hours)
     """
     if duration_in_seconds < 0:
@@ -243,7 +247,9 @@ def duration_seconds_to_iso8601(duration_in_seconds):
 def duration_iso8601_to_seconds(duration_in_iso8601):
     """
     Converts ISO 8601 text format to a duration in seconds
+
     :param duration_in_iso8601: ISO 8601 text format (e.g. "P0Y0M0DT0H0M0S". Info: the letter `T` separates days and hours)
+    :type duration_in_iso8601: str
     :return: float measuring a duration in seconds
     """
     match = re.match(r"^P0Y0M(?P<days>[\d.]+)DT(?P<hours>[\d.]+)H(?P<minutes>[\d.]+)M(?P<seconds>[\d.]+)S$",

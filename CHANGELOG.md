@@ -18,6 +18,9 @@ Détails :
         (par héritage, l'attribut change aussi pour `Etude`, `Scenario`, `Modele`, `SousModele`, `FichierOtfa`)
     * `crue10.scenario.Scenario`:
         * la méthode `add_run` devient `ajouter_run`
+        * l'attribut `current_run_id` devient `nom_run_courant`
+        * la méthode `set_current_run_id` devient `set_run_courant`
+        * la méthode `get_liste_run_ids` devient `get_liste_noms_runs`
     * `crue10.modele.Modele`:
         * [MAJEUR] la méthode `get_branches_liste_entre_noeuds` devient `get_liste_branches_entre_deux_noeuds`
     * `crue10.run.results`:

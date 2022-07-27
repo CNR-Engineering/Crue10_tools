@@ -79,8 +79,7 @@ class SousModele(EnsembleFichiersXML):
     :vartype id: str
     :ivar noeuds: dictionnaire ordonné des noeuds
     :vartype noeuds: OrderedDict(Noeud)
-    :ivar sections: dictionnaire ordonné des sections
-        (SectionProfil, SectionIdem, SectionInterpolee or SectionSansGeometrie)
+    :ivar sections: dictionnaire ordonné des sections (profil, idem, interpolée et sans géométrie)
     :vartype sections: OrderedDict(Section
     :ivar branches: dictionnaire ordonné des branches
     :vartype branches: OrderedDict(Branche)
@@ -837,7 +836,7 @@ class SousModele(EnsembleFichiersXML):
         Les fichiers shp sont écrits dans un dossier si `folder_config` est renseigné
 
         :param folder: dossier de sortie
-        :param folder_config:
+        :param folder_config: nom du répertoire contenu les fichier SHP, en général "Config" (SHP non écris si None)
         """
         logger.debug("Écriture du %s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 

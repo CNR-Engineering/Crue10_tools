@@ -109,12 +109,12 @@ class Scenario(EnsembleFichiersXML):
     :vartype liste_ord_calc_pseudoperm: list(OrdCalcPseudoPerm)
     :ivar liste_ord_calc_trans: liste des paramètres des calculs transitoires
     :vartype liste_ord_calc_trans: list(OrdCalcTrans)
-    :ivar lois_hydrauliques: dictionnaire des lois hydrauliques
+    :ivar lois_hydrauliques: dictionnaire ordonné des lois hydrauliques
     :vartype lois_hydrauliques: OrderedDict(LoiHydraulique)
-    :ivar runs: dictionnaire des runs
+    :ivar runs: dictionnaire ordonné des runs
     :vartype runs: OrderedDict(Run)
     :ivar current_run_id: nom du scénario courant
-    :vartype current_run_id: str
+    :vartype nom_run_courant: str
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
@@ -151,7 +151,7 @@ class Scenario(EnsembleFichiersXML):
 
         self.ocal_sorties = Sorties()
 
-        self.current_run_id = None
+        self.nom_run_courant = None
         self.runs = OrderedDict()
 
     def get_function_apply_modifications(self, etude):
@@ -325,7 +325,7 @@ class Scenario(EnsembleFichiersXML):
         run_id = list(self.runs.keys())[-1]
         return self.get_run(run_id)
 
-    def get_liste_run_ids(self):
+    def get_liste_noms_runs(self):
         """
         Obtenir la liste des noms de runs
 
@@ -356,10 +356,16 @@ class Scenario(EnsembleFichiersXML):
         check_isinstance(modele, Modele)
         self.modele = modele
 
-    def set_current_run_id(self, run_id):
+    def set_run_courant(self, run_id):
+        """
+        Mettre à jour le nom du run courant
+
+        :param run_id: nom du run
+        :type run_id: str
+        """
         if run_id not in self.runs:
             raise ExceptionCrue10("Le Run '%s' n'existe pas" % run_id)
-        self.current_run_id = run_id
+        self.nom_run_courant = run_id
 
     def set_ocal_OrdCalcTrans_DureeCalc(self, calc_name, value):
         """
@@ -643,7 +649,7 @@ class Scenario(EnsembleFichiersXML):
         :param sleep: temps d'attente (en secondes)
         :type sleep: float
         """
-        for run_id in self.get_liste_run_ids():
+        for run_id in self.get_liste_noms_runs():
             self.remove_run(run_id)
         if sleep > 0.0:  # Avoid potential conflict if folder is rewritten directly afterwards
             time.sleep(sleep)
@@ -704,7 +710,7 @@ class Scenario(EnsembleFichiersXML):
             raise ExceptionCrue10("Le Run `%s` existe déjà dans l'étude" % run_id)
 
         self.ajouter_run(run)
-        self.set_current_run_id(run.id)
+        self.set_run_courant(run.id)
 
         # Update etude attribute
         etude.nom_scenario_courant = self.id

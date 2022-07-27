@@ -53,13 +53,19 @@ class FilePosition:
     FLOAT_TYPE = 'd'
 
     def __init__(self, rbin_path, byte_offset):
+        """
+        :param rbin_path: chemin complet vers le fichier RBIN
+        :type rbin_path: str
+        :param byte_offset: position dans le fichier
+        :type byte_offset: int
+        """
         self.rbin_path = rbin_path
         self.byte_offset = byte_offset
 
     def get_data(self, res_pattern, is_steady, emh_type_first_branche):
         """
-        :param res_pattern: schéma d'organisation des résultats. Par exemple :
-        [('Noeud', (120, 1)), ('Casier', (48, 4)), ('Section', (593, 8)), ('BrancheBarrageFilEau', (1, 1)), ...]
+        :param res_pattern: schéma d'organisation des résultats. Par exemple [('Noeud', (120, 1)), ('Casier', (48, 4)),
+            ('Section', (593, 8)), ('BrancheBarrageFilEau', (1, 1)), ...]
         :type res_pattern: list(tuple(str, (int, int)))
         :param is_steady: les données correspondent à un calcul permanent (pour vérifier la cohérence d'un délimiteur)
         :type is_steady: bool
@@ -153,9 +159,9 @@ class RunResults:
         par exemple : ['Noeud', 'Casier', 'Section', 'BrancheBarrageFilEau', 'BrancheOrifice', 'BrancheSaintVenant'...]
     :vartype emh_types: list(str)
     :ivar emh: dictionnaires avec les types d'EMH secondaires donnant la liste des EMHs disponibles
-    :vartype emh: OrderedDict
+    :vartype emh: OrderedDict(str)
     :ivar variables: dictionnaires avec les types d'EMH secondaires donnant la liste des variables disponibles
-    :vartype variables: OrderedDict
+    :vartype variables: OrderedDict(str)
     :ivar res_calc_pseudoperm: dictionnaires avec les calculs pseudo-permanents
     :vartype res_calc_pseudoperm: OrderedDict(ResCalcPseudoPerm)
     :ivar res_calc_trans: dictionnaires avec les calculs transitoires
@@ -169,6 +175,10 @@ class RunResults:
     EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche']
 
     def __init__(self, rcal_path):
+        """
+        :param rcal_path: chemin vers le fichier rcal
+        :type rcal_path: str
+        """
         self.rcal_root = ET.parse(rcal_path).getroot()
         self.rcal_path = rcal_path
         self.rcal_folder = os.path.dirname(rcal_path)
@@ -188,6 +198,7 @@ class RunResults:
 
     @property
     def run_id(self):
+        """Nom du run"""
         return os.path.basename(os.path.normpath(os.path.join(self.rcal_folder, '..')))
 
     def _add_variables_names(self, elt, emh_sec):

@@ -25,12 +25,12 @@ class Modele(EnsembleFichiersXML):
     :vartype id: str
     :ivar liste_sous_modeles: liste des sous-modèles
     :vartype liste_sous_modeles: list(SousModele)
-    :ivar noeuds_ic: conditions initiales aux noeuds
-    :vartype noeuds_ic: dict
-    :ivar casiers_ic: conditions initiales aux casiers
-    :vartype casiers_ic: dict
-    :ivar branches_ic: conditions initiales aux branches
-    :vartype branches_ic: dict
+    :ivar noeuds_ic: conditions initiales aux noeuds (Zini)
+    :vartype noeuds_ic: OrderedDict
+    :ivar casiers_ic: conditions initiales aux casiers (Qruis)
+    :vartype casiers_ic: OrderedDict
+    :ivar branches_ic: conditions initiales aux branches (Qini et selon les types de branches : Qruis, Ouv et SensOuv)
+    :vartype branches_ic: OrderedDict
     :ivar graph: graphe orienté avec tous les noeuds et branches actives
     :vartype graph: networkx.DiGraph
     """
@@ -572,7 +572,9 @@ class Modele(EnsembleFichiersXML):
         self.noeuds_ic[nom_noeud_aval] = niveau_aval
 
     def reset_initial_conditions(self):
-        """Set initial conditions to default values"""
+        """
+        Réinitialiser les conditions initiales aux valeurs par défaut
+        """
         self.noeuds_ic = OrderedDict([(noeud.id, 1.0E30) for noeud in self.get_liste_noeuds()])
 
         self.casiers_ic = OrderedDict([(casier.id, 0.0) for casier in self.get_liste_casiers()])

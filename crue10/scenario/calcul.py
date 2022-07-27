@@ -84,6 +84,7 @@ class CalcPseudoPerm(Calcul):
         Obtenir la valeur de la CLimMs de l'EMH demandé
 
         :param nom_emh: nom de l'EMH demandé
+        :type nom_emh: str
         :rtype: float
         """
         idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
@@ -91,12 +92,28 @@ class CalcPseudoPerm(Calcul):
         return value
 
     def multiplier_valeur(self, nom_emh, facteur):
+        """
+        Appliquer un facteur multiplicatif sur la ClimM de l'EMH
+
+        :param nom_emh: nom de l'EMH demandé
+        :type nom_emh: str
+        :param facteur: facteur multiplicatif
+        :type facteur: float
+        """
         check_isinstance(facteur, float)
         idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
         nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = self.values[idx]
         self.values[idx] = nom_emh, clim_tag, is_active, value * facteur, sens, typ_loi, param_loi, nom_fic
 
     def set_valeur(self, nom_emh, value):
+        """
+        Affecter la valeur sur la ClimM de l'EMH
+
+        :param nom_emh: nom de l'EMH demandé
+        :type nom_emh: str
+        :param facteur: valeur
+        :type facteur: float
+        """
         check_isinstance(value, float)
         idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
         nom_emh, clim_tag, is_active, _, sens, typ_loi, param_loi, nom_fic = self.values[idx]
