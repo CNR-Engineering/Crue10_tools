@@ -9,7 +9,7 @@ from shapely.geometry import LinearRing, LineString, mapping, Point
 from crue10.base import EnsembleFichiersXML
 from crue10.emh.branche import BRANCHE_CLASSES, Branche, BranchePdC, BrancheSeuilTransversal, \
     BrancheSeuilLateral, BrancheOrifice, BrancheStrickler, BrancheNiveauxAssocies, \
-    BrancheBarrageGenerique, BrancheBarrageFilEau, BrancheSaintVenant
+    BrancheBarrageGenerique, BrancheBarrageFilEau, BrancheSaintVenant, COEF_D
 from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAJ, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
@@ -18,7 +18,7 @@ from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, Excep
     ExceptionCrue10Grammar, get_optional_commentaire, logger, parse_loi, PREFIX
 
 
-def parse_elem_seuil(elt, with_pdc=False):
+def parse_elem_seuil(elt, nom_elem, coef_list):
     """
     Parser un élément XML pour construire un tableau avec les éléments de seuil
 
@@ -27,20 +27,10 @@ def parse_elem_seuil(elt, with_pdc=False):
     :param with_pdc: True si avec pertes de charge
     :rtype: np.ndarray
     """
-    length = 4 if with_pdc else 3
-    elt_group = elt.findall(PREFIX + ('ElemSeuilAvecPdc' if with_pdc else 'ElemSeuil'))
+    elt_group = elt.findall(PREFIX + nom_elem)
     values = []
     for elem in elt_group:
-        row = [
-            float(elem.find(PREFIX + 'Largeur').text),
-            float(elem.find(PREFIX + 'Zseuil').text),
-            float(elem.find(PREFIX + 'CoefD').text),
-        ]
-        if with_pdc:
-            row.append(float(elem.find(PREFIX + 'CoefPdc').text))
-        if len(row) != length:
-            raise RuntimeError
-        values.append(row)
+        values.append([float(elem.find(PREFIX + coef).text) for coef in ['Largeur', 'Zseuil'] + coef_list])
     return np.array(values)
 
 
@@ -570,11 +560,13 @@ class SousModele(EnsembleFichiersXML):
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilTransversal':
                         branche.formule_pertes_de_charge = emh.find(PREFIX + 'FormulePdc').text
-                        branche.set_liste_elements_seuil(parse_elem_seuil(emh, with_pdc=True))
+                        branche.set_liste_elements_seuil(parse_elem_seuil(emh, 'ElemSeuilAvecPdc',
+                                                                          ['CoefD', 'CoefPdc']))
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSeuilLateral':
                         branche.formule_pertes_de_charge = emh.find(PREFIX + 'FormulePdc').text
-                        branche.set_liste_elements_seuil(parse_elem_seuil(emh, with_pdc=True))
+                        branche.set_liste_elements_seuil(parse_elem_seuil(emh, 'ElemSeuilAvecPdc',
+                                                                          ['CoefD', 'CoefPdc']))
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheOrifice':
                         elem_orifice = emh.find(PREFIX + 'ElemOrifice')
@@ -605,9 +597,16 @@ class SousModele(EnsembleFichiersXML):
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheBarrageFilEau':
                         branche.QLimInf = float(emh.find(PREFIX + 'QLimInf').text)
                         branche.QLimSup = float(emh.find(PREFIX + 'QLimSup').text)
-                        branche.liste_elements_seuil = parse_elem_seuil(emh, with_pdc=False)
+                        if self.version_grammaire == '1.2':  # HARDCODED to support g1.2
+                            liste_elements_barrage = parse_elem_seuil(emh, 'ElemSeuil', ['CoefD'])
+                            liste_elements_barrage = np.column_stack((liste_elements_barrage,
+                                                                      COEF_D * np.ones(len(liste_elements_barrage))))
+                            branche.liste_elements_barrage = liste_elements_barrage
+                        else:
+                            branche.liste_elements_barrage = parse_elem_seuil(emh, 'ElemBarrage',
+                                                                              ['CoefNoy', 'CoefDen'])
                         regime_denoye_elt = emh.find(PREFIX + 'RegimeDenoye')
-                        branche.set_loi_QZam(parse_loi(regime_denoye_elt))
+                        branche.set_loi_QpilZam(parse_loi(regime_denoye_elt))
                         branche.comment_denoye = get_optional_commentaire(regime_denoye_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSaintVenant':

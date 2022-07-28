@@ -145,7 +145,7 @@ branche1.ajouter_section_dans_branche(section1_av, 11.0)  # => branche1.length =
 sous_modele.ajouter_branche(branche1)
 
 branche2 = BrancheSeuilTransversal('Br_2-SeuilTransversal', noeud2, noeud4)
-branche2.set_liste_elements_seuil_avec_coeff_par_defaut(np.array([(10.0, -2.0), (5.0, -1.75), (6.8, 0.2)]))
+branche2.set_liste_elements_seuil_avec_coef_par_defaut(np.array([(10.0, -2.0), (5.0, -1.75), (6.8, 0.2)]))
 branche2.ajouter_section_dans_branche(section2_am, 0.0)
 branche2.ajouter_section_dans_branche(section2_av, 10.1)
 sous_modele.ajouter_branche(branche2)

@@ -75,8 +75,8 @@ if WRITE_DATAFRAMES:
             try:
                 branche_bararge = modele.get_branche_barrage()
                 if isinstance(branche_bararge, BrancheBarrageFilEau):
-                    branche_bge_coefD += list(branche_bararge.liste_elements_seuil[:, 2])
-                    assert len(np.unique(branche_bararge.liste_elements_seuil[:, 1])) == 1  # same elevation for all passes
+                    branche_bge_coefD += list(branche_bararge.liste_elements_barrage[:, 2])
+                    assert len(np.unique(branche_bararge.liste_elements_barrage[:, 1])) == 1  # same elevation for all passes
                 ajouter_values(etude_dossier, 'brange_bge_coefD', branche_bge_coefD)
             except ExceptionCrue10 as e:
                 logger.warning(e)

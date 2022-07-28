@@ -97,7 +97,7 @@
         </Run>
         {%- endfor %}
       </Runs>
-      <RunCourant NomRef="{{ scenario.current_run_id }}"/>
+      <RunCourant NomRef="{{ scenario.nom_run_courant }}"/>
       {%- endif %}
     </Scenario>
 	{%- endfor %}

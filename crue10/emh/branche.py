@@ -33,15 +33,17 @@ from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, Excep
 # ABC below is compatible with Python 2 and 3
 ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
-#! Coefficient de débitance et de perte de charge par défaut
-COEFF_D = 1.0
-COEFF_PDC = 1.0
+# Coefficients de débitance (seuil et barrage) et de perte de charge par défaut
+COEF_D = 1.0
+COEF_DEN = COEF_D
+COEF_NOY = COEF_D
+COEF_PDC = 1.0
 
 DIFF_XP_TO_WARN = 20.0  # m
 
-DEFAULT_ELTS_SEUILS = np.array([(1.0, 0.0, COEFF_D)])
+DEFAULT_ELTS_BARRAGE = np.array([(1.0, 0.0, COEF_NOY, COEF_DEN)])
 
-DEFAULT_ELTS_SEUILS_AVEC_PDC = np.array([(1.0, 0.0, COEFF_D, COEFF_PDC)])
+DEFAULT_ELTS_SEUILS_AVEC_PDC = np.array([(1.0, 0.0, COEF_D, COEF_PDC)])
 
 #: Formule de perte de charge par défaut
 DEFAULT_FORMULE_PDC = 'Borda'
@@ -176,7 +178,8 @@ class Branche(ABC):
         return self.type in Branche.TYPES_WITH_GEOM
 
     def ajouter_section_dans_branche(self, section, xp):
-        """Ajouter une section à l'abscisse xp le long de la branche
+        """
+        Ajouter une section à l'abscisse xp le long de la branche
 
         :param section: section à ajouter
         :type section: Section
@@ -290,7 +293,8 @@ class BranchePdC(Branche):
         self.comment_loi = ''
 
     @property
-    def name_loi_LoiQPdc(self):
+    def nom_loi_LoiQPdc(self):
+        """Nom de la loi de pertes de charge"""
         return 'LoiQPdc_%s' % self.id[3:]
 
 
@@ -321,7 +325,7 @@ class BrancheAvecElementsSeuil(Branche, ABC):
             raise ExceptionCrue10("Il faut exactement 4 valeurs pour axis=1")
         self.liste_elements_seuil = elements_seuil
 
-    def set_liste_elements_seuil_avec_coeff_par_defaut(self, elements_seuil):
+    def set_liste_elements_seuil_avec_coef_par_defaut(self, elements_seuil):
         """
         :param elements_seuil: 2D array with 2 values for axis=1 (Largeur, Zseuil)
         """
@@ -330,26 +334,27 @@ class BrancheAvecElementsSeuil(Branche, ABC):
         if elements_seuil.shape[1] != 2:
             raise ExceptionCrue10("Il faut exactement 2 valeurs pour axis=1")
         nb_elem = elements_seuil.shape[0]
-        new_array = np.column_stack((elements_seuil, np.ones(nb_elem) * COEFF_D, np.ones(nb_elem) * COEFF_PDC))
+        new_array = np.column_stack((elements_seuil, np.ones(nb_elem) * COEF_D, np.ones(nb_elem) * COEF_PDC))
         self.set_liste_elements_seuil(new_array)
 
     def decouper_seuil_elem(self, largeur, delta_z):
         """
         Découper les éléments de seuil trop longs
+
         :param largeur: largeur maximale des éléments de seuil
         :type largeur: float
         :param delta_z: page dans laquelle rediscrétiser les éléments de seuil
         :type delta_z: float
         """
         new_elements_seuil = []
-        for larg, z_seuil, coeff_d, coeff_pdc in self.liste_elements_seuil:
+        for larg, z_seuil, coef_d, coef_pdc in self.liste_elements_seuil:
             if larg < largeur:
-                new_elements_seuil.append([larg, z_seuil, coeff_d, coeff_pdc])
+                new_elements_seuil.append([larg, z_seuil, coef_d, coef_pdc])
             else:
                 nb_decoupages = ceil(larg/largeur)
                 new_largeur = larg/nb_decoupages
                 for new_z_seuil in np.linspace(start=z_seuil - delta_z/2, stop=z_seuil + delta_z/2, num=nb_decoupages):
-                    new_elements_seuil.append([new_largeur, new_z_seuil, coeff_d, coeff_pdc])
+                    new_elements_seuil.append([new_largeur, new_z_seuil, coef_d, coef_pdc])
         self.set_liste_elements_seuil(np.array(new_elements_seuil))
 
     def get_min_z(self):
@@ -462,7 +467,8 @@ class BrancheNiveauxAssocies(Branche):
         self.comment_loi = ''
 
     @property
-    def name_loi_ZavZam(self):
+    def nom_loi_ZavZam(self):
+        """Nom de la loi ZavZam"""
         return 'LoiZavZam_%s' % self.id[3:]
 
 
@@ -497,14 +503,17 @@ class BrancheBarrageGenerique(Branche):
         self.comment_noye = ''
 
     @property
-    def name_loi_QDz(self):
+    def nom_loi_QDz(self):
+        """Nom de la loi (de type QDz)"""
         return 'LoiQDz_%s' % self.id[3:]
 
     @property
-    def name_loi_QpilZam(self):
+    def nom_loi_QpilZam(self):
+        """Nom de la loi  (de type QpilZam)"""
         return 'LoiQpilZam_%s' % self.id[3:]
 
     def validate(self):
+        """Valider"""
         errors = super().validate()
         if self.section_pilote is None:  # validation.branche.mustContainSectionPilote
             errors.append((self, "La branche doit contenir une Section pilote."))
@@ -521,39 +530,40 @@ class BrancheBarrageFilEau(Branche):
     :vartype QLimInf: float
     :ivar QLimSup: "Débit maximum admis dans la branche"
     :vartype QLimSup: float
-    :ivar loi_QZam: ndarray(dtype=float, ndim=2 with 2 columns)
-    :vartype loi_QZam: 2D-array
-    :ivar liste_elements_seuil: ndarray(dtype=float, ndim=2 with 3 columns: Largeur, Zseuil, CoefD)
-    :vartype liste_elements_seuil: 2D-array
-    :ivar comment_denoye: commentaire loi dénoyée
-    :vartype comment_denoye: str
+    :ivar loi_QpilZam: ndarray(dtype=float, ndim=2 with 2 columns)
+    :vartype loi_QpilZam: 2D-array
+    :ivar liste_elements_barrage:tableau de flottants avec 4 colonnes : Largeur, Zseuil, CoefNoy, CoefDen
+    :vartype liste_elements_barrage: np.ndarray
+    :ivar comment_manoeuvrant: commentaire loi dénoyée
+    :vartype comment_manoeuvrant: str
     """
+
     def __init__(self, nom_branche, noeud_amont, noeud_aval, is_active=True):
         super().__init__(nom_branche, noeud_amont, noeud_aval, 15, is_active)
         self.section_pilote = None
         self.QLimInf = DEFAULT_QLIMINF
         self.QLimSup = DEFAULT_QLIMSUP
-        self.loi_QZam = np.array([(0.0, -15.0)])
-        self.liste_elements_seuil = DEFAULT_ELTS_SEUILS
-        self.comment_denoye = ''
+        self.loi_QpilZam = np.array([(0.0, -15.0)])
+        self.liste_elements_barrage = DEFAULT_ELTS_BARRAGE
+        self.comment_manoeuvrant = ''
 
     @property
-    def name_loi_QZam(self):
+    def nom_loi_QpilZam(self):
         return 'LoiQpilZam_%s' % self.id[3:]
 
-    def set_loi_QZam(self, loi_QZam):
+    def set_loi_QpilZam(self, loi_QpilZam):
         """Affecte la loi QZam
 
-        :param loi_QZam: loi QZam
-        :type loi_QZam: 2D-array
+        :param loi_QpilZam: loi QZam
+        :type loi_QpilZam: 2D-array
         """
-        if loi_QZam.shape[0] < 1:
+        if loi_QpilZam.shape[0] < 1:
             raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
-        if loi_QZam.shape[1] != 2:
+        if loi_QpilZam.shape[1] != 2:
             raise ExceptionCrue10("Il faut exactement 2 valeurs pour axis=1")
-        if any(x >= y for x, y in zip(loi_QZam[:, 0], loi_QZam[1:, 0])):
+        if any(x >= y for x, y in zip(loi_QpilZam[:, 0], loi_QpilZam[1:, 0])):
             raise ExceptionCrue10("Les valeurs de Q ne sont pas strictement croissantes")
-        self.loi_QZam = loi_QZam
+        self.loi_QpilZam = loi_QpilZam
 
     def validate(self):
         errors = super().validate()

@@ -113,7 +113,7 @@ class Scenario(EnsembleFichiersXML):
     :vartype lois_hydrauliques: OrderedDict(LoiHydraulique)
     :ivar runs: dictionnaire ordonné des runs
     :vartype runs: OrderedDict(Run)
-    :ivar current_run_id: nom du scénario courant
+    :ivar nom_run_courant: nom du scénario courant
     :vartype nom_run_courant: str
     """
 

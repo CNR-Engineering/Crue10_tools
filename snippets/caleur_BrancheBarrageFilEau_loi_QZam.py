@@ -89,9 +89,9 @@ try:
     section_pilote = branche_barrage.section_pilote.id
 
     # La première itération correspond à la consigne appliquée à l'amont barrage
-    q_pilote, _ = branche_barrage.loi_QZam.T
+    q_pilote, _ = branche_barrage.loi_QpilZam.T
     z_barrage = interp_target_PR(q_pilote)
-    branche_barrage.set_loi_QZam(np.column_stack((q_pilote, z_barrage)))
+    branche_barrage.set_loi_QpilZam(np.column_stack((q_pilote, z_barrage)))
 
 except ExceptionCrue10 as e:
     logger.critical(e)
@@ -117,7 +117,7 @@ while True:
         # Lecture du Run (traces et résultats disponibles)
         logger.info('Lecture du Run `%s`' % run.id)
         if run.nb_erreurs() > 0:
-            logger.error(run.get_all_traces_above_warn())
+            logger.error(run.get_all_traces(gravite_min='ERRNBLK'))
             raise ExceptionCrue10("Erreur bloquante pour le %s" % run)
         results = run.get_results()
         logger.info(results)
@@ -170,11 +170,11 @@ while True:
     if i == 0:
         z_consigne_prev = z_target_at_PR
     else:
-        z_consigne_prev = np.interp(q_pilote, branche_barrage.loi_QZam[:, 0], branche_barrage.loi_QZam[:, 1])
-    new_loi_QZam = np.column_stack((q_pilote, z_consigne_prev - dz))
-    new_loi_QZam = new_loi_QZam[new_loi_QZam[:, 0].argsort(), :]
-    branche_barrage.loi_QZam[:, 1] = np.interp(branche_barrage.loi_QZam[:, 0],
-                                               new_loi_QZam[:, 0], new_loi_QZam[:, 1])
+        z_consigne_prev = np.interp(q_pilote, branche_barrage.loi_QpilZam[:, 0], branche_barrage.loi_QpilZam[:, 1])
+    new_loi_QpilZam = np.column_stack((q_pilote, z_consigne_prev - dz))
+    new_loi_QpilZam = new_loi_QpilZam[new_loi_QpilZam[:, 0].argsort(), :]
+    branche_barrage.loi_QpilZam[:, 1] = np.interp(branche_barrage.loi_QpilZam[:, 0],
+                                                  new_loi_QpilZam[:, 0], new_loi_QpilZam[:, 1])
 
     i += 1
 

@@ -116,11 +116,11 @@ if __name__ == '__main__':
 
         # Write a clean etu.xml file
         for run in runs_liste:
-            scenario.add_run(run)
-        scenario.set_current_run_id(runs_liste[-1].id)
+            scenario.ajouter_run(run)
+        scenario.set_run_courant(runs_liste[-1].id)
         etude.write_etu()
     elif POST:
-        runs_liste = [scenario.get_run(run_id) for run_id in scenario.get_liste_run_ids()]
+        runs_liste = [scenario.get_run(run_id) for run_id in scenario.get_liste_noms_runs()]
 
     if POST:
         nom_sections = ['St_RET155.030',  # Fk_RET5min

@@ -3,20 +3,28 @@ Journal des modifications
 
 ## [4.0] - yyyy-mm-dd
 
-### Added
+### Nouveautés
 - Support en lecture/écriture des grammaires v1.2 et v1.3 :
     * Ajout de 2 variables utilisateurs : `VERSION_GRAMMAIRE_PRECEDENTE` et `VERSION_GRAMMAIRE_COURANTE`
-    * [MAJEUR] `crue10.emh.branche.BrancheBarrageFilEau`: attribut `liste_elements_seuil` devient
-        `liste_elements_barrage`
 
 Détails :
 * Les grammaires doivent être identiques en lecture pour chaque Etude/Scenario/Modele/SousModele (plantage sinon)
 
-### Changed
+### Changements
 - Refactoring :
     * `crue10.base`: la classe `FichierXML` devient `EnsembleFichiersXML`, son attribut `access` devient `mode`
         (par héritage, l'attribut change aussi pour `Etude`, `Scenario`, `Modele`, `SousModele`, `FichierOtfa`)
+    * `crue10.emh.branche` :
+        * les propriétés du type `name_loi_*` deviennent `nom_loi_*`
+        * `BarrageFilEau` :
+            * l'attribut `comment_denoye` devient `comment_manoeuvrant`
+            * la méthode `set_liste_elements_seuil_avec_coeff_par_defaut` devient `set_liste_elements_seuil_avec_coef_par_defaut`
+            * [MAJEUR] l'attribut `loi_QZam` devient `loi_QpilZam`
+            * [MAJEUR] l'attribut `liste_elements_seuil` devient `liste_elements_barrage`
+            * [MAJEUR] la méthode `set_loi_QZam` devient `set_loi_QpilZam`
+            `liste_elements_barrage`
     * `crue10.scenario.Scenario`:
+        * [MAJEUR] la méthode `get_last_run` devient `get_dernier_run`
         * la méthode `add_run` devient `ajouter_run`
         * l'attribut `current_run_id` devient `nom_run_courant`
         * la méthode `set_current_run_id` devient `set_run_courant`
@@ -27,7 +35,7 @@ Détails :
         * la méthode `CalcPseudoPerm` devient `ResCalcPseudoPerm` (pour éviter le conflit avec `crue10.scenario.calcul`)
         * la méthode `CalcTrans` devient `ResCalcTrans` (pour éviter le conflit avec `crue10.scenario.calcul`)
 
-### Fixed
+### Corrections
 - `etude.Etude._read_etu`: génère une exception `ExceptionCrue10` au lieu d'une `PermissionError` s'il s'agit d'un
     dossier
 

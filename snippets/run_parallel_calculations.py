@@ -52,8 +52,8 @@ if __name__ == '__main__':
 
     # Write a clean etu.xml file
     for run in runs_liste:
-        scenario.add_run(run)
-    scenario.set_current_run_id(runs_liste[-1].id)
+        scenario.ajouter_run(run)
+    scenario.set_run_courant(runs_liste[-1].id)
     etude.write_etu()
 
     # Plot Z at PR1
