@@ -10,5 +10,6 @@ __pycache__/
 crue10_examples/
 docs/html
 venv/
-tmp
+tmp/
+*.xml.lock
 *_all.csv
