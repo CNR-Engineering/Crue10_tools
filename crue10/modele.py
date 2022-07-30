@@ -528,7 +528,7 @@ class Modele(EnsembleFichiersXML):
         for xml_type in Modele.FILES_XML:
             self.files[xml_type] = os.path.join(folder, nom_modele_cible[3:] + '.' + xml_type + '.xml')
 
-    def supprimer_noeuds_entre_deux_branches_fluviales(self):
+    def supprimer_noeuds_entre_branches_fluviales(self):
         """
         Remove all intermediate removable nodes which are located between 2 adjacent fluvial branches
         Downstream Branche and the intermediate SectionIdem are safely removed

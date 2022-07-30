@@ -300,7 +300,7 @@ class SousModele(EnsembleFichiersXML):
         """
         return self.get_liste_sections(section_type=SectionProfil)
 
-    def get_liste_sections_item(self):
+    def get_liste_sections_idem(self):
         """
         :return: liste des sections idem
         :rtype: list(SectionIdem)
@@ -684,7 +684,7 @@ class SousModele(EnsembleFichiersXML):
             except KeyError:
                 raise ExceptionCrue10GeometryNotFound(casier)
 
-    def read_all(self):
+    def read_all(self, ignore_shp=False):
         """Lire tous les fichiers du sous-modèle"""
         if not self.was_read:
             # Read xml files
@@ -696,18 +696,19 @@ class SousModele(EnsembleFichiersXML):
             self.set_active_sections()
 
             # Read shp files
-            try:
-                if self.noeuds:
-                    self._read_shp_noeuds()
-                if self.branches:  # Has to be done before sections (to enable orthogonal reconstruction)
-                    self._read_shp_branches()
-                if self.sections:
-                    self._read_shp_traces_sections()
-                if self.casiers:
-                    self._read_shp_casiers()
-            except fiona.errors.DriverError as e:
-                logger.warn("Un fichier shp n'a pas pu être lu, la géométrie des EMH n'est pas lisible.")
-                logger.warn(str(e))
+            if not ignore_shp:
+                try:
+                    if self.noeuds:
+                        self._read_shp_noeuds()
+                    if self.branches:  # Has to be done before sections (to enable orthogonal reconstruction)
+                        self._read_shp_branches()
+                    if self.sections:
+                        self._read_shp_traces_sections()
+                    if self.casiers:
+                        self._read_shp_casiers()
+                except fiona.errors.DriverError as e:
+                    logger.warn("Un fichier shp n'a pas pu être lu, la géométrie des EMH n'est pas lisible.")
+                    logger.warn(str(e))
         self.was_read = True
 
     def _write_dfrt(self, folder):
@@ -750,7 +751,7 @@ class SousModele(EnsembleFichiersXML):
             'dptg', folder,
             profil_casier_list=[pc for _, pc in self.profils_casier.items()],
             section_profil_list=sorted(self.get_liste_sections_profil(), key=lambda st: st.id),  # alphabetic order
-            section_idem_list=sorted(self.get_liste_sections_item(), key=lambda st: st.id),  # alphabetic order
+            section_idem_list=sorted(self.get_liste_sections_idem(), key=lambda st: st.id),  # alphabetic order
             branche_saintvenant_list=sorted(self.get_liste_branches([20]), key=lambda br: br.id),  # alphabetic order
         )
 
@@ -985,7 +986,7 @@ class SousModele(EnsembleFichiersXML):
 
     def remove_sectioninterpolee(self):
         """Remove all `SectionInterpolee` which are internal sections"""
-        for branche in self.get_liste_branches():
+        for branche in self.get_liste_branches([20]):
             for section in branche.liste_sections_dans_branche[1:-1]:
                 if isinstance(section, SectionInterpolee):
                     branche.liste_sections_dans_branche.remove(section)  # remove element (current iteration)
@@ -1093,7 +1094,8 @@ class SousModele(EnsembleFichiersXML):
         # Insert sections from downstream to upstream branch
         for section in out_branche.liste_sections_dans_branche[1:]:
             in_branche.ajouter_section_dans_branche(section, in_branche_length + section.xp)
-        in_branche.geom = LineString(list(in_branche.geom.coords) + list(out_branche.geom.coords))
+        if in_branche.geom is not None and out_branche.geom is not None:
+            in_branche.geom = LineString(list(in_branche.geom.coords) + list(out_branche.geom.coords))
 
         # Merge geometry
         in_branche.noeud_aval = out_branche.noeud_aval
@@ -1124,6 +1126,8 @@ class SousModele(EnsembleFichiersXML):
         # Check if splitting is possible
         if not isinstance(in_branche, BrancheSaintVenant):
             raise ExceptionCrue10("La branche à découper doit être de type fluviale")
+        if not isinstance(in_section, SectionProfil):
+            raise ExceptionCrue10("La section doit être de type SectionProfil")
         if in_section not in in_branche.liste_sections_dans_branche:
             raise ExceptionCrue10("La section doit appartenir à la branche à découper")
         section_pos = in_branche.liste_sections_dans_branche.index(in_section)
@@ -1132,9 +1136,10 @@ class SousModele(EnsembleFichiersXML):
 
         # Create new intermediate node
         section_pos_ratio = in_section.xp / in_branche.length
-        point = in_branche.geom.interpolate(section_pos_ratio, normalized=True)
         noeud = Noeud(nom_noeud)
-        noeud.geom = point
+        if in_branche.geom is not None:
+            point = in_branche.geom.interpolate(section_pos_ratio, normalized=True)
+            noeud.geom = point
         self.ajouter_noeud(noeud)
 
         # Create new branch
@@ -1142,9 +1147,10 @@ class SousModele(EnsembleFichiersXML):
         self.ajouter_branche(out_branche)
 
         # Update geometries
-        geom_in_branche, geom_out_branche = cut_linestring(in_branche.geom, in_branche.geom.project(point))
-        in_branche.set_geom(geom_in_branche)
-        out_branche.set_geom(geom_out_branche)
+        if in_branche.geom is not None:
+            geom_in_branche, geom_out_branche = cut_linestring(in_branche.geom, in_branche.geom.project(point))
+            in_branche.set_geom(geom_in_branche)
+            out_branche.set_geom(geom_out_branche)
         in_branche.noeud_aval = noeud
 
         # Add new SectionIdem
@@ -1248,8 +1254,9 @@ class SousModele(EnsembleFichiersXML):
         return "%s: %i noeud(s), %i branche(s), %i section(s) (%i profil + %i idem + %i interpolee +" \
                " %i sans géométrie), %i casier(s) (%i profil(s) casier)" % (
                    self, len(self.noeuds), len(self.branches), len(self.sections),
-                   len(list(self.get_liste_sections_profil())), len(list(self.get_liste_sections_item())),
-                   len(list(self.get_liste_sections_interpolees())), len(list(self.get_liste_sections_sans_geometrie())),
+                   len(list(self.get_liste_sections_profil())), len(list(self.get_liste_sections_idem())),
+                   len(list(self.get_liste_sections_interpolees())),
+                   len(list(self.get_liste_sections_sans_geometrie())),
                    len(self.casiers), len(self.profils_casier)
                )
 

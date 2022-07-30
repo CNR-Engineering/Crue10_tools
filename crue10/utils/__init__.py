@@ -93,6 +93,19 @@ def check_isinstance(obj, type):
             raise ExceptionCrue10("L'objet %s n'est pas de type `%s`" % (obj, type))
 
 
+def check_2d_array_shape(array, min_axis_0, len_axis_1):
+    len_axis_0, len_axis_1 = array.shape
+    if len_axis_0 < min_axis_0:
+        raise ExceptionCrue10("Le premier axe n'a pas au moins %i valeurs" % min_axis_0)
+    if len_axis_1 != len_axis_1:
+        raise ExceptionCrue10("Le second axe n'a pas exactement %i valeurs" % len_axis_1)
+
+
+def check_strictly_increasing(array, label):
+    if any(x > y for x, y in zip(array, array[1:])):
+        raise ExceptionCrue10("Les valeurs de %s ne sont pas strictement croissantes %s" % (label, array))
+
+
 def check_preffix(name, preffix):
     """
     Lève une exception si le nom de l'élément ne commence par le préffixe

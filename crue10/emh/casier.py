@@ -11,7 +11,8 @@ import numpy as np
 from shapely.geometry import LinearRing
 
 from crue10.emh.noeud import Noeud
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger
+from crue10.utils import check_strictly_increasing, check_2d_array_shape, check_isinstance, check_preffix, \
+    ExceptionCrue10, logger
 
 
 DX = 1e-3
@@ -88,8 +89,7 @@ class ProfilCasier:
         :return: Tableau avec les abscisses transversales et la cote pour le lit utile seulement
         :rtype: np.ndarray
         """
-        #return self.xz[np.logical_and(self.xt_min <= self.xz[:, 0], self.xz[:, 0] <= self.xt_max), :]
-        return self.xz
+        return self.xz[np.logical_and(self.xt_min <= self.xz[:, 0], self.xz[:, 0] <= self.xt_max), :]
 
     def get_min_z(self):
         """
@@ -119,8 +119,8 @@ class ProfilCasier:
         :type array: np.ndarray
         """
         check_isinstance(array, np.ndarray)
-        if any(x > y for x, y in zip(array[:, 0], array[1:, 0])):
-            raise ExceptionCrue10("Les valeurs de xt ne sont pas strictement croissantes %s" % array[:, 0])
+        check_2d_array_shape(array, 2, 2)
+        check_strictly_increasing(array[:, 0], 'xt')
         self.xz = array
         self.xt_min = self.xz[0, 0]
         self.xt_max = self.xz[-1, 0]
@@ -133,8 +133,9 @@ class ProfilCasier:
         :return: niveau interpolé
         :rtype: np.ndarray
         """
-        if xt < self.xt_min or xt > self.xt_max:
-            raise ExceptionCrue10("xt=%f en dehors de la plage [%f, %f] pour %s" % (xt, self.xt_min, self.xt_max, self))
+        if xt < self.xz[0, 0] or xt > self.xz[-1, 0]:
+            raise ExceptionCrue10("xt=%f en dehors de la plage [%f, %f] pour %s"
+                                  % (xt, self.xz[0, 0], self.xz[-1, 0], self))
         return np.interp(xt, self.xz[:, 0], self.xz[:, 1])
 
     def compute_surface(self, z):
@@ -268,7 +269,7 @@ class Casier:
         """Remplace plusieurs profils casier par un unique profil casier donnant la même loi de volume"""
         if len(self.profils_casier) > 2:
             # Extract a sequence of bottom elevation
-            z_array_combine = np.array([], dtype=np.float)
+            z_array_combine = np.array([], dtype=np.float64)
             for i, pc in enumerate(self.profils_casier):
                 z_array = np.sort(pc.xz[:, 1])
                 z_array_combine = np.concatenate((z_array_combine, z_array), axis=0)

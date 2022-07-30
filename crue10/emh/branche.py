@@ -27,7 +27,8 @@ from shapely.geometry import LineString, Point
 
 from .noeud import Noeud
 from .section import Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, logger
+from crue10.utils import check_2d_array_shape, check_isinstance, check_preffix, \
+    ExceptionCrue10, ExceptionCrue10GeometryNotFound, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -96,7 +97,7 @@ class Branche(ABC):
     # Branch types which should be located in the river bed (and not the floodplain)
     TYPES_IN_MINOR_BED = [1, 2, 20]
 
-    def __init__(self, nom_branche, noeud_amont, noeud_aval, branch_type, is_active=True):
+    def __init__(self, nom_branche, noeud_amont, noeud_aval, type_branche, is_active=True):
         """
         :param nom_branche: nom de la branche
         :type nom_branche: str
@@ -104,16 +105,20 @@ class Branche(ABC):
         :type noeud_amont: Noeud
         :param noeud_aval: noeud aval
         :type noeud_aval: Noeud
+        :param type_branche: type de branche (une clé de `Branche.TYPES`)
+        :type type_branche: int
         :param is_active: True si la branche est active
         :type is_active: bool, optional
         """
         check_preffix(nom_branche, 'Br_')
         check_isinstance(noeud_amont, Noeud)
         check_isinstance(noeud_aval, Noeud)
-        if branch_type not in Branche.TYPES:
-            raise RuntimeError
+        if noeud_amont.id == noeud_aval.id:
+            raise ExceptionCrue10("Les noeuds amont et aval doivent avoir un nom différent")
+        if type_branche not in Branche.TYPES:
+            raise ExceptionCrue10("Le type de branche %i n'existe pas" % type_branche)
         self.id = nom_branche
-        self.type = branch_type
+        self.type = type_branche
         self.is_active = is_active
         if noeud_amont.geom is not None and noeud_aval.geom is not None:
             self.geom = LineString([(noeud_amont.geom.x, noeud_amont.geom.y), (noeud_aval.geom.x, noeud_aval.geom.y)])
@@ -200,9 +205,11 @@ class Branche(ABC):
         self.liste_sections_dans_branche.append(section)
 
     def supprimer_section_dans_branche(self, pos_section):
-        """Supprimer la section de la branche courante
+        """
+        Supprimer la section de la branche courante
 
         :param pos_section: index de la section (0-indexed)
+        :type pos_section: int
         """
         del self.liste_sections_dans_branche[pos_section]
 
@@ -268,8 +275,8 @@ class Branche(ABC):
         else:
             if self.get_section_amont().xp != 0.0:  # validation.branche.firstSectionMustBeAmont
                 errors.append((self, "La Section de position Amont doit avoir une abscisse nulle."))
-        if self.type in Branche.TYPES_WITH_LENGTH and self.length == 0.0:
-            errors.append((self, "La branche est de longueur nulle"))
+            if self.type in Branche.TYPES_WITH_LENGTH and self.length == 0.0:
+                errors.append((self, "La branche est de longueur nulle"))
         return errors
 
     def __repr__(self):
@@ -319,20 +326,16 @@ class BrancheAvecElementsSeuil(Branche, ABC):
         :param elements_seuil: array avec 4 valeurs pour l'axe n°1 (Largeur, Zseuil, CoefD, CoefPdc)
         :type elements_seuil: 2D-array
         """
-        if elements_seuil.shape[0] < 1:
-            raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
-        if elements_seuil.shape[1] != 4:
-            raise ExceptionCrue10("Il faut exactement 4 valeurs pour axis=1")
+        check_isinstance(elements_seuil, np.ndarray)
+        check_2d_array_shape(elements_seuil, 1, 4)
         self.liste_elements_seuil = elements_seuil
 
     def set_liste_elements_seuil_avec_coef_par_defaut(self, elements_seuil):
         """
         :param elements_seuil: 2D array with 2 values for axis=1 (Largeur, Zseuil)
         """
-        if elements_seuil.shape[0] < 1:
-            raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
-        if elements_seuil.shape[1] != 2:
-            raise ExceptionCrue10("Il faut exactement 2 valeurs pour axis=1")
+        check_isinstance(elements_seuil, np.ndarray)
+        check_2d_array_shape(elements_seuil, 1, 2)
         nb_elem = elements_seuil.shape[0]
         new_array = np.column_stack((elements_seuil, np.ones(nb_elem) * COEF_D, np.ones(nb_elem) * COEF_PDC))
         self.set_liste_elements_seuil(new_array)
@@ -557,12 +560,10 @@ class BrancheBarrageFilEau(Branche):
         :param loi_QpilZam: loi QZam
         :type loi_QpilZam: 2D-array
         """
-        if loi_QpilZam.shape[0] < 1:
-            raise ExceptionCrue10("Il faut au moins 1 valeur pour axis=0")
-        if loi_QpilZam.shape[1] != 2:
-            raise ExceptionCrue10("Il faut exactement 2 valeurs pour axis=1")
+        check_isinstance(loi_QpilZam, np.ndarray)
+        check_2d_array_shape(1, 2)
         if any(x >= y for x, y in zip(loi_QpilZam[:, 0], loi_QpilZam[1:, 0])):
-            raise ExceptionCrue10("Les valeurs de Q ne sont pas strictement croissantes")
+            raise ExceptionCrue10("Les valeurs de Q ne sont pas strictement croissantes")  # TODO: strictement ou pas dans FC?
         self.loi_QpilZam = loi_QpilZam
 
     def validate(self):

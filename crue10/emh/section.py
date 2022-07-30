@@ -18,7 +18,8 @@ from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString, Point
 
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger
+from crue10.utils import check_strictly_increasing, check_2d_array_shape, check_isinstance, check_preffix, \
+    ExceptionCrue10, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -55,7 +56,7 @@ class LoiFrottement:
     :vartype id: str
     :ivar type: type de loi de frottement
     :vartype type: str
-    :ivar loi_Fk: tableau de coefficients de Strickler fonction de la cote, shape=(nb_values, 2)
+    :ivar _loi_Fk: tableau de coefficients de Strickler fonction de la cote, shape=(nb_values, 2)
     :vartype loi_Fk: np.ndarray
     :ivar comment: optional text explanation
     :vartype comment: str
@@ -69,7 +70,7 @@ class LoiFrottement:
         if type not in LoiFrottement.TYPES:
             raise NotImplementedError
         self.id = nom_loi_frottement
-        self.loi_Fk = None
+        self._loi_Fk = None
         self.type = type
         self.comment = comment
 
@@ -81,7 +82,9 @@ class LoiFrottement:
         :type loi_values: np.ndarray
         """
         check_isinstance(loi_values, np.ndarray)
-        self.loi_Fk = loi_values
+        check_strictly_increasing(loi_values[:, 0], 'z')
+        check_2d_array_shape(loi_values, 1, 2)
+        self._loi_Fk = loi_values
 
     def set_loi_constant_value(self, value):
         """
@@ -91,7 +94,7 @@ class LoiFrottement:
         :type value: float
         """
         check_isinstance(value, float)
-        self.loi_Fk[:, 1] = value
+        self._loi_Fk[:, 1] = value
 
     def shift_loi_Fk_values(self, value):
         """
@@ -101,14 +104,14 @@ class LoiFrottement:
         :type value: float
         """
         check_isinstance(value, float)
-        self.loi_Fk[:, 1] += value
+        self._loi_Fk[:, 1] += value
 
     def get_loi_Fk_values(self):
         """
         :return: tableau de coefficients de Strickler fonction de la cote
         :rtype: np.ndarray
         """
-        return self.loi_Fk[:, 1]
+        return self._loi_Fk[:, 1]
 
     def get_loi_Fk_value(self):
         """
@@ -346,10 +349,11 @@ class SectionProfil(Section):
         """
         Affecter le tableau avec les abscisses transversales et la cote
 
-        :param array: tableau avec les abscisses transversales et la cote à affeter
+        :param array: tableau avec les abscisses transversales et la cote à affecter
         :type array: np.ndarray
         """
         check_isinstance(array, np.ndarray)
+        check_2d_array_shape(array, 2, 2)
         new_array = array[0, :]
         duplicated_xt = []
         for (xt1, z1), (xt2, z2) in zip(array, array[1:]):
@@ -358,8 +362,7 @@ class SectionProfil(Section):
             else:
                 new_array = np.vstack((new_array, [xt2, z2]))
         self.xz = new_array
-        if any(x > y for x, y in zip(new_array[:, 0], new_array[1:, 0])):
-            raise ExceptionCrue10("Les valeurs de xt ne sont pas croissantes (points doublons tolérés mais ignorés)")
+        check_strictly_increasing(new_array[:, 0], 'xt')
         if duplicated_xt:
             logger.warn("%i points doublons ignorés pour %s: %s" % (len(duplicated_xt), self, duplicated_xt))
 
@@ -408,8 +411,7 @@ class SectionProfil(Section):
         """
         if len(xt_list) != 6:
             raise ExceptionCrue10("Il faut exactement 5 lits numérotés pour les affecter")
-        if any(x > y for x, y in zip(xt_list, xt_list[1:])):
-            raise ExceptionCrue10("Les valeurs de xt ne sont pas croissantes")
+        check_strictly_increasing(xt_list, 'xt')
         self.lits_numerotes = []
         for bed_name, xt_min, xt_max in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
             lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
@@ -629,6 +631,7 @@ class SectionProfil(Section):
         :return: cote minimale du profil en travers (entre les rives gauche et droite)
         :rtype: float
         """
+        # TODO: prendre en compte la fente?
         return self.xz_filtered[:, 1].min()
 
     def validate(self):
@@ -732,6 +735,7 @@ class SectionIdem(Section):
 
         :rtype: SectionProfil
         """
+        # TODO: copier la fente!
         new_section = deepcopy(self.section_reference)
         new_section.id = self.id
         new_section.xp = self.xp
@@ -746,8 +750,7 @@ class SectionIdem(Section):
         :return: cote minimale du profil en travers
         :rtype: float
         """
-        section = self.get_as_sectionprofil()
-        return section.xz[:, 1].min()
+        return self.section_reference.get_min_z() + self.dz_section_reference
 
 
 class SectionInterpolee(Section):
