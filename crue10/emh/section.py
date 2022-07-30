@@ -34,12 +34,12 @@ def extrap(x, xp, yp):
     Interpolation linéaire (equivalente à `np.interp` with extrapolation)
 
     :param x: The x-coordinates at which to evaluate the interpolated values.
-    :type x: The x-coordinates at which to evaluate the interpolated values
+    :type x: 1d-array
     :param xp: The x-coordinates of the data points, must be increasing
     :type xp: 1d-array
     :param yp: The y-coordinates of the data points, same length as xp
     :type xp: 1d-array
-    :return: he interpolated values, same shape as x
+    :return: The interpolated values, same shape as x
     """
     y = np.interp(x, xp, yp)
     y = np.where(x < xp[0], yp[0]+(x-xp[0])*(yp[0]-yp[1])/(xp[0]-xp[1]), y)

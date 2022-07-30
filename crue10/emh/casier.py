@@ -157,9 +157,12 @@ class ProfilCasier:
 
     def validate(self):
         """Valider"""
+        errors = []
+        if len(self.id) > 32:  # valid.nom.tooLong.short
+            errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))
         if self.xt_min >= self.xt_max or self.longueur <= 0.0:
-            return [(self, "Le profil casier a un volume nul")]
-        return []
+            errors.append((self, "Le profil casier a un volume nul"))
+        return errors
 
     def __str__(self):
         return "ProfilCasier #%s: longueur = %f m, Z dans [%f, %f]" \

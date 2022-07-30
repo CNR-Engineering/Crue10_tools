@@ -3,8 +3,10 @@ __pycache__/
 *.pyc
 \#*\#
 .\#*
-.cache
-.idea
+.cache/
+.hypothesis/
+.idea/
+.pytest_cache/
 crue10_examples/
 docs/html
 venv/
