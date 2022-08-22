@@ -6,7 +6,7 @@
     <LoiFF Nom="{{ loi_frottement.id }}" Type="{{ loi_frottement.type }}">
       <Commentaire>{{ loi_frottement.comment|html_escape }}</Commentaire>
       <EvolutionFF>
-        {%- for z, k in loi_frottement.loi_Fk %}
+        {%- for z, k in loi_frottement.get_loi_Fk() %}
         <PointFF>{{ z }} {{ k }}</PointFF>
         {%- endfor %}
       </EvolutionFF>

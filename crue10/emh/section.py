@@ -106,6 +106,9 @@ class LoiFrottement:
         check_isinstance(value, float)
         self._loi_Fk[:, 1] += value
 
+    def get_loi_Fk(self):
+        return self._loi_Fk
+
     def get_loi_Fk_values(self):
         """
         :return: tableau de coefficients de Strickler fonction de la cote
@@ -528,7 +531,7 @@ class SectionProfil(Section):
                 bed_pos = np.logical_and(lit.xt_min < xt, xt <= lit.xt_max)
             else:
                 bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
-            coeff[bed_pos] = lit.loi_frottement.loi_Fk[:, 1].mean()
+            coeff[bed_pos] = lit.loi_frottement.get_loi_Fk_values.mean()
         return coeff
 
     def get_premier_lit_numerote(self, nom):
