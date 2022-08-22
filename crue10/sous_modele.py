@@ -860,7 +860,7 @@ class SousModele(EnsembleFichiersXML):
         self._write_dptg(folder)
         self._write_dcsp(folder)
 
-    def changer_grammaire(self, version_grammaire):
+    def changer_version_grammaire(self, version_grammaire):
         """
         Changer la version de la grammaire
 

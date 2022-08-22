@@ -303,16 +303,20 @@ class Etude(EnsembleFichiersXML):
         for _, scenario in self.scenarios.items():
             scenario.write_all(folder, folder_config)
 
-    def changer_grammaire(self, version_grammaire):
+    def changer_version_grammaire(self, version_grammaire):
         """
         Changer la version de grammaire
 
         :param version_grammaire: version cible de la grammaire
         :type version_grammaire: str
         """
-        super().changer_version_grammaire(version_grammaire)
         for scenario in self.get_liste_scenarios():
-            scenario.changer_grammaire(version_grammaire)
+            scenario.changer_version_grammaire(version_grammaire)
+        if self.version_grammaire == '1.2' and version_grammaire == '1.3':  # HARDCODED to support g1.2
+            # Add dreg files
+            for modele in self.get_liste_modeles():
+                self.filename_list.append(modele.files['dreg'])
+        super().changer_version_grammaire(version_grammaire)
 
     def add_files(self, file_list):
         for file in file_list:

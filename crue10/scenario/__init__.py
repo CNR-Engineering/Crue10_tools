@@ -844,15 +844,15 @@ class Scenario(EnsembleFichiersXML):
         if write_model:
             self.modele.write_all(folder, folder_config)
 
-    def changer_grammaire(self, version_grammaire):
+    def changer_version_grammaire(self, version_grammaire):
         """
         Changer la version de grammaire
 
         :param version_grammaire: version cible de la grammaire
         :type version_grammaire: str
         """
+        self.modele.changer_version_grammaire(version_grammaire)
         super().changer_version_grammaire(version_grammaire)
-        self.modele.changer_grammaire(version_grammaire)
 
     def normalize_for_10_2(self):  # HARDCODED to support g1.2.1 ?
         """

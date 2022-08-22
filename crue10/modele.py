@@ -11,8 +11,8 @@ from shapely.geometry import LineString, mapping, Point
 from crue10.base import EnsembleFichiersXML
 from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
 from crue10.emh.section import SectionProfil, LitNumerote
-from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
-    logger, PREFIX, write_default_xml_file, write_xml_from_tree
+from crue10.utils import check_isinstance, check_preffix, DATA_FOLDER_ABSPATH, duration_iso8601_to_seconds, \
+    duration_seconds_to_iso8601, get_xml_root_from_file, logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
 
@@ -676,21 +676,25 @@ class Modele(EnsembleFichiersXML):
         for sous_modele in self.liste_sous_modeles:
             sous_modele.write_all(folder, folder_config)
 
-    def changer_grammaire(self, version_grammaire):
+    def changer_version_grammaire(self, version_grammaire):
         """
         Changer la version de la grammaire
 
         :param version_grammaire: version de la grammaire cible
         :type version_grammaire: str
         """
-        super().changer_version_grammaire(version_grammaire)
-
         if version_grammaire == '1.3':  # HARDCODED to support g1.2
-            # Add dreg in self.xml_trees if missing (because is from grammar v1.2)
-            raise NotImplementedError  # TODO
+            if 'dreg' not in self.xml_trees:
+                # Add dreg in self.xml_trees if missing (because is from grammar v1.2)
+                xml_path = os.path.join(DATA_FOLDER_ABSPATH, version_grammaire, 'fichiers_vierges', 'default.dreg.xml')
+                root = get_xml_root_from_file(xml_path)
+                self.xml_trees['dreg'] = root
+                self.files['dreg'] = self.files['optr'][:-9] + '.dreg.xml'
 
         for sous_modele in self.liste_sous_modeles:
-            sous_modele.changer_grammaire(version_grammaire)
+            sous_modele.changer_version_grammaire(version_grammaire)
+
+        super().changer_version_grammaire(version_grammaire)
 
     def write_topological_graph(self, out_files, nodesep=0.8, prog='dot'):
         """

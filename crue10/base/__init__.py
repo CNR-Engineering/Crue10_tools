@@ -127,13 +127,13 @@ class EnsembleFichiersXML(ABC):
         :param version_grammaire: version de la grammaire cible
         :type version_grammaire: str
         """
-        self.set_version_grammaire(version_grammaire)
-
         # Change version_grammaire in all `FILES_WITHOUT_TEMPLATE`
         for xml_type, root in self.xml_trees.items():
             old_xsi = root.get(XSI_SCHEMA_LOCATION)
             new_xsi = old_xsi.replace('-%s.xsd' % self.version_grammaire, '-%s.xsd' % version_grammaire)
             root.set(XSI_SCHEMA_LOCATION, new_xsi)
+
+        self.set_version_grammaire(version_grammaire)
 
     def set_comment(self, comment):
         """Définir le commentaire"""
