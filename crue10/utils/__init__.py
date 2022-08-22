@@ -16,9 +16,7 @@ from crue10.utils.settings import XML_ENCODING
 
 DATA_FOLDER_ABSPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data')
 
-XML_DEFAULT_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'default')
-
-XML_TEMPLATES_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'templates')
+XML_DEFAULT_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'fichiers_vierges')
 
 XSD_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'xsd')
 
@@ -179,7 +177,7 @@ def write_xml_from_tree(xml_tree, file_path):
         out_xml.write(text)
 
 
-JINJA_ENV = Environment(loader=FileSystemLoader(XML_TEMPLATES_FOLDER))
+JINJA_ENV = Environment(loader=FileSystemLoader(os.path.join(DATA_FOLDER_ABSPATH)))
 JINJA_ENV.filters = {
     'float2str': float2str,
     'abs': abs,

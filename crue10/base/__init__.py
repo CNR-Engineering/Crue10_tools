@@ -185,7 +185,7 @@ class EnsembleFichiersXML(ABC):
             self.xml_trees[xml_type] = root
 
     def _write_xml_file(self, xml, folder, **kwargs):
-        template_path = self.version_grammaire + '/' + xml + '.xml'  # os.path.join not working on Windows
+        template_path = self.version_grammaire + '/templates/' + xml + '.xml'  # os.path.join not working on Windows
         template_render = JINJA_ENV.get_template(template_path).render(
             comment=self.comments[xml],
             **kwargs
