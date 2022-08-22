@@ -561,7 +561,7 @@ class BrancheBarrageFilEau(Branche):
         :type loi_QpilZam: 2D-array
         """
         check_isinstance(loi_QpilZam, np.ndarray)
-        check_2d_array_shape(1, 2)
+        check_2d_array_shape(loi_QpilZam, 1, 2)
         if any(x >= y for x, y in zip(loi_QpilZam[:, 0], loi_QpilZam[1:, 0])):
             raise ExceptionCrue10("Les valeurs de Q ne sont pas strictement croissantes")  # TODO: strictement ou pas dans FC?
         self.loi_QpilZam = loi_QpilZam
