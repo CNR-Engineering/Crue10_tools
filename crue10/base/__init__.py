@@ -6,8 +6,8 @@ from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
 
-from crue10.utils import add_default_missing_metadata, ExceptionCrue10, ExceptionCrue10Grammar, JINJA_ENV, \
-    get_xml_root_from_file, logger, PREFIX, XSD_FOLDER, XSI_SCHEMA_LOCATION
+from crue10.utils import add_default_missing_metadata, DATA_FOLDER_ABSPATH, ExceptionCrue10, \
+    ExceptionCrue10Grammar, JINJA_ENV, get_xml_root_from_file, logger, PREFIX, XSI_SCHEMA_LOCATION
 from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE, VERSION_GRAMMAIRE_PRECEDENTE, XML_ENCODING
 
 
@@ -200,7 +200,7 @@ class EnsembleFichiersXML(ABC):
         file_splitted = file_path.split('.')
         if len(file_splitted) > 2:
             xml_type = file_splitted[-2]
-            xsd_tree = etree.parse(os.path.join(XSD_FOLDER, self.version_grammaire,
+            xsd_tree = etree.parse(os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
                                                 '%s-%s.xsd' % (xml_type, self.version_grammaire)))
 
             with open(file_path, 'r', encoding=XML_ENCODING) as in_xml:

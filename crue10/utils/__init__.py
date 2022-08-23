@@ -16,10 +16,6 @@ from crue10.utils.settings import XML_ENCODING
 
 DATA_FOLDER_ABSPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data')
 
-XML_DEFAULT_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'fichiers_vierges')
-
-XSD_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'xsd')
-
 try:
     USERNAME = os.getlogin()
 except:
@@ -133,7 +129,8 @@ def parse_loi(elt, group='EvolutionFF', line='PointFF'):
 
 
 def write_default_xml_file(xml_type, version_grammaire, file_path):
-    shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, version_grammaire, xml_type + '.xml'), file_path)
+    shutil.copyfile(os.path.join(DATA_FOLDER_ABSPATH, version_grammaire, 'fichiers_vierges',
+                                 'default.%s.xml' % xml_type), file_path)
 
 
 def get_xml_root_from_file(file_path):
