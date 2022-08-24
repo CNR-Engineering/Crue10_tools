@@ -42,26 +42,26 @@ try:
     # Read rcal result file
     scenario = etude.get_scenario('Sc_EtatsRef2015')
     run = scenario.get_last_run()
-    results = run.get_results()
-    print(results.summary())
+    resultats = run.get_resultats_calcul()
+    print(resultats.summary())
 
     # Check result consistency
-    missing_sections = modele.get_missing_active_sections(results.emh['Section'])
+    missing_sections = modele.get_missing_active_sections(resultats.emh['Section'])
     if missing_sections:
         print("Missing sections:\n%s" % missing_sections)
 
     # Read a single *steady* calculation
-    res_perm = results.get_res_steady('Cc_360m3-s')
+    res_perm = resultats.get_res_steady('Cc_360m3-s')
     res = res_perm['Section']
 
     # Export a longitudinal profile between 2 nodes in CSV
     branches = modele.get_liste_branches_entre_deux_noeuds('Nd_CAF4.000', 'Nd_RET33.700')
-    df_res = results.get_res_steady_at_sections_along_branches_as_dataframe('Cc_360m3-s', branches, VARIABLES)
+    df_res = resultats.get_res_steady_at_sections_along_branches_as_dataframe('Cc_360m3-s', branches, VARIABLES)
     df_res.to_csv('../tmp/LE.csv', sep=CSV_DELIMITER)
 
     # Subset results to get requested variables at active sections
-    pos_variables = [results.variables['Section'].index(var) for var in VARIABLES]
-    pos_sections = [results.emh['Section'].index(section_name) for section_name in bottom.keys()]
+    pos_variables = [resultats.variables['Section'].index(var) for var in VARIABLES]
+    pos_sections = [resultats.emh['Section'].index(section_name) for section_name in bottom.keys()]
     array = res[pos_sections, :][:, pos_variables]
 
     # Correct some variables (transversal profile)

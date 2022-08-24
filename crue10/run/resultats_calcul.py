@@ -300,12 +300,12 @@ class ResultatsCalcul:
         except ValueError:
             raise ExceptionCrue10("L'EMH `%s` n'est pas dans la liste des %s" % (emh_name, emh_type.lower()))
 
-    def get_calc_steady(self, calc_name):
+    def get_res_calc_pseudoperm(self, calc_name):
         """
         Obtenir le calcul pseudo-permanent demandé
 
         :param calc_name: nom du calcul
-        :rtype: CalcPseudoPerm
+        :rtype: ResCalcPseudoPerm
         """
         try:
             return self.res_calc_pseudoperm[calc_name]
@@ -316,12 +316,12 @@ class ResultatsCalcul:
             else:
                 raise ExceptionCrue10("Calcul permanent `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
 
-    def get_calc_unsteady(self, calc_name):
+    def get_res_calc_trans(self, calc_name):
         """
         Obtenir le calcul transitoire demandé
 
         :param calc_name: nom du calcul
-        :rtype: CalcTrans
+        :rtype: ResCalcTrans
         """
         try:
             return self.res_calc_trans[calc_name]
@@ -349,7 +349,7 @@ class ResultatsCalcul:
         :param calc_name: nom du calcul
         :return: dict(np.ndarray)
         """
-        calc = self.get_calc_steady(calc_name)
+        calc = self.get_res_calc_pseudoperm(calc_name)
         return calc.file_pos.get_data(self._res_pattern, True, self._emh_type_first_branche)
 
     def get_res_steady_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None):
@@ -407,7 +407,7 @@ class ResultatsCalcul:
 
     def get_res_unsteady_max_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None,
                                                                      start_time=-float('inf'), end_time=float('inf')):
-        time = self.get_calc_unsteady(calc_name).time_serie()
+        time = self.get_res_calc_trans(calc_name).time_serie()
         res = self.get_res_unsteady(calc_name)['Section']
         res_trans = np.max(res[np.logical_and(start_time <= time, time <= end_time), :, :], axis=0)
 
@@ -442,7 +442,7 @@ class ResultatsCalcul:
         :param calc_name: nom du calcul
         :return: dict(np.ndarray)
         """
-        calc = self.get_calc_unsteady(calc_name)
+        calc = self.get_res_calc_trans(calc_name)
 
         # Append arrays
         res_all = {}
@@ -485,7 +485,7 @@ class ResultatsCalcul:
         :return: tableau des résultats avec un pas de temps par ligne.
         :rtype: 2D-array
         """
-        calc = self.get_calc_unsteady(calc_name)
+        calc = self.get_res_calc_trans(calc_name)
         values = np.empty((len(calc.frame_list), len(emh_list)))
 
         emh_types = []
@@ -541,7 +541,7 @@ class ResultatsCalcul:
                 res = self.get_res_unsteady(calc_name)
                 for emh_type in self.emh_types:
                     variables = self.variables[emh_type]
-                    for time_sec, res_frame in zip(self.get_calc_unsteady(calc_name).time_serie(), res[emh_type]):
+                    for time_sec, res_frame in zip(self.get_res_calc_trans(calc_name).time_serie(), res[emh_type]):
                         for emh_name, row in zip(self.emh[emh_type], res_frame):
                             for variable, value in zip(variables, row):
                                 csv_writer.writerow({'calc': calc_name,
@@ -559,7 +559,7 @@ class ResultatsCalcul:
         - returns: tableau des valeurs des pas de temps [s].
         """
         values = []
-        for date in self.get_calc_unsteady(cal_name).time_serie():  # Parcours des pas de temps
+        for date in self.get_res_calc_trans(cal_name).time_serie():  # Parcours des pas de temps
             values.append(date)
         return values
 

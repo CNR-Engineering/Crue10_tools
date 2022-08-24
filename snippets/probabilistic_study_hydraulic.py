@@ -156,8 +156,8 @@ if __name__ == '__main__':
             # Check that run does not contains errors
             if run.nb_erreurs_bloquantes() == 0:
                 df_all.at[run.id, 'has_errors'] = False
-                results = run.get_results()
-                values = results.get_res_all_steady_var_at_emhs('Z', nom_sections)[IDX_CALC]
+                resultats = run.get_resultats_calcul()
+                values = resultats.get_res_all_steady_var_at_emhs('Z', nom_sections)[IDX_CALC]
                 for i, nom_section in enumerate(nom_sections):
                     df_all.at[run.id, 'Z_' + nom_section] = values[i]
 

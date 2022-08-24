@@ -297,9 +297,9 @@ class Run:
         """A des traces de calculs"""
         return len(self.traces['c']) != 0
 
-    def get_results(self):
+    def get_resultats_calcul(self):
         """
-        Obtenir une instance RunResults pour post-traiter les résultats du Run.
+        Obtenir une instance ResultatsCalcul pour post-traiter les résultats de calcul du Run.
         Il faut que le Run contiennent des résultats (même partiels) du service de calcul.
 
         :rtype: ResultatsCalcul

@@ -5,9 +5,10 @@ Journal des modifications
 
 ### Nouveautés
 - Support en lecture/écriture des grammaires v1.2 et v1.3 :
-    * Ajout de 2 variables utilisateurs : `VERSION_GRAMMAIRE_PRECEDENTE` et `VERSION_GRAMMAIRE_COURANTE`
-- Vérification de la dimension/taille des array 2D pour les méthodes de type set
-- Ajout de tests unitaires
+    * ajout de 2 variables utilisateurs : `VERSION_GRAMMAIRE_PRECEDENTE` et `VERSION_GRAMMAIRE_COURANTE`
+    * possibilité de changer de grammaire avec `changer_version_grammaire`
+- Vérification de la dimension/taille des array 2D pour les méthodes de type "set"
+- Ajout de tests unitaires (dans `crue10\tests`)
 
 Détails :
 * Les grammaires doivent être identiques en lecture pour chaque Etude/Scenario/Modele/SousModele (plantage sinon)
@@ -24,19 +25,22 @@ Détails :
             * [MAJEUR] l'attribut `loi_QZam` devient `loi_QpilZam`
             * [MAJEUR] l'attribut `liste_elements_seuil` devient `liste_elements_barrage`
             * [MAJEUR] la méthode `set_loi_QZam` devient `set_loi_QpilZam`
-            `liste_elements_barrage`
+    * `crue10.modele.Modele` :
+        * [MAJEUR] la méthode `get_branches_liste_entre_noeuds` devient `get_liste_branches_entre_deux_noeuds`
+    * `crue10.run` :
+        * [MAJEUR] la méthode `get_results` devient `get_resultats_calcul` (en prévision de l'ajout des résultats du pré-traitement géométrique)
+    * `crue10.run.results` devient `crue10.run.resultats_calcul` :
+        * la classe `RunResults` devient `ResultatsCalcul`
+        * [MAJEUR] la méthode `get_calc_steady` devient `get_res_calc_pseudoperm`
+        * [MAJEUR] la méthode `get_calc_unsteady` devient `get_res_calc_trans`
+        * la méthode `CalcPseudoPerm` devient `ResCalcPseudoPerm` (pour éviter le conflit avec `crue10.scenario.calcul`)
+        * la méthode `CalcTrans` devient `ResCalcTrans` (pour éviter le conflit avec `crue10.scenario.calcul`)
     * `crue10.scenario.Scenario` :
         * [MAJEUR] la méthode `get_last_run` devient `get_dernier_run`
         * la méthode `add_run` devient `ajouter_run`
         * l'attribut `current_run_id` devient `nom_run_courant`
         * la méthode `set_current_run_id` devient `set_run_courant`
         * la méthode `get_liste_run_ids` devient `get_liste_noms_runs`
-    * `crue10.modele.Modele` :
-        * [MAJEUR] la méthode `get_branches_liste_entre_noeuds` devient `get_liste_branches_entre_deux_noeuds`
-    * `crue10.run.results` devient `crue10.run.resultats` :
-        * la classe `RunResults` devient `ResultatsCalcul`
-        * la méthode `CalcPseudoPerm` devient `ResCalcPseudoPerm` (pour éviter le conflit avec `crue10.scenario.calcul`)
-        * la méthode `CalcTrans` devient `ResCalcTrans` (pour éviter le conflit avec `crue10.scenario.calcul`)
 
 ### Corrections
 - `crue10.etude.Etude._read_etu` : génère une exception `ExceptionCrue10` au lieu d'une `PermissionError` s'il s'agit d'un

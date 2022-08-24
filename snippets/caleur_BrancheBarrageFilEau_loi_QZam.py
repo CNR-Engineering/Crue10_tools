@@ -119,17 +119,17 @@ while True:
         if run.nb_erreurs() > 0:
             logger.error(run.get_all_traces(gravite_min='ERRNBLK'))
             raise ExceptionCrue10("Erreur bloquante pour le %s" % run)
-        results = run.get_results()
-        logger.info(results)
+        resultats = run.get_resultats_calcul()
+        logger.info(resultats)
 
     except ExceptionCrue10 as e:
         logger.critical(e)
         break
 
-    z_PR1, z_PR2, z_barrage = results.get_res_all_steady_var_at_emhs('Z',
-                                                                     [section_PR1, section_PR2, section_barrage]).T
-    regime_barrage = results.get_res_all_steady_var_at_emhs('RegimeBarrage', [branche_barrage.id])[:, 0]
-    q_pilote = results.get_res_all_steady_var_at_emhs('Q', [section_pilote])[:, 0]
+    z_PR1, z_PR2, z_barrage = resultats.get_res_all_steady_var_at_emhs(
+        'Z', [section_PR1, section_PR2, section_barrage]).T
+    regime_barrage = resultats.get_res_all_steady_var_at_emhs('RegimeBarrage', [branche_barrage.id])[:, 0]
+    q_pilote = resultats.get_res_all_steady_var_at_emhs('Q', [section_pilote])[:, 0]
 
     # Résultat
     z_res_at_PR = z_PR1

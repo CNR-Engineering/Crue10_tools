@@ -127,15 +127,15 @@ while True:
         if run.nb_erreurs() > 0:
             logger.error(run.get_all_traces_above_warn())
             raise ExceptionCrue10("Erreur bloquante pour le %s" % run)
-        results = run.get_results()
-        logger.info(results)
+        resultats = run.get_resultats_calcul()
+        logger.info(resultats)
 
     except ExceptionCrue10 as e:
         logger.critical(e)
         break
 
-    z_PR1, z_PR2, z_barrage = results.get_res_all_steady_var_at_emhs('Z',
-                                                                     [section_PR1, section_PR2, section_amont_barrage]).T
+    z_PR1, z_PR2, z_barrage = resultats.get_res_all_steady_var_at_emhs(
+        'Z', [section_PR1, section_PR2, section_amont_barrage]).T
 
     # Résultat
     z_res_at_PR = z_PR1

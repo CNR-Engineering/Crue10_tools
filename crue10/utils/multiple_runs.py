@@ -92,8 +92,8 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
 
                         # Get nb_calc_perm
                         try:
-                            results = run.get_results()
-                            values['nb_calc_perm'] = len(results.res_calc_pseudoperm)
+                            resultats = run.get_resultats_calcul()
+                            values['nb_calc_perm'] = len(resultats.res_calc_pseudoperm)
                         except IOError as e:
                             logger.warning("Aucun résultat trouvé (fichier rcal manquant) pour le Run #%s" % run_id)
                             values['nb_calc_perm'] = 0
@@ -165,12 +165,12 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         run = scenario.get_run(row['run_id'])
         logger.info(run)
         try:
-            results = run.get_results()
+            resultats = run.get_resultats_calcul()
         except IOError as e:
             logger.error("Un fichier de sortie du Run `%s` manque: %s" % (run.id, e))
             continue
         key = (scenario.id, row['exe_id'])
-        res_perm_curr = results.get_res_all_steady_var_at_emhs(variable, results.emh[emh_type])
+        res_perm_curr = resultats.get_res_all_steady_var_at_emhs(variable, resultats.emh[emh_type])
         res_perm[key] = res_perm_curr
 
         # Get reference results to compute differences
@@ -194,11 +194,11 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         diff = res_perm_curr - res_perm_ref
         diff_abs = np.abs(diff)
 
-        nb_calc_perm = len(results.res_calc_pseudoperm)
+        nb_calc_perm = len(resultats.res_calc_pseudoperm)
         if out_csv_diff_by_calc is not None and row['exe_id'] == 'qualif':
             df_diff = pd.DataFrame({
-                'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int) + 1, diff.shape[1]),
-                'emh': results.emh[emh_type] * diff.shape[0],
+                'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int64) + 1, diff.shape[1]),
+                'emh': resultats.emh[emh_type] * diff.shape[0],
                 'diff': diff.flatten()
             })
             df_diff.to_csv(out_csv_diff_by_calc % etude_dossier, sep=';', index=False)
