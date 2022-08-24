@@ -22,9 +22,9 @@ try:
     logger.info(run)
 
     results = run.get_results()
-    # It is also possible to avoid using the Etude instance, in providing the path rcal to RunResults:
-    # from crue10.results import RunResults
-    # results = RunResults(os.path.join(etu_folder, 'Runs', 'Sc_EtatsRef2015', 'R2019-04-16-14h09m19s',
+    # It is also possible to avoid using the Etude instance, in providing the path rcal to ResultatsCalcul:
+    # from crue10.results import ResultatsCalcul
+    # results = ResultatsCalcul(os.path.join(etu_folder, 'Runs', 'Sc_EtatsRef2015', 'R2019-04-16-14h09m19s',
     #                                   'Mo_VS2013_c10_octobre_2014', 'VS2013_c10_EtatsRef.rcal.xml'))
     print(results.summary())
 

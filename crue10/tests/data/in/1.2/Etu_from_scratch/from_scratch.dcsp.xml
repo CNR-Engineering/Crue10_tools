@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<DCSP xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dcsp-1.3.xsd">
+<DCSP xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dcsp-1.2.xsd">
   <Commentaire></Commentaire>
   <DonCalcSansPrtBranches>
     <DonCalcSansPrtBranchePdc NomRef="Br_1-PdC">
@@ -79,18 +79,17 @@
     <DonCalcSansPrtBrancheBarrageFilEau NomRef="Br_15-BarrageFilEau">
       <QLimInf>-1.0E30</QLimInf>
       <QLimSup>1.0E30</QLimSup>
-      <ElemBarrage>
+      <ElemSeuil>
         <Largeur>1.0</Largeur>
         <Zseuil>0.0</Zseuil>
-        <CoefNoy>1.0</CoefNoy>
-        <CoefDen>1.0</CoefDen>
-      </ElemBarrage>
-      <RegimeManoeuvrant Nom="LoiQpilZam_15-BarrageFilEau" Type="LoiQpilZam">
+        <CoefD>1.0</CoefD>
+      </ElemSeuil>
+      <RegimeDenoye Nom="LoiQpilZam_15-BarrageFilEau" Type="LoiQpilZam">
         <Commentaire></Commentaire>
         <EvolutionFF>
           <PointFF>0.0 -15.0</PointFF>
         </EvolutionFF>
-      </RegimeManoeuvrant>
+      </RegimeDenoye>
     </DonCalcSansPrtBrancheBarrageFilEau>
     <DonCalcSansPrtBrancheSaintVenant NomRef="Br_20-SaintVenant">
       <CoefBeta>1.0</CoefBeta>

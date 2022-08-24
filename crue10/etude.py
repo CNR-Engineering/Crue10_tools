@@ -12,6 +12,7 @@ from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
 from crue10.utils import check_isinstance, ExceptionCrue10, logger, PREFIX
+from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE
 
 
 def read_metadata(elt, keys):
@@ -369,20 +370,30 @@ class Etude(EnsembleFichiersXML):
         self.ajouter_modele(scenario.modele)
         self.scenarios[scenario.id] = scenario
 
-    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, comment=''):
+    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None,
+                              version_grammaire=VERSION_GRAMMAIRE_COURANTE, comment=''):
         """
         Créer scénario vierge (avec son modèle et sous-modèle associé)
 
         :param nom_scenario: nom du scénario
+        :type nom_scenario: str
         :param nom_modele: nom du modèle
+        :type nom_modele: str
         :param nom_sous_modele: nom du sous-modèle (optionnel)
+        :type nom_sous_modele: str
+        :param version_grammaire: version de la grammaire
+        :type version_grammaire: str
         :param comment: commentaire (optionnel)
+        :type comment: str
         """
-        modele = Modele(nom_modele, mode=self.mode, metadata={'Commentaire': comment})
+        modele = Modele(nom_modele, mode=self.mode, metadata={'Commentaire': comment},
+                        version_grammaire=version_grammaire)
         if nom_sous_modele is not None:
-            sous_modele = SousModele(nom_sous_modele, mode=self.mode, metadata={'Commentaire': comment})
+            sous_modele = SousModele(nom_sous_modele, mode=self.mode, metadata={'Commentaire': comment},
+                                     version_grammaire=version_grammaire)
             modele.ajouter_sous_modele(sous_modele)
-        scenario = Scenario(nom_scenario, modele, mode=self.mode, metadata={'Commentaire': comment})
+        scenario = Scenario(nom_scenario, modele, mode=self.mode, metadata={'Commentaire': comment},
+                            version_grammaire=version_grammaire)
         self.ajouter_scenario(scenario)
         if not self.nom_scenario_courant:
             self.nom_scenario_courant = scenario.id
