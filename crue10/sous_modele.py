@@ -605,9 +605,12 @@ class SousModele(EnsembleFichiersXML):
                         else:
                             branche.liste_elements_barrage = parse_elem_seuil(emh, 'ElemBarrage',
                                                                               ['CoefNoy', 'CoefDen'])
-                        regime_denoye_elt = emh.find(PREFIX + 'RegimeDenoye')
-                        branche.set_loi_QpilZam(parse_loi(regime_denoye_elt))
-                        branche.comment_denoye = get_optional_commentaire(regime_denoye_elt)
+                        if self.version_grammaire == '1.2':  # HARDCODED to support g1.2
+                            regime_manoeuvrant_elt = emh.find(PREFIX + 'RegimeDenoye')
+                        else:
+                            regime_manoeuvrant_elt = emh.find(PREFIX + 'RegimeManoeuvrant')
+                        branche.set_loi_QpilZam(parse_loi(regime_manoeuvrant_elt))
+                        branche.comment_denoye = get_optional_commentaire(regime_manoeuvrant_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSaintVenant':
                         branche.CoefBeta = float(emh.find(PREFIX + 'CoefBeta').text)
