@@ -1,0 +1,561 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<RPTG xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/rptg-1.2.xsd">
+
+  <!--Le fichier RPTG est le fichier de rÃ©sultat du prétraitement géométrique. Son périmètre est le modèle-->
+
+  <Commentaire>Commentaire RPTG</Commentaire>
+
+  <!--Paramétrage-->
+
+  <Parametrage>
+    <!--NbrOctetMot définit le nombre d'octets de chaque mot, entité atomique d'information.-->
+    <NbrOctetMot>8</NbrOctetMot>
+    <!--Valeurs des délimiteurs des sections de données, dans le fichier binaire (chaîne de longueur NbrOctetMot.-->
+    <Delimiteur Chaine="    Rptg" Nom="ResPrtGeo"/>
+    <Delimiteur Chaine="   Noeud" Nom="CatEMHNoeud"/>
+    <Delimiteur Chaine="  Casier" Nom="CatEMHCasier"/>
+    <Delimiteur Chaine=" Section" Nom="CatEMHSection"/>
+    <Delimiteur Chaine=" Branche" Nom="CatEMHBranche"/>
+  </Parametrage>
+
+  <!--Contexte de la simulation.-->
+
+  <ContexteSimulation>
+    <!--Date de lancement du calcul hydrodynamique-->
+    <DateSimulation>2022-08-24T14:53:46.300</DateSimulation>
+    <!--Version de l'exécutable Crue10 générant ce fichier RPTG.-->
+    <VersionCrue>10.3.5</VersionCrue>
+    <Etude>Etu3-6.etu.xml</Etude>
+    <Scenario NomRef="Sc_M3-6_c10"/>
+    <Run NomRef="R2022-08-24-14h53m44"/>
+    <Modele NomRef="Mo_M3-6_c10"/>
+  </ContexteSimulation>
+
+  <!--Structure des résultats.
+ La taille est exprimée en nombre de mots (nombre de flottants) : la taille en octets s'obteint en utilisant la donnÃ©e NbrOctetMot ci-dessus.-->
+
+  <StructureResultat NbrMot="24267">
+    <Noeuds NbrMot="1">
+      <NoeudNiveauContinu NbrMot="0">
+        <Noeud NbrMot="0" NomRef="Nd_N1"/>
+        <Noeud NbrMot="0" NomRef="Nd_N2"/>
+        <Noeud NbrMot="0" NomRef="Nd_N3"/>
+        <Noeud NbrMot="0" NomRef="Nd_N4"/>
+        <Noeud NbrMot="0" NomRef="Nd_N5"/>
+        <Noeud NbrMot="0" NomRef="Nd_N6"/>
+        <Noeud NbrMot="0" NomRef="Nd_N7"/>
+      </NoeudNiveauContinu>
+    </Noeuds>
+    <Casiers NbrMot="413">
+      <VariableRes NomRef="Zhaut"/>
+      <VariableRes NomRef="Zf"/>
+      <VariableResLoi NomRef="LoiZSplan"/>
+      <VariableResLoi NomRef="LoiZVol"/>
+      <CasierProfil NbrMot="412">
+        <Casier NbrMot="206" NomRef="Ca_N6">
+          <VariableResLoiNbrPt NomRef="LoiZSplan">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZVol">51</VariableResLoiNbrPt>
+        </Casier>
+        <Casier NbrMot="206" NomRef="Ca_N7">
+          <VariableResLoiNbrPt NomRef="LoiZSplan">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZVol">51</VariableResLoiNbrPt>
+        </Casier>
+      </CasierProfil>
+    </Casiers>
+    <Sections NbrMot="23851">
+      <VariableRes NomRef="CoefSinuo"/>
+      <SectionIdem NbrMot="2212">
+        <VariableRes NomRef="FenteTxD"/>
+        <VariableRes NomRef="FenteTxS"/>
+        <VariableRes NomRef="NumLitZf"/>
+        <VariableRes NomRef="Zf"/>
+        <VariableRes NomRef="Zhaut"/>
+        <VariableResLoi NomRef="LstLitKsup"/>
+        <VariableResLoi NomRef="LstLitLinf"/>
+        <VariableResLoi NomRef="LstLitLsup"/>
+        <VariableResLoi NomRef="LstLitPosBordure"/>
+        <VariableResLoi NomRef="LstLitPsup"/>
+        <VariableResLoi NomRef="LstLitSsup"/>
+        <VariableResLoi NomRef="LstLitTypeLit"/>
+        <VariableResLoi NomRef="LstLitZf"/>
+        <VariableResLoi NomRef="LoiZBeta"/>
+        <VariableResLoi NomRef="LoiZDact"/>
+        <VariableResLoi NomRef="LoiZLmin"/>
+        <VariableResLoi NomRef="LoiZLact"/>
+        <VariableResLoi NomRef="LoiZLsto"/>
+        <VariableResLoi NomRef="LoiZLcont"/>
+        <VariableResLoi NomRef="LoiZLtot"/>
+        <VariableResLoi NomRef="LoiZPact"/>
+        <VariableResLoi NomRef="LoiZSmin"/>
+        <VariableResLoi NomRef="LoiZSact"/>
+        <Section NbrMot="1106" NomRef="St_PROF3AM">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF6B">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+      </SectionIdem>
+      <SectionInterpolee NbrMot="6150">
+        <VariableRes NomRef="FenteTxD"/>
+        <VariableRes NomRef="FenteTxS"/>
+        <VariableRes NomRef="Zf"/>
+        <VariableRes NomRef="Zhaut"/>
+        <VariableResLoi NomRef="LoiZBeta"/>
+        <VariableResLoi NomRef="LoiZDact"/>
+        <VariableResLoi NomRef="LoiZLmin"/>
+        <VariableResLoi NomRef="LoiZLact"/>
+        <VariableResLoi NomRef="LoiZLsto"/>
+        <VariableResLoi NomRef="LoiZLcont"/>
+        <VariableResLoi NomRef="LoiZLtot"/>
+        <VariableResLoi NomRef="LoiZPact"/>
+        <VariableResLoi NomRef="LoiZSmin"/>
+        <VariableResLoi NomRef="LoiZSact"/>
+        <Section NbrMot="1025" NomRef="St_B1_00050">
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1025" NomRef="St_B1_00150">
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1025" NomRef="St_B1_00250">
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1025" NomRef="St_B1_00350">
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1025" NomRef="St_B1_00450">
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1025" NomRef="St_PROF5">
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+      </SectionInterpolee>
+      <SectionProfil NbrMot="15484">
+        <VariableRes NomRef="FenteTxD"/>
+        <VariableRes NomRef="FenteTxS"/>
+        <VariableRes NomRef="NumLitZf"/>
+        <VariableRes NomRef="Zf"/>
+        <VariableRes NomRef="Zhaut"/>
+        <VariableResLoi NomRef="LstLitKsup"/>
+        <VariableResLoi NomRef="LstLitLinf"/>
+        <VariableResLoi NomRef="LstLitLsup"/>
+        <VariableResLoi NomRef="LstLitPosBordure"/>
+        <VariableResLoi NomRef="LstLitPsup"/>
+        <VariableResLoi NomRef="LstLitSsup"/>
+        <VariableResLoi NomRef="LstLitTypeLit"/>
+        <VariableResLoi NomRef="LstLitZf"/>
+        <VariableResLoi NomRef="LoiZBeta"/>
+        <VariableResLoi NomRef="LoiZDact"/>
+        <VariableResLoi NomRef="LoiZLmin"/>
+        <VariableResLoi NomRef="LoiZLact"/>
+        <VariableResLoi NomRef="LoiZLsto"/>
+        <VariableResLoi NomRef="LoiZLcont"/>
+        <VariableResLoi NomRef="LoiZLtot"/>
+        <VariableResLoi NomRef="LoiZPact"/>
+        <VariableResLoi NomRef="LoiZSmin"/>
+        <VariableResLoi NomRef="LoiZSact"/>
+        <Section NbrMot="1106" NomRef="St_PROF1">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF10">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF2">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF3A">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF3AV">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF3B">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF4">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF6A">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF7">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF8">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROF9">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROFSTR1">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_PROFSTR2">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+        <Section NbrMot="1106" NomRef="St_Prof11">
+          <VariableResLoiNbrPt NomRef="LstLitKsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLinf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitLsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPosBordure">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitPsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitSsup">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitTypeLit">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LstLitZf">5</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZBeta">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZDact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLsto">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLcont">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZLtot">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZPact">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSmin">51</VariableResLoiNbrPt>
+          <VariableResLoiNbrPt NomRef="LoiZSact">51</VariableResLoiNbrPt>
+        </Section>
+      </SectionProfil>
+      <SectionSansGeometrie NbrMot="4">
+        <Section NbrMot="1" NomRef="St_B5_Am"/>
+        <Section NbrMot="1" NomRef="St_B5_Av"/>
+        <Section NbrMot="1" NomRef="St_B8_Am"/>
+        <Section NbrMot="1" NomRef="St_B8_Av"/>
+      </SectionSansGeometrie>
+    </Sections>
+    <Branches NbrMot="1">
+      <BrancheBarrageFilEau NbrMot="0"/>
+      <BrancheBarrageGenerique NbrMot="0"/>
+      <BrancheNiveauxAssocies NbrMot="0"/>
+      <BrancheOrifice NbrMot="0">
+        <Branche NbrMot="0" NomRef="Br_B8"/>
+      </BrancheOrifice>
+      <BranchePdc NbrMot="0"/>
+      <BrancheSaintVenant NbrMot="0">
+        <Branche NbrMot="0" NomRef="Br_B1"/>
+        <Branche NbrMot="0" NomRef="Br_B2"/>
+        <Branche NbrMot="0" NomRef="Br_B4"/>
+      </BrancheSaintVenant>
+      <BrancheSeuilLateral NbrMot="0">
+        <Branche NbrMot="0" NomRef="Br_B5"/>
+      </BrancheSeuilLateral>
+      <BrancheSeuilTransversal NbrMot="0">
+        <Branche NbrMot="0" NomRef="Br_B3"/>
+      </BrancheSeuilTransversal>
+      <BrancheStrickler NbrMot="0">
+        <Branche NbrMot="0" NomRef="Br_B6"/>
+      </BrancheStrickler>
+    </Branches>
+  </StructureResultat>
+
+  <ResPrtGeos>
+    <ResPrtGeo Href="M3-6_c10.rptg_0001.bin" OffsetMot="0"/>
+  </ResPrtGeos>
+
+</RPTG>
