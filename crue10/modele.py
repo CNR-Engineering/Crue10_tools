@@ -622,13 +622,13 @@ class Modele(EnsembleFichiersXML):
                         self.branches_ic[branche_id]['type'] = 20
                         self.branches_ic[branche_id]['values']['Qruis'] = float(emh_ci.find(PREFIX + 'Qruis').text)
 
-    def read_all(self):
+    def read_all(self, ignore_shp=False):
         """
         Lire tous les fichiers du modèle
         """
         if not self.was_read:
             for sous_modele in self.liste_sous_modeles:
-                sous_modele.read_all()
+                sous_modele.read_all(ignore_shp=ignore_shp)
 
             self._read_dpti()
             self._set_xml_trees()  # should be after read_dpi to set version_grmamaire and check if dreg is expected

@@ -367,32 +367,6 @@ class Scenario(EnsembleFichiersXML):
             raise ExceptionCrue10("Le Run '%s' n'existe pas" % run_id)
         self.nom_run_courant = run_id
 
-    def set_ocal_OrdCalcTrans_DureeCalc(self, calc_name, value):
-        """
-        Affecter la durée fournie pour le calcul transitoire demandé
-
-        :param calc_name: nom du calcul transitoire
-        :type calc_name: str
-        :param value: durée (en secondes)
-        :type value: float
-        """
-        check_isinstance(value, float)
-        elt = self._get_ocal_OrdCalcTrans(calc_name).find(PREFIX + 'DureeCalc')
-        elt.text = duration_seconds_to_iso8601(value)
-
-    def set_ocal_OrdCalcTrans_PdtCst(self, calc_name, value):
-        """
-        Affecter le pas de temps de sortie fourni pour le calcul transitoire demandé
-
-        :param calc_name: nom du calcul transitoire
-        :type calc_name: str
-        :param value: pas de temps (en secondes)
-        :type value: float
-        """
-        check_isinstance(value, float)
-        elt = self._get_ocal_OrdCalcTrans(calc_name).find(PREFIX + 'PdtRes').find(PREFIX + 'PdtCst')
-        elt.text = duration_seconds_to_iso8601(value)
-
     def apply_modifications(self, modifications):
         """
         Modifie le scénario courant à partir d'un dictionnaire décrivant les modifications

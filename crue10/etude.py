@@ -257,11 +257,11 @@ class Etude(EnsembleFichiersXML):
         if not self.scenarios:
             raise ExceptionCrue10("Il faut au moins un scénario !")
 
-    def read_all(self):
+    def read_all(self, ignore_shp=False):
         """Lire tous les fichiers de l'étude"""
         # self._read_etu() is done in `__init__` method
         for _, scenario in self.scenarios.items():
-            scenario.read_all()
+            scenario.read_all(ignore_shp=ignore_shp)
 
     def move(self, folder):
         self.files['etu'] = os.path.join(folder, os.path.basename(self.etu_path))
