@@ -145,9 +145,9 @@ class ResCalcTrans:
         return "Calcul non permanent #%s (%i temps)" % (self.name, len(self.frame_list))
 
 
-class RunResults:
+class ResultatsCalcul:
     """
-    Données résultats d'un Run
+    Données résultats de calcul d'un Run
 
     :ivar rcal_root: racine de l'élément XML rcal
     :vartype rcal_root: ET.etree._Element
@@ -275,7 +275,7 @@ class RunResults:
             emh_types_with_res.append(emh_type)
             self._res_pattern.append((emh_type, (len(self.emh[emh_type]), len(self.variables[emh_type]))))
         # Add emh_types which have no result data (because delimiter is still present)
-        for i, emh_type in enumerate(RunResults.EMH_PRIMARY_TYPES[:-1]):
+        for i, emh_type in enumerate(ResultatsCalcul.EMH_PRIMARY_TYPES[:-1]):
             if emh_type not in emh_types_with_res:
                 self._res_pattern.insert(i, (emh_type, (0, 0)))
 

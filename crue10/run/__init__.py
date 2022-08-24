@@ -6,7 +6,7 @@ from io import open
 import os.path
 import subprocess
 
-from crue10.run.results import RunResults
+from crue10.run.resultats_calcul import ResultatsCalcul
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 from crue10.run.trace import Trace
 from crue10.utils import add_default_missing_metadata, ExceptionCrue10, logger
@@ -302,7 +302,7 @@ class Run:
         Obtenir une instance RunResults pour post-traiter les résultats du Run.
         Il faut que le Run contiennent des résultats (même partiels) du service de calcul.
 
-        :rtype: RunResults
+        :rtype: ResultatsCalcul
         """
         # Check that some traces were read
         if not self.has_computation_traces:
@@ -318,7 +318,7 @@ class Run:
 
         # Get file and returns results
         rcal_path = get_path_file_unique_matching(self.run_mo_path, '*.rcal.xml')
-        return RunResults(rcal_path)
+        return ResultatsCalcul(rcal_path)
 
     def set_comment(self, comment):
         """Définir le commentaire"""

@@ -33,7 +33,8 @@ Détails :
         * la méthode `get_liste_run_ids` devient `get_liste_noms_runs`
     * `crue10.modele.Modele` :
         * [MAJEUR] la méthode `get_branches_liste_entre_noeuds` devient `get_liste_branches_entre_deux_noeuds`
-    * `crue10.run.results` :
+    * `crue10.run.results` devient `crue10.run.resultats` :
+        * la classe `RunResults` devient `ResultatsCalcul`
         * la méthode `CalcPseudoPerm` devient `ResCalcPseudoPerm` (pour éviter le conflit avec `crue10.scenario.calcul`)
         * la méthode `CalcTrans` devient `ResCalcTrans` (pour éviter le conflit avec `crue10.scenario.calcul`)
 
