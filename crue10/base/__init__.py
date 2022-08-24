@@ -115,8 +115,8 @@ class EnsembleFichiersXML(ABC):
             raise ExceptionCrue10Grammar("Seules les grammaires %s sont supportées (pas `%s`)"
                                          % (grammaires_supportees, version_grammaire))
         if version_grammaire == self.version_grammaire:
-            logger.warn("Changement de grammaire vers %s ignoré car %s est déjà dans cette grammaire"
-                        % (self, version_grammaire))
+            logger.warning("Changement de grammaire vers %s ignoré car %s est déjà dans cette grammaire"
+                           % (self, version_grammaire))
             return  # nothing to do
 
         self.version_grammaire = version_grammaire

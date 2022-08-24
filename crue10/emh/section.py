@@ -367,7 +367,7 @@ class SectionProfil(Section):
         self.xz = new_array
         check_strictly_increasing(new_array[:, 0], 'xt')
         if duplicated_xt:
-            logger.warn("%i points doublons ignorés pour %s: %s" % (len(duplicated_xt), self, duplicated_xt))
+            logger.warning("%i points doublons ignorés pour %s: %s" % (len(duplicated_xt), self, duplicated_xt))
 
     def set_geom_trace(self, geom_trace):
         """
@@ -387,7 +387,7 @@ class SectionProfil(Section):
         range_xt = self.xz_filtered[:, 0].max() - self.xz_filtered[:, 0].min()
         diff_xt = range_xt - self.geom_trace.length
         if abs(diff_xt) > 1e-2:
-            logger.warn("Écart de longueur pour la section %s: %s" % (self, diff_xt))
+            logger.warning("Écart de longueur pour la section %s: %s" % (self, diff_xt))
 
     def ajouter_fente(self, largeur, profondeur):
         """

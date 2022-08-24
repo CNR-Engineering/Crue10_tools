@@ -850,11 +850,11 @@ class Modele(EnsembleFichiersXML):
 
         duplicated_sections = self.get_duplicated_sections()
         if duplicated_sections:
-            logger.warn("Sections dupliquées: %s" % duplicated_sections)
+            logger.warning("Sections dupliquées: %s" % duplicated_sections)
 
         duplicated_branches = self.get_duplicated_branches()
         if duplicated_branches:
-            logger.warn("Branches dupliquées: %s" % duplicated_branches)
+            logger.warning("Branches dupliquées: %s" % duplicated_branches)
 
     def summary(self):
         return "%s: %i sous-modèle(s)" % (self, len(self.liste_sous_modeles))

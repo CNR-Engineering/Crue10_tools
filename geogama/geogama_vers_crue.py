@@ -121,7 +121,7 @@ try:
     with arcpy.da.SearchCursor(FCLASS_NOEUD, ["OID@", "Nom_Noeud", "SHAPE@XY"], WHERE_TRONCON) as cursor:
         for row in cursor:
             if not is_not_blank(row[1]):
-                logger.warn("Noeud sans nom  - " + str(row[0]))
+                logger.warning("Noeud sans nom  - " + str(row[0]))
                 continue
                 
             lstNoeud.append(row)
@@ -132,10 +132,10 @@ try:
     with arcpy.da.SearchCursor(FCLASS_CASIER, ["OID@", "Nom_casier", "Nom_noeud", "Distance_appli", "SHAPE@"]) as cursor:
         for row in cursor:
             if not is_not_blank(row[1]):
-                # logger.warn("Casier sans nom  - " + str(row[0]))
+                # logger.warning("Casier sans nom  - " + str(row[0]))
                 continue
             if not is_not_blank(row[2]):
-                # logger.warn("Casier sans nom  de noeud - " + str(row[1]))
+                # logger.warning("Casier sans nom  de noeud - " + str(row[1]))
                 continue
                 
             # filtre sur les casier en fonction des noeuds    
@@ -155,7 +155,7 @@ try:
                 nomCasier = row[1]
                 
                 if not is_not_blank(nomCasier):
-                    logger.warn("Casier_Loi sans nom  - " + str(row[0]))
+                    logger.warning("Casier_Loi sans nom  - " + str(row[0]))
                     continue
                     
                 if not nomCasier in hashCasierLoi:
@@ -172,15 +172,15 @@ try:
             sectionParent = row[5]
             
             if not is_not_blank(row[1]):
-                logger.warn("Section sans nom  - " + str(row[0]))
+                logger.warning("Section sans nom  - " + str(row[0]))
                 continue
                 
             # if not is_not_blank(nomBranche):
-                # logger.warn("Section sans branche  - " + nomSection)
+                # logger.warning("Section sans branche  - " + nomSection)
                 # continue
                 
             if not typeSection:
-                logger.warn("Section sans type  - " + nomSection)
+                logger.warning("Section sans type  - " + nomSection)
                 continue
             
             if typeSection == 1:
@@ -212,15 +212,15 @@ try:
                 sectionParent = row[5]
                 
                 if not is_not_blank(row[1]):
-                    logger.warn("Section sans nom  - " + str(row[0]))
+                    logger.warning("Section sans nom  - " + str(row[0]))
                     continue
                     
                 # if not is_not_blank(nomBranche):
-                    # logger.warn("Section sans branche  - " + nomSection)
+                    # logger.warning("Section sans branche  - " + nomSection)
                     # continue
                     
                 if not typeSection:
-                    logger.warn("Section sans type  - " + nomSection)
+                    logger.warning("Section sans type  - " + nomSection)
                     continue
                 
                 if typeSection == 1:
@@ -244,7 +244,7 @@ try:
                 nomSection = row[1]
                 
                 if not is_not_blank(nomSection):
-                    logger.warn("Profil_Point sans nom_section - " + str(row[0]))
+                    logger.warning("Profil_Point sans nom_section - " + str(row[0]))
                     continue
                     
                 if not nomSection in hashProfilPointParSection:
@@ -258,7 +258,7 @@ try:
                 nomSection = row[1]
                 
                 if not is_not_blank(nomSection):
-                    logger.warn("Profil_Trace sans nom_section - " + str(row[0]))
+                    logger.warning("Profil_Trace sans nom_section - " + str(row[0]))
                     continue
                     
                 if not nomSection in hashProfilTraceParSection:
@@ -275,7 +275,7 @@ try:
                 oidProfilPoint = row[1]
                 
                 # if not oidProfilPoint in hashProfilPointParOID:
-                    # logger.warn("Limite sans point - " + str(row[0]))
+                    # logger.warning("Limite sans point - " + str(row[0]))
                     # continue
                 
                 nomLimite = row[2]
@@ -300,12 +300,11 @@ try:
             noeudAval = row[5]
             
             if not is_not_blank(nomBranche):
-                logger.warn("Section sans nom  - " + str(row[0]))
+                logger.warning("Section sans nom  - " + str(row[0]))
                 continue
-                
-                
+
             if not typeBranche:
-                logger.warn("Branche sans type  - " + nomBranche)
+                logger.warning("Branche sans type  - " + nomBranche)
                 continue
             
             lstBranches.append(row)
@@ -328,7 +327,7 @@ try:
         with arcpy.da.SearchCursor(FCLASS_NOEUD, ["OID@", "Nom_Noeud", "SHAPE@XY"], where_nouveaux_noeuds) as cursor:
             for row in cursor:
                 if not is_not_blank(row[1]):
-                    logger.warn("Noeud sans nom  - " + str(row[0]))
+                    logger.warning("Noeud sans nom  - " + str(row[0]))
                     continue
                     
                 lstNoeud.append(row)
@@ -392,7 +391,7 @@ try:
             
             sous_modele.ajouter_casier(casier)
         else:
-            logger.warn("Casier sans loi - " + nomCasier)
+            logger.warning("Casier sans loi - " + nomCasier)
 
 
 
@@ -424,15 +423,15 @@ try:
         xp = row[4]
         
         if not nomSection in hashProfilPointParSection:
-            logger.warn("Section sans point - " + nomSection)
+            logger.warning("Section sans point - " + nomSection)
             continue
 
         if not nomSection in hashProfilTraceParSection:
-            logger.warn("Section sans trace - " + nomSection)
+            logger.warning("Section sans trace - " + nomSection)
             continue        
             
         if not nomSection in hashLimitesParSection:
-            logger.warn("Section sans limites - " + nomSection)
+            logger.warning("Section sans limites - " + nomSection)
             continue 
           
         
@@ -459,11 +458,11 @@ try:
                 break
         
         # if not hasLimiteAxe:
-            # logger.warn("Section sans limite Et_AxeHyd - " + nomSection)
+            # logger.warning("Section sans limite Et_AxeHyd - " + nomSection)
             # continue 
 
         if not hasLimitesNum:
-            logger.warn("Section sans limites numerotes - " + nomSection)
+            logger.warning("Section sans limites numerotes - " + nomSection)
             continue 
             
             
@@ -511,7 +510,7 @@ try:
             dz = 0
             
         if not nomSectionParent in hashSectionsValid:
-            logger.warn("SectionIdem [" + nomSection + "] - SectionParente non reconnue [" + nomSectionParent + "]")
+            logger.warning("SectionIdem [" + nomSection + "] - SectionParente non reconnue [" + nomSectionParent + "]")
             continue 
         
         logger.debug("Ajout SectionIdem - " + nomSection)
@@ -541,18 +540,18 @@ try:
         typebranche = row[2]
         
         if not row[4] in hashNoeud:
-            logger.warn("Branche sans noeud amont - " + nomBranche)
+            logger.warning("Branche sans noeud amont - " + nomBranche)
             continue 
         if not row[5] in hashNoeud:
-            logger.warn("Branche sans noeud aval - " + nomBranche)
+            logger.warning("Branche sans noeud aval - " + nomBranche)
             continue 
 
         if not nomBranche in hashSectionForbranches:
-            logger.warn("Branche sans sections - " + nomBranche)
+            logger.warning("Branche sans sections - " + nomBranche)
             continue 
 
         if len(hashSectionForbranches[nomBranche]) < 2:
-            logger.warn("Branche avec moins de 2 sections - " + nomBranche)
+            logger.warning("Branche avec moins de 2 sections - " + nomBranche)
             continue 
             
         noeud1 = sous_modele.get_noeud(row[4].encode('utf-8'))

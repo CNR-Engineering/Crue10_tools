@@ -162,7 +162,7 @@ class Run:
             try:
                 csv_path = get_path_file_unique_matching(self.run_mo_path, '*.' + csv_type + '.csv')
             except IOError as e:
-                logger.warn("Le service `%s` n'a pas de trace :\n%s" % (Run.SERVICES_NAMES[service], e))
+                logger.warning("Le service `%s` n'a pas de trace :\n%s" % (Run.SERVICES_NAMES[service], e))
                 return  # further services will not have a csv with traces
             with open(csv_path, 'r') as in_csv:
                 for row in in_csv:
@@ -313,8 +313,8 @@ class Run:
         # Check if errors are in computation traces
         traces_errors = self.get_service_traces(service='c', gravite_min=GRAVITE_MIN_ERROR_BLK)
         if traces_errors:
-            logger.warn("Le run #%s contient des résultats partiels car des erreurs bloquantes "
-                        "se trouvent dans les traces du calcul :\n%s" % (self.id, '\n'.join(traces_errors)))
+            logger.warning("Le run #%s contient des résultats partiels car des erreurs bloquantes "
+                           "se trouvent dans les traces du calcul :\n%s" % (self.id, '\n'.join(traces_errors)))
 
         # Get file and returns results
         rcal_path = get_path_file_unique_matching(self.run_mo_path, '*.rcal.xml')

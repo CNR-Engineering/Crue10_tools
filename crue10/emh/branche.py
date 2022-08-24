@@ -258,8 +258,8 @@ class Branche(ABC):
         xp_max = self.get_section_aval().xp
         length = self.geom.length
         if self.type in Branche.TYPES_WITH_LENGTH and abs(xp_max - length) > DIFF_XP_TO_WARN:
-            logger.warn("La longueur de la branche `%s` est estimée à %.2fm (non pas %.2fm)."
-                        % (self.id, length, xp_max))
+            logger.warning("La longueur de la branche `%s` est estimée à %.2fm (non pas %.2fm)."
+                           % (self.id, length, xp_max))
         for i, section in enumerate(self.liste_sections_dans_branche):
             try:
                 section.xp = section.xp * length / xp_max

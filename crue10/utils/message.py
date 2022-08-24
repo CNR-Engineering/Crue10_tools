@@ -30,10 +30,10 @@ def parse_message(message_id, nom_emh, parametres):
         try:
             return message.format(*([''] + parametres))  # Add an empty string to count arguments from 1
         except IndexError:
-            logger.warn("Le message `%s` (%s) n'a pas assez de valeurs : %s" % (
-            message_id, messages[message_id], parametres))
+            logger.warning("Le message `%s` (%s) n'a pas assez de valeurs : %s"
+                           % (message_id, messages[message_id], parametres))
             return message
-    logger.warn("Le message `%s` est inconnu" % message_id)
+    logger.warning("Le message `%s` est inconnu" % message_id)
     if parametres:
         return 'parametres=' + ';'.join(parametres)
     return ''

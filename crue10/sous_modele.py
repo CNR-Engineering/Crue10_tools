@@ -523,7 +523,7 @@ class SousModele(EnsembleFichiersXML):
 
                     etiquettes = emh.find(PREFIX + 'Etiquettes')
                     if etiquettes is None:
-                        logger.warn("Aucune étiquette trouvée pour %s" % nom_section)
+                        logger.warning("Aucune étiquette trouvée pour %s" % nom_section)
                     else:
                         for etiquette in etiquettes:
                             xt = float(etiquette.find(PREFIX + 'PointFF').text.split()[0])
@@ -667,7 +667,7 @@ class SousModele(EnsembleFichiersXML):
                 if branche is None:
                     continue  # ignore current orphan section
                 section.build_orthogonal_trace(branche.geom)
-                logger.warn("La géométrie manquante de la section %s est reconstruite" % section.id)
+                logger.warning("La géométrie manquante de la section %s est reconstruite" % section.id)
 
     def _read_shp_casiers(self):
         """Read geometry of all `Casiers` from current sous-modèle (they are compulsory)"""
@@ -707,8 +707,8 @@ class SousModele(EnsembleFichiersXML):
                     if self.casiers:
                         self._read_shp_casiers()
                 except fiona.errors.DriverError as e:
-                    logger.warn("Un fichier shp n'a pas pu être lu, la géométrie des EMH n'est pas lisible.")
-                    logger.warn(str(e))
+                    logger.warning("Un fichier shp n'a pas pu être lu, la géométrie des EMH n'est pas lisible.")
+                    logger.warning(str(e))
         self.was_read = True
 
     def _write_dfrt(self, folder):

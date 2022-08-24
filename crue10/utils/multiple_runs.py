@@ -95,7 +95,7 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                             results = run.get_results()
                             values['nb_calc_perm'] = len(results.res_calc_pseudoperm)
                         except IOError as e:
-                            logger.warn("Aucun résultat trouvé (fichier rcal manquant) pour le Run #%s" % run_id)
+                            logger.warning("Aucun résultat trouvé (fichier rcal manquant) pour le Run #%s" % run_id)
                             values['nb_calc_perm'] = 0
 
                         # Compute nb_services_ok
