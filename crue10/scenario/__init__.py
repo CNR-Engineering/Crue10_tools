@@ -579,11 +579,11 @@ class Scenario(EnsembleFichiersXML):
                                     cliche_ponctuel, cliche_periodique)
             self.liste_ord_calc_trans.append(ord_calc)
 
-    def read_all(self):
+    def read_all(self, ignore_shp=False):
         """Lire tous les fichiers du scénario"""
         if not self.was_read:
             self._set_xml_trees()
-            self.modele.read_all()
+            self.modele.read_all(ignore_shp=ignore_shp)
 
             self._read_dclm()
             self._read_dlhy()
