@@ -9,7 +9,7 @@ from crue10.utils import ExceptionCrue10
 class ModeleTestCase(unittest.TestCase):
 
     def setUp(self):
-        etude = Etude(os.path.join('crue10', 'tests', 'data', 'in', 'Etu3-6', 'Etu3-6.etu.xml'))
+        etude = Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.2', 'Etu3-6', 'Etu3-6.etu.xml'))
         self.modele = etude.get_modele('Mo_M3-6_c10')
         self.modele.read_all()
 
@@ -23,7 +23,6 @@ class ModeleTestCase(unittest.TestCase):
         # Casier
         casier = self.modele.get_casier('Ca_N7')
         self.assertEqual(casier.id, 'Ca_N7')
-        self.assertEqual(casier.geom, None)
 
         # ProfilCasier
         profil_casier = casier.profils_casier[0]

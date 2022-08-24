@@ -9,7 +9,7 @@ from crue10.utils import ExceptionCrue10
 class SousModeleTestCase(unittest.TestCase):
 
     def setUp(self):
-        etude = Etude(os.path.join('crue10', 'tests', 'data', 'in', 'Etu3-6', 'Etu3-6.etu.xml'))
+        etude = Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.2', 'Etu3-6', 'Etu3-6.etu.xml'))
         self.sous_modele = etude.get_sous_modele('Sm_M3-6_c10')
         self.sous_modele.read_all(ignore_shp=True)
 

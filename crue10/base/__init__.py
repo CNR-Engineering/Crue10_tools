@@ -59,8 +59,8 @@ class EnsembleFichiersXML(ABC):
             self.metadata['Type'] = 'Crue10'
         self.metadata = add_default_missing_metadata(self.metadata, type(self).METADATA_FIELDS)
 
+        self.version_grammaire = version_grammaire
         if mode == 'r':
-            self.version_grammaire = version_grammaire
             if files is None:
                 raise RuntimeError
 
@@ -74,7 +74,8 @@ class EnsembleFichiersXML(ABC):
                 raise RuntimeError
             self.files = files
         elif mode == 'w':
-            self.version_grammaire = VERSION_GRAMMAIRE_COURANTE
+            if version_grammaire is None:
+                self.version_grammaire = VERSION_GRAMMAIRE_COURANTE
             self.files = {}
             if files is None:
                 for xml_type in type(self).FILES_XML:

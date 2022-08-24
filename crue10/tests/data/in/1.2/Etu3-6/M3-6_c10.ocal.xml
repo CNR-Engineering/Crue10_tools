@@ -8,8 +8,8 @@
     <Trace>
       <SortieEcran>true</SortieEcran>
       <SortieFichier>true</SortieFichier>
-      <VerbositeEcran>DEBUG2</VerbositeEcran>
-      <VerbositeFichier>DEBUG2</VerbositeFichier>
+      <VerbositeEcran>INFO</VerbositeEcran>
+      <VerbositeFichier>INFO</VerbositeFichier>
     </Trace>
     <Resultat>
       <SortieFichier>true</SortieFichier>

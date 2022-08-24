@@ -4,7 +4,7 @@
   <AuteurCreation>BALAYN_P</AuteurCreation>
   <DateCreation>2012-05-30T12:00:00.000</DateCreation>
   <AuteurDerniereModif>DURON</AuteurDerniereModif>
-  <DateDerniereModif>2022-07-30T18:08:01.579</DateDerniereModif>
+  <DateDerniereModif>2022-08-24T10:52:29.538</DateDerniereModif>
   <ScenarioCourant NomRef="Sc_M3-6_c10"/>
   <Repertoires>
     <Repertoire Nom="CONFIG">
@@ -40,7 +40,8 @@
     <SousModele Nom="Sm_M3-6_c10">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sc_M3-6_c9 converti en CRUE10&#xd;
+      <Commentaire>Sc_M3-6_c9 converti en CRUE10
+
 Régimes permanents seuls. CLimM : Qapp, Zimp, Ouv --&gt; incompatible avec c10m9</Commentaire>
       <AuteurCreation>gressier</AuteurCreation>
       <DateCreation>2017-06-23T09:06:14.245</DateCreation>
@@ -58,7 +59,8 @@ Régimes permanents seuls. CLimM : Qapp, Zimp, Ouv --&gt; incompatible avec c10m
     <Modele Nom="Mo_M3-6_c10">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sc_M3-6_c9 converti en CRUE10&#xd;
+      <Commentaire>Sc_M3-6_c9 converti en CRUE10
+
 Régimes permanents seuls. CLimM : Qapp, Zimp, Ouv --&gt; incompatible avec c10m9</Commentaire>
       <AuteurCreation>gressier</AuteurCreation>
       <DateCreation>2017-06-23T09:06:14.245</DateCreation>

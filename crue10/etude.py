@@ -48,7 +48,7 @@ class Etude(EnsembleFichiersXML):
     SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + SousModele.FILES_XML
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
-    def __init__(self, etu_path, folders=None, mode='r', metadata=None, comment=''):
+    def __init__(self, etu_path, folders=None, mode='r', metadata=None, version_grammaire=None, comment=''):
         """
         :param etu_path: Fichier étude Crue10 (etu.xml)
         :type etu_path: str
@@ -58,9 +58,13 @@ class Etude(EnsembleFichiersXML):
         :type mode: str
         :param metadata: dictionnaire avec les méta-données
         :type metadata: dict(str)
+        :param version_grammaire: version de la grammaire
+        :type version_grammaire: str
+        :param comment: commentaire optionnel
+        :type comment: str
         """
         files = {'etu': etu_path} if mode == 'r' else None
-        super().__init__(mode, files, metadata)
+        super().__init__(mode, files, metadata, version_grammaire=version_grammaire)
         self.files['etu'] = etu_path  # FIXME: hack to overwrite the special key 'etu'
         self.mode = mode
         if folders is None:
