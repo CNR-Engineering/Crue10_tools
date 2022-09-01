@@ -175,14 +175,19 @@
 	<xs:complexType name="TypeCalcTransNoeudQapp">
 		<xs:sequence>
 			<xs:element ref="IsActive" />
-			<xs:choice>
-				<xs:element name="HydrogrammeQapp" type="TypeNomRefDistant" />
-				<xs:element name="HydrogrammeQappExt" type="TypeHydrogrammeExt" />
-			</xs:choice>
+		  <xs:element name="HydrogrammeQapp" type="TypeNomRefDistant" />
 		</xs:sequence>
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
 	</xs:complexType>
-	
+
+  <xs:complexType name="TypeCalcTransNoeudQappExt">
+    <xs:sequence>
+      <xs:element ref="IsActive" />
+      <xs:element name="HydrogrammeQappExt" type="TypeHydrogrammeExt" />
+    </xs:sequence>
+    <xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+  </xs:complexType>
+  
 	<xs:complexType name="TypeCalcTransNoeudNiveauContinuLimnigramme">
 		<xs:sequence>
 			<xs:element ref="IsActive" />
@@ -254,6 +259,7 @@
 			<xs:choice minOccurs="1" maxOccurs="unbounded">
 				<xs:element ref="Commentaire" minOccurs="0" />
 				<xs:element name="CalcTransNoeudQapp" type="TypeCalcTransNoeudQapp" minOccurs="0" />
+        <xs:element name="CalcTransNoeudQappExt" type="TypeCalcTransNoeudQappExt" minOccurs="0" />
 				<xs:element name="CalcTransNoeudNiveauContinuLimnigramme" type="TypeCalcTransNoeudNiveauContinuLimnigramme" minOccurs="0" />
 				<xs:element name="CalcTransNoeudNiveauContinuTarage" type="TypeCalcTransNoeudNiveauContinuTarage" minOccurs="0" />
 				<xs:element name="CalcTransBrancheOrificeManoeuvre" type="TypeCalcTransBrancheOrificeManoeuvre" minOccurs="0" />
