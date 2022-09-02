@@ -11,8 +11,8 @@ from crue10.base import EnsembleFichiersXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
-    ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, \
-    logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree
+    ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, get_xml_root_from_file, \
+    logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree, DATA_FOLDER_ABSPATH
 from crue10.utils.settings import CRUE10_EXE_PATH
 from crue10.utils.sorties import Sorties
 from .calcul import Calcul, CalcPseudoPerm, CalcTrans
@@ -826,19 +826,59 @@ class Scenario(EnsembleFichiersXML):
         :type version_grammaire: str
         """
         self.modele.changer_version_grammaire(version_grammaire)
+
+        # HARDCODED to support g1.2
+        if version_grammaire == '1.2' and self.version_grammaire == '1.3':  # backward
+            self.supprimer_variables('OrdResBranches', 'OrdResBrancheOrifice', ['Ouv'])
+            elt = self.xml_trees['ores'].find(PREFIX + 'OrdResModeles')
+            self.xml_trees['ores'].remove(elt)
+            if self.xml_trees['ores'][-1].tail.endswith('  '):
+                self.xml_trees['ores'][-1].tail = self.xml_trees['ores'][-1].tail[:-2]
+
+        elif version_grammaire == '1.3' and self.version_grammaire == '1.2':  # forward
+            self.ajouter_variable_Ouv()
+            xml_tree = get_xml_root_from_file(os.path.join(DATA_FOLDER_ABSPATH, '1.3',
+                                                           'fichiers_vierges', 'default.ores.xml'))
+            self.xml_trees['ores'][-1].tail += '  '
+            self.xml_trees['ores'].append(xml_tree.find(PREFIX + 'OrdResModeles'))
+
         super().changer_version_grammaire(version_grammaire)
 
-    def normalize_for_10_2(self):  # HARDCODED to support g1.2.1 ?
+    def ajouter_variable_Ouv(self):
+        """Ajouter la variable Ouv pour les branches orifice"""
+        tree = self.xml_trees['ores']
+        elt_parent = tree.find(PREFIX + 'OrdResBranches').find(PREFIX + 'OrdResBrancheOrifice')
+        elt_ouv = deepcopy(elt_parent[0])
+        elt_ouv.attrib['NomRef'] = 'Ouv'
+        elt_ouv.text = 'false'
+        elt_parent.insert(1, elt_ouv)
+
+    def supprimer_variables(self, vars_type, var_type, var_list):
         """
-        Normaliser le scénario pour Crue v10.2 : supprime quelques variables si elles sont présentes dans le ores
+        Supprimer les variables demandées si elles existent
+
+        :param vars_type: type de 1er niveau (ex. : `OrdResSections`)
+        :type vars_type: str
+        :param var_type: type de 2nd niveau (ex. : `OrdResSection`)
+        :type var_type: str
+        :param var_list: liste des variables
+        :type var_list: list(str)
+        """
+        tree = self.xml_trees['ores']
+        elt_parent = tree.find(PREFIX + vars_type).find(PREFIX + var_type)
+        for elt_dde in elt_parent:
+            if elt_dde.get('NomRef') in var_list:
+                elt_parent.remove(elt_dde)
+
+    def normalize_for_g1_2_1(self):  # HARDCODED to support g1.2.1 ?
+        """
+        Normaliser le scénario pour la grammaire v1.2.1 :
+        Supprime quelques variables si elles sont présentes dans le ores
         """
         variables_to_remove = ['Cr', 'J', 'Jf', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin',
                                'Pact', 'Rhact', 'Tauact', 'Ustaract']
-        tree = self.xml_trees['ores']
-        elt_section = tree.find(PREFIX + 'OrdResSections').find(PREFIX + 'OrdResSection')
-        for elt_dde in elt_section:
-            if elt_dde.get('NomRef') in variables_to_remove:
-                elt_section.remove(elt_dde)
+        # 'Cr', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin' still exsit in g1.2
+        self.supprimer_variables('OrdResSections', 'OrdResSection', variables_to_remove)
 
     def get_clim_values_from_all_calc_pseudoperm(self, nom_noeud, delta_t):
         """

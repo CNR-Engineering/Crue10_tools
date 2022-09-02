@@ -22,6 +22,16 @@
 		</xs:complexType>
 	</xs:element>
 
+	<xs:element name="DdeMultiple">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:boolean">
+					<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+
 	<!--
 	<xs:element name="DdeCoefCtr" type="xs:boolean" />
 	<xs:element name="DdeDact" type="xs:boolean" />
@@ -57,13 +67,20 @@
 	<xs:element name="DdeZf" type="xs:boolean" />
 	<xs:element name="DdeZn" type="xs:boolean" />
 	-->
-	
+
 	<xs:complexType name="TypeSeqDde">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
 			<xs:element ref="Dde" />
 		</xs:sequence>
 	</xs:complexType>
-	
+
+	<xs:complexType name="TypeSeqDdeMixte">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element ref="DdeMultiple" />
+			<xs:element ref="Dde" />
+		</xs:choice>
+	</xs:complexType>
+
 	<xs:element name="OrdResNoeudNiveauContinu" type="TypeSeqDde" />
 	
 	<xs:element name="OrdResNoeuds">
@@ -127,7 +144,17 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	
+
+	<xs:element name="OrdResModeleRegul" type="TypeSeqDdeMixte" />
+
+	<xs:element name="OrdResModeles">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="OrdResModeleRegul" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:element name="ORES">
 		<xs:complexType>
 			<xs:sequence>
@@ -136,6 +163,7 @@
 				<xs:element ref="OrdResCasiers" />
 				<xs:element ref="OrdResSections" />
 				<xs:element ref="OrdResBranches" />
+				<xs:element ref="OrdResModeles" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>

@@ -321,6 +321,11 @@ class Etude(EnsembleFichiersXML):
             # Add dreg files
             for modele in self.get_liste_modeles():
                 self.filename_list.append(modele.files['dreg'])
+        elif self.version_grammaire == '1.3' and version_grammaire == '1.2':  # HARDCODED to support g1.2
+            # Remove dreg files
+            for filename in self.filename_list:
+                if filename.endswith('.dreg.xml'):
+                    self.filename_list.remove(filename)
         super().changer_version_grammaire(version_grammaire)
 
     def add_files(self, file_list):

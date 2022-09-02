@@ -84,4 +84,4 @@ class EndToEndTestCase(unittest.TestCase):
         folder_in = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6')
         folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6')
         etude.write_all(folder_out)
-        self._same_folders(folder_in, folder_out, VERSION_GRAMMAIRE_PRECEDENTE, etu_changed=True)  # QUESTION: why etu changed?
+        self._same_folders(folder_in, folder_out, VERSION_GRAMMAIRE_PRECEDENTE, etu_changed=False)
