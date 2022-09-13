@@ -69,16 +69,9 @@
 	-->
 
 	<xs:complexType name="TypeSeqDde">
-		<xs:sequence minOccurs="0" maxOccurs="unbounded">
-			<xs:element ref="Dde" />
+		<xs:sequence>
+			<xs:element ref="Dde" minOccurs="0" maxOccurs="unbounded" />
 		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="TypeSeqDdeMixte">
-		<xs:choice minOccurs="0" maxOccurs="unbounded">
-			<xs:element ref="DdeMultiple" />
-			<xs:element ref="Dde" />
-		</xs:choice>
 	</xs:complexType>
 
 	<xs:element name="OrdResNoeudNiveauContinu" type="TypeSeqDde" />
@@ -145,7 +138,14 @@
 		</xs:complexType>
 	</xs:element>
 
-	<xs:element name="OrdResModeleRegul" type="TypeSeqDdeMixte" />
+	<xs:element name="OrdResModeleRegul">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="DdeMultiple" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="Dde" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 
 	<xs:element name="OrdResModeles">
 		<xs:complexType>

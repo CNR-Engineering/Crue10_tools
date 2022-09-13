@@ -82,6 +82,7 @@
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" />
 	</xs:complexType>
 
+	<!-- Spécifique pour la régulation MEC-Crue10 -->
 	<xs:complexType name="TypeCalcPseudoPermBrancheOrificeManoeuvreRegul">
 		<xs:sequence>
 			<xs:element ref="IsActive" />
@@ -91,7 +92,6 @@
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" />
 	</xs:complexType>
 
-	<!-- Spécifique pour la régulation -->
 	<xs:complexType name="TypeCalcPseudoPermNoeudBg1">
 		<xs:sequence>
 			<xs:element ref="IsActive" />
@@ -175,19 +175,19 @@
 	<xs:complexType name="TypeCalcTransNoeudQapp">
 		<xs:sequence>
 			<xs:element ref="IsActive" />
-		  <xs:element name="HydrogrammeQapp" type="TypeNomRefDistant" />
+			<xs:element name="HydrogrammeQapp" type="TypeNomRefDistant" />
 		</xs:sequence>
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
 	</xs:complexType>
 
-  <xs:complexType name="TypeCalcTransNoeudQappExt">
-    <xs:sequence>
-      <xs:element ref="IsActive" />
-      <xs:element name="HydrogrammeQappExt" type="TypeHydrogrammeExt" />
-    </xs:sequence>
-    <xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
-  </xs:complexType>
-  
+	<xs:complexType name="TypeCalcTransNoeudQappExt">
+		<xs:sequence>
+			<xs:element ref="IsActive" />
+			<xs:element name="HydrogrammeQappExt" type="TypeHydrogrammeExt" />
+		</xs:sequence>
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+	</xs:complexType>
+	
 	<xs:complexType name="TypeCalcTransNoeudNiveauContinuLimnigramme">
 		<xs:sequence>
 			<xs:element ref="IsActive" />
@@ -196,7 +196,7 @@
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
 	</xs:complexType>
 
-	<!-- Spécifique pour la régulation -->
+	<!-- Spécifique pour la régulation MEC-Crue10 -->
 	<xs:complexType name="TypeCalcTransNoeudBg1">
 		<xs:sequence>
 			<xs:element ref="IsActive" />
@@ -237,17 +237,17 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="Commentaire" minOccurs="0" />
-				<xs:element name="CalcPseudoPermNoeudQapp" type="TypeCalcPseudoPermNoeudQapp" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcPseudoPermNoeudNiveauContinuZimp" type="TypeCalcPseudoPermNoeudNiveauContinuZimp" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcPseudoPermBrancheOrificeManoeuvre" type="TypeCalcPseudoPermBrancheOrificeManoeuvre" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcPseudoPermBrancheOrificeManoeuvreRegul" type="TypeCalcPseudoPermBrancheOrificeManoeuvreRegul" minOccurs="0" />
-				<xs:element name="CalcPseudoPermBrancheSaintVenantQruis" type="TypeCalcPseudoPermQruisBranche" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcPseudoPermCasierProfilQruis" type="TypeCalcPseudoPermQruisCasier" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element name="CalcPseudoPermNoeudBg1" type="TypeCalcPseudoPermNoeudBg1" maxOccurs="1" minOccurs="0" />
-				<xs:element name="CalcPseudoPermNoeudBg2" type="TypeCalcPseudoPermNoeudBg2" maxOccurs="1" minOccurs="0" />
-				<xs:element name="CalcPseudoPermNoeudUsi" type="TypeCalcPseudoPermNoeudUsi" maxOccurs="1" minOccurs="0" />
-				<xs:element name="CalcPseudoPermNoeudBg1Av" type="TypeCalcPseudoPermNoeudBg1Av" maxOccurs="1" minOccurs="0" />
-				<xs:element name="CalcPseudoPermNoeudBg2Av" type="TypeCalcPseudoPermNoeudBg2Av" maxOccurs="1" minOccurs="0" />
+				<xs:element name="CalcPseudoPermNoeudQapp" type="TypeCalcPseudoPermNoeudQapp" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcPseudoPermNoeudNiveauContinuZimp" type="TypeCalcPseudoPermNoeudNiveauContinuZimp" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcPseudoPermBrancheOrificeManoeuvre" type="TypeCalcPseudoPermBrancheOrificeManoeuvre" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcPseudoPermBrancheOrificeManoeuvreRegul" type="TypeCalcPseudoPermBrancheOrificeManoeuvreRegul" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcPseudoPermBrancheSaintVenantQruis" type="TypeCalcPseudoPermQruisBranche" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcPseudoPermCasierProfilQruis" type="TypeCalcPseudoPermQruisCasier" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcPseudoPermNoeudBg1" type="TypeCalcPseudoPermNoeudBg1" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CalcPseudoPermNoeudBg2" type="TypeCalcPseudoPermNoeudBg2" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CalcPseudoPermNoeudUsi" type="TypeCalcPseudoPermNoeudUsi" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CalcPseudoPermNoeudBg1Av" type="TypeCalcPseudoPermNoeudBg1Av" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CalcPseudoPermNoeudBg2Av" type="TypeCalcPseudoPermNoeudBg2Av" minOccurs="0" maxOccurs="1" />
 			</xs:sequence>
 			<xs:attribute name="Nom" type="TypeForAttributeNomCalc" use="required" />
 		</xs:complexType>
@@ -256,22 +256,22 @@
 	<!-- L'élément calcul transitoire -->
 	<xs:element name="CalcTrans">
 		<xs:complexType>
-			<xs:choice minOccurs="1" maxOccurs="unbounded">
+			<xs:sequence>
 				<xs:element ref="Commentaire" minOccurs="0" />
-				<xs:element name="CalcTransNoeudQapp" type="TypeCalcTransNoeudQapp" minOccurs="0" />
-        <xs:element name="CalcTransNoeudQappExt" type="TypeCalcTransNoeudQappExt" minOccurs="0" />
-				<xs:element name="CalcTransNoeudNiveauContinuLimnigramme" type="TypeCalcTransNoeudNiveauContinuLimnigramme" minOccurs="0" />
-				<xs:element name="CalcTransNoeudNiveauContinuTarage" type="TypeCalcTransNoeudNiveauContinuTarage" minOccurs="0" />
-				<xs:element name="CalcTransBrancheOrificeManoeuvre" type="TypeCalcTransBrancheOrificeManoeuvre" minOccurs="0" />
-				<xs:element name="CalcTransBrancheOrificeManoeuvreRegul" type="TypeCalcTransBrancheOrificeManoeuvreRegul" minOccurs="0" />
-				<xs:element name="CalcTransBrancheSaintVenantQruis" type="TypeCalcTransHydrogrammeQruisBranche" minOccurs="0" />
-				<xs:element name="CalcTransCasierProfilQruis" type="TypeCalcTransHydrogrammeQruisCasier" minOccurs="0" />
-				<xs:element name="CalcTransNoeudBg1" type="TypeCalcTransNoeudBg1" maxOccurs="1" minOccurs="0" />
-				<xs:element name="CalcTransNoeudBg2" type="TypeCalcTransNoeudBg2" maxOccurs="1" minOccurs="0" />
-				<xs:element name="CalcTransNoeudUsi" type="TypeCalcTransNoeudUsi" maxOccurs="1" minOccurs="0" />
-				<xs:element name="CalcTransNoeudBg1Av" type="TypeCalcTransNoeudBg1Av" maxOccurs="1" minOccurs="0" />
-				<xs:element name="CalcTransNoeudBg2Av" type="TypeCalcTransNoeudBg2Av" maxOccurs="1" minOccurs="0" />
-			</xs:choice>
+				<xs:element name="CalcTransNoeudQapp" type="TypeCalcTransNoeudQapp" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcTransNoeudQappExt" type="TypeCalcTransNoeudQappExt" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcTransNoeudNiveauContinuLimnigramme" type="TypeCalcTransNoeudNiveauContinuLimnigramme" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcTransNoeudNiveauContinuTarage" type="TypeCalcTransNoeudNiveauContinuTarage" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcTransBrancheOrificeManoeuvre" type="TypeCalcTransBrancheOrificeManoeuvre" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcTransBrancheSaintVenantQruis" type="TypeCalcTransHydrogrammeQruisBranche" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcTransCasierProfilQruis" type="TypeCalcTransHydrogrammeQruisCasier" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcTransBrancheOrificeManoeuvreRegul" type="TypeCalcTransBrancheOrificeManoeuvreRegul" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element name="CalcTransNoeudBg1" type="TypeCalcTransNoeudBg1" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CalcTransNoeudBg2" type="TypeCalcTransNoeudBg2" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CalcTransNoeudUsi" type="TypeCalcTransNoeudUsi" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CalcTransNoeudBg1Av" type="TypeCalcTransNoeudBg1Av" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CalcTransNoeudBg2Av" type="TypeCalcTransNoeudBg2Av" minOccurs="0" maxOccurs="1" />
+			</xs:sequence>
 			<xs:attribute name="Nom" type="TypeForAttributeNomCalc" use="required" />
 		</xs:complexType>
 	</xs:element>
@@ -281,17 +281,17 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref="Commentaire" minOccurs="0" />
-				<xs:element ref="CalcPseudoPerm" maxOccurs="unbounded" minOccurs="0" />
-				<xs:element ref="CalcTrans" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element ref="CalcPseudoPerm" minOccurs="0" maxOccurs="unbounded" />
+				<xs:element ref="CalcTrans" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 
-	<!-- Spécifique pour les enchaînements -->
+	<!-- Spécifique pour les enchaînements MEC-Crue10 -->
 	<xs:complexType name="TypeHydrogrammeExt">
 		<xs:annotation>
 			<xs:documentation>
-				Type a utiliser pour les enchaînements
+				Type à utiliser pour les enchaînements
 				afin de désigner un hydrogramme à lire sur une section,
 				pour un certain calcul dans un certain fichier de résultats,
 				externe au scénario courant

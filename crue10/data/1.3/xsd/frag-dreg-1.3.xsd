@@ -35,10 +35,10 @@
 	<xs:element name="ParamRegulCommun">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="PdtRegul" type="TypeDuree" minOccurs="0" />
-				<xs:element name="Qmode" type="TypeParamLocal" minOccurs="0" />
-				<xs:element name="DvzRattrap" type="xs:double" minOccurs="0" />
-				<xs:element name="Dqmode" type="xs:double" minOccurs="0" />
+				<xs:element name="PdtRegul" type="TypeDuree" minOccurs="0" maxOccurs="1" />
+				<xs:element name="Qmode" type="TypeParamLocal" minOccurs="0" maxOccurs="1" />
+				<xs:element name="DvzRattrap" type="xs:double" minOccurs="0" maxOccurs="1" />
+				<xs:element name="Dqmode" type="xs:double" minOccurs="0" maxOccurs="1" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -69,7 +69,7 @@
 		<xs:attribute name="Pond" type="xs:double" use="optional" default="1" />
 	</xs:complexType>
 	<xs:complexType name="TypeDefQZregul">
-		<xs:choice minOccurs="0" maxOccurs="unbounded">
+		<xs:choice>
 			<xs:element name="Qabs" type="TypeQabs" />
 			<xs:element name="Qdif" type="TypeQdif" />
 			<xs:element name="QabsExt" type="TypeQabsExt" />
@@ -80,7 +80,7 @@
 	<xs:element name="DefQZreguls">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="DefQZregul" type="TypeDefQZregul" maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="DefQZregul" type="TypeDefQZregul" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -119,12 +119,12 @@
 	</xs:complexType>
 	<xs:element name="CondRegul">
 		<xs:complexType>
-			<xs:choice minOccurs="1" maxOccurs="unbounded">
-				<xs:element name="CondQinf" type="TypeCondQinf" />
-				<xs:element name="CondQsup" type="TypeCondQsup" />
-				<xs:element name="CondZinf" type="TypeCondZinf" />
-				<xs:element name="CondMode" type="TypeCondMode" />
-			</xs:choice>
+			<xs:sequence>
+				<xs:element name="CondQinf" type="TypeCondQinf" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CondQsup" type="TypeCondQsup" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CondZinf" type="TypeCondZinf" minOccurs="0" maxOccurs="1" />
+				<xs:element name="CondMode" type="TypeCondMode" minOccurs="0" maxOccurs="1" />
+			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 	
@@ -152,7 +152,7 @@
 				<xs:element name="PRactif" type="TypePRactif" />
 				<xs:element name="ZprCns" type="TypeLoiParam" />
 				<xs:element name="PID" type="TypePID" />
-				<xs:element name="Qbg1Res" type="TypeDoublePositiveOrNull" />
+				<xs:element name="Qbg1Res" type="TypeDoublePositiveOrNull" minOccurs="0" />
 				<xs:element name="Qbg2Res" type="xs:double" minOccurs="0" />
 				<xs:element name="Qbg2" type="TypeLoiParam" minOccurs="0" />
 				<xs:element name="Qusi" type="TypeLoiParam" minOccurs="0" />
@@ -184,15 +184,15 @@
 	<xs:element name="LoiRegul">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="CondRegul" />
-				<xs:element ref="ParamRegul" />
+				<xs:element ref="CondRegul" minOccurs="1" maxOccurs="1" />
+				<xs:element ref="ParamRegul" minOccurs="1" maxOccurs="1" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="LoiReguls">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element  ref="LoiRegul" maxOccurs="unbounded" minOccurs="1" />
+				<xs:element  ref="LoiRegul" minOccurs="1" maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -202,11 +202,11 @@
 	<xs:element name="DREG">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="Commentaire" minOccurs="0" />
-				<xs:element ref="TypeRegul" minOccurs="0" />
-				<xs:element ref="ParamRegulCommun" minOccurs="0" />
-				<xs:element ref="DefQZreguls" minOccurs="0" />
-				<xs:element ref="LoiReguls" minOccurs="0" />
+				<xs:element ref="Commentaire" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="TypeRegul" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="ParamRegulCommun" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="DefQZreguls" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="LoiReguls" minOccurs="0" maxOccurs="1" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
