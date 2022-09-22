@@ -69,7 +69,7 @@
 		<xs:attribute name="Pond" type="xs:double" use="optional" default="1" />
 	</xs:complexType>
 	<xs:complexType name="TypeDefQZregul">
-		<xs:choice>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="Qabs" type="TypeQabs" />
 			<xs:element name="Qdif" type="TypeQdif" />
 			<xs:element name="QabsExt" type="TypeQabsExt" />
