@@ -27,3 +27,11 @@ Versions Python testées : 2.7, 3.6, 3.7, 3.8, 3.9 et 3.10.
 ## Scripts en ligne de commande
 
 Voir [les pages wiki](https://github.com/CNR-Engineering/Crue10_tools/wiki) pour savoir comment utiliser ces outils.
+
+## Tests unitaires
+
+Lancement des tests unitaires (présents dans `crue10/tests`) :
+
+```
+python -m unittest
+````
