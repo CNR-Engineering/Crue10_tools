@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <!-- Ce fichier xml est à mettre dans le répertoire de l'exécutable Crue10 -->
-<DecodageMessages xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/messages-1.2.xsd">
+<DecodageMessages xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/messages-1.3.xsd">
 <!-- Ce fichier contient les messages permettant de décoder les traces de l'exécutable Crue10 -->
 <!-- Format des éléments : -->
 <!-- 	<Message ID="xxxxxx"> -->
@@ -457,6 +457,27 @@
 		</Message>
 		<Message ID="ID_BrBARRAGEGENERIQUE_QMIN">
 			<Texte>Le débit dans la branche barrage générique {nomEMH} est trop petit (débit dans la branche = {1} m^3/s, débit minimum autorisé = {2} m^3/s)</Texte>
+		</Message>
+		<Message ID="ID_REGUL_ABSENT">
+			<Texte>Erreur : la régulation est absente, mais requise pour {1} sur {2}.</Texte>
+		</Message>
+		<Message ID="ID_REGUL_TYPE_INCONNU">
+			<Texte>Erreur : le type de régulation {1} n'est pas reconnu.</Texte>
+		</Message>
+		<Message ID="ID_REGUL_QREGUL_INCONNU">
+			<Texte>Erreur : dans la régulation {1}, pour la définition du débit {2}, le Qregul {3} n'est pas reconnu.</Texte>
+		</Message>
+		<Message ID="ID_REGUL_MODE_INCONNU">
+			<Texte>Erreur : dans la régulation {1}, pour la définition de la condition {2}, le mode de crue {3} n'est pas reconnu.</Texte>
+		</Message>
+		<Message ID="ID_REGUL_LOI_PARAM_ABSENT">
+			<Texte>Erreur : dans la loi de régulation{1}, le paramètre {2} est absent.</Texte>
+		</Message>
+		<Message ID="ID_REGUL_LOI_ACTIVE">
+			<Texte>Régulation {nomEMH} : loi {1} active {2}, TempsSimu {3}, débit de détermination du mode de crue {4}</Texte>
+		</Message>
+		<Message ID="ID_REGUL_CHGT_LOI_ACTIVE">
+			<Texte>Régulation {nomEMH} : loi {1} active {2}, TempsSimu {3}, débit de détermination du mode de crue {4}</Texte>
 		</Message>
 		<Message ID="ID_ERRBLK">
 			<Texte>{nomEMH} : Une erreur bloquante a été détectée au cours du service {1}. Regardez les messages précédents.</Texte>

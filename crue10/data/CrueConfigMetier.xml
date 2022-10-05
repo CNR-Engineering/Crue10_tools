@@ -2,33 +2,28 @@
 <!-- Ce fichier xml est à mettre dans le répertoire de l'exécutable Crue10 -->
 <CrueConfigMetier xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/CrueConfigMetier-1.3.xsd">
   <!-- Toutes les balises sont obligatoires, ainsi que leurs attributs. Sauf 
-		précision contraire, les balises ne peuvent pas être vides. -->
+    précision contraire, les balises ne peuvent pas être vides. -->
 
   <!-- ATTENTION ! Note de maintenance des fichiers CCM :
-		Pour maintenir en cohérence les fichiers CCM de toutes les grammaire, il faut :
-		- identifier par un commentaire contenant le mot "grammaire" tous les endroits où les changements de grammaire ont un impact,
-		- tenir à jour le fichier CCM de la grammaire la plus récente, en fonction des évolutions de grammaire,
-			en laissant en commentaire les parties nécessaires aux anciennes grammaires,
-		- tenir à jour le fichier CCM de la grammaire la plus récente, en fonction des évolutions fonctionnelles (changements de valeurs, ajout de variables...),
-			en n'oubliant pas de modifier aussi les variables correspondantes des grammaires précédentes, 
-		- à partir du fichier CCM de la grammaire la plus récente, regénérer les fichiers CCM des grammaires précédentes en commentant/décommentant les lignes ad hoc,
-		- en conséquence, AUCUN COMMENTAIRE autre que technique n'est autorisé dans ce fichier, parce qu'il peut rendre inopérant le mécanisme ci-dessus,
-		- les commentaires fonctionnels sont hébergés dans le dictionnaire de données.
-	-->
-
-  <!-- Version du fichier CCM : g1.g2.ccm3 avec g1.g2, version de la grammaire courante, et ccm3 l'indice du fichier pour cette grammaire -->
-  <!-- Incrémenter ccm3 à chaque modification de fichier livrée -->
-  <!-- Mettre à jour également les fichiers etc\coeurs\c10m10\fichiers_vierges\default.XXXX.xml à chaque modification de ce numéro de version -->
-  <VersionCCM>1.3.0</VersionCCM>
+    Pour maintenir en cohérence les fichiers CCM de toutes les grammaire, il faut :
+    - identifier par un commentaire contenant le mot "grammaire" tous les endroits où les changements de grammaire ont un impact,
+    - tenir à jour le fichier CCM de la grammaire la plus récente, en fonction des évolutions de grammaire,
+      en laissant en commentaire les parties nécessaires aux anciennes grammaires,
+    - tenir à jour le fichier CCM de la grammaire la plus récente, en fonction des évolutions fonctionnelles (changements de valeurs, ajout de variables...),
+      en n'oubliant pas de modifier aussi les variables correspondantes des grammaires précédentes, 
+    - à partir du fichier CCM de la grammaire la plus récente, regénérer les fichiers CCM des grammaires précédentes en commentant/décommentant les lignes ad hoc,
+    - en conséquence, AUCUN COMMENTAIRE autre que technique n'est autorisé dans ce fichier, parce qu'il peut rendre inopérant le mécanisme ci-dessus,
+    - les commentaires fonctionnels sont hébergés dans le dictionnaire de données.
+  -->
 
   <!-- Type de controle qui sera effectué sur la variation de la loi, sachant 
-		que l'ordre de rangement des points donne toujours l'ordre de progression -->
+    que l'ordre de rangement des points donne toujours l'ordre de progression -->
   <TypeControleLois>
     <ItemTypeControleLoi Nom="Tco_Aucun" />
     <!-- Aucun contrôle sur les variations des abscisses et des ordonnées -->
     <ItemTypeControleLoi Nom="Tco_AbsCrt" />
     <!-- Les abscisses doivent être croissantes mais pas forcément strictement, 
-			donc 2 points consécutifs peuvent avoir la même abscisse -->
+      donc 2 points consécutifs peuvent avoir la même abscisse -->
     <ItemTypeControleLoi Nom="Tco_AbsCrtStrict" />
     <!-- Les abscisses doivent être strictement croissantes -->
   </TypeControleLois>
@@ -43,9 +38,9 @@
   </TypeExtrapolLois>
   <!-- Types numériques de stockage à affecter à chaque Nature de Variable -->
   <!-- Dans les fichiers binaires, 
-		une variable de type Tnu_Entier est stockée dans un entier signé 32 bits
-		une variable de type Tnu_Reel est stockée dans un reel IEEE 64 bits,
-		une variable de type Enum est stockée dans une chaine de 32 car. -->
+    une variable de type Tnu_Entier est stockée dans un entier signé 32 bits
+    une variable de type Tnu_Reel est stockée dans un reel IEEE 64 bits,
+    une variable de type Enum est stockée dans une chaine de 32 car. -->
   <TypeNumeriques>
     <ItemTypeNumerique Nom="Tnu_Entier">
       <Infini>2000000000</Infini>
@@ -56,6 +51,98 @@
   </TypeNumeriques>
 
   <TypeEnums>
+    <!-- En grammaire v1.1.1, ItemEnum n'a pas d'attribut Id
+         En grammaire v1.2,   ItemEnum a un attribut Id
+    <ItemTypeEnum Nom="Ten_ClicheOrigine">
+      <ItemEnum Id="0">CalculPseudoPermanent</ItemEnum>
+      <ItemEnum Id="1">CalculTransitoire</ItemEnum>
+      <ItemEnum Id="2">Initialisation</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_ClicheQualite">
+      <ItemEnum Id="0">Normale</ItemEnum>
+      <ItemEnum Id="1">Erreur</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_Etiquette">
+      <ItemEnum>Et_AxeHyd</ItemEnum>
+      <ItemEnum>Et_LimLit</ItemEnum>
+      <ItemEnum>Et_Thalweg</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_FormulePdc">
+      <ItemEnum>DIVERGENT</ItemEnum>
+      <ItemEnum>BORDA</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_LitNomme">
+      <ItemEnum>Lt_StoD</ItemEnum>
+      <ItemEnum>Lt_MajD</ItemEnum>
+      <ItemEnum>Lt_Mineur</ItemEnum>
+      <ItemEnum>Lt_MajG</ItemEnum>
+      <ItemEnum>Lt_StoG</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_MethodeInterpol">
+      <ItemEnum>ZIMP_AUX_SECTIONS</ItemEnum>
+      <ItemEnum>LINEAIRE</ItemEnum>
+      <ItemEnum>SAINT_VENANT</ItemEnum>
+      <ItemEnum>BAIGNOIRE</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_PosBordure">
+      <ItemEnum>PAS_BORDURE</ItemEnum>
+      <ItemEnum>BORDURE_DROITE</ItemEnum>
+      <ItemEnum>BORDURE_GAUCHE</ItemEnum>
+      <ItemEnum>BORDURE_2_COTES</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_PosSection">
+      <ItemEnum>AMONT</ItemEnum>
+      <ItemEnum>INTERNE</ItemEnum>
+      <ItemEnum>AVAL</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_RegimeBarrage">
+      <ItemEnum>MANOEUVRANT</ItemEnum>
+      <ItemEnum>EFFACE</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_RegimeOrifice">
+      <ItemEnum>HORS_EAU</ItemEnum>
+      <ItemEnum>NSU_DEN</ItemEnum>
+      <ItemEnum>NSU_NOY</ItemEnum>
+      <ItemEnum>SUB_DEN</ItemEnum>
+      <ItemEnum>SUB_NOY</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_RegimeSeuil">
+      <ItemEnum>HORS_EAU</ItemEnum>
+      <ItemEnum>NSU_DEN</ItemEnum>
+      <ItemEnum>NSU_NOY</ItemEnum>
+      <ItemEnum>MIXTE</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_SensOrifice">
+      <ItemEnum>BIDIRECT</ItemEnum>
+      <ItemEnum>DIRECT</ItemEnum>
+      <ItemEnum>INDIRECT</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_SensOuv">
+      <ItemEnum>OUV_VERS_HAUT</ItemEnum>
+      <ItemEnum>OUV_VERS_BAS</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_Severite">
+      <ItemEnum>FATAL</ItemEnum>
+      <ItemEnum>ERRBLK</ItemEnum>
+      <ItemEnum>ERRNBLK</ItemEnum>
+      <ItemEnum>WARN</ItemEnum>
+      <ItemEnum>INFO</ItemEnum>
+      <ItemEnum>FCT1</ItemEnum>
+      <ItemEnum>FCT2</ItemEnum>
+      <ItemEnum>FCT3</ItemEnum>
+      <ItemEnum>DEBUG1</ItemEnum>
+      <ItemEnum>DEBUG2</ItemEnum>
+      <ItemEnum>DEBUG3</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_TypeLit">
+      <ItemEnum>MINEUR</ItemEnum>
+      <ItemEnum>MAJEUR</ItemEnum>
+      <ItemEnum>STOCKAGE</ItemEnum>
+    </ItemTypeEnum>
+    -->
+    <!-- En grammaire v1.1.1, ItemEnum n'a pas d'attribut Id
+         En grammaire v1.2,   ItemEnum a un attribut Id
+    -->
     <ItemTypeEnum Nom="Ten_ClicheOrigine">
       <ItemEnum Id="0">CalculPseudoPermanent</ItemEnum>
       <ItemEnum Id="1">CalculTransitoire</ItemEnum>
@@ -86,6 +173,10 @@
       <ItemEnum Id="1">LINEAIRE</ItemEnum>
       <ItemEnum Id="2">SAINT_VENANT</ItemEnum>
       <ItemEnum Id="3">BAIGNOIRE</ItemEnum>
+    </ItemTypeEnum>
+    <ItemTypeEnum Nom="Ten_Mode">
+      <ItemEnum Id="-1">DECRUE</ItemEnum>
+      <ItemEnum Id="1">MONTEE CRUE</ItemEnum>
     </ItemTypeEnum>
     <ItemTypeEnum Nom="Ten_PosBordure">
       <ItemEnum Id="0">PAS_BORDURE</ItemEnum>
@@ -153,6 +244,7 @@
       <!-- Permet d'affecter à la Nature un TypeNumerique de stockage, ce qui servira notamment à déterminer la valeur de l'infini -->
       <EpsilonComparaison>1E-5</EpsilonComparaison>
       <!-- Réel positif ne peut pas etre vide -->
+      <!-- ATTENTION, pas de EpsilonComparaisonFC en grammaire v1.1.1 -->
       <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
       <!-- Réel positif ne peut pas etre vide -->
       <EpsilonPresentation>1E-5</EpsilonPresentation>
@@ -223,22 +315,6 @@
       <EpsilonPresentation>1E-5</EpsilonPresentation>
       <Unite></Unite>
     </ItemNature>
-    <!-- Grammaire v1.3 : Nouvelle Nature Nat_CoefRelaxTolMaxQ -->
-    <ItemNature Nom="Nat_CoefRelaxTolMaxQ">
-      <TypeNumerique NomRef="Tnu_Entier" />
-      <EpsilonComparaison>1E0</EpsilonComparaison>
-      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
-      <EpsilonPresentation>1E0</EpsilonPresentation>
-      <Unite></Unite>
-    </ItemNature>
-    <!-- Grammaire v1.3 : Nouvelle Nature Nat_CoefRelaxTolMaxZ -->
-    <ItemNature Nom="Nat_CoefRelaxTolMaxZ">
-      <TypeNumerique NomRef="Tnu_Entier" />
-      <EpsilonComparaison>1E0</EpsilonComparaison>
-      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
-      <EpsilonPresentation>1E0</EpsilonPresentation>
-      <Unite></Unite>
-    </ItemNature>
     <ItemNature Nom="Nat_CoefRelCond">
       <TypeNumerique NomRef="Tnu_Reel" />
       <EpsilonComparaison>1E-4</EpsilonComparaison>
@@ -302,6 +378,13 @@
       <EpsilonPresentation>1E0</EpsilonPresentation>
       <Unite>s</Unite>
     </ItemNature>
+    <ItemNature Nom="Nat_DeltaQ">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>0.01</EpsilonComparaison>
+      <EpsilonComparaisonFC>0.01</EpsilonComparaisonFC>
+      <EpsilonPresentation>0.01</EpsilonPresentation>
+      <Unite>m^(3)/s</Unite>
+    </ItemNature>
     <ItemNature Nom="Nat_Dh">
       <TypeNumerique NomRef="Tnu_Reel" />
       <EpsilonComparaison>1E-5</EpsilonComparaison>
@@ -329,6 +412,13 @@
       <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
       <EpsilonPresentation>1E-3</EpsilonPresentation>
       <Unite>s</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Dvz">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-3</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-3</EpsilonPresentation>
+      <Unite>m/h</Unite>
     </ItemNature>
     <ItemNature Nom="Nat_Dx">
       <TypeNumerique NomRef="Tnu_Reel" />
@@ -414,27 +504,19 @@
       <EpsilonPresentation>1E-6</EpsilonPresentation>
       <Unite>s/m^(1/3)</Unite>
     </ItemNature>
-    <ItemNature Nom="Nat_Nbr">
-      <TypeNumerique NomRef="Tnu_Entier" />
-      <EpsilonComparaison>1E0</EpsilonComparaison>
-      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
-      <EpsilonPresentation>1E0</EpsilonPresentation>
-      <Unite></Unite>
-    </ItemNature>
-    <!-- Grammaire v1.3 : Nouvelle Nature Nat_NbrDecoupIncid -->
-    <ItemNature Nom="Nat_NbrDecoupIncid">
-      <TypeNumerique NomRef="Tnu_Entier" />
-      <EpsilonComparaison>1E0</EpsilonComparaison>
-      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
-      <EpsilonPresentation>1E0</EpsilonPresentation>
-      <Unite></Unite>
-    </ItemNature>
     <ItemNature Nom="Nat_Nsto">
       <TypeNumerique NomRef="Tnu_Reel" />
       <EpsilonComparaison>1E-6</EpsilonComparaison>
       <EpsilonComparaisonFC>1E-6</EpsilonComparaisonFC>
       <EpsilonPresentation>1E-6</EpsilonPresentation>
       <Unite>s/m^(1/3)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Nbr">
+      <TypeNumerique NomRef="Tnu_Entier" />
+      <EpsilonComparaison>1E0</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E0</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E0</EpsilonPresentation>
+      <Unite></Unite>
     </ItemNature>
     <ItemNature Nom="Nat_Num">
       <TypeNumerique NomRef="Tnu_Entier" />
@@ -512,6 +594,13 @@
       <EpsilonComparaisonFC>1E-3</EpsilonComparaisonFC>
       <EpsilonPresentation>1E-3</EpsilonPresentation>
       <Unite>kg/m/s^(2)</Unite>
+    </ItemNature>
+    <ItemNature Nom="Nat_Temperature_Recuit">
+      <TypeNumerique NomRef="Tnu_Reel" />
+      <EpsilonComparaison>1E-5</EpsilonComparaison>
+      <EpsilonComparaisonFC>1E-5</EpsilonComparaisonFC>
+      <EpsilonPresentation>1E-5</EpsilonPresentation>
+      <Unite></Unite>
     </ItemNature>
     <ItemNature Nom="Nat_Theta">
       <TypeNumerique NomRef="Tnu_Reel" />
@@ -592,22 +681,28 @@
     </ItemNature>
   </Natures>
   <!--
-		Conventions d'écriture :
-		- les infinis sont représentés par les chaines "-Infini" et "+Infini",
-		- les valeurs de cette section sont écrites sous forme de chaine de caractères
-			pouvant prendre les valeurs suivantes :
-			- "-Infini" - "+Infini" 
-			- une valeur numérique que l'on peut caster dans le type de la nature de la variable
-	-->
+    Conventions d'écriture :
+    - les infinis sont représentés par les chaines "-Infini" et "+Infini",
+    - les valeurs de cette section sont écrites sous forme de chaine de caractères
+      pouvant prendre les valeurs suivantes :
+      - "-Infini" - "+Infini" 
+      - une valeur numérique que l'on peut caster dans le type de la nature de la variable
+  -->
   <!--
-		Règles d'intégrité :
-		- le Min doit être inférieur ou égal au Max 
-		- dans le cas ou le Min et le max sont tous les deux Strict="true", alors le Min doit être strictement inférieur
-			au Max
-		- la plage (entre Min et Max) de Normalité doit etre incluse dans la plage de Validité
-		- rappel : l'ensemble de Validité est constitué de l'union de la plage de Validité
-			et de la valeur par défaut
-	-->
+    Règles d'intégrité :
+    - le Min doit être inférieur ou égal au Max 
+    - dans le cas ou le Min et le max sont tous les deux Strict="true", alors le Min doit être strictement inférieur
+      au Max
+    - la plage (entre Min et Max) de Normalité doit etre incluse dans la plage de Validité
+    - rappel : l'ensemble de Validité est constitué de l'union de la plage de Validité
+      et de la valeur par défaut
+  -->
+
+  <!-- En grammaire v1.1.1, la section <Constantes> n'existe pas, les constantes sont définies en <ItemVariable>
+         et les <ItemConstanteVecteur> n'existent pas
+       En grammaire v1.2,   la section <Constantes> existe, les constantes sont définies en <ItemConstante>
+         et les <ItemConstanteVecteur> existent
+  -->
   <Constantes>
     <ItemConstante Nom="DdPtgEpsilon">
       <Nature NomRef="Nat_D" />
@@ -889,7 +984,223 @@
   </Constantes>
 
   <Variables>
+    <!-- En grammaire v1.1.1, la section <Constantes> n'existe pas, les constantes sont définies en <ItemVariable>
+           et les <ItemConstanteVecteur> n'existent pas
+         En grammaire v1.2,   la section <Constantes> existe, les constantes sont définies en <ItemConstante>
+           et les <ItemConstanteVecteur> existent
+
+    <ItemVariable Nom="DdPtgEpsilon">
+      <Nature NomRef="Nat_D" />
+      <ValeurDefaut>0.001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DhLinSeuil">
+      <Nature NomRef="Nat_Dh" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DpPtgEpsilon">
+      <Nature NomRef="Nat_Dy" />
+      <ValeurDefaut>0.01</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DsPtgEpsilon">
+      <Nature NomRef="Nat_S" />
+      <ValeurDefaut>0.001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DxXtEpsilon">
+      <Nature NomRef="Nat_Dx" />
+      <ValeurDefaut>0.002</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DzLinOrifice">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DzLinSeuil">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DzLinStrickler">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DzPtgEpsilon">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.0001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DzPtgPlat">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.02</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DzPtgZhaut">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">+0.00001</MinNormalite>
+      <MaxNormalite Strict="false">+0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_Don_c9c9">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_Don_c9c10">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_Don_c10c10">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_RPT_c9c9">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_RPT_c9c10">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_RPT_c10c10">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_RCAL_c9c9">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_RCAL_c9c10">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="EpsCompRel_RCAL_c10c10">
+      <Nature NomRef="Nat_Eps" />
+      <ValeurDefaut>1E-6</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1E-8</MinNormalite>
+      <MaxNormalite Strict="false">1E-2</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Gr">
+      <Nature NomRef="Nat_Gravite" />
+      <ValeurDefaut>9.81</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrDecoupIncid">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>5</ValeurDefaut>
+      <MinValidite Strict="true">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrIterMax">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>100</ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="NbrIterMin">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>2</ValeurDefaut>
+      <MinValidite Strict="false">1</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">1</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TolMaxZPdt">
+      <Nature NomRef="Nat_TolZ" />
+      <ValeurDefaut>0.0001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="YminStrickler">
+      <Nature NomRef="Nat_Dz" />
+      <ValeurDefaut>0.001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">100.</MaxNormalite>
+    </ItemVariable>
+    -->
+
     <!-- Variables de type Enum -->
+    <!-- ATTENTION, pas de EnumValeurDefaut en grammaire v1.1.1 -->
     <ItemVariable Nom="FormulePdc">
       <TypeEnum NomRef="Ten_FormulePdc" />
       <EnumValeurDefaut>DIVERGENT</EnumValeurDefaut>
@@ -897,6 +1208,10 @@
     <ItemVariable Nom="MethodeInterpol">
       <TypeEnum NomRef="Ten_MethodeInterpol" />
       <EnumValeurDefaut>LINEAIRE</EnumValeurDefaut>
+    </ItemVariable>
+    <ItemVariable Nom="Mode">
+      <TypeEnum NomRef="Ten_Mode" />
+      <EnumValeurDefaut></EnumValeurDefaut>
     </ItemVariable>
     <ItemVariable Nom="PosBordure">
       <TypeEnum NomRef="Ten_PosBordure" />
@@ -930,6 +1245,9 @@
       <TypeEnum NomRef="Ten_TypeLit" />
       <EnumValeurDefaut></EnumValeurDefaut>
     </ItemVariable>
+    <!-- En grammaire v1.1.1 la verbosité est une variable de type numérique
+         En grammaire v1.2   la verbosité est une variable de type Enum
+    -->
     <ItemVariable Nom="Verbosite">
       <TypeEnum NomRef="Ten_Severite" />
       <EnumValeurDefaut>INFO</EnumValeurDefaut>
@@ -943,6 +1261,14 @@
       <MaxValidite Strict="false">+Infini</MaxValidite>
       <MinNormalite Strict="false">1.0</MinNormalite>
       <MaxNormalite Strict="false">1.5</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefAmplitude_Recuit">
+      <Nature NomRef="Nat_Theta" />
+      <ValeurDefaut>1.0</ValeurDefaut>
+      <MinValidite Strict="true">0.0</MinValidite>
+      <MaxValidite Strict="false">1</MaxValidite>
+      <MinNormalite Strict="true">0.0</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="CoefBeta">
       <Nature NomRef="Nat_CoefBeta" />
@@ -984,6 +1310,14 @@
       <MinNormalite Strict="false">0.2</MinNormalite>
       <MaxNormalite Strict="false">1</MaxNormalite>
     </ItemVariable>
+    <ItemVariable Nom="CoefDen">
+      <Nature NomRef="Nat_CoefD" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.2</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
+    </ItemVariable>
     <ItemVariable Nom="CoefDiv">
       <Nature NomRef="Nat_CoefDiv" />
       <ValeurDefaut>0</ValeurDefaut>
@@ -999,6 +1333,14 @@
       <MaxValidite Strict="false">+Infini</MaxValidite>
       <MinNormalite Strict="false">8</MinNormalite>
       <MaxNormalite Strict="false">60</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="CoefNoy">
+      <Nature NomRef="Nat_CoefD" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">0.0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0.2</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="CoefPdc">
       <Nature NomRef="Nat_CoefPdc" />
@@ -1022,22 +1364,6 @@
       <MinValidite Strict="true">0.0</MinValidite>
       <MaxValidite Strict="false">+Infini</MaxValidite>
       <MinNormalite Strict="true">0</MinNormalite>
-      <MaxNormalite Strict="false">+Infini</MaxNormalite>
-    </ItemVariable>
-    <ItemVariable Nom="CoefRelaxTolMaxQ">
-      <Nature NomRef="Nat_CoefRelaxTolMaxQ" />
-      <ValeurDefaut>10</ValeurDefaut>
-      <MinValidite Strict="false">1</MinValidite>
-      <MaxValidite Strict="false">+Infini</MaxValidite>
-      <MinNormalite Strict="false">1</MinNormalite>
-      <MaxNormalite Strict="false">+Infini</MaxNormalite>
-    </ItemVariable>
-    <ItemVariable Nom="CoefRelaxTolMaxZ">
-      <Nature NomRef="Nat_CoefRelaxTolMaxZ" />
-      <ValeurDefaut>10</ValeurDefaut>
-      <MinValidite Strict="false">1</MinValidite>
-      <MaxValidite Strict="false">+Infini</MaxValidite>
-      <MinNormalite Strict="false">1</MinNormalite>
       <MaxNormalite Strict="false">+Infini</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="CoefRelaxZ">
@@ -1152,6 +1478,14 @@
       <MinNormalite Strict="false">0</MinNormalite>
       <MaxNormalite Strict="false">+Infini</MaxNormalite>
     </ItemVariable>
+    <ItemVariable Nom="DeltaQ_DonneesAOC">
+      <Nature NomRef="Nat_DeltaQ" />
+      <ValeurDefaut>0</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
     <ItemVariable Nom="DureeCalc">
       <Nature NomRef="Nat_Dt" />
       <ValeurDefaut>86400</ValeurDefaut>
@@ -1199,6 +1533,14 @@
       <MaxValidite Strict="false">+Infini</MaxValidite>
       <MinNormalite Strict="false">-Infini</MinNormalite>
       <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="DvzRattrap">
+      <Nature NomRef="Nat_Dvz" />
+      <ValeurDefaut>0.1</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.5</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="Dz">
       <Nature NomRef="Nat_Dz" />
@@ -1301,8 +1643,8 @@
       <ValeurDefaut></ValeurDefaut>
       <MinValidite Strict="false">-Infini</MinValidite>
       <MaxValidite Strict="false">+Infini</MaxValidite>
-      <MinNormalite Strict="false">-0.1</MinNormalite>
-      <MaxNormalite Strict="false">0</MaxNormalite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="Jf">
       <Nature NomRef="Nat_Jfx" />
@@ -1440,6 +1782,14 @@
       <MinNormalite Strict="false">0</MinNormalite>
       <MaxNormalite Strict="false">+Infini</MaxNormalite>
     </ItemVariable>
+    <ItemVariable Nom="LoiRegul">
+      <Nature NomRef="Nat_Nbr" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">10</MaxNormalite>
+    </ItemVariable>
     <ItemVariable Nom="Longueur">
       <Nature NomRef="Nat_Dx" />
       <ValeurDefaut></ValeurDefaut>
@@ -1551,14 +1901,6 @@
       <MaxValidite Strict="false">+Infini</MaxValidite>
       <MinNormalite Strict="false">0</MinNormalite>
       <MaxNormalite Strict="false">2500</MaxNormalite>
-    </ItemVariable>
-    <ItemVariable Nom="NbrDecoupIncid">
-      <Nature NomRef="Nat_Nbr" />
-      <ValeurDefaut></ValeurDefaut>
-      <MinValidite Strict="true">1</MinValidite>
-      <MaxValidite Strict="false">+Infini</MaxValidite>
-      <MinNormalite Strict="true">1</MinNormalite>
-      <MaxNormalite Strict="false">10</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="NbrLitMax">
       <Nature NomRef="Nat_Nbr" />
@@ -2040,6 +2382,30 @@
       <MinNormalite Strict="false">0</MinNormalite>
       <MaxNormalite Strict="false">+Infini</MaxNormalite>
     </ItemVariable>
+    <ItemVariable Nom="SeuilQmax_CritereTransAOC">
+      <Nature NomRef="Nat_TolQ" />
+      <ValeurDefaut>0.00001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SeuilRMSEQ_CritereTransAOC">
+      <Nature NomRef="Nat_TolQ" />
+      <ValeurDefaut>0.00001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SeuilRMSEZ_CriterePermTransAOC">
+      <Nature NomRef="Nat_TolZ" />
+      <ValeurDefaut>0.0000001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">0.001</MaxNormalite>
+    </ItemVariable>
     <ItemVariable Nom="SeuilSimplifProfilCasier">
       <Nature NomRef="Nat_SeuilSimplif" />
       <ValeurDefaut>0.1</ValeurDefaut>
@@ -2055,6 +2421,30 @@
       <MaxValidite Strict="false">+Infini</MaxValidite>
       <MinNormalite Strict="true">0</MinNormalite>
       <MaxNormalite Strict="false">2.0</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SeuilTarriveeMax_CritereTransAOC">
+      <Nature NomRef="Nat_Dt" />
+      <ValeurDefaut>0.00001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">30</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SeuilVol_CritereTransAOC">
+      <Nature NomRef="Nat_Vol" />
+      <ValeurDefaut>0.00001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="SeuilZmax_CritereTransAOC">
+      <Nature NomRef="Nat_TolZ" />
+      <ValeurDefaut>0.0000001</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">0</MinNormalite>
+      <MaxNormalite Strict="false">0.01</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="Smin">
       <Nature NomRef="Nat_S" />
@@ -2167,6 +2557,22 @@
       <MaxValidite Strict="false">+Infini</MaxValidite>
       <MinNormalite Strict="false">0</MinNormalite>
       <MaxNormalite Strict="false">1000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TemperatureFinale_Recuit">
+      <Nature NomRef="Nat_Temperature_Recuit" />
+      <ValeurDefaut>0.01</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">1</MaxValidite>
+      <MinNormalite Strict="true">0</MinNormalite>
+      <MaxNormalite Strict="false">0.1</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="TemperatureInitiale_Recuit">
+      <Nature NomRef="Nat_Temperature_Recuit" />
+      <ValeurDefaut>0.5</ValeurDefaut>
+      <MinValidite Strict="true">0</MinValidite>
+      <MaxValidite Strict="false">1</MaxValidite>
+      <MinNormalite Strict="false">0.5</MinNormalite>
+      <MaxNormalite Strict="false">1</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="TempsCalc">
       <Nature NomRef="Nat_Dt" />
@@ -2288,6 +2694,17 @@
       <MinNormalite Strict="false">-15</MinNormalite>
       <MaxNormalite Strict="false">+15</MaxNormalite>
     </ItemVariable>
+    <!-- En grammaire v1.1.1 la verbosité est une variable de type numérique
+         En grammaire v1.2   la verbosité est une variable de type Enum
+    <ItemVariable Nom="Verbosite">
+      <Nature NomRef="Nat_Num" />
+      <ValeurDefaut>1</ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-Infini</MinNormalite>
+      <MaxNormalite Strict="false">+Infini</MaxNormalite>
+    </ItemVariable>
+    -->
     <ItemVariable Nom="Vol">
       <Nature NomRef="Nat_Vol" />
       <ValeurDefaut></ValeurDefaut>
@@ -2327,14 +2744,6 @@
       <MaxValidite Strict="false">+Infini</MaxValidite>
       <MinNormalite Strict="false">0</MinNormalite>
       <MaxNormalite Strict="false">+100</MaxNormalite>
-    </ItemVariable>
-    <ItemVariable Nom="Yact">
-      <Nature NomRef="Nat_Dz" />
-      <ValeurDefaut></ValeurDefaut>
-      <MinValidite Strict="false">-Infini</MinValidite>
-      <MaxValidite Strict="false">+Infini</MaxValidite>
-      <MinNormalite Strict="false">0</MinNormalite>
-      <MaxNormalite Strict="false">+20</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="Yc">
       <Nature NomRef="Nat_Dz" />
@@ -2385,6 +2794,14 @@
       <MaxNormalite Strict="false">+Infini</MaxNormalite>
     </ItemVariable>
     <ItemVariable Nom="Zc">
+      <Nature NomRef="Nat_Z" />
+      <ValeurDefaut></ValeurDefaut>
+      <MinValidite Strict="false">-Infini</MinValidite>
+      <MaxValidite Strict="false">+Infini</MaxValidite>
+      <MinNormalite Strict="false">-15</MinNormalite>
+      <MaxNormalite Strict="false">+4000</MaxNormalite>
+    </ItemVariable>
+    <ItemVariable Nom="Zcns">
       <Nature NomRef="Nat_Z" />
       <ValeurDefaut></ValeurDefaut>
       <MinValidite Strict="false">-Infini</MinValidite>
@@ -2506,6 +2923,7 @@
     </ItemVariable>
   </Variables>
   <ConfigLois>
+    <!-- ATTENTION, pas de Commentaire en v1.2 -->
     <ItemConfigLoi Nom="Fk">
       <!-- <Commentaire>Frottement donné en Strickler</Commentaire> -->
       <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
@@ -2601,6 +3019,22 @@
       <VarAbscisse NomRef="Q" />
       <VarOrdonnee NomRef="Zimp" />
     </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiZZimp">
+      <!-- <Commentaire>Loi de régulation: canal de Savières</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Z" />
+      <VarOrdonnee NomRef="Zimp" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiQQ">
+      <!-- <Commentaire>Loi de régulation: Bg1, Bg2, Usi</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdInterpolLineaire" />
+      <VarAbscisse NomRef="Q" />
+      <VarOrdonnee NomRef="Q" />
+    </ItemConfigLoi>
     <ItemConfigLoi Nom="LoiSectionsZ">
       <TypeControleLoi NomRef="Tco_Aucun" />
       <ExtrapolInf NomRef="Tex_Aucun" />
@@ -2614,6 +3048,14 @@
       <ExtrapolInf NomRef="Tex_OrdCst" />
       <ExtrapolSup NomRef="Tex_OrdCst" />
       <VarAbscisse NomRef="TempsLoi" />
+      <VarOrdonnee NomRef="Ouv" />
+    </ItemConfigLoi>
+    <ItemConfigLoi Nom="LoiQOuv">
+      <!-- <Commentaire>Loi de régulation: manœuvre</Commentaire> -->
+      <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
+      <ExtrapolInf NomRef="Tex_OrdCst" />
+      <ExtrapolSup NomRef="Tex_OrdCst" />
+      <VarAbscisse NomRef="Q" />
       <VarOrdonnee NomRef="Ouv" />
     </ItemConfigLoi>
     <ItemConfigLoi Nom="LoiTQ">
@@ -2791,7 +3233,7 @@
       <VarOrdonnee NomRef="Sact" />
     </ItemConfigLoi>
     <ItemConfigLoi Nom="LoiZSmaj">
-      <!-- <Commentaire>Aire de la section mouillée du lit majeur en fonction de	la cote</Commentaire> -->
+      <!-- <Commentaire>Aire de la section mouillée du lit majeur e n fonction de la cote</Commentaire> -->
       <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
       <ExtrapolInf NomRef="Tex_OrdCst" />
       <ExtrapolSup NomRef="Tex_OrdCst" />
@@ -2799,7 +3241,7 @@
       <VarOrdonnee NomRef="Smaj" />
     </ItemConfigLoi>
     <ItemConfigLoi Nom="LoiZSmin">
-      <!-- <Commentaire>Aire de la section mouillée du lit mineur en fonction de	la cote</Commentaire> -->
+      <!-- <Commentaire>Aire de la section mouillée du lit mineur en fonction de la cote</Commentaire> -->
       <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
       <ExtrapolInf NomRef="Tex_OrdCst" />
       <ExtrapolSup NomRef="Tex_OrdCst" />

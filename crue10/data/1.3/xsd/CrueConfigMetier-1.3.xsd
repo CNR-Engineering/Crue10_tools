@@ -194,7 +194,7 @@
 					<xs:complexType>
 						<xs:simpleContent>
 							<xs:extension base="TypeToken32">
-								<xs:attribute name="Id" type="xs:nonNegativeInteger" use="required"/>
+								<xs:attribute name="Id" type="xs:integer" use="required"/>
 							</xs:extension>
 						</xs:simpleContent>
 					</xs:complexType>
