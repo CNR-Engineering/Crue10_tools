@@ -74,9 +74,10 @@
 										<xs:element ref="OPTG" />
 										<xs:element ref="OPTI" />
 										<xs:element ref="PNUM" />
-										<xs:element ref="DPTI" />
-										<xs:element ref="RPTR" minOccurs="0"/>
-										<xs:element ref="RPTI" minOccurs="0"/>
+                    <xs:element ref="DPTI" />
+                    <xs:element ref="DREG" />
+                    <xs:element ref="RPTR" minOccurs="0"/>
+                    <xs:element ref="RPTI" minOccurs="0"/>
 										<!--un Modele peut avoir plusieurs sous-modeles.-->
 									</xs:all>
 								</xs:complexType>

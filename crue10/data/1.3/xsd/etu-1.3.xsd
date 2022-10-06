@@ -249,7 +249,7 @@
 			<xs:element ref="OPTI" />
 			<xs:element ref="PNUM" />
 			<xs:element ref="DPTI" />
-			<xs:element ref="DREG" minOccurs="0" /> <!-- Ajout MEC-Crue10-->
+			<xs:element ref="DREG" />
 		</xs:sequence>
 	</xs:complexType>
 
