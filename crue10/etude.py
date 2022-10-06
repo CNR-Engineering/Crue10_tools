@@ -605,9 +605,9 @@ class Etude(EnsembleFichiersXML):
             time.sleep(sleep)
 
     def check_xml_files(self, folder=None):
-        """Validation des fichiers XML à partir des schémas XSD de la grammaire d el'étude"""
+        """Validation des fichiers XML à partir des schémas XSD de la grammaire de l'étude"""
         errors = {}
-        for file_path in self.filename_list:
+        for file_path in [self.etu_path] + self.filename_list:
             errors[file_path] = self._check_xml_file(file_path)
         return errors
 
