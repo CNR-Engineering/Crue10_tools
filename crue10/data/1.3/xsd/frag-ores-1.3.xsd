@@ -26,7 +26,7 @@
 		<xs:complexType>
 			<xs:simpleContent>
 				<xs:extension base="xs:boolean">
-					<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required"/>
+					<xs:attribute name="NomRef" type="xs:token" use="required"/>
 				</xs:extension>
 			</xs:simpleContent>
 		</xs:complexType>
