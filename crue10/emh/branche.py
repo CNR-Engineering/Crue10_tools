@@ -346,7 +346,7 @@ class BrancheAvecElementsSeuil(Branche, ABC):
 
         :param largeur: largeur maximale des éléments de seuil
         :type largeur: float
-        :param delta_z: page dans laquelle rediscrétiser les éléments de seuil
+        :param delta_z: plage dans laquelle rediscrétiser les éléments de seuil
         :type delta_z: float
         """
         new_elements_seuil = []
@@ -354,9 +354,10 @@ class BrancheAvecElementsSeuil(Branche, ABC):
             if larg < largeur:
                 new_elements_seuil.append([larg, z_seuil, coef_d, coef_pdc])
             else:
-                nb_decoupages = ceil(larg/largeur)
-                new_largeur = larg/nb_decoupages
-                for new_z_seuil in np.linspace(start=z_seuil - delta_z/2, stop=z_seuil + delta_z/2, num=nb_decoupages):
+                nb_decoupages = ceil(larg/largeur) + 2  # les bords seront ignorées
+                new_largeur = larg/(nb_decoupages - 2)
+                for new_z_seuil in np.linspace(start=z_seuil - delta_z/2,
+                                               stop=z_seuil + delta_z/2, num=nb_decoupages)[1:-1]:
                     new_elements_seuil.append([new_largeur, new_z_seuil, coef_d, coef_pdc])
         self.set_liste_elements_seuil(np.array(new_elements_seuil))
 

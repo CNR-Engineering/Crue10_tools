@@ -1,8 +1,9 @@
 import numpy as np
+from numpy.testing import assert_array_almost_equal
 from shapely.geometry import Point, LineString, LinearRing
 import unittest
 
-from crue10.emh.branche import BrancheSaintVenant
+from crue10.emh.branche import BrancheSaintVenant, BrancheSeuilLateral
 from crue10.emh.noeud import Noeud
 from crue10.utils import ExceptionCrue10
 
@@ -35,7 +36,29 @@ class BrancheTestCase(unittest.TestCase):
 
     # BrancheAvecElementsSeuil
     def test_branche_avec_elements_seuil_decouper_seuil_elem(self):
-        pass
+        branche = BrancheSeuilLateral('Br_seuil', self.noeud_amont, self.noeud_aval)
+        branche.set_liste_elements_seuil_avec_coef_par_defaut(np.array([
+            (85.86, 168.3),
+            (104.98, 168.6),
+            (270, 168.9),
+            (29.86, 169.2),
+            (13.95, 169.5),
+            (8.55, 169.8),
+        ]))
+
+        branche.decouper_seuil_elem(100.0, 0.3)
+
+        assert_array_almost_equal(branche.liste_elements_seuil[:, :2], np.array([
+            (85.86, 168.3),
+            (52.49, 168.55),
+            (52.49, 168.65),
+            (90, 168.825),
+            (90, 168.9),
+            (90, 168.975),
+            (29.86, 169.2),
+            (13.95, 169.5),
+            (8.55, 169.8),
+        ]))
 
     def test_branche_avec_elements_seuil_get_min_z(self):
         pass
