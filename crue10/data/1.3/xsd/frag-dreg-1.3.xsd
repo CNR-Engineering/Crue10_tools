@@ -76,13 +76,13 @@
 				<xs:element name="QabsExt" type="TypeQabsExt" />
 			</xs:choice>
 		</xs:sequence>
-		<xs:attribute name="Nom" type="TypeForAttributeNom" use="required" />
+		<xs:attribute name="Nom" type="TypeForAttributeNomRefDistant" use="required" />
 	</xs:complexType>
 	<xs:complexType name="TypeDefZregul">
 		<xs:choice>
 			<xs:element name="Zabs" type="TypeZabs" />
 		</xs:choice>
-		<xs:attribute name="Nom" type="TypeForAttributeNom" use="required" />
+		<xs:attribute name="Nom" type="TypeForAttributeNomRefDistant" use="required" />
 	</xs:complexType>
 	<xs:element name="DefQZreguls">
 		<xs:complexType>
