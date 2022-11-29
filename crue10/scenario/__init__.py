@@ -2,8 +2,10 @@
 from builtins import super  # Python2 fix
 from collections import OrderedDict
 from copy import deepcopy
+from lxml import etree
 import numpy as np
 import os.path
+import re
 import shutil
 import time
 
@@ -12,7 +14,8 @@ from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
     ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, get_xml_root_from_file, \
-    logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree, DATA_FOLDER_ABSPATH
+    JINJA_ENV, logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree, DATA_FOLDER_ABSPATH
+from crue10.utils.crueconfigmetier import CCM_FILE
 from crue10.utils.settings import CRUE10_EXE_PATH
 from crue10.utils.sorties import Sorties
 from .calcul import Calcul, CalcPseudoPerm, CalcTrans
@@ -956,6 +959,58 @@ class Scenario(EnsembleFichiersXML):
         self.liste_ord_calc_pseudoperm = [OrdCalcPseudoPerm(calcul.id, ('IniCalcCI', None), None)]
         self.liste_ord_calc_trans = [OrdCalcTrans(new_calcul.id, duree_float, self.modele.get_pnum_CalcTrans_PdtCst(),
                                                   ('IniCalcPrecedent', None), None, None)]
+
+    def get_rendered_xml_scenario(self, folder):
+        """
+        Obtenir le contenu du fichier scenario.xml généré à la volée
+
+        :param folder: chemin du dossier contenant les fichiers XML du scénario
+        :type folder: str
+        :return: chaîne de caractères avec le contenu XML
+        :rtype: str
+        """
+        logger.debug("Validation XSD (grammaire %s) du %s" % (self.version_grammaire, self))
+
+        template_path = self.version_grammaire + '/templates/scenario.xml'  # os.path.join not working on Windows
+        template_render = JINJA_ENV.get_template(template_path).render(
+            crueconfigmetier_path=CCM_FILE,
+            folder=folder,
+            scenario=self,
+            modele=self.modele,
+            sous_modele_liste=self.modele.liste_sous_modeles,
+        )
+        template_render = template_render.replace(os.sep, '/')
+        return template_render
+
+    def check_xml_scenario(self, folder):
+        """
+        Validation XML du scénario par rapport à son schéma XSD
+
+        :param folder: chemin du dossier contenant les fichiers XML du scénario
+        :type folder: str
+        :return: liste des erreurs
+        :rtype: list(str)
+        """
+        template_render = self.get_rendered_xml_scenario(folder)
+        tree = etree.ElementTree(etree.fromstring(template_render.encode('utf-8')))
+        tree.xinclude()  # replace `xi:include` by its content
+        content = etree.tostring(tree).decode('utf-8')
+        content = re.sub(r' xml:base="file:/(.*?)"', '', content)
+
+        xsd_tree = etree.parse(os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
+                                            '%s-%s.xsd' % ('scenario', self.version_grammaire)))
+        errors_list = []
+        xmlschema = etree.XMLSchema(xsd_tree)
+        try:
+            xml_tree = etree.fromstring(content)
+            try:
+                xmlschema.assertValid(xml_tree)
+            except etree.DocumentInvalid:
+                for error in xmlschema.error_log:
+                    errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
+        except etree.XMLSyntaxError as e:
+            errors_list.append('Error XML: %s' % e)
+        return errors_list
 
     def __repr__(self):
         return "Scénario %s" % self.id

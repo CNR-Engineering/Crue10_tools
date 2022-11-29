@@ -196,7 +196,7 @@ class EnsembleFichiersXML(ABC):
             out.write(template_render)
 
     def _check_xml_file(self, file_path):
-        logger.debug("Checking XSD validation (grammaire %s) on %s" % (self.version_grammaire, file_path))
+        logger.debug("Validation XSD (grammaire %s) de %s" % (self.version_grammaire, file_path))
         errors_list = []
         file_splitted = file_path.split('.')
         if len(file_splitted) > 2:
@@ -211,14 +211,20 @@ class EnsembleFichiersXML(ABC):
                     xml_tree = etree.fromstring(content)
                     try:
                         xmlschema.assertValid(xml_tree)
-                    except etree.DocumentInvalid as e:
-                        errors_list.append('Invalid XML: %s' % e)
+                    except etree.DocumentInvalid:
+                        for error in xmlschema.error_log:
+                            errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
                 except etree.XMLSyntaxError as e:
                     errors_list.append('Error XML: %s' % e)
         return errors_list
 
     def check_xml_files(self, folder=None):
-        """Vérifier les fichiers XML"""
+        """
+        Validation XML des fichiers à leur schéma XSD
+
+        :return: liste des erreurs
+        :rtype: list(str)
+        """
         if folder is None:
             filename_list = [filename for _, filename in self.files.items()]
         else:

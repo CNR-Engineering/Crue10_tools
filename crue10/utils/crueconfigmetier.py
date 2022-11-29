@@ -5,7 +5,7 @@ from crue10.utils import DATA_FOLDER_ABSPATH, ExceptionCrue10, PREFIX
 
 
 #: Chemin vers le fichier CCM
-CCM_FILE = os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml')
+CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml'))
 
 
 ENUM_SEVERITE = {}
