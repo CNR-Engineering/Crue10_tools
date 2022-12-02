@@ -29,8 +29,7 @@ class EndToEndTestCase(unittest.TestCase):
         folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', version_grammaire, 'Etu_from_scratch')
         etu_path = os.path.join(folder_out, 'Etu_from_scratch.etu.xml')
         etude = Etude(etu_path, mode='w', version_grammaire=version_grammaire)
-        etude.create_empty_scenario('Sc_from_scratch', 'Mo_from_scratch', 'Sm_from_scratch',
-                                    version_grammaire=version_grammaire)
+        etude.create_empty_scenario('Sc_from_scratch', 'Mo_from_scratch', 'Sm_from_scratch')
         from snippets.construire_et_ecrire_sous_modele import sous_modele
         sous_modele.changer_version_grammaire(version_grammaire)
         sous_modele_out = etude.get_sous_modele('Sm_from_scratch')

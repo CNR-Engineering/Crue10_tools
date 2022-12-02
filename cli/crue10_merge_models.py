@@ -25,11 +25,12 @@ from crue10.etude import Etude
 from crue10.utils import ExceptionCrue10, logger
 from crue10.utils.cli_parser import MyArgParse
 
-
 def crue10_merge_models(args):
     if len(args.etu_path_list) != len(args.mo_name_list) != len(args.suffix_list):
         raise ExceptionCrue10("Les arguments `--etu_path_list`, `--suffix_list` et `--mo_name_list`"
-                        " n'ont pas la même longueur !")
+                              " n'ont pas la même longueur !")
+    if len(args.etu_path_list) < 2:
+        raise ExceptionCrue10('Il faut mentionner au moins les deux modèles à fusionner')
 
     # Parse argument `--nodes_to_share`
     nb_models = len(args.mo_name_list)
@@ -50,7 +51,8 @@ def crue10_merge_models(args):
             if not reference_found:
                 raise ExceptionCrue10("Le noeud de référence n'a pas pu être trouvé pour : `%s`" % nodes_str)
 
-    study_out = Etude(args.etu_path_out, mode='w')
+    study_first = Etude(args.etu_path_list[0], mode='r')
+    study_out = Etude(args.etu_path_out, mode='w', version_grammaire=study_first.version_grammaire)
     study_out.create_empty_scenario('Sc_%s' % args.out_name, 'Mo_%s' % args.out_name, nom_sous_modele=None)
     model_out = study_out.get_modele('Mo_%s' % args.out_name)
 

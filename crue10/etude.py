@@ -375,8 +375,7 @@ class Etude(EnsembleFichiersXML):
         self.ajouter_modele(scenario.modele)
         self.scenarios[scenario.id] = scenario
 
-    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None,
-                              version_grammaire=VERSION_GRAMMAIRE_COURANTE, comment=''):
+    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, comment=''):
         """
         Créer scénario vierge (avec son modèle et sous-modèle associé)
 
@@ -386,11 +385,10 @@ class Etude(EnsembleFichiersXML):
         :type nom_modele: str
         :param nom_sous_modele: nom du sous-modèle (optionnel)
         :type nom_sous_modele: str
-        :param version_grammaire: version de la grammaire
-        :type version_grammaire: str
         :param comment: commentaire (optionnel)
         :type comment: str
         """
+        version_grammaire = self.version_grammaire
         modele = Modele(nom_modele, mode=self.mode, metadata={'Commentaire': comment},
                         version_grammaire=version_grammaire)
         if nom_sous_modele is not None:
