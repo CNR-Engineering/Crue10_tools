@@ -297,8 +297,8 @@
 				externe au scénario courant
 			</xs:documentation>
 		</xs:annotation>
-		<xs:attribute name="NomRef" type="TypeForAttributeNomSection" use="required" />
-		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalc" use="optional" />
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefSectionExt" use="required" />
+		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalcTransExt" use="optional" />
 		<xs:attribute name="NomFic" type="xs:token" use="required" />
 	</xs:complexType>
 

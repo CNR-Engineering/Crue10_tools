@@ -59,8 +59,8 @@
 		<xs:attribute name="Pond" type="xs:double" use="optional" default="1" />
 	</xs:complexType>
 	<xs:complexType name="TypeQabsExt">
-		<xs:attribute name="NomRef" type="TypeForAttributeNomRefSection" use="required" />
-		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalc" use="optional" />
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefSectionExt" use="required" />
+		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalcTransExt" use="optional" />
 		<xs:attribute name="NomFic" type="xs:token" use="required" />
 		<xs:attribute name="Pond" type="xs:double" use="optional" default="1" />
 	</xs:complexType>
