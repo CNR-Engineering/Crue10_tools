@@ -59,8 +59,8 @@
 		<xs:attribute name="Pond" type="xs:double" use="optional" default="1" />
 	</xs:complexType>
 	<xs:complexType name="TypeQabsExt">
-		<xs:attribute name="NomRef" type="TypeForAttributeNomRefSectionExt" use="required" />
-		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalcTransExt" use="optional" />
+		<xs:attribute name="NomRef" type="TypeForAttributeNomRefSection" use="required" />
+		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalc" use="optional" />
 		<xs:attribute name="NomFic" type="xs:token" use="required" />
 		<xs:attribute name="Pond" type="xs:double" use="optional" default="1" />
 	</xs:complexType>
@@ -76,13 +76,13 @@
 				<xs:element name="QabsExt" type="TypeQabsExt" />
 			</xs:choice>
 		</xs:sequence>
-		<xs:attribute name="Nom" type="TypeForAttributeNom" use="required" />
+		<xs:attribute name="Nom" type="TypeForAttributeNomRefDistant" use="required" />
 	</xs:complexType>
 	<xs:complexType name="TypeDefZregul">
 		<xs:choice>
 			<xs:element name="Zabs" type="TypeZabs" />
 		</xs:choice>
-		<xs:attribute name="Nom" type="TypeForAttributeNom" use="required" />
+		<xs:attribute name="Nom" type="TypeForAttributeNomRefDistant" use="required" />
 	</xs:complexType>
 	<xs:element name="DefQZreguls">
 		<xs:complexType>

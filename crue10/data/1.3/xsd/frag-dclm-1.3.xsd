@@ -29,9 +29,10 @@
 		Spécialisation de TypeNomRefDistant pour MEC-Crue10
 	-->
 	<xs:complexType name="TypeManoeuvreRegul">
-		<xs:attribute type="xs:token" name="Param" use="required" />
 		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef" use="required" />
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="Param" use="required" />
 	</xs:complexType>
+
 	<!--
 		Elément IsActive de référence
 	-->
@@ -296,8 +297,8 @@
 				externe au scénario courant
 			</xs:documentation>
 		</xs:annotation>
-		<xs:attribute name="NomRef" type="TypeForAttributeNomRefSectionExt" use="required" />
-		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalcTransExt" use="optional" />
+		<xs:attribute name="NomRef" type="TypeForAttributeNomSection" use="required" />
+		<xs:attribute name="ResCalcTrans" type="TypeForAttributeNomRefCalc" use="optional" />
 		<xs:attribute name="NomFic" type="xs:token" use="required" />
 	</xs:complexType>
 
