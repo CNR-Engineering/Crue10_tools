@@ -163,13 +163,13 @@
 	</xs:simpleType>
 
 	<xs:simpleType name="TypeForAttributeNomRefCalcTransExt">
-		<xs:restriction base="TypeForAttributeNomRefDistant">
+		<xs:restriction base="xs:token">
 			<xs:pattern value="Cc_.*"></xs:pattern>
 		</xs:restriction>
 	</xs:simpleType>
 
 	<xs:simpleType name="TypeForAttributeNomRefSectionExt">
-		<xs:restriction base="TypeForAttributeNomRefDistant">
+		<xs:restriction base="xs:token">
 			<xs:pattern value="St_.*"></xs:pattern>
 		</xs:restriction>
 	</xs:simpleType>
