@@ -230,8 +230,8 @@ class Modele(EnsembleFichiersXML):
 
     def get_liste_sections(self, section_type=None, ignore_inactive=False):
         """
-        :param section_type: classe du type de section (ie. classe fille de Section)
-        :type section_type: list, optional
+        :param section_type: classe du type de section (ie. classe fille de `Section`, par ex. `SectionProfil`)
+        :type section_type: class, optional
         :param ignore_inactive:
         :type ignore_inactive: bool, optional
         :return: liste des sections
@@ -438,7 +438,7 @@ class Modele(EnsembleFichiersXML):
         :type nom_noeud_amont: str
         :param nom_noeud_aval: nom du noeud aval
         :type nom_noeud_aval: str
-        :return: list(Branche)
+        :rtype: list(Branche)
         """
         try:
             import networkx as nx

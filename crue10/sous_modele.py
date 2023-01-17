@@ -275,8 +275,8 @@ class SousModele(EnsembleFichiersXML):
 
     def get_liste_sections(self, section_type=None, ignore_inactive=False):
         """
-        :param section_type: classe du type de section (ie. classe fille de Section)
-        :type section_type: list, optional
+        :param section_type: classe du type de section (ie. classe fille de `Section`, par ex. `SectionProfil`)
+        :type section_type: class, optional
         :param ignore_inactive: True pour ignorer les sections inactives
         :type ignore_inactive: bool, optional
         :return: liste des sections
