@@ -1012,5 +1012,16 @@ class Scenario(EnsembleFichiersXML):
             errors_list.append('Error XML: %s' % e)
         return errors_list
 
+    def log_check_xml_scenario(self, folder):
+        """Afficher le bilan de la vérification XML du scénario"""
+        errors = self.check_xml_scenario(folder)
+        nb_errors = len(errors)
+        for i, error in enumerate(errors):
+            logger.error("    #%i: %s" % (i, error))
+        if nb_errors == 0:
+            logger.info("=> Aucune erreur dans le scénario %s" % self)
+        else:
+            logger.error("=> %i erreur(s) dans le scénario %s" % (nb_errors, self))
+
     def __repr__(self):
         return "Scénario %s" % self.id
