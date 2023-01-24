@@ -3,16 +3,16 @@
   <Commentaire>{{ comment|html_escape }}</Commentaire>
   <Sorties>
     <Avancement>
-      <SortieFichier>true</SortieFichier>
+      <SortieFichier>{{ sorties.avancement.SortieFichier }}</SortieFichier>
     </Avancement>
     <Trace>
-      <SortieEcran>true</SortieEcran>
-      <SortieFichier>true</SortieFichier>
-      <VerbositeEcran>INFO</VerbositeEcran>
-      <VerbositeFichier>INFO</VerbositeFichier>
+      <SortieEcran>{{ sorties.trace.SortieEcran }}</SortieEcran>
+      <SortieFichier>{{ sorties.trace.SortieFichier }}</SortieFichier>
+      <VerbositeEcran>{{ sorties.trace.VerbositeEcran }}</VerbositeEcran>
+      <VerbositeFichier>{{ sorties.trace.VerbositeFichier }}</VerbositeFichier>
     </Trace>
     <Resultat>
-      <SortieFichier>true</SortieFichier>
+      <SortieFichier>{{ sorties.resultat.SortieFichier }}</SortieFichier>
     </Resultat>
   </Sorties>
   {%- for ord_calc in liste_ord_calc_pseudoperm %}
