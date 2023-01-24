@@ -22,7 +22,7 @@ class EndToEndTestCase(unittest.TestCase):
             nb_common_xml -= 1  # dreg
         self.assertEqual(len(comparison.common), nb_common_xml)
         self.assertEqual(len(comparison.left_only), 0)
-        # self.assertEqual(len(comparison.right_only), 0)
+        self.assertEqual(len(comparison.right_only), 0)
         self.assertEqual(len(comparison.diff_files), 1 if etu_changed else 0)  # etu.xml
 
     def _test_write_from_scratch(self, version_grammaire):

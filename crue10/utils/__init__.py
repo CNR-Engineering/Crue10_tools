@@ -3,6 +3,7 @@ from builtins import super  # Python2 fix
 from datetime import datetime
 from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
+from jinja2.filters import do_lower
 import logging
 import numpy as np
 import os
@@ -176,9 +177,10 @@ def write_xml_from_tree(xml_tree, file_path):
 
 JINJA_ENV = Environment(loader=FileSystemLoader(os.path.join(DATA_FOLDER_ABSPATH)))
 JINJA_ENV.filters = {
-    'float2str': float2str,
     'abs': abs,
+    'float2str': float2str,
     'html_escape': html_escape,
+    'lower': do_lower,
 }
 
 
