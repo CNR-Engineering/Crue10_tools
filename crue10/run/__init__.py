@@ -127,6 +127,8 @@ class Run:
 
         # Run crue10.exe in command line and redirect stdout and stderr in csv files
         etu_path = os.path.join(run_folder, self.etude_basename)
+        if 'cygwin' in os.path.basename(exe_path):  # Hack for cygwin paths
+            etu_path = etu_path.replace('C:', '/cygdrive/c')
         cmd_list = [exe_path] + exe_opts + [etu_path]
         logger.info("Éxécution : %s" % ' '.join(cmd_list))
         with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
