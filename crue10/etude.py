@@ -482,7 +482,7 @@ class Etude(EnsembleFichiersXML):
         """
         return [sous_modele for _, sous_modele in self.sous_modeles.items()]
 
-    def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible):
+    def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible, overwrite=False):
         """
         Copie d'un scénario existant et ajout à l'étude courante
         Attention le modèle et les sous-modèles restent partagés avec le scénario source
@@ -492,6 +492,8 @@ class Etude(EnsembleFichiersXML):
         :type nom_scenario_source: str
         :param nom_scenario_cible: nom du scénario cible
         :type nom_scenario_cible: str
+        :param overwrite: écrase le scénario s'il est déjà présent dans l'étude
+        :type overwrite: bool
         :return: nouveau scénario
         :rtype: Scenario
         """
@@ -506,7 +508,10 @@ class Etude(EnsembleFichiersXML):
         scenario = Scenario(nom_scenario_cible, scenario_ori.modele, mode='w',
                             files=scenario_files, metadata=scenario_ori.metadata)
         scenario.read_all()
+        if overwrite and scenario.id in self.scenarios:
+            del self.scenarios[scenario.id]
         self.ajouter_scenario(scenario)
+        
         return scenario
 
     def ajouter_scenario_par_copie_profonde(self, nom_scenario_source, suffixe, overwrite=False):
