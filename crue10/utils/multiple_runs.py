@@ -101,7 +101,7 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                         # Compute nb_services_ok
                         nb_services_ok = 0
                         for service, traces in run.traces.items():
-                            if traces and run.nb_erreurs([service]) == 0:
+                            if traces and run.nb_erreurs_bloquantes([service]) == 0:
                                 if service == 'r':
                                     # Display a message to check Crue10 version
                                     logger.debug("%s: %s" % (exe_id, traces[0].get_message()))
