@@ -263,6 +263,7 @@ class Etude(EnsembleFichiersXML):
         # self._read_etu() is done in `__init__` method
         for _, scenario in self.scenarios.items():
             scenario.read_all(ignore_shp=ignore_shp)
+        self.was_read = True
 
     def move(self, folder):
         self.files['etu'] = os.path.join(folder, os.path.basename(self.etu_path))

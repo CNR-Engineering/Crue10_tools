@@ -73,6 +73,8 @@ class EnsembleFichiersXML(ABC):
             if set(files.keys()) != set(files_xml + type(self).FILES_SHP):
                 raise RuntimeError
             self.files = files
+            self.was_read = False
+
         elif mode == 'w':
             if version_grammaire is None:
                 self.version_grammaire = VERSION_GRAMMAIRE_COURANTE
@@ -83,9 +85,9 @@ class EnsembleFichiersXML(ABC):
                         self.files[xml_type] = self.id[3:] + '.' + xml_type + '.xml'
             else:
                 self.files = files
+            self.was_read = True
 
         self.comments = {xml: '' for xml in type(self).FILES_XML}
-        self.was_read = False
 
     @property
     def is_active(self):
@@ -128,6 +130,9 @@ class EnsembleFichiersXML(ABC):
         :param version_grammaire: version de la grammaire cible
         :type version_grammaire: str
         """
+        if not self.was_read and not self.xml_trees:
+            raise ExceptionCrue10("%s doit être lu (avec la méthode `read_all`) avant de changer sa grammaire" % self)
+
         # Change version_grammaire in all `FILES_WITHOUT_TEMPLATE`
         for xml_type, root in self.xml_trees.items():
             old_xsi = root.get(XSI_SCHEMA_LOCATION)
