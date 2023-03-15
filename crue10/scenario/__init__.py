@@ -24,7 +24,7 @@ from .loi_hydraulique import LoiHydraulique
 
 class OrdCalcPseudoPerm:
     """
-    OrdCalcPseudoPerm = paramètres des calculs permanents
+    OrdCalcPseudoPerm = paramètres des calculs pseudo-permanents
 
     :ivar id: nom du calcul
     :vartype id: str
@@ -1013,7 +1013,12 @@ class Scenario(EnsembleFichiersXML):
         return errors_list
 
     def log_check_xml_scenario(self, folder):
-        """Afficher le bilan de la vérification XML du scénario"""
+        """
+        Afficher le bilan de la vérification XML du scénario
+
+        :param folder: chemin du dossier contenant les fichiers XML du scénario
+        :type folder: str
+        """
         errors = self.check_xml_scenario(folder)
         nb_errors = len(errors)
         for i, error in enumerate(errors):
