@@ -1,4 +1,4 @@
-import numpy as np
+from lxml.etree import XIncludeError
 import os.path
 import unittest
 
@@ -20,11 +20,15 @@ class ScenarioTestCase(unittest.TestCase):
         self.assertListEqual(errors_list, [])
 
     def test_check_xml_scenario_etu3_6_xml_errors(self):
-        scenario = self.etude_etu3_6_xml_errors.get_scenario_courant()
+        scenario = self.etude_etu3_6_xml_errors.get_scenario('Sc_M3-6_c10')
         errors_list = scenario.check_xml_scenario(self.etude_etu3_6_xml_errors.folder)
         self.assertListEqual(errors_list, [
-            """Invalid XML at line 3456: Element '{http://www.fudaa.fr/xsd/crue}CalcPseudoPerm_TAGNOTFOUND': This element is not expected. Expected is one of ( {http://www.fudaa.fr/xsd/crue}CalcPseudoPerm, {http://www.fudaa.fr/xsd/crue}CalcTrans ).""",
+            """Invalid XML at line 3581: cvc-complex-type.2.4.a: Invalid content was found starting with element '{"http://www.fudaa.fr/xsd/crue":Sorties_UNEXPECTED}'. One of '{"http://www.fudaa.fr/xsd/crue":Sorties}' is expected.""",
         ])
+
+        scenario = self.etude_etu3_6_xml_errors.get_scenario('Sc_M3-6_c10_ko')
+        with self.assertRaises(XIncludeError):
+            scenario.check_xml_scenario(self.etude_etu3_6_xml_errors.folder)
 
     def test_check_xml_scenario_etu_from_scratch(self):
         scenario = self.etude_from_scratch.get_scenario_courant()
