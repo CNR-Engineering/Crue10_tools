@@ -1,10 +1,12 @@
 # coding: utf-8
 import abc
+import subprocess
 from copy import deepcopy
 from io import open  # Python2 fix
 from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
+from xsd_validator import XsdValidator
 
 from crue10.utils import add_default_missing_metadata, DATA_FOLDER_ABSPATH, ExceptionCrue10, \
     ExceptionCrue10Grammar, JINJA_ENV, get_xml_root_from_file, logger, PREFIX, XSI_SCHEMA_LOCATION
@@ -206,21 +208,14 @@ class EnsembleFichiersXML(ABC):
         file_splitted = file_path.split('.')
         if len(file_splitted) > 2:
             xml_type = file_splitted[-2]
-            xsd_tree = etree.parse(os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
-                                                '%s-%s.xsd' % (xml_type, self.version_grammaire)))
-
-            with open(file_path, 'r', encoding=XML_ENCODING) as in_xml:
-                content = '\n'.join(in_xml.readlines())
-                xmlschema = etree.XMLSchema(xsd_tree)
-                try:
-                    xml_tree = etree.fromstring(content)
-                    try:
-                        xmlschema.assertValid(xml_tree)
-                    except etree.DocumentInvalid:
-                        for error in xmlschema.error_log:
-                            errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
-                except etree.XMLSyntaxError as e:
-                    errors_list.append('Error XML: %s' % e)
+            xsd_path = os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
+                                    '%s-%s.xsd' % (xml_type, self.version_grammaire))
+            validator = XsdValidator(xsd_path)
+            try:
+                for error in validator(file_path):
+                    errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
+            except subprocess.CalledProcessError:
+                errors_list.append('Error XML: file is probably not well-formed or corrupted')
         return errors_list
 
     def check_xml_files(self, folder=None):
@@ -245,9 +240,9 @@ class EnsembleFichiersXML(ABC):
         nb_errors = 0
         for xml_file, liste_errors in errors.items():
             if liste_errors:
-                logger.error("~> %i erreur(s) dans %s:" % (len(liste_errors), xml_file))
+                logger.error("~> %i erreur(s) dans %s:" % (len(liste_errors), os.path.basename(xml_file)))
                 for i, error in enumerate(liste_errors):
-                    logger.error("    #%i: %s" % (i, error))
+                    logger.error("    #%i: %s" % (i + 1, error))
                 nb_errors += len(liste_errors)
         if nb_errors == 0:
             logger.info("=> Aucune erreur dans les fichiers XML (pour %s)" % self)

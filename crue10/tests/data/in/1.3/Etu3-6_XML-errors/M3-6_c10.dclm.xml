@@ -5,7 +5,7 @@
 Modèle de test utilisant les éléments de modélisation hydraulique les plus courants
 
 PBa Mai2012 sur la base de M3-0</Commentaire>
-  <CalcPseudoPerm_TAGNOTFOUND Nom="Cc_P01_NOTFOUND">
+  <CalcPseudoPerm Nom="Cc_P01">
     <Commentaire>Calcul pseudo-permanent 1</Commentaire>
     <CalcPseudoPermNoeudQapp NomRef="Nd_N1">
       <IsActive>true</IsActive>
@@ -20,7 +20,7 @@ PBa Mai2012 sur la base de M3-0</Commentaire>
       <SensOuv>OuvVersHaut</SensOuv>
       <Ouv>100.0</Ouv>
     </CalcPseudoPermBrancheOrificeManoeuvre>
-  </CalcPseudoPerm_TAGNOTFOUND>
+  </CalcPseudoPerm>
   <CalcPseudoPerm Nom="Cc_P02">
     <Commentaire>Calcul pseudo-permanent 2</Commentaire>
     <CalcPseudoPermNoeudQapp NomRef="Nd_N1">

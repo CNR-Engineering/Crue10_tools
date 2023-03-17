@@ -11,3 +11,4 @@ psutil  # optional (to define NCSIZE)
 pydot  # only required for crue10.modele.Modele.write_topological_graph
 seaborn  # only required for some snippets
 shapely
+xsd-validator

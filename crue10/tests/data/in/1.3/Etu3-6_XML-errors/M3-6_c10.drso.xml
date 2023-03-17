@@ -9,6 +9,9 @@ PBa Mai2012 sur la base de M3-0</Commentaire>
     <NoeudNiveauContinu Nom="Nd_N1">
       <Commentaire></Commentaire>
     </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_N1"><!-- Duplicated ID -->
+      <Commentaire></Commentaire>
+    </NoeudNiveauContinu>
     <NoeudNiveauContinu Nom="Nd_N2">
       <Commentaire></Commentaire>
     </NoeudNiveauContinu>

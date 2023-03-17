@@ -232,7 +232,7 @@ class Etude(EnsembleFichiersXML):
                 elt_models = elt_scenario.find(PREFIX + 'Scenario-Modeles')
                 modele = None
                 for i, elt_modele in enumerate(elt_models):
-                    modele = self.modeles[elt_modele.get('NomRef')]
+                    modele = self.get_modele(elt_modele.get('NomRef'))
                     if i != 0:
                         raise NotImplementedError  # A single Modele for a Scenario!
 
@@ -246,7 +246,7 @@ class Etude(EnsembleFichiersXML):
                         run_id = run_elt.get('Nom')
                         metadata = read_metadata(run_elt, Run.METADATA_FIELDS)
                         run_mo_path = os.path.join(self.folder, self.folders['RUNS'], scenario.id,
-                                                     run_id, scenario.modele.id)
+                                                   run_id, scenario.modele.id)
                         scenario.ajouter_run(Run(os.path.basename(self.etu_path), run_mo_path, metadata=metadata))
 
                 elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')

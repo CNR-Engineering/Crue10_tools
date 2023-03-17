@@ -7,7 +7,9 @@ import numpy as np
 import os.path
 import re
 import shutil
+import tempfile
 import time
+from xsd_validator import XsdValidator
 
 from crue10.base import EnsembleFichiersXML
 from crue10.modele import Modele
@@ -991,25 +993,25 @@ class Scenario(EnsembleFichiersXML):
         :return: liste des erreurs
         :rtype: list(str)
         """
+        # Render, build and write complete XML file
         template_render = self.get_rendered_xml_scenario(folder)
         tree = etree.ElementTree(etree.fromstring(template_render.encode('utf-8')))
         tree.xinclude()  # replace `xi:include` by its content
         content = etree.tostring(tree).decode('utf-8')
         content = re.sub(r' xml:base="file:/(.*?)"', '', content)
+        tmp_path = tempfile.NamedTemporaryFile().name
+        with open(tmp_path, 'w') as out:
+            out.write(content)
 
-        xsd_tree = etree.parse(os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
-                                            '%s-%s.xsd' % ('scenario', self.version_grammaire)))
+        # Prepare XSD
+        xsd_path = os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
+                                '%s-%s.xsd' % ('scenario', self.version_grammaire))
+        validator = XsdValidator(xsd_path)
+
+        # List errors
         errors_list = []
-        xmlschema = etree.XMLSchema(xsd_tree)
-        try:
-            xml_tree = etree.fromstring(content)
-            try:
-                xmlschema.assertValid(xml_tree)
-            except etree.DocumentInvalid:
-                for error in xmlschema.error_log:
-                    errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
-        except etree.XMLSyntaxError as e:
-            errors_list.append('Error XML: %s' % e)
+        for error in validator(tmp_path):
+            errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
         return errors_list
 
     def log_check_xml_scenario(self, folder):
