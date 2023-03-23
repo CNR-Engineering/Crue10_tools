@@ -14,7 +14,7 @@
 			nomRef-fichierUnique-1.3.xsd
 			pour former une xsd complète.
 			Ce mécanisme n'est pas direct mais les schema xsd 
-			ne fournissent pas de	moyen simple
+			ne fournissent pas de moyen simple
 			pour redéfinir un attribut tout
 			en modifiant son type :
 			transformer un xs:TOKEN en xs:IDREF
@@ -81,12 +81,36 @@
 		<xs:annotation>
 			<xs:documentation>
 				Type a utiliser pour tous les attributs "Nom"
-				(sauf Noeud) soit xs:ID.
+				(sauf Noeud, DefQregul et DefZregul) soit xs:ID.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:ID">
 			<!-- 32 caractère max -->
 			<xs:maxLength value="32" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeNomQregul">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les attributs "Nom" de DefQregul
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="32" />
+			<xs:pattern value="Q.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+		<xs:simpleType name="TypeForAttributeNomZregul">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les attributs "Nom" de DefZregul
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="32" />
+			<xs:pattern value="Z.*"></xs:pattern>
 		</xs:restriction>
 	</xs:simpleType>
 
@@ -132,12 +156,12 @@
 		<xs:attribute type="TypeForAttributeNomRefNoeud" name="NomRef" use="required" />
 	</xs:complexType>
 
-	
 	<xs:simpleType name="TypeForAttributeNomRefNoeud">
 		<xs:restriction base="xs:token">
 			<xs:pattern value="Nd_.*"></xs:pattern>
 		</xs:restriction>
 	</xs:simpleType>
+
 	<xs:simpleType name="TypeForAttributeNomRefCasier">
 		<xs:restriction base="TypeForAttributeNomRefDistant">
 			<xs:pattern value="Ca_.*"></xs:pattern>

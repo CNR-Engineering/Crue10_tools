@@ -187,6 +187,43 @@
 				<xs:element name="Branches" type="TypeBranches" />
 			</xs:sequence>
 		</xs:complexType>
+		<!-- Primary keys -->
+		<xs:key name="PK_Noeud">
+			<xs:selector xpath="crue:Noeuds/crue:NoeudNiveauContinu"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<xs:key name="PK_Casier">
+			<xs:selector xpath="crue:Casiers/crue:CasierProfil"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<xs:key name="PK_Section">
+			<xs:selector xpath="crue:Sections/crue:*"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<xs:key name="PK_Branche">
+			<xs:selector xpath="crue:Branches/crue:*"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<!-- Foreign keys -->
+		<xs:keyref name="FK_Casier_TO_Noeud" refer="PK_Noeud">
+			<xs:selector xpath="crue:Casiers/crue:CasierProfil/crue:Noeud"/>
+			<xs:field xpath="@NomRef"/>
+		</xs:keyref>
+		<xs:keyref name="FK_Branche_TO_NoeudAmont" refer="PK_Noeud">
+			<xs:selector xpath="crue:Branches/crue:*/crue:NdAm"/>
+			<xs:field xpath="@NomRef"/>
+		</xs:keyref>
+		<xs:keyref name="FK_Branche_TO_NoeudAval" refer="PK_Noeud">
+			<xs:selector xpath="crue:Branches/crue:*/crue:NdAv"/>
+			<xs:field xpath="@NomRef"/>
+		</xs:keyref>
+		<xs:keyref name="FK_Branche_TO_Section" refer="PK_Section">
+			<xs:selector xpath="crue:Branches/crue:*/crue:Branche-Sections/crue:Branche-Section"/>
+			<xs:field xpath="@NomRef"/>
+		</xs:keyref>
+		<xs:keyref name="FK_BrancheSaintVenant_TO_Section" refer="PK_Section">
+			<xs:selector xpath="crue:Branches/crue:BrancheSaintVenant/crue:BrancheSaintVenant-Sections/crue:BrancheSaintVenant-Section"/>
+			<xs:field xpath="@NomRef"/>
+		</xs:keyref>
 	</xs:element>
-
 </xs:schema>

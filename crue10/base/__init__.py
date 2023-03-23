@@ -6,7 +6,6 @@ from io import open  # Python2 fix
 from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
-from xsd_validator import XsdValidator
 
 from crue10.utils import add_default_missing_metadata, DATA_FOLDER_ABSPATH, ExceptionCrue10, \
     ExceptionCrue10Grammar, JINJA_ENV, get_xml_root_from_file, logger, PREFIX, XSI_SCHEMA_LOCATION
@@ -210,12 +209,21 @@ class EnsembleFichiersXML(ABC):
             xml_type = file_splitted[-2]
             xsd_path = os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
                                     '%s-%s.xsd' % (xml_type, self.version_grammaire))
-            validator = XsdValidator(xsd_path)
-            try:
-                for error in validator(file_path):
-                    errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
-            except subprocess.CalledProcessError:
-                errors_list.append('Error XML: file is probably not well-formed or corrupted')
+            xsd_tree = etree.parse(xsd_path)
+            xsd_tree.xinclude()  # replace `xs:include` by its content
+
+            with open(file_path, 'r', encoding=XML_ENCODING) as in_xml:
+                content = '\n'.join(in_xml.readlines())
+                xmlschema = etree.XMLSchema(xsd_tree)
+                try:
+                    xml_tree = etree.fromstring(content)
+                    try:
+                        xmlschema.assertValid(xml_tree)
+                    except etree.DocumentInvalid:
+                        for error in xmlschema.error_log:
+                            errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
+                except etree.XMLSyntaxError as e:
+                    errors_list.append('Error XML: %s' % e)
         return errors_list
 
     def check_xml_files(self, folder=None):
@@ -231,7 +239,7 @@ class EnsembleFichiersXML(ABC):
             filename_list = [os.path.join(folder, filename) for _, filename in self.files.items()]
         errors = {}
         for file_path in filename_list:
-            errors[file_path] = self._check_xml_file(file_path)
+            errors[os.path.basename(file_path)] = self._check_xml_file(file_path)
         return errors
 
     def log_check_xml(self, folder=None):

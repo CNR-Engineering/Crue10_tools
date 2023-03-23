@@ -30,7 +30,7 @@
 	<!-- - Débit à utiliser pour le calcul du mode de crue: montée (M) ou décrue (D) -->
 	<!-- - Vitesse [m/h] de rattrapage du plan de consigne en cas de basculement de point de réglage -->
 	<xs:complexType name="TypeParamLocal">
-		<xs:attribute name="Param" type="xs:IDREF" use="required" />
+		<xs:attribute name="Param" type="xs:string" use="required" />
 	</xs:complexType>
 	<xs:element name="ParamRegulCommun">
 		<xs:complexType>
@@ -76,13 +76,13 @@
 				<xs:element name="QabsExt" type="TypeQabsExt" />
 			</xs:choice>
 		</xs:sequence>
-		<xs:attribute name="Nom" type="TypeForAttributeNom" use="required" />
+		<xs:attribute name="Nom" type="TypeForAttributeNomQregul" use="required" />
 	</xs:complexType>
 	<xs:complexType name="TypeDefZregul">
 		<xs:choice>
 			<xs:element name="Zabs" type="TypeZabs" />
 		</xs:choice>
-		<xs:attribute name="Nom" type="TypeForAttributeNom" use="required" />
+		<xs:attribute name="Nom" type="TypeForAttributeNomZregul" use="required" />
 	</xs:complexType>
 	<xs:element name="DefQZreguls">
 		<xs:complexType>
@@ -98,14 +98,14 @@
 	<xs:complexType name="TypeCondQinf">
 		<xs:simpleContent>
 			<xs:extension base="xs:double">
-				<xs:attribute name="NomRef" type="xs:IDREF" use="required" />
+				<xs:attribute name="NomRef" type="xs:string" use="required" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
 	<xs:complexType name="TypeCondQsup">
 		<xs:simpleContent>
 			<xs:extension base="xs:double">
-				<xs:attribute name="NomRef" type="xs:IDREF" use="required" />
+				<xs:attribute name="NomRef" type="xs:string" use="required" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -145,12 +145,12 @@
 	</xs:complexType>
 	<xs:complexType name="TypeLoiParam">
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
-		<xs:attribute name="Param" type="xs:IDREF" use="required" />
+		<xs:attribute name="Param" type="xs:string" use="required" />
 	</xs:complexType>
 	<xs:complexType name="TypePID">
 		<xs:simpleContent>
 			<xs:extension base="TypeVec3d">
-				<xs:attribute name="Param" type="xs:IDREF" use="required" />
+				<xs:attribute name="Param" type="xs:string" use="required" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -217,6 +217,39 @@
 				<xs:element ref="LoiReguls" minOccurs="0" maxOccurs="1" />
 			</xs:sequence>
 		</xs:complexType>
+		<!-- Primary keys -->
+		<xs:key name="PK_Qregul">
+			<xs:selector xpath="crue:DefQZreguls/crue:DefQregul"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<xs:key name="PK_Zregul">
+			<xs:selector xpath="crue:DefQZreguls/crue:DefZregul"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<!-- Foreign keys -->
+		<xs:keyref name="FK_Qmode_TO_Qregul" refer="PK_Qregul">
+			<xs:selector xpath="crue:ParamRegulCommun/crue:Qmode"/>
+			<xs:field xpath="@Param"/>
+		</xs:keyref>
+		<xs:keyref name="FK_CondQinf_TO_Qregul" refer="PK_Qregul">
+			<xs:selector xpath="crue:LoiReguls/crue:LoiRegul/crue:CondRegul/crue:CondQinf"/>
+			<xs:field xpath="@NomRef"/>
+		</xs:keyref>
+		<xs:keyref name="FK_CondQsup_TO_Qregul" refer="PK_Qregul">
+			<xs:selector xpath="crue:LoiReguls/crue:LoiRegul/crue:CondRegul/crue:CondQsup"/>
+			<xs:field xpath="@NomRef"/>
+		</xs:keyref>
+		<xs:keyref name="FK_CondZinf_TO_Qregul" refer="PK_Qregul">
+			<xs:selector xpath="crue:LoiReguls/crue:LoiRegul/crue:CondRegul/crue:CondZinf"/>
+			<xs:field xpath="@NomRef"/>
+		</xs:keyref>
+		<xs:keyref name="FK_Qbg2_TO_Qregul" refer="PK_Qregul">
+			<xs:selector xpath="crue:LoiReguls/crue:LoiRegul/crue:ParamRegul/crue:Qbg2"/>
+			<xs:field xpath="@Param"/>
+		</xs:keyref>
+		<xs:keyref name="FK_Qusi_TO_Qregul" refer="PK_Qregul">
+			<xs:selector xpath="crue:LoiReguls/crue:LoiRegul/crue:ParamRegul/crue:Qusi"/>
+			<xs:field xpath="@Param"/>
+		</xs:keyref>
 	</xs:element>
-
 </xs:schema>

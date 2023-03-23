@@ -154,6 +154,14 @@
 				<xs:element name="DonPrtGeoBranches" type="TypeDPTGBranches" />
 			</xs:sequence>
 		</xs:complexType>
+		<!-- Primary keys -->
+		<xs:key name="PK_ProfilCasier">
+			<xs:selector xpath="crue:DonPrtGeoProfilCasiers/crue:ProfilCasier"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<xs:key name="PK_ProfilSection">
+			<xs:selector xpath="crue:DonPrtGeoProfilSections/crue:ProfilSection"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
 	</xs:element>
-
 </xs:schema>

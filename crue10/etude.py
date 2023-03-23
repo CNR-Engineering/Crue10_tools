@@ -612,7 +612,7 @@ class Etude(EnsembleFichiersXML):
         """Validation des fichiers XML à partir des schémas XSD de la grammaire de l'étude"""
         errors = {}
         for file_path in [self.etu_path] + self.filename_list:
-            errors[file_path] = self._check_xml_file(file_path)
+            errors[os.path.basename(file_path)] = self._check_xml_file(file_path)
         return errors
 
     def summary(self):

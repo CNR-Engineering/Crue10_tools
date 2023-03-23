@@ -23,7 +23,8 @@ class ScenarioTestCase(unittest.TestCase):
         scenario = self.etude_etu3_6_xml_errors.get_scenario('Sc_M3-6_c10')
         errors_list = scenario.check_xml_scenario(self.etude_etu3_6_xml_errors.folder)
         self.assertListEqual(errors_list, [
-            """Invalid XML at line 3581: cvc-complex-type.2.4.a: Invalid content was found starting with element '{"http://www.fudaa.fr/xsd/crue":Sorties_UNEXPECTED}'. One of '{"http://www.fudaa.fr/xsd/crue":Sorties}' is expected.""",
+            "Invalid XML at line 3581: Element '{http://www.fudaa.fr/xsd/crue}Sorties_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Sorties ).",
+            "Invalid XML at line 3716: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu': Duplicate key-sequence ['Nd_N1'] in key identity-constraint '{http://www.fudaa.fr/xsd/crue}PK_Noeud'."
         ])
 
         scenario = self.etude_etu3_6_xml_errors.get_scenario('Sc_M3-6_c10_ko')

@@ -9,7 +9,6 @@ import re
 import shutil
 import tempfile
 import time
-from xsd_validator import XsdValidator
 
 from crue10.base import EnsembleFichiersXML
 from crue10.modele import Modele
@@ -995,23 +994,33 @@ class Scenario(EnsembleFichiersXML):
         """
         # Render, build and write complete XML file
         template_render = self.get_rendered_xml_scenario(folder)
-        tree = etree.ElementTree(etree.fromstring(template_render.encode('utf-8')))
-        tree.xinclude()  # replace `xi:include` by its content
-        content = etree.tostring(tree).decode('utf-8')
-        content = re.sub(r' xml:base="file:/(.*?)"', '', content)
+        xml_tree = etree.ElementTree(etree.fromstring(template_render.encode('utf-8')))
+        xml_tree.xinclude()  # replace `xi:include` by its content
+
+        xml_content = etree.tostring(xml_tree).decode('utf-8')
+        xml_content = re.sub(r' xml:base="file:/(.*?)"', '', xml_content)
+
         tmp_path = tempfile.NamedTemporaryFile().name
         with open(tmp_path, 'w') as out:
-            out.write(content)
+            out.write(xml_content)
 
         # Prepare XSD
         xsd_path = os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
                                 '%s-%s.xsd' % ('scenario', self.version_grammaire))
-        validator = XsdValidator(xsd_path)
+        xsd_tree = etree.parse(xsd_path)
+        xmlschema = etree.XMLSchema(xsd_tree)
 
         # List errors
         errors_list = []
-        for error in validator(tmp_path):
-            errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
+        try:
+            xml_tree = etree.fromstring(xml_content)
+            try:
+                xmlschema.assertValid(xml_tree)
+            except etree.DocumentInvalid:
+                for error in xmlschema.error_log:
+                    errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
+        except etree.XMLSyntaxError as e:
+            errors_list.append('Error XML: %s' % e)
         return errors_list
 
     def log_check_xml_scenario(self, folder):
@@ -1024,7 +1033,7 @@ class Scenario(EnsembleFichiersXML):
         errors = self.check_xml_scenario(folder)
         nb_errors = len(errors)
         for i, error in enumerate(errors):
-            logger.error("    #%i: %s" % (i, error))
+            logger.error("    #%i: %s" % (i + 1, error))
         if nb_errors == 0:
             logger.info("=> Aucune erreur dans le scénario %s" % self)
         else:

@@ -285,6 +285,15 @@
 				<xs:element ref="CalcTrans" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:complexType>
+		<!-- Primary keys -->
+		<xs:key name="PK_CalcPseudoPerm">
+			<xs:selector xpath="crue:CalcPseudoPerm"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<xs:key name="PK_CalcTrans">
+			<xs:selector xpath="crue:CalcTrans"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
 	</xs:element>
 
 	<!-- Spécifique pour les enchaînements MEC-Crue10 -->

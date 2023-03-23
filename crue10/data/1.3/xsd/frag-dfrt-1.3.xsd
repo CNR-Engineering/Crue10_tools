@@ -28,5 +28,10 @@
 				<xs:element ref="LoiFFs" />
 			</xs:sequence>
 		</xs:complexType>
+		<!-- Primary keys -->
+		<xs:key name="PK_LoiFrottement">
+			<xs:selector xpath="crue:LoiFFs/crue:LoiFF"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
 	</xs:element>
 </xs:schema>

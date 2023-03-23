@@ -29,6 +29,15 @@
 				<xs:element ref="Lois" />
 			</xs:sequence>
 		</xs:complexType>
+		<!-- Primary keys -->
+ 		<xs:key name="PK_LoiDF">
+			<xs:selector xpath='crue:Lois/crue:LoiDF'/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+ 		<xs:key name="PK_LoiFF">
+			<xs:selector xpath='crue:Lois/crue:LoiFF'/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
 	</xs:element>
 
 </xs:schema>
