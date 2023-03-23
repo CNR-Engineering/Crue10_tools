@@ -53,7 +53,7 @@ class ScenarioTestCase(unittest.TestCase):
             'M3-6_c10_ko.dclm.xml': [],
             'M3-6_c10_ko.dlhy.xml': [],
             'M3-6_c10_ko.ocal.xml': [
-                'Error XML: Opening and ending tag mismatch: Avancement_CRASH line 15 and Avancement, line 19, column 28 (<string>, line 19)'
+                "Invalid XML at line 15: Element '{http://www.fudaa.fr/xsd/crue}Avancement_CRASH': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Avancement )."
             ],
             'M3-6_c10_ko.ores.xml': [
                 "Invalid XML at line 33: Element '{http://www.fudaa.fr/xsd/crue}OrdResNoeuds_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}OrdResNoeuds )."

@@ -21,15 +21,20 @@ class ScenarioTestCase(unittest.TestCase):
 
     def test_check_xml_scenario_etu3_6_xml_errors(self):
         scenario = self.etude_etu3_6_xml_errors.get_scenario('Sc_M3-6_c10')
-        errors_list = scenario.check_xml_scenario(self.etude_etu3_6_xml_errors.folder)
-        self.assertListEqual(errors_list, [
+        errors = scenario.check_xml_scenario(self.etude_etu3_6_xml_errors.folder)
+        self.assertListEqual(errors, [
             "Invalid XML at line 3581: Element '{http://www.fudaa.fr/xsd/crue}Sorties_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Sorties ).",
             "Invalid XML at line 3716: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu': Duplicate key-sequence ['Nd_N1'] in key identity-constraint '{http://www.fudaa.fr/xsd/crue}PK_Noeud'."
         ])
 
         scenario = self.etude_etu3_6_xml_errors.get_scenario('Sc_M3-6_c10_ko')
-        with self.assertRaises(XIncludeError):
-            scenario.check_xml_scenario(self.etude_etu3_6_xml_errors.folder)
+        errors = scenario.check_xml_scenario(self.etude_etu3_6_xml_errors.folder)
+        self.assertListEqual(errors, [
+            "Invalid XML at line 3339: Element '{http://www.fudaa.fr/xsd/crue}Avancement_CRASH': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Avancement ).",
+            "Invalid XML at line 3368: Element '{http://www.fudaa.fr/xsd/crue}OrdResNoeuds_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}OrdResNoeuds ).",
+            "Invalid XML at line 3550: Element '{http://www.fudaa.fr/xsd/crue}Sorties_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Sorties ).",
+            "Invalid XML at line 3685: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu': Duplicate key-sequence ['Nd_N1'] in key identity-constraint '{http://www.fudaa.fr/xsd/crue}PK_Noeud'.",
+        ])
 
     def test_check_xml_scenario_etu_from_scratch(self):
         scenario = self.etude_from_scratch.get_scenario_courant()

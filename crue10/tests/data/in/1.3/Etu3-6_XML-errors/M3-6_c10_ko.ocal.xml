@@ -7,7 +7,7 @@
   <Sorties>
     <Avancement_CRASH>
       <SortieFichier>true</SortieFichier>
-    </Avancement>
+    </Avancement_CRASH>
     <Trace>
       <SortieEcran>true</SortieEcran>
       <SortieFichier>true</SortieFichier>
