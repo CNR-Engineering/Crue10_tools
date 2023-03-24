@@ -268,17 +268,9 @@
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:LoiReguls/crue:LoiRegul/crue:ParamRegul/crue:PRactif"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_ZprCns_TO_Qregul" refer="PK_Qregul">
-			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:LoiReguls/crue:LoiRegul/crue:ParamRegul/crue:ZprCns"/>
-			<xs:field xpath="@Param"/>
-		</xs:keyref>
 		<xs:keyref name="FK_ZprCns_TO_Loi" refer="PK_LoiFF">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:LoiReguls/crue:LoiRegul/crue:ParamRegul/crue:ZprCns"/>
 			<xs:field xpath="@NomRef"/>
-		</xs:keyref>
-		<xs:keyref name="FK_PID_TO_Qregul" refer="PK_Qregul">
-			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:LoiReguls/crue:LoiRegul/crue:ParamRegul/crue:PID"/>
-			<xs:field xpath="@Param"/>
 		</xs:keyref>
 		<xs:keyref name="FK_Qusi_TO_Loi" refer="PK_LoiFF">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:LoiReguls/crue:LoiRegul/crue:ParamRegul/crue:Qusi"/>
