@@ -125,6 +125,19 @@
 				</xs:element>
 			</xs:sequence>
 		</xs:complexType>
+		<!-- Primary keys -->
+		<xs:key name="PKi_Casier">
+			<xs:selector xpath="crue:ValidationModele/crue:SousModeleFichiers/crue:DRSO/crue:Casiers/crue:CasierProfil"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<xs:key name="PKi_Section">
+			<xs:selector xpath="crue:ValidationModele/crue:SousModeleFichiers/crue:DRSO/crue:Sections/crue:*"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
+		<xs:key name="PKi_Branche">
+			<xs:selector xpath="crue:ValidationModele/crue:SousModeleFichiers/crue:DRSO/crue:Branches/crue:*"/>
+			<xs:field xpath="@Nom"/>
+		</xs:key>
 		<!-- Foreign keys in OCAL -->
 		<xs:keyref name="FK_OCAL_TO_CalcPseudoPerm" refer="PK_CalcPseudoPerm">
 			<xs:selector xpath="crue:ScenarioFichiers/crue:OCAL/crue:OrdCalcPseudoPerm"/>
@@ -135,6 +148,7 @@
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
 		<!-- Foreign keys in DCLM -->
+		<!--
 		<xs:keyref name="FK_CalcPseudoPermNoeudQapp_TO_Noeud" refer="PK_Noeud">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcPseudoPerm/crue:CalcPseudoPermNoeudQapp"/>
 			<xs:field xpath="@NomRef"/>
@@ -143,22 +157,24 @@
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcPseudoPerm/crue:CalcPseudoPermNoeudNiveauContinuZimp"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_CalcPseudoPermBrancheOrificeManoeuvre_TO_Branche" refer="PK_Branche">
+		-->
+		<xs:keyref name="FK_CalcPseudoPermBrancheOrificeManoeuvre_TO_Branche" refer="PKi_Branche">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcPseudoPerm/crue:CalcPseudoPermBrancheOrificeManoeuvre"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_CalcPseudoPermBrancheOrificeManoeuvreRegul_TO_Branche" refer="PK_Branche">
+		<xs:keyref name="FK_CalcPseudoPermBrancheOrificeManoeuvreRegul_TO_Branche" refer="PKi_Branche">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcPseudoPerm/crue:CalcPseudoPermBrancheOrificeManoeuvreRegul"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_CalcPseudoPermBrancheSaintVenantQruis_TO_Branche" refer="PK_Branche">
+		<xs:keyref name="FK_CalcPseudoPermBrancheSaintVenantQruis_TO_Branche" refer="PKi_Branche">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcPseudoPerm/crue:CalcPseudoPermBrancheSaintVenantQruis"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_CalcPseudoPermCasierProfilQruis_TO_Casier" refer="PK_Casier">
+		<xs:keyref name="FK_CalcPseudoPermCasierProfilQruis_TO_Casier" refer="PKi_Casier">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcPseudoPerm/crue:CalcPseudoPermCasierProfilQruis"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
+		<!--
 		<xs:keyref name="FK_CalcPseudoPermNoeudBg1_TO_Noeud" refer="PK_Noeud">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcPseudoPerm/crue:CalcPseudoPermNoeudBg1"/>
 			<xs:field xpath="@NomRef"/>
@@ -191,23 +207,25 @@
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcTrans/crue:CalcTransNoeudNiveauContinuTarage"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
+		-->
 		<!-- TODO: Ajouter CalcTransNoeudNiveauContinuTarage/Tarage -->
-		<xs:keyref name="FK_CalcTransBrancheOrificeManoeuvre_TO_Branche" refer="PK_Branche">
+		<xs:keyref name="FK_CalcTransBrancheOrificeManoeuvre_TO_Branche" refer="PKi_Branche">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcTrans/crue:CalcTransBrancheOrificeManoeuvre"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_CalcTransBrancheSaintVenantQruis_TO_Branche" refer="PK_Branche">
+		<xs:keyref name="FK_CalcTransBrancheSaintVenantQruis_TO_Branche" refer="PKi_Branche">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcTrans/crue:CalcTransBrancheSaintVenantQruis"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_CalcTransCasierProfilQruis_TO_Casier" refer="PK_Casier">
+		<xs:keyref name="FK_CalcTransCasierProfilQruis_TO_Casier" refer="PKi_Casier">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcTrans/crue:CalcTransCasierProfilQruis"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_CalcTransBrancheOrificeManoeuvreRegul_TO_Branche" refer="PK_Branche">
+		<xs:keyref name="FK_CalcTransBrancheOrificeManoeuvreRegul_TO_Branche" refer="PKi_Branche">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcTrans/crue:CalcTransBrancheOrificeManoeuvreRegul"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
+		<!--
 		<xs:keyref name="FK_CalcTransNoeudBg1_TO_Noeud" refer="PK_Noeud">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcTrans/crue:CalcTransNoeudBg1"/>
 			<xs:field xpath="@NomRef"/>
@@ -228,43 +246,44 @@
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DCLM/crue:CalcTrans/crue:CalcTransNoeudBg2Av"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
+		-->
 		<!-- Foreign keys in DPTI -->
 		<!--
 		<xs:keyref name="FK_DPTI_TO_Noeud" refer="PK_Noeud">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DPTI/crue:DonPrtCIniNoeuds/crue:DonPrtCIniNoeudNiveauContinu"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_DPTI_TO_Casier" refer="PK_Casier">
+		-->
+		<xs:keyref name="FK_DPTI_TO_Casier" refer="PKi_Casier">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DPTI/crue:DonPrtCIniCasiers/crue:DonPrtCIniCasierProfil"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_DPTI_TO_Section" refer="PK_Section">
+		<xs:keyref name="FK_DPTI_TO_Section" refer="PKi_Section">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DPTI/crue:DonPrtCIniSections/crue:*"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_DPTI_TO_Branche" refer="PK_Branche">
+		<xs:keyref name="FK_DPTI_TO_Branche" refer="PKi_Branche">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DPTI/crue:DonPrtCIniBranches/crue:*"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		-->
 		<!-- Foreign keys in DREG -->
-		<xs:keyref name="FK_Qabs_TO_Section" refer="PK_Section">
+		<xs:keyref name="FK_Qabs_TO_Section" refer="PKi_Section">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:DefQZreguls/crue:DefQregul/crue:Qabs"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_QdifAm_TO_Section" refer="PK_Section">
+		<xs:keyref name="FK_QdifAm_TO_Section" refer="PKi_Section">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:DefQZreguls/crue:DefQregul/crue:Qdif"/>
 			<xs:field xpath="@NomRefAm"/>
 		</xs:keyref>
-		<xs:keyref name="FK_QdifAv_TO_Section" refer="PK_Section">
+		<xs:keyref name="FK_QdifAv_TO_Section" refer="PKi_Section">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:DefQZreguls/crue:DefQregul/crue:Qdif"/>
 			<xs:field xpath="@NomRefAv"/>
 		</xs:keyref>
-		<xs:keyref name="FK_Zabs_TO_Section" refer="PK_Section">
+		<xs:keyref name="FK_Zabs_TO_Section" refer="PKi_Section">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:DefQZreguls/crue:DefZregul/crue:Zabs"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_PRactif_TO_Section" refer="PK_Section">
+		<xs:keyref name="FK_PRactif_TO_Section" refer="PKi_Section">
 			<xs:selector xpath="crue:ValidationModele/crue:ModeleFichiers/crue:DREG/crue:LoiReguls/crue:LoiRegul/crue:ParamRegul/crue:PRactif"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
