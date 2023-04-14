@@ -119,10 +119,12 @@ class Scenario(EnsembleFichiersXML):
     :vartype runs: OrderedDict(Run)
     :ivar nom_run_courant: nom du scénario courant
     :vartype nom_run_courant: str
+    :ivar variables: variables de sortie du service de calcul
+    :vartype variables: OrderedDict(OrderedDict(OrderedDict([(str, (str, bool))])))
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
-    FILES_XML_WITHOUT_TEMPLATE = ['ores', 'pcal']
+    FILES_XML_WITHOUT_TEMPLATE = ['pcal']
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
@@ -157,6 +159,10 @@ class Scenario(EnsembleFichiersXML):
 
         self.nom_run_courant = None
         self.runs = OrderedDict()
+
+        self.variables = OrderedDict()
+        if mode == 'w':
+            self.set_variables_par_defaut()
 
     def get_function_apply_modifications(self, etude):
         """
@@ -583,6 +589,13 @@ class Scenario(EnsembleFichiersXML):
                                     cliche_ponctuel, cliche_periodique)
             self.liste_ord_calc_trans.append(ord_calc)
 
+    def _read_ores(self):
+        """
+        Lire le fichier ores.xml
+        """
+        root = self._get_xml_root_set_version_grammaire_and_comment('ores')
+        self._set_variables(root)
+
     def read_all(self, ignore_shp=False):
         """Lire tous les fichiers du scénario"""
         if not self.was_read:
@@ -592,6 +605,7 @@ class Scenario(EnsembleFichiersXML):
             self._read_dclm()
             self._read_dlhy()
             self._read_ocal()
+            self._read_ores()
 
         self.was_read = True
 
@@ -789,7 +803,7 @@ class Scenario(EnsembleFichiersXML):
 
     def _write_ocal(self, folder):
         """
-        Écrire le fichier dclm.xml
+        Écrire le fichier ocal.xml
 
         :param folder: dossier de sortie
         """
@@ -798,6 +812,23 @@ class Scenario(EnsembleFichiersXML):
             sorties=self.ocal_sorties,
             liste_ord_calc_pseudoperm=self.liste_ord_calc_pseudoperm,
             liste_ord_calc_trans=self.liste_ord_calc_trans,
+        )
+
+    def _write_ores(self, folder):
+        """
+        Écrire le fichier ores.xml
+
+        :param folder: dossier de sortie
+        """
+        # Tri des variables par ordre alphabétique
+        for type1, values1 in self.variables.items():
+            for type2, values2 in values1.items():
+                if type2 != 'OrdResModeleRegul':
+                    self.variables[type1][type2] = OrderedDict(sorted(values2.items()))
+
+        self._write_xml_file(
+            'ores', folder,
+            variables=self.variables,
         )
 
     def write_all(self, folder, folder_config=None, write_model=True):
@@ -818,6 +849,7 @@ class Scenario(EnsembleFichiersXML):
         self._write_dclm(folder)
         self._write_dlhy(folder)
         self._write_ocal(folder)
+        self._write_ores(folder)
 
         if write_model:
             self.modele.write_all(folder, folder_config)
@@ -834,45 +866,70 @@ class Scenario(EnsembleFichiersXML):
         # HARDCODED to support g1.2
         if version_grammaire == '1.2' and self.version_grammaire == '1.3':  # backward
             self.supprimer_variables('OrdResBranches', 'OrdResBrancheOrifice', ['Ouv'])
-            elt = self.xml_trees['ores'].find(PREFIX + 'OrdResModeles')
-            self.xml_trees['ores'].remove(elt)
-            if self.xml_trees['ores'][-1].tail.endswith('  '):
-                self.xml_trees['ores'][-1].tail = self.xml_trees['ores'][-1].tail[:-2]
+
+            del self.variables['OrdResModeles']
 
         elif version_grammaire == '1.3' and self.version_grammaire == '1.2':  # forward
-            self.ajouter_variable_Ouv()
-            xml_tree = get_xml_root_from_file(os.path.join(DATA_FOLDER_ABSPATH, '1.3',
-                                                           'fichiers_vierges', 'default.ores.xml'))
-            self.xml_trees['ores'][-1].tail += '  '
-            self.xml_trees['ores'].append(xml_tree.find(PREFIX + 'OrdResModeles'))
+            self.ajouter_variable('OrdResBranches', 'OrdResBrancheOrifice', 'Ouv', 'Dde', False)
+
+            self.ajouter_variable('OrdResModeles', 'OrdResModeleRegul', 'QZregul', 'DdeMultiple', True)
+            for varname in ['Mode', 'LoiRegul', 'Zcns']:
+                self.ajouter_variable('OrdResModeles', 'OrdResModeleRegul', varname, 'Dde', True)
 
         super().changer_version_grammaire(version_grammaire)
 
-    def ajouter_variable_Ouv(self):
-        """Ajouter la variable Ouv pour les branches orifice"""
-        tree = self.xml_trees['ores']
-        elt_parent = tree.find(PREFIX + 'OrdResBranches').find(PREFIX + 'OrdResBrancheOrifice')
-        elt_ouv = deepcopy(elt_parent[0])
-        elt_ouv.attrib['NomRef'] = 'Ouv'
-        elt_ouv.text = 'false'
-        elt_parent.insert(1, elt_ouv)
+    def ajouter_variable(self, type1, type2, varname, type_demande, active):
+        """
+        Ajouter une nouvelle variable de sortie du service de calcul
 
-    def supprimer_variables(self, vars_type, var_type, var_list):
+        :param type1: type de 1er niveau (ex. : `OrdResSections`)
+        :type type1: str
+        :param type2: type de 2nd niveau (ex. : `OrdResSection`)
+        :type type2: str
+        :param varname: nom de la variable
+        :type varname: str
+        :param type_demande: `Dde` ou `DdeMultiple`
+        :type type_demande: str
+        :param active: true si la variable est demandée, false sinon
+        :type active: bool
+        """
+        if type1 not in self.variables:
+            self.variables[type1] = OrderedDict()
+        if type2 not in self.variables[type1]:
+            self.variables[type1][type2] = OrderedDict()
+        if varname in self.variables[type1][type2]:
+            raise ExceptionCrue10("la variable %s/%s/%s déjà présente" % (type1, type2, varname))
+        self.variables[type1][type2][varname] = (type_demande, active)
+
+    def _set_variables(self, ores_root):
+        for elt1 in ores_root[1:]:
+            type1 = elt1.tag[len(PREFIX):]
+            for elt2 in elt1:
+                type2 = elt2.tag[len(PREFIX):]
+                for elt_dde in elt2:
+                    varname = elt_dde.get('NomRef')
+                    type_demande = elt_dde.tag[len(PREFIX):]
+                    active = elt_dde.text == 'true'
+                    self.ajouter_variable(type1, type2, varname, type_demande, active)
+
+    def set_variables_par_defaut(self):
+        xml_tree = get_xml_root_from_file(os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire,
+                                                       'fichiers_vierges', 'default.ores.xml'))
+        self._set_variables(xml_tree)
+
+    def supprimer_variables(self, type1, type2, var_list):
         """
         Supprimer les variables demandées si elles existent
 
-        :param vars_type: type de 1er niveau (ex. : `OrdResSections`)
-        :type vars_type: str
-        :param var_type: type de 2nd niveau (ex. : `OrdResSection`)
-        :type var_type: str
-        :param var_list: liste des variables
-        :type var_list: list(str)
+        :param type1: type de 1er niveau (ex. : `OrdResSections`)
+        :type type1: str
+        :param type2: type de 2nd niveau (ex. : `OrdResSection`)
+        :type type2: str
+        :param var_list: liste avec le nom des variables (ex: ['Z', 'Q'])
+        :type var_list: list
         """
-        tree = self.xml_trees['ores']
-        elt_parent = tree.find(PREFIX + vars_type).find(PREFIX + var_type)
-        for elt_dde in elt_parent:
-            if elt_dde.get('NomRef') in var_list:
-                elt_parent.remove(elt_dde)
+        for varname in var_list:
+            del self.variables[type1][type2][varname]
 
     def normalize_for_g1_2_1(self):  # HARDCODED to support g1.2.1 ?
         """
@@ -881,7 +938,7 @@ class Scenario(EnsembleFichiersXML):
         """
         variables_to_remove = ['Cr', 'J', 'Jf', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin',
                                'Pact', 'Rhact', 'Tauact', 'Ustaract']
-        # 'Cr', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin' still exsit in g1.2
+        # 'Cr', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin' still exist in g1.2
         self.supprimer_variables('OrdResSections', 'OrdResSection', variables_to_remove)
 
     def get_clim_values_from_all_calc_pseudoperm(self, nom_noeud, delta_t):
