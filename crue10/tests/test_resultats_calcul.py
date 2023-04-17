@@ -91,14 +91,14 @@ class ResultatsCalculTestCase(unittest.TestCase):
         if WRITE_FILES:
             self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_IN, basename))
         self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_OUT, basename))
-        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename), shallow=False))
 
     def test_write_all_calc_trans_in_csv(self):
         basename = 'Etu3-6I_run_all_trans.csv'
         if WRITE_FILES:
             self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_IN, basename))
         self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_OUT, basename))
-        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename), shallow=False))
 
     def test_extract_profil_long_pseudoperm_as_dataframe(self):
         basename = 'Etu3-6I_run_profil_long_P02.csv'
@@ -110,7 +110,6 @@ class ResultatsCalculTestCase(unittest.TestCase):
             'Cc_P02', self.branches, ['Z', 'Q'])
         df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER)
         self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
-
 
     def test_extract_profil_long_trans_at_time_as_dataframe(self):
         basename = 'Etu3-6I_run_profil_long_T01_6h.csv'
