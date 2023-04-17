@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from difflib import unified_diff
 from filecmp import cmp
 import numpy as np
 import os
@@ -86,19 +87,36 @@ class ResultatsCalculTestCase(unittest.TestCase):
         for key in desired.keys():
             np.testing.assert_equal(actual[key], desired[key])
 
+    def _print_diff(self, basename):
+        with open(os.path.join(FOLDER_IN, basename), 'r') as filein:
+            textin = filein.readlines()
+        with open(os.path.join(FOLDER_OUT, basename), 'r') as fileout:
+            textout = fileout.readlines()
+        for line in unified_diff(
+                textin, textout,
+                fromfile=os.path.join(FOLDER_IN, basename),
+                tofile=os.path.join(FOLDER_OUT, basename), lineterm=''):
+            print(line)
+
     def test_write_all_calc_pseudoperm_in_csv(self):
         basename = 'Etu3-6I_run_all_pseudoperm.csv'
         if WRITE_FILES:
             self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_IN, basename))
         self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_OUT, basename))
-        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename), shallow=False))
+        same = cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename), shallow=False)
+        if not same:
+            self._print_diff(basename)
+        self.assertTrue(same)
 
     def test_write_all_calc_trans_in_csv(self):
         basename = 'Etu3-6I_run_all_trans.csv'
         if WRITE_FILES:
             self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_IN, basename))
         self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_OUT, basename))
-        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename), shallow=False))
+        same = cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename), shallow=False)
+        if not same:
+            self._print_diff(basename)
+        self.assertTrue(same)
 
     def test_extract_profil_long_pseudoperm_as_dataframe(self):
         basename = 'Etu3-6I_run_profil_long_P02.csv'
