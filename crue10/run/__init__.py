@@ -96,7 +96,6 @@ class Run:
 
     def __init__(self, etude_basename, run_mo_path, metadata=None):
         """
-
         :param etude_basename: nom de l'étude
         :type etude_basename: str
         :param run_mo_path: chemin vers le dossier du modèle (correspond au chemin le plus profond)
@@ -126,14 +125,12 @@ class Run:
 
         Attention:
         - aucune vérification de la pertinence des services (en fonction de ceux déjà lancés)
-        - les fichiers de sortie de Crue10 sont écrasés s'ils existent déjà
+        - les fichiers de sortie et de listing de Crue10 sont écrasés s'ils existent déjà
 
         :param services: liste des services
         :type services: list(str)
         :param exe_path: chemin vers l'exécutable crue10.exe
         :type exe_path: str
-        :return: run lancé
-        :rtype: Run
         """
         self._check_services(services)
 

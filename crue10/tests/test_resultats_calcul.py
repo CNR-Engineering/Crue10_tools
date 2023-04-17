@@ -130,6 +130,28 @@ class ResultatsCalculTestCase(unittest.TestCase):
         df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER)
         self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
 
-    def test_get_res_all_steady_var_at_emhs(self):
-        a = self.resultats.get_res_all_pseudoperm_var_at_emhs('Z', self.section_names)
-        print(a)
+    def test_get_all_pseudoperm_var_at_emhs_as_array(self):
+        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6I_run_pseudoperm_Z_at_sections.p')
+
+        actual = self.resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', self.section_names)
+
+        if WRITE_FILES:
+            with open(REFERENCE_FILE_PATH, 'wb') as f:
+                pickle.dump(actual, f)
+
+        with open(REFERENCE_FILE_PATH, 'rb') as f:
+            desired = pickle.load(f)
+        np.testing.assert_equal(actual, desired)
+
+    def test_get_trans_var_at_emhs_as_array(self):
+        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6I_run_trans_T01_Z_at_sections.p')
+
+        actual = self.resultats.get_trans_var_at_emhs_as_array('Cc_T01', 'Z', self.section_names)
+
+        if WRITE_FILES:
+            with open(REFERENCE_FILE_PATH, 'wb') as f:
+                pickle.dump(actual, f)
+
+        with open(REFERENCE_FILE_PATH, 'rb') as f:
+            desired = pickle.load(f)
+        np.testing.assert_equal(actual, desired)

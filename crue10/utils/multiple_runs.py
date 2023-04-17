@@ -61,7 +61,7 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
 
                 for scenario_name in scenario_names:
                     scenario = etude.get_scenario(scenario_name)
-                    logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actif()))
+                    logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actifs()))
 
                     # Shift 'prod' to the end to call `normalize_for_g1_2_1` safely
                     if 'prod' in crue_exe_dict:
@@ -170,7 +170,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
             logger.error("Un fichier de sortie du Run `%s` manque: %s" % (run.id, e))
             continue
         key = (scenario.id, row['exe_id'])
-        res_perm_curr = resultats.get_res_all_pseudoperm_var_at_emhs(variable, resultats.emh[emh_type])
+        res_perm_curr = resultats.get_all_pseudoperm_var_at_emhs_as_array(variable, resultats.emh[emh_type])
         res_perm[key] = res_perm_curr
 
         # Get reference results to compute differences

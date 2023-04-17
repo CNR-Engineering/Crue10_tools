@@ -90,7 +90,7 @@ class AutomateSauvegarde:
         resultats = run.get_resultats_calcul()
         calc = resultats.get_res_calc_trans(CALCUL_TRANS)
         self.time = calc.time_serie()
-        self.z_array = resultats.get_res_trans_var_at_emhs(CALCUL_TRANS, 'Z', [SECTION_AS])[:, 0]
+        self.z_array = resultats.get_trans_var_at_emhs_as_array(CALCUL_TRANS, 'Z', [SECTION_AS])[:, 0]
         return run
 
     def run_all(self):
@@ -141,8 +141,8 @@ etude.write_etu()
 
 # Extraction des résultats pour le graphique
 resultats = run.get_resultats_calcul()
-z_array = resultats.get_res_trans_var_at_emhs(CALCUL_TRANS, 'Z', [SECTION_AS])[:, 0]
-q_barrage, q_usine = resultats.get_res_trans_var_at_emhs(CALCUL_TRANS, 'Q', [SECTION_BGE, SECTION_USINE]).T
+z_array = resultats.get_trans_var_at_emhs_as_array(CALCUL_TRANS, 'Z', [SECTION_AS])[:, 0]
+q_barrage, q_usine = resultats.get_trans_var_at_emhs_as_array(CALCUL_TRANS, 'Q', [SECTION_BGE, SECTION_USINE]).T
 
 # Mise en graphique des résultats
 fig, ax1 = plt.subplots(figsize=(16, 9))

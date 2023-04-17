@@ -504,7 +504,7 @@ class ResultatsCalcul:
             res_all[emh_type] = np.array(res_all[emh_type])
         return res_all
 
-    def get_res_all_pseudoperm_var_at_emhs(self, varname, emh_list):
+    def get_all_pseudoperm_var_at_emhs_as_array(self, varname, emh_list):
         """
         Obtenir un tableau numpy avec les valeurs numériques de la variable demandée aux EMHs pour tous les calculs
         pseudo-permnants
@@ -530,7 +530,7 @@ class ResultatsCalcul:
                 values[i, j] = res[emh_type][emh_pos, var_pos]
         return values
 
-    def get_res_trans_var_at_emhs(self, calc_name, varname, emh_list):
+    def get_trans_var_at_emhs_as_array(self, calc_name, varname, emh_list):
         """
         Obtenir un tableau numpy avec les valeurs numériques de la variable demandée aux EMHs pour l'ensemble des
         temps du calcul transitoire demandé

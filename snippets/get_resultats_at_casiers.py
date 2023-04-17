@@ -16,7 +16,7 @@ print("RUN=%s" % run.id)
 print(resultats.summary())
 
 casier_names = resultats.emh['Casier']
-res = resultats.get_res_all_pseudoperm_var_at_emhs('Z', casier_names)
+res = resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', casier_names)
 
 df_time = pd.DataFrame(resultats.res_calc_pseudoperm.keys(), columns=['calcul'])
 df_res = pd.DataFrame(res, columns=casier_names)
@@ -42,7 +42,7 @@ for casier_name in casier_names:
                     noeud_amont = branche.noeud_aval
                 else:
                     noeud_amont = branche.noeud_amont
-                z_amont = resultats.get_res_all_pseudoperm_var_at_emhs('Z', [noeud_amont.id])[-1][0]
+                z_amont = resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', [noeud_amont.id])[-1][0]
 
                 if isinstance(branche, BrancheSeuilLateral):
                     z_tn = branche.get_min_z()

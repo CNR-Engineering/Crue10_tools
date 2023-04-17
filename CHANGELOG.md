@@ -39,8 +39,8 @@ Détails :
             * la méthode `CalcPseudoPerm` devient `ResCalcPseudoPerm` (pour éviter le conflit avec `crue10.scenario.calcul`)
             * la méthode `CalcTrans` devient `ResCalcTrans` (pour éviter le conflit avec `crue10.scenario.calcul`)
         * Pour les post-traitements : 
-            * [MAJEUR] la méthode `get_res_all_steady_var_at_emhs` devient `get_res_all_pseudoperm_var_at_emhs`
-            * [MAJEUR] la méthode `get_res_unsteady_var_at_emhs` devient `get_res_trans_var_at_emhs`
+            * [MAJEUR] la méthode `get_res_all_steady_var_at_emhs` devient `get_all_pseudoperm_var_at_emhs_as_array`
+            * [MAJEUR] la méthode `get_res_unsteady_var_at_emhs` devient `get_trans_var_at_emhs_as_array`
             * [MAJEUR] la méthode `export_calc_steady_as_csv` devient `write_all_calc_pseudoperm_in_csv`
             * [MAJEUR] la méthode `export_calc_steady_as_csv` devient `write_all_calc_trans_in_csv`
             * [MAJEUR] la méthode `get_res_steady_at_sections_along_branches_as_dataframe` devient `extract_profil_long_pseudoperm_as_dataframe`

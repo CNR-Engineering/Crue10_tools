@@ -134,7 +134,7 @@ while True:
         logger.critical(e)
         break
 
-    z_PR1, z_PR2, z_barrage = resultats.get_res_all_pseudoperm_var_at_emhs(
+    z_PR1, z_PR2, z_barrage = resultats.get_all_pseudoperm_var_at_emhs_as_array(
         'Z', [section_PR1, section_PR2, section_amont_barrage]).T
 
     # Résultat
@@ -161,7 +161,7 @@ while True:
         logger.info("=> Calage réussi avec succès !")
         break
 
-    assert len(q_pilote) == len(z_imp_prev) == len(dz) == scenario.get_nb_calc_pseudoperm_actif()
+    assert len(q_pilote) == len(z_imp_prev) == len(dz) == scenario.get_nb_calc_pseudoperm_actifs()
 
     # Mise à jour de la cote imposée à l'amont barrage
     for j, calcul in enumerate(scenario.get_liste_calc_pseudoperm(ignore_inactive=True)):

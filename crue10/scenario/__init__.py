@@ -257,14 +257,14 @@ class Scenario(EnsembleFichiersXML):
         self.get_calcul(nom_calcul)  # Check that the calculation exists
         raise ExceptionCrue10("Le calcul transitoire `%s` n'est pas actif" % nom_calcul)
 
-    def get_nb_calc_pseudoperm_actif(self):
+    def get_nb_calc_pseudoperm_actifs(self):
         """
         :return: nombre de calculs pseudo-permanents actifs
         :rtype: int
         """
         return len(self.liste_ord_calc_pseudoperm)
 
-    def get_nb_calc_trans_actif(self):
+    def get_nb_calc_trans_actifs(self):
         """
         :return: nombre de calculs transitoires actifs
         :rtype: int
@@ -739,6 +739,8 @@ class Scenario(EnsembleFichiersXML):
         :type comment: str
         :param force: écraser le Run s'il existe déjà
         :type force: bool
+        :return: run lancé
+        :rtype: Run
         """
         run = self.create_new_run(etude, run_id=run_id, comment=comment, force=force)
         run.launch_services(Run.SERVICES, exe_path=exe_path)
@@ -820,7 +822,7 @@ class Scenario(EnsembleFichiersXML):
 
         :param folder: dossier de sortie
         """
-        # Tri des variables par ordre alphabétique
+        # Tri des variables par ordre alphabétique (sauf pour les variables liées à la régulation)
         for type1, values1 in self.variables.items():
             for type2, values2 in values1.items():
                 if type2 != 'OrdResModeleRegul':

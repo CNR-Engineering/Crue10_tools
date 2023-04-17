@@ -40,7 +40,7 @@ try:
 
     # Read results at locations for all steady calculations
     #   shape = (number of steady calculations, number of requested EMH)
-    print(resultats.get_res_all_pseudoperm_var_at_emhs('Z', ['St_RET33.300', 'Nd_VRH8.500']))
+    print(resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', ['St_RET33.300', 'Nd_VRH8.500']))
 
     # Create output folder if not existing
     out_folder = '../tmp/read_run'
@@ -58,7 +58,7 @@ try:
 
     # Read results at locations for a single unsteady calculation
     #   shape = (number of time steps, number of requested EMHs)
-    print(resultats.get_res_trans_var_at_emhs('Cc_Avr_2006', 'Z', ['St_RET33.300', 'Nd_VRH8.500']))
+    print(resultats.get_trans_var_at_emhs_as_array('Cc_Avr_2006', 'Z', ['St_RET33.300', 'Nd_VRH8.500']))
 
     # Export unsteady calculations data
     resultats.write_all_calc_trans_in_csv(os.path.join(out_folder, 'Etu_VS2015_conc_trans.csv'))
