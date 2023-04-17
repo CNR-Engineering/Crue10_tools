@@ -34,7 +34,7 @@ t1 = time()
 
 if RUN_CALCULATIONS:
     df_runs = launch_runs(DOSSIER, ETATREF_SCENARIO_PAR_AMENAGEMENT,
-                          CRUE10_EXE, overwrite=False)
+                          CRUE10_EXE, overwrite=True)
     write_csv(df_runs, OUT_CSV_RUNS_FILE)
 
 

@@ -931,7 +931,8 @@ class Scenario(EnsembleFichiersXML):
         :type var_list: list
         """
         for varname in var_list:
-            del self.variables[type1][type2][varname]
+            if varname in self.variables[type1][type2]:
+                del self.variables[type1][type2][varname]
 
     def normalize_for_g1_2_1(self):  # HARDCODED to support g1.2.1 ?
         """
@@ -940,7 +941,7 @@ class Scenario(EnsembleFichiersXML):
         """
         variables_to_remove = ['Cr', 'J', 'Jf', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin',
                                'Pact', 'Rhact', 'Tauact', 'Ustaract']
-        # 'Cr', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin' still exist in g1.2
+        # 'Cr', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin', 'Pact', 'Rhact' still exist in g1.2
         self.supprimer_variables('OrdResSections', 'OrdResSection', variables_to_remove)
 
     def get_clim_values_from_all_calc_pseudoperm(self, nom_noeud, delta_t):

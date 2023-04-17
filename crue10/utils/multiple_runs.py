@@ -63,15 +63,12 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                     scenario = etude.get_scenario(scenario_name)
                     logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actifs()))
 
-                    # Shift 'prod' to the end to call `normalize_for_g1_2_1` safely
+                    # Shift 'prod' to the end (it was to call `normalize_for_g1_2_1` safely)
                     if 'prod' in crue_exe_dict:
                         value = crue_exe_dict.pop('prod')
                         crue_exe_dict['prod'] = value
 
                     for run_idx, (exe_id, crue10_exe) in enumerate(crue_exe_dict.items()):
-                        if exe_id == 'prod':
-                            scenario.normalize_for_g1_2_1()
-
                         values = OrderedDict()
 
                         run_id = scenario_name[3:] + '_' + exe_id
@@ -110,8 +107,8 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                         # Save criteria in values and append them in df_runs
                         values.update(OrderedDict([
                             ('nb_services_ok', nb_services_ok),
-                            ('nb_erreurs_calculs', run.nb_erreurs_calcul()),
-                            ('nb_avertissements_calculs', run.nb_avertissements_calcul()),
+                            ('nb_erreurs_calcul', run.nb_erreurs_calcul()),
+                            ('nb_avertissements_calcul', run.nb_avertissements_calcul()),
                         ]))
                         for var, value in values.items():
                             df_append = pd.Series({
@@ -148,20 +145,20 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
     df_diff_stat = pd.DataFrame({col: [] for col in cols + ['variable', 'value']})
     etu_path_last = ''
     for _, row in df_runs_unique.iterrows():
-        # Build a Study instance
+        # Build a `Etude` instance
         etude_dossier = row['etude_dossier']
         etu_path = os.path.join(dossier, etude_dossier, row['etude_basename'])
         if etu_path != etu_path_last:
             logger.info(">>>>>>>>>> Dossier étude: %s <<<<<<<<<<" % etude_dossier)
             etude = Etude(etu_path)
 
-        # Get a Scenario instance and read its data
+        # Get a `Scenario` instance and read its data
         scenario = etude.get_scenario(row['scenario'])
         logger.setLevel(logging.ERROR)
         scenario.read_all()
         logger.setLevel(LOGGER_LEVEL)
 
-        # Get a Run instance and read all steady results
+        # Get a `Run` instance and read all steady results
         run = scenario.get_run(row['run_id'])
         logger.info(run)
         try:

@@ -53,7 +53,7 @@ if PLOT_RUN_BARPLOT:
 
     # Filter data
     # df_runs = df_runs.loc[df_runs['exe_id'] != 'local', :]
-    df_runs = df_runs.loc[df_runs['variable'] == 'nb_services_ok', :]
+    # df_runs = df_runs.loc[df_runs['variable'] == 'nb_services_ok', :]
 
     # Build a FacetGrid object with barplots
     sns.set_context('notebook', font_scale=1.5, rc={'lines.linewidth': 2.5})
