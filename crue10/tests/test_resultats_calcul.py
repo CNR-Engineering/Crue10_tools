@@ -1,14 +1,19 @@
 from collections import OrderedDict
+from filecmp import cmp
 import numpy as np
-import os.path
+import os
 import pickle
 import unittest
 
-from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
 from crue10.etude import Etude
+from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
+from crue10.utils.settings import CSV_DELIMITER
 
 
-WRITE_PICKLE_FILES = False
+WRITE_FILES = False
+
+FOLDER_IN = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.2', 'Etu3-6I_run')
+FOLDER_OUT = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', '1.2', 'Etu3-6I_run')
 
 CASIERS = ['Ca_N7', 'Ca_N6']
 
@@ -21,12 +26,16 @@ SECTIONS = ['St_PROF6B', 'St_PROF3AM', 'St_B1_00050', 'St_B1_00150', 'St_B1_0025
 class ResultatsCalculTestCase(unittest.TestCase):
 
     def setUp(self):
-        etude = Etude(os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.2', 'Etu3-6_run', 'Etu3-6.etu.xml'))
+        etude = Etude(os.path.join(FOLDER_IN, 'Etu3-6.etu.xml'))
         scenario = etude.get_scenario_courant()
         self.sous_modele = scenario.modele.liste_sous_modeles[0]
         self.sous_modele.read_all()
         run = scenario.get_last_run()
-        self.resultats = run.get_resultats_calcul()
+        self.resultats = run.get_resultats_calcul()  # ResultatsCalcul
+        self.branches = scenario.modele.get_liste_branches_entre_deux_noeuds('Nd_N1', 'Nd_N5')
+        self.section_names = [st.id for st in scenario.modele.get_liste_sections()]
+        if not os.path.exists(FOLDER_OUT):
+            os.makedirs(FOLDER_OUT)
 
     def test_emh(self):
         self.assertEqual(self.resultats.emh,
@@ -35,7 +44,6 @@ class ResultatsCalculTestCase(unittest.TestCase):
                                       ('BrancheStrickler', ['Br_B6'])]))
 
     def test_variables(self):
-        print(self.resultats.variables)
         self.assertEqual(self.resultats.variables,
                          OrderedDict([('Noeud', []),
                                       ('Casier', ['Qech', 'Splan', 'Vol']),
@@ -50,16 +58,12 @@ class ResultatsCalculTestCase(unittest.TestCase):
                                       ('BrancheSeuilTransversal', []),
                                       ('BrancheStrickler', ['Splan', 'Vol'])]))
 
-    def test_get_res_calc_pseudoperm(self):
-        res = self.resultats.get_res_calc_pseudoperm('Cc_P02')
-        self.assertEqual(res.name, 'Cc_P02')
+    def test_get_data_pseudoperm(self):
+        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6I_run_Cc_P02.p')
 
-    def test_res(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6_run_Cc_P02.p')
+        actual = self.resultats.get_data_pseudoperm('Cc_P02')
 
-        actual = self.resultats.get_res_steady('Cc_P02')
-
-        if WRITE_PICKLE_FILES:
+        if WRITE_FILES:
             with open(REFERENCE_FILE_PATH, 'wb') as f:
                 pickle.dump(actual, f)
 
@@ -67,3 +71,65 @@ class ResultatsCalculTestCase(unittest.TestCase):
             desired = pickle.load(f)
         for key in desired.keys():
             np.testing.assert_equal(actual[key], desired[key])
+
+    def test_get_data_trans(self):
+        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6I_run_Cc_T01.p')
+
+        actual = self.resultats.get_data_trans('Cc_T01')
+
+        if WRITE_FILES:
+            with open(REFERENCE_FILE_PATH, 'wb') as f:
+                pickle.dump(actual, f)
+
+        with open(REFERENCE_FILE_PATH, 'rb') as f:
+            desired = pickle.load(f)
+        for key in desired.keys():
+            np.testing.assert_equal(actual[key], desired[key])
+
+    def test_write_all_calc_pseudoperm_in_csv(self):
+        basename = 'Etu3-6I_run_all_pseudoperm.csv'
+        if WRITE_FILES:
+            self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_IN, basename))
+        self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_OUT, basename))
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
+
+    def test_write_all_calc_trans_in_csv(self):
+        basename = 'Etu3-6I_run_all_trans.csv'
+        if WRITE_FILES:
+            self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_IN, basename))
+        self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_OUT, basename))
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
+
+    def test_extract_profil_long_pseudoperm_as_dataframe(self):
+        basename = 'Etu3-6I_run_profil_long_P02.csv'
+        if WRITE_FILES:
+            df_reference = self.resultats.extract_profil_long_pseudoperm_as_dataframe(
+                'Cc_P02', self.branches, ['Z', 'Q'])
+            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER)
+        df_actual = self.resultats.extract_profil_long_pseudoperm_as_dataframe(
+            'Cc_P02', self.branches, ['Z', 'Q'])
+        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER)
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
+
+
+    def test_extract_profil_long_trans_at_time_as_dataframe(self):
+        basename = 'Etu3-6I_run_profil_long_T01_6h.csv'
+        if WRITE_FILES:
+            df_reference = self.resultats.extract_profil_long_trans_at_time_as_dataframe('Cc_T01', self.branches, 6)
+            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER)
+        df_actual = self.resultats.extract_profil_long_trans_at_time_as_dataframe('Cc_T01', self.branches, 6)
+        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER)
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
+
+    def test_extract_profil_long_trans_max_as_dataframe(self):
+        basename = 'Etu3-6I_run_profil_long_T01_max.csv'
+        if WRITE_FILES:
+            df_reference = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches)
+            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER)
+        df_actual = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches)
+        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER)
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
+
+    def test_get_res_all_steady_var_at_emhs(self):
+        a = self.resultats.get_res_all_pseudoperm_var_at_emhs('Z', self.section_names)
+        print(a)

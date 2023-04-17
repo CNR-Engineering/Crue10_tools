@@ -51,12 +51,12 @@ try:
         print("Missing sections:\n%s" % missing_sections)
 
     # Read a single *steady* calculation
-    res_perm = resultats.get_res_steady('Cc_360m3-s')
+    res_perm = resultats.get_data_pseudoperm('Cc_360m3-s')
     res = res_perm['Section']
 
     # Export a longitudinal profile between 2 nodes in CSV
     branches = modele.get_liste_branches_entre_deux_noeuds('Nd_CAF4.000', 'Nd_RET33.700')
-    df_res = resultats.get_res_steady_at_sections_along_branches_as_dataframe('Cc_360m3-s', branches, VARIABLES)
+    df_res = resultats.extract_profil_long_pseudoperm_as_dataframe('Cc_360m3-s', branches, VARIABLES)
     df_res.to_csv('../tmp/LE.csv', sep=CSV_DELIMITER)
 
     # Subset results to get requested variables at active sections

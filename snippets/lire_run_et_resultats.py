@@ -33,14 +33,14 @@ try:
     print(resultats.variables)  # Variable identifiers list for every EMH type
 
     # Read a single *steady* calculation
-    res_perm = resultats.get_res_steady('Cc_360m3-s')
+    res_perm = resultats.get_data_pseudoperm('Cc_360m3-s')
     for emh_type, res in res_perm.items():
         print(emh_type)
         print(res)  # shape = (number of EMHs, number of variables)
 
     # Read results at locations for all steady calculations
     #   shape = (number of steady calculations, number of requested EMH)
-    print(resultats.get_res_all_steady_var_at_emhs('Z', ['St_RET33.300', 'Nd_VRH8.500']))
+    print(resultats.get_res_all_pseudoperm_var_at_emhs('Z', ['St_RET33.300', 'Nd_VRH8.500']))
 
     # Create output folder if not existing
     out_folder = '../tmp/read_run'
@@ -48,20 +48,20 @@ try:
         os.makedirs(out_folder)
 
     # Export steady calculations data
-    resultats.export_calc_steady_as_csv(os.path.join(out_folder, 'Etu_VS2015_conc_perms.csv'))
+    resultats.write_all_calc_pseudoperm_in_csv(os.path.join(out_folder, 'Etu_VS2015_conc_perms.csv'))
 
     # Read a single *unsteady* calculation
-    res_unsteady = resultats.get_res_unsteady('Cc_Avr_2006')
-    for emh_type, res in res_unsteady.items():
+    res_trans = resultats.get_data_trans('Cc_Avr_2006')
+    for emh_type, res in res_trans.items():
         print(emh_type)
         print(res)  # shape = (number of time steps, number of EMHs, number of variables)
 
     # Read results at locations for a single unsteady calculation
     #   shape = (number of time steps, number of requested EMHs)
-    print(resultats.get_res_unsteady_var_at_emhs('Cc_Avr_2006', 'Z', ['St_RET33.300', 'Nd_VRH8.500']))
+    print(resultats.get_res_trans_var_at_emhs('Cc_Avr_2006', 'Z', ['St_RET33.300', 'Nd_VRH8.500']))
 
     # Export unsteady calculations data
-    resultats.export_calc_unsteady_as_csv(os.path.join(out_folder, 'Etu_VS2015_conc_trans.csv'))
+    resultats.write_all_calc_trans_in_csv(os.path.join(out_folder, 'Etu_VS2015_conc_trans.csv'))
 
 except ExceptionCrue10 as e:
     logger.critical(e)

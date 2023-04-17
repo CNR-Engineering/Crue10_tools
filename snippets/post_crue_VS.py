@@ -22,7 +22,7 @@ try:
 
     pos_Q = resultats.variables['Section'].index('Q')
     calc_trans = resultats.get_res_calc_trans(calc_name)
-    Q_at_sections = resultats.get_res_unsteady(calc_name)['Section'][:, :, pos_Q]
+    Q_at_sections = resultats.get_data_trans(calc_name)['Section'][:, :, pos_Q]
     # print(Q_at_sections[:, run.emh['Section'].index('St_RET15.100')])
     Qmin_at_sections = Q_at_sections.min(axis=0)
     Qmax_at_sections = Q_at_sections.max(axis=0)

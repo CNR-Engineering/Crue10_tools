@@ -189,7 +189,7 @@ class ExceptionCrue10(Exception):
 
     def __init__(self, message):
         """
-        :param message <str>: messsage décrivant l'erreur
+        :param message: messsage décrivant l'erreur
         :type message: str
         """
         super().__init__(message)

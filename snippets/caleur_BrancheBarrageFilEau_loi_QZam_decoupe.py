@@ -134,7 +134,7 @@ while True:
         logger.critical(e)
         break
 
-    z_PR1, z_PR2, z_barrage = resultats.get_res_all_steady_var_at_emhs(
+    z_PR1, z_PR2, z_barrage = resultats.get_res_all_pseudoperm_var_at_emhs(
         'Z', [section_PR1, section_PR2, section_amont_barrage]).T
 
     # Résultat

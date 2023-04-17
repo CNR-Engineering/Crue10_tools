@@ -35,3 +35,16 @@ Lancement des tests unitaires (présents dans `crue10/tests`) :
 ```
 python -m unittest
 ````
+
+Exhaustivités des tests :
+* Etude => `test_end_to_end.py`, `test_file_xsd_validation.py`
+* Scenario => `test_scenario.py`
+* Modele => `test_modele.py`
+* SousModele => `test_sous_modele.py`
+* EMH
+    * branches => `test_emh_branche.py`
+    * casiers => `test_emh_casier.py`  
+    * noeuds => `test_emh_noeud.py`
+    * sections => `test_emh_section.py`
+* Run => `test_run.py`
+* ResultatsCalcul => `test_resultats_calcul.py`

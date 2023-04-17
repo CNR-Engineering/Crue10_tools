@@ -221,7 +221,7 @@ def compute_hf(results):
 # functions II
 def info_branch(results,Cc,branche,min_section):
     # Get results
-    res2_perm = results.get_res_steady_at_sections_along_branches_as_dataframe(Cc, [branche])
+    res2_perm = results.extract_profil_long_pseudoperm_as_dataframe(Cc, [branche])
 
     # Compute AxeH
     res2_perm['X_AxeH']= res2_perm.apply(X_AxeH,axis=1,args=(branche,))

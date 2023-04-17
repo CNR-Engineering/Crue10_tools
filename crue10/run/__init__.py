@@ -19,6 +19,16 @@ FMT_RUN_IDENTIFIER = "R%Y-%m-%d-%Hh%Mm%Ss"
 
 
 def get_path_file_unique_matching(folder, ext_pattern):
+    """
+    Obtenir le chemin vers le premier fichier répondant au motif fourni
+
+    :param folder: dossier à parcourir
+    :type folder: str
+    :param ext_pattern: motif du nom de fichier (ex. `*.rcal.xml`)
+    :type ext_pattern: str
+    :return: chemin vers le fichier
+    :rtype: str
+    """
     file_path_list = []
     for file_path in glob(os.path.join(folder, ext_pattern)):
         file_path_list.append(file_path)
@@ -30,6 +40,14 @@ def get_path_file_unique_matching(folder, ext_pattern):
 
 
 def get_run_identifier(datetime_obj=None):
+    """
+    Obtenir le nom du Run à partir d'un objet datetime ou de l'horodatage actuel si non fourni
+
+    :param datetime_obj: horodatage (pris à l'horodatage actuel si non fourni)
+    :type datetime_obj: datetime.datetime
+    :return: nom du Run
+    :rtype: str
+    """
     if datetime_obj is None:
         return datetime.now().strftime(FMT_RUN_IDENTIFIER)
     else:
@@ -193,6 +211,7 @@ class Run:
         :param services: liste des services
         :type services: list(str)
         :return: nombre total d'avertissements
+        :rtype: int
         """
         nb = 0
         for service in services:
@@ -203,6 +222,7 @@ class Run:
     def nb_avertissements_calcul(self):
         """
         :return: nombre total d'avertissements du service de calculs
+        :rtype: int
         """
         return self.nb_avertissements(['c'])
 
@@ -211,6 +231,7 @@ class Run:
         :param services: liste des services
         :type services: list(str)
         :return: nombre total d'erreurs
+        :rtype: int
         """
         nb = 0
         for service in services:
@@ -220,6 +241,7 @@ class Run:
     def nb_erreurs_calcul(self):
         """
         :return: nombre total d'erreurs du service de calculs
+        :rtype: int
         """
         return self.nb_erreurs(['c'])
 
@@ -228,6 +250,7 @@ class Run:
         :param services: liste des services
         :type services: list(str)
         :return: nombre total d'erreurs bloquantes
+        :rtype: int
         """
         nb = 0
         for service in services:
@@ -244,7 +267,7 @@ class Run:
         :type gravite_min: str
         :param gravite_max: niveau de gravité maximal
         :type gravite_max: str
-        :return: str
+        :rtype: str
         """
         self._check_services(services)
         text = ''
@@ -262,7 +285,7 @@ class Run:
         :type service: list(str)
         :param gravite_max: niveau de gravité maximal
         :type gravite_max: str
-        :return: str
+        :rtype: str
         """
         return self.get_all_traces(services, gravite_min=GRAVITE_AVERTISSEMENT, gravite_max=gravite_max)
 
@@ -304,6 +327,7 @@ class Run:
         Obtenir une instance ResultatsCalcul pour post-traiter les résultats de calcul du Run.
         Il faut que le Run contiennent des résultats (même partiels) du service de calcul.
 
+        :return: résultats du calcul
         :rtype: ResultatsCalcul
         """
         # Check that some traces were read

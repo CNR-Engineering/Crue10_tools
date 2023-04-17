@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OCAL xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/ocal-1.2.xsd">
+  <Commentaire></Commentaire>
+  <Sorties>
+    <Avancement>
+      <SortieFichier>true</SortieFichier>
+    </Avancement>
+    <Trace>
+      <SortieEcran>true</SortieEcran>
+      <SortieFichier>true</SortieFichier>
+      <VerbositeEcran>DEBUG2</VerbositeEcran>
+      <VerbositeFichier>DEBUG2</VerbositeFichier>
+    </Trace>
+    <Resultat>
+      <SortieFichier>true</SortieFichier>
+    </Resultat>
+  </Sorties>
+  <OrdCalcPseudoPerm NomRef="Cc_P01">
+    <IniCalcCI/>
+  </OrdCalcPseudoPerm>
+  <OrdCalcPseudoPerm NomRef="Cc_P02">
+    <IniCalcPrecedent/>
+  </OrdCalcPseudoPerm>
+  <OrdCalcTrans NomRef="Cc_T01">
+    <DureeCalc>P0Y0M1DT0H0M0S</DureeCalc>
+    <PdtRes>
+      <PdtCst>P0Y0M0DT1H0M0S</PdtCst>
+    </PdtRes>
+    <IniCalcPrecedent/>
+  </OrdCalcTrans>
+</OCAL>

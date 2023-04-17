@@ -62,13 +62,14 @@ class FilePosition:
         self.rbin_path = rbin_path
         self.byte_offset = byte_offset
 
-    def get_data(self, res_pattern, is_steady, emh_type_first_branche):
+    def get_data(self, res_pattern, is_pseudoperm, emh_type_first_branche):
         """
         :param res_pattern: schéma d'organisation des résultats. Par exemple [('Noeud', (120, 1)), ('Casier', (48, 4)),
             ('Section', (593, 8)), ('BrancheBarrageFilEau', (1, 1)), ...]
         :type res_pattern: list(tuple(str, (int, int)))
-        :param is_steady: les données correspondent à un calcul permanent (pour vérifier la cohérence d'un délimiteur)
-        :type is_steady: bool
+        :param is_pseudoperm: les données correspondent à un calcul pseudo-permanent
+            (pour vérifier la cohérence d'un délimiteur)
+        :type is_pseudoperm: bool
         :param emh_type_first_branche: premier type d'EMH secondaire pour Branche (pa ex. 'BrancheBarrageFilEau')
         :type emh_type_first_branche: str
         :return: dictionnaire avec les types d'EMH secondaires et le tableau de données (shape=(nb_emh, nb_var))
@@ -80,7 +81,7 @@ class FilePosition:
 
             # Check calculation type
             calc_delimiter = resin.read(FilePosition.FLOAT_SIZE).decode(FilePosition.ENCODING).strip()
-            if is_steady:
+            if is_pseudoperm:
                 if calc_delimiter != 'RcalPp':
                     raise ExceptionCrue10("Le calcul n'est pas permanent !")
             else:
@@ -162,9 +163,9 @@ class ResultatsCalcul:
     :vartype emh: OrderedDict(str)
     :ivar variables: dictionnaires avec les types d'EMH secondaires donnant la liste des variables disponibles
     :vartype variables: OrderedDict(str)
-    :ivar res_calc_pseudoperm: dictionnaires avec les calculs pseudo-permanents
+    :ivar res_calc_pseudoperm: dictionnaires avec les métadonnées des calculs pseudo-permanents
     :vartype res_calc_pseudoperm: OrderedDict(ResCalcPseudoPerm)
-    :ivar res_calc_trans: dictionnaires avec les calculs transitoires
+    :ivar res_calc_trans: dictionnaires avec les métadonnées des calculs transitoires
     :vartype res_calc_trans: OrderedDict(ResCalcTrans)
     :ivar _emh_type_first_branche: premier type d'EMH "secondaire" pour Branche (pa ex. 'BrancheBarrageFilEau')
     :vartype _emh_type_first_branche: str
@@ -258,16 +259,16 @@ class ResultatsCalcul:
 
     def _read_rescalc(self):
         for calc in self.rcal_root.find(PREFIX + 'ResCalcPerms'):
-            calc_steady = ResCalcPseudoPerm(calc.get('NomRef'), os.path.join(self.rcal_folder, calc.get('Href')),
-                                            int(calc.get('OffsetMot')))
-            self.res_calc_pseudoperm[calc_steady.name] = calc_steady
+            calc_pseudoperm = ResCalcPseudoPerm(calc.get('NomRef'), os.path.join(self.rcal_folder, calc.get('Href')),
+                                                int(calc.get('OffsetMot')))
+            self.res_calc_pseudoperm[calc_pseudoperm.name] = calc_pseudoperm
 
         for calc in self.rcal_root.find(PREFIX + 'ResCalcTranss'):
-            calc_unsteady = ResCalcTrans(calc.get('NomRef'))
+            calc_trans = ResCalcTrans(calc.get('NomRef'))
             for pdt in calc:
-                calc_unsteady.add_frame(get_time_in_seconds(pdt.get('TempsSimu')),
-                                        os.path.join(self.rcal_folder, pdt.get('Href')), int(pdt.get('OffsetMot')))
-            self.res_calc_trans[calc_unsteady.name] = calc_unsteady
+                calc_trans.add_frame(get_time_in_seconds(pdt.get('TempsSimu')),
+                                     os.path.join(self.rcal_folder, pdt.get('Href')), int(pdt.get('OffsetMot')))
+            self.res_calc_trans[calc_trans.name] = calc_trans
 
     def _set_res_pattern(self):
         emh_types_with_res = []
@@ -302,9 +303,10 @@ class ResultatsCalcul:
 
     def get_res_calc_pseudoperm(self, calc_name):
         """
-        Obtenir le calcul pseudo-permanent demandé
+        Obtenir les métadonnées des résultats du calcul pseudo-permanent demandé
 
         :param calc_name: nom du calcul
+        :type calc_name: str
         :rtype: ResCalcPseudoPerm
         """
         try:
@@ -318,9 +320,10 @@ class ResultatsCalcul:
 
     def get_res_calc_trans(self, calc_name):
         """
-        Obtenir le calcul transitoire demandé
+        Obtenir les métadonnées des résultats du calcul transitoire demandé
 
         :param calc_name: nom du calcul
+        :type calc_name: str
         :rtype: ResCalcTrans
         """
         try:
@@ -341,19 +344,32 @@ class ResultatsCalcul:
         text += "=> %s calculs permanents et %i calculs transitoires\n" % (len(self.res_calc_pseudoperm), len(self.res_calc_trans))
         return text
 
-    def get_res_steady(self, calc_name):
+    def get_data_pseudoperm(self, calc_name):
         """
         Obtenir tous les tableaux (numpy) de résultats du calcul pseudo-permanent demandé.
         Le nom des EMHs secondaires permet d'avoir un array avec les données (ligne = calcul, colonne = variable).
 
         :param calc_name: nom du calcul
-        :return: dict(np.ndarray)
+        :type calc_name: str
+        :rtype: dict(np.ndarray)
         """
         calc = self.get_res_calc_pseudoperm(calc_name)
         return calc.file_pos.get_data(self._res_pattern, True, self._emh_type_first_branche)
 
-    def get_res_steady_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None):
-        res_perm = self.get_res_steady(calc_name)['Section']
+    def extract_profil_long_pseudoperm_as_dataframe(self, calc_name, branches, var_names=None):
+        """
+        Extraction d'un profil en long (le long de branches) d'un calcul pseudo-permanent
+
+        :param calc_name: nom du calcul pseudo-permanent
+        :type calc_name: str
+        :param branches: liste des branches
+        :type branches: list(str)
+        :param var_names: liste des variables (si absent alors tout est exporté)
+        :type var_names: list
+        :return: tableau de valeurs du profil en long
+        :rtype: pd.DataFrame
+        """
+        res_perm = self.get_data_pseudoperm(calc_name)['Section']
 
         if var_names is None:
             var_names = self.variables['Section']
@@ -378,8 +394,22 @@ class ResultatsCalcul:
         values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
         return pd.DataFrame(values_in_dict)
 
-    def get_res_unsteady_at_sections_along_branches_as_dataframe(self, calc_name, branches, idx_time, var_names=None):
-        res = self.get_res_unsteady(calc_name)['Section']
+    def extract_profil_long_trans_at_time_as_dataframe(self, calc_name, branches, idx_time, var_names=None):
+        """
+        Extraction d'un profil en long (le long de branches) d'un calcul transitoire à un enregistrement temporel donné
+
+        :param calc_name: nom du calcul transitoire
+        :type calc_name: str
+        :param branches: liste des branches
+        :type branches: list(str)
+        :param idx_time: index de l'enregistrement temporel (0-indexed)
+        :type idx_time: int
+        :param var_names: liste des variables (si absent alors tout est exporté)
+        :type var_names: list
+        :return: tableau de valeurs du profil en long
+        :rtype: pd.DataFrame
+        """
+        res = self.get_data_trans(calc_name)['Section']
         res_trans = res[idx_time, :, :]
 
         if var_names is None:
@@ -405,10 +435,26 @@ class ResultatsCalcul:
         values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
         return pd.DataFrame(values_in_dict)
 
-    def get_res_unsteady_max_at_sections_along_branches_as_dataframe(self, calc_name, branches, var_names=None,
-                                                                     start_time=-float('inf'), end_time=float('inf')):
+    def extract_profil_long_trans_max_as_dataframe(self, calc_name, branches, var_names=None,
+                                                   start_time=-float('inf'), end_time=float('inf')):
+        """
+        Extraction d'un profil en long (le long de branches) des maximums d'un calcul transitoire
+
+        :param calc_name: nom du calcul transitoire
+        :type calc_name: str
+        :param branches: liste des branches
+        :type branches: list(Branche)
+        :param var_names: liste des variables (si absent alors tout est exporté)
+        :type var_names: list
+        :param start_time: borne inférieure temporelle (début du transitoire si absent)
+        :type start_time: float
+        :param end_time: borne supérieure temporelle (fin du transitoire si absent)
+        :type end_time: float
+        :return: tableau de valeurs du profil en long
+        :rtype: pd.DataFrame
+        """
         time = self.get_res_calc_trans(calc_name).time_serie()
-        res = self.get_res_unsteady(calc_name)['Section']
+        res = self.get_data_trans(calc_name)['Section']
         res_trans = np.max(res[np.logical_and(start_time <= time, time <= end_time), :, :], axis=0)
 
         if var_names is None:
@@ -434,7 +480,7 @@ class ResultatsCalcul:
         values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
         return pd.DataFrame(values_in_dict)
 
-    def get_res_unsteady(self, calc_name):
+    def get_data_trans(self, calc_name):
         """
         Obtenir tous les tableaux (numpy) de résultats du calcul transitoire demandé.
         Le nom des EMHs secondaires permet d'avoir un array avec les données (ligne = temps, colonne = variable).
@@ -458,7 +504,18 @@ class ResultatsCalcul:
             res_all[emh_type] = np.array(res_all[emh_type])
         return res_all
 
-    def get_res_all_steady_var_at_emhs(self, varname, emh_list):
+    def get_res_all_pseudoperm_var_at_emhs(self, varname, emh_list):
+        """
+        Obtenir un tableau numpy avec les valeurs numériques de la variable demandée aux EMHs pour tous les calculs
+        pseudo-permnants
+
+        :param varname: nom de la variable à extraire
+        :type varname: str
+        :param emh_list: liste des EMHs concernées
+        :type emh_list: list(str)
+        :return: tableau numpy (lignes = calculs pseudo-permanents, colonnes = EMHs)
+        :rtype: np.ndarray
+        """
         values = np.empty((len(self.res_calc_pseudoperm), len(emh_list)))
 
         emh_types = []
@@ -466,24 +523,26 @@ class ResultatsCalcul:
             emh_types.append(self.emh_type(emh_name))
 
         for i, calc_name in enumerate(self.res_calc_pseudoperm.keys()):
-            res = self.get_res_steady(calc_name)
+            res = self.get_data_pseudoperm(calc_name)
             for j, (emh_name, emh_type) in enumerate(zip(emh_list, emh_types)):
                 emh_pos = self.get_emh_position(emh_type, emh_name)
                 var_pos = self.get_variable_position(emh_type, varname)
                 values[i, j] = res[emh_type][emh_pos, var_pos]
         return values
 
-    def get_res_unsteady_var_at_emhs(self, calc_name, varname, emh_list):
-        """Get results from unsteady calculation, for every timesteps.
-        
-        :param calc_name: string Nom du calcul.
+    def get_res_trans_var_at_emhs(self, calc_name, varname, emh_list):
+        """
+        Obtenir un tableau numpy avec les valeurs numériques de la variable demandée aux EMHs pour l'ensemble des
+        temps du calcul transitoire demandé
+
+        :param calc_name: nom du calcul transitoire
         :type calc_name: str
-        :param varname: nom de la variable à extraire.
+        :param varname: nom de la variable à extraire
         :type varname: str
-        :param emh_list: liste des EMHs concernés.
+        :param emh_list: liste des EMHs concernées
         :type emh_list: list(str)
-        :return: tableau des résultats avec un pas de temps par ligne.
-        :rtype: 2D-array
+        :return: tableau numpy (lignes = temps du calcul transitoire, colonnes = EMHs)
+        :rtype: np.ndarray
         """
         calc = self.get_res_calc_trans(calc_name)
         values = np.empty((len(calc.frame_list), len(emh_list)))
@@ -492,42 +551,49 @@ class ResultatsCalcul:
         for emh_name in emh_list:
             emh_types.append(self.emh_type(emh_name))
 
-        res = self.get_res_unsteady(calc_name)
+        res = self.get_data_trans(calc_name)
         for i, (emh_name, emh_type) in enumerate(zip(emh_list, emh_types)):
             emh_pos = self.get_emh_position(emh_type, emh_name)
             var_pos = self.get_variable_position(emh_type, varname)
             values[:, i] = res[emh_type][:, emh_pos, var_pos]
         return values
 
-    def export_calc_steady_as_csv(self, csv_path):
+    def write_all_calc_pseudoperm_in_csv(self, csv_path):
         """
-        Write CSV containing all `CalcPseudoPerm` results
-        Header is: "calc;emh_type;emh;variable;value"
+        Écrire un fichier CSV avec les résultats de tous les calculs pseudo-permanents
+        L'en-tête est : "calc;time;emh_type;emh;variable;value"
+
+        :param csv_path: chemin vers le fichier CSV
+        :type csv_path: str
         """
         if version_info[0] == 3:   # Python2 fix: do not add `newline` argument
             arguments = {'newline': ''}
         else:
             arguments = {}
         with open(csv_path, 'w', **arguments) as csv_file:  # Python2.7 fix: io.open is not compatible with csv
-            fieldnames = ['calc', 'emh_type', 'emh', 'variable', 'value']
+            fieldnames = ['calc', 'time', 'emh_type', 'emh', 'variable', 'value']
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=CSV_DELIMITER)
             csv_writer.writeheader()
-            for calc_name in self.res_calc_pseudoperm.keys():
-                res = self.get_res_steady(calc_name)
+            for i_calc, calc_name in enumerate(self.res_calc_pseudoperm.keys()):
+                res = self.get_data_pseudoperm(calc_name)
                 for emh_type in self.emh_types:
                     variables = self.variables[emh_type]
                     for emh_name, row in zip(self.emh[emh_type], res[emh_type]):
                         for variable, value in zip(variables, row):
                             csv_writer.writerow({'calc': calc_name,
+                                                 'time': i_calc + 1,
                                                  'emh_type': emh_type,
                                                  'emh': emh_name,
                                                  'variable': variable,
                                                  'value': FMT_FLOAT_CSV.format(value)})
 
-    def export_calc_unsteady_as_csv(self, csv_path):
+    def write_all_calc_trans_in_csv(self, csv_path):
         """
-        Write CSV containing all `CalcTrans` results
-        Header is: "calc;time;emh_type;emh;variable;value"
+        Écrire un fichier CSV avec les résultats de tous les calculs transitoires
+        L'en-tête est : "calc;time;emh_type;emh;variable;value"
+
+        :param csv_path: chemin vers le fichier CSV
+        :type csv_path: str
         """
         if version_info[0] == 3:   # Python2 fix: do not add `newline` argument
             arguments = {'newline': ''}
@@ -538,7 +604,7 @@ class ResultatsCalcul:
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=CSV_DELIMITER)
             csv_writer.writeheader()
             for calc_name in self.res_calc_trans.keys():
-                res = self.get_res_unsteady(calc_name)
+                res = self.get_data_trans(calc_name)
                 for emh_type in self.emh_types:
                     variables = self.variables[emh_type]
                     for time_sec, res_frame in zip(self.get_res_calc_trans(calc_name).time_serie(), res[emh_type]):
@@ -550,71 +616,6 @@ class ResultatsCalcul:
                                                      'emh': emh_name,
                                                      'variable': variable,
                                                      'value': FMT_FLOAT_CSV.format(value)})
-
-    def export_calc_unsteady_time(self, cal_name):
-        """
-        Exports the time serie for en unsteady calculation.
-        
-        - cal_name: nom du calcul.
-        - returns: tableau des valeurs des pas de temps [s].
-        """
-        values = []
-        for date in self.get_res_calc_trans(cal_name).time_serie():  # Parcours des pas de temps
-            values.append(date)
-        return values
-
-    def export_calc_unsteady_as_df(self, lst_var, lst_emh):
-        """Exports as DataFrame tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
-        
-        - lst_var: liste des noms de variables à extraire.
-        - lst_emh: liste des EMHs concernés.
-        - returns: pandas DataFrame avec le tableau des résultats, un pas de temps par ligne.
-        """
-        # Parcours des calculs
-        for cal_name in self.res_calc_trans.keys():
-            res = self.get_res_unsteady(cal_name)
-
-            # Préparation des dictionnaires de listes
-            dic_res = {}  # Dictionnaire des résultats, sous forme d'un dictionnaire de listes ayant chacune la dimension du nombre de pdt (pas de temps)
-            lst_time = self.export_calc_unsteady_time(cal_name)
-            lst_calc = []
-            for i in range(len(lst_time)):
-                lst_calc.append(cal_name)
-            dic_res['Calcul'] = lst_calc  # La première colonne est le nom du calcul
-            dic_res['Temps'] = lst_time  # La deuxième colonne est le pdt dans le calcul
-            for emh_name in lst_emh:
-                for var_name in lst_var:
-                    try:
-                        # Les colonnes suivantes sont les valeurs pour chaque nom de variable et nom d'EMH (exemple 'Z St_P146.0a')
-                        lst_emh_name = []
-                        lst_emh_name.append(emh_name)  # On a besoin d'une liste de noms d'EHM avec un seul élément
-                        lst_res = self.get_res_unsteady_var_at_emhs(cal_name, var_name, lst_emh_name)  # Récupération d'une liste de listes (chacune à un seul élément)
-                        lst_res_1d = []
-                        for itm_res in lst_res:
-                            lst_res_1d.append(itm_res[0])  # Chaque ligne de la liste est elle-même une liste à un élément, on le récupère
-                        if len(lst_res_1d) > 0:
-                            dic_res[var_name+" "+emh_name] = lst_res_1d  # L'entrée du dictionnaire (exemple 'Z St_P146.0a') contient la liste des valeurs pour chaque pdt
-                    except ExceptionCrue10:
-                        # A priori, incompatibilité entre nom de variable et type d'EHM: pas grave, on ne sort juste pas ces résultats
-                        pass
-
-            # Le DataFrame en retour est construit à partir d'un dictionnaire de listes
-            return pd.DataFrame(dic_res)  # DataFrame (=tableau de valeurs structuré, Pandas)
-
-    def export_calc_unsteady_as_csv_table(self, csv_path, lst_var, lst_emh):
-        """
-        Ecrire un fichier CSV avec les colonnes: time, val1, val2, etc.XXX
-        (où chaque vali correspond à une variable des EMHs)
-        
-        :param csv_path: nom long du fichier à écrire.
-        :param lst_var: liste des noms de variables à extraire.
-        :param lst_emh: liste des EMHs concernés.
-        """
-        # Préparation des données
-        df = self.export_calc_unsteady_as_df(lst_var, lst_emh)
-
-        # Export
-        df.to_csv(csv_path, sep=CSV_DELIMITER, mode='w', index=False)
 
     def __repr__(self):
         return "Résultats run #%s (%i permanents, %i transitoires)" % (self.run_id, len(self.res_calc_pseudoperm),

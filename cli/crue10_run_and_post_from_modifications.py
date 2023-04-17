@@ -49,7 +49,7 @@ def crue10_run_and_post_from_modifications(args):
             except Exception as e:
                 logger.error(e)
                 logger.warning("Les fichiers de résultats du Run `%s` ne sont pas exploitables" % run.id)
-            res = resultats.get_res_steady(args.calc_name)
+            res = resultats.get_data_pseudoperm(args.calc_name)
             pos_Z = resultats.variables['Section'].index('Z')
             values = res['Section'][:, pos_Z]
             t1 = perf_counter()

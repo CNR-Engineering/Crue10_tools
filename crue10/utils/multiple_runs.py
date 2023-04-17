@@ -2,10 +2,10 @@
 from collections import OrderedDict
 from glob import glob
 import logging
-import os
-import pandas as pd
 from multiprocessing import Pool
 import numpy as np
+import os
+import pandas as pd
 
 from crue10.etude import Etude
 from crue10.utils import ExceptionCrue10, logger
@@ -21,9 +21,9 @@ def launch_scenario_modifications(function, modifications_liste, ncsize=NCSIZE):
 def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_PATH}, overwrite=True):
     """
     :param dossier: dossier contenant des sous-dossiers avec un ou plusieurs .etu.xml
-    :param scenarios_dict: dictionnaire avec le scénario à lancer (mettre None pour prendre le scénario par défaut
+    :param scenarios_dict: dictionnaire avec les scénarios à lancer (mettre None pour prendre un scénario par défaut)
     :param crue_exe_dict: dictionnaire avec les coeurs à lancer (identifiant et chemin vers crue10.exe)
-    :param overwrite: overwrite run if already exists
+    :param overwrite: écrase les Run s'ils existent déjà
     :rtype: pd.DataFrame
     """
     LOGGER_LEVEL = logger.level
@@ -170,7 +170,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
             logger.error("Un fichier de sortie du Run `%s` manque: %s" % (run.id, e))
             continue
         key = (scenario.id, row['exe_id'])
-        res_perm_curr = resultats.get_res_all_steady_var_at_emhs(variable, resultats.emh[emh_type])
+        res_perm_curr = resultats.get_res_all_pseudoperm_var_at_emhs(variable, resultats.emh[emh_type])
         res_perm[key] = res_perm_curr
 
         # Get reference results to compute differences

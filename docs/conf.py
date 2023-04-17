@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Crue10_tools'
-copyright = '2022, CNR-Engineering'
+copyright = '2023, CNR-Engineering'
 author = 'CNR-Engineering'
 
 
@@ -45,7 +45,7 @@ language = 'fr'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['crue10/tests']
 
 
 # -- Options for HTML output -------------------------------------------------

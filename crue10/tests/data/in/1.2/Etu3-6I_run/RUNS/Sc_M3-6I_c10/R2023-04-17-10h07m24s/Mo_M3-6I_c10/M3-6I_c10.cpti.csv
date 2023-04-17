@@ -1,0 +1,15 @@
+2023-04-17T10:07:25.455;ID_VERSION;INFO;Crue10::EMHModeleBase::utiliserParametresSortiesService;emhmodelebase.cpp;198;Mo_M3-6I_c10;"10";"3";"6";"1";"2"
+2023-04-17T10:07:25.455;ID_PLATEFORME;INFO;Crue10::EMHModeleBase::utiliserParametresSortiesService;emhmodelebase.cpp;200;;"Windows";"64bits";"C10m10_Release"
+2023-04-17T10:07:25.456;ID_PARAMPTCI;DEBUG1;Crue10::ParamPTConditionsInitiales::tracer;paramptconditionsinitiales.cpp;47;;"1"
+2023-04-17T10:07:25.456;ID_ENTREE_METHODE_P;DEBUG1;Crue10::EMHModeleBase::chargerDonneesPTConditionsInitiales;emhmodelebase.cpp;738;Mo_M3-6I_c10;"C:\PROJETS\python\Crue10_tools\crue10\tests\data\in\1.2\Etu3-6I_run\RUNS\Sc_M3-6I_c10\R2023-04-17-10h07m24s\Mo_M3-6I_c10\M3-6I_c10.dpti.xml"
+2023-04-17T10:07:25.460;ID_LECTURE_FICHIER;INFO;Crue10::FichierXML::lireFichier;fichierxml.cpp;273;;"C:\PROJETS\python\Crue10_tools\crue10\tests\data\in\1.2\Etu3-6I_run\RUNS\Sc_M3-6I_c10\R2023-04-17-10h07m24s\Mo_M3-6I_c10\M3-6I_c10.dpti.xml"
+2023-04-17T10:07:25.479;ID_ENTREE_METHODE;DEBUG1;Crue10::FichierDPTI::mettreAJourModele;fichierdpti.cpp;70;Mo_M3-6I_c10
+2023-04-17T10:07:25.480;ID_ENTREE_METHODE_P;DEBUG1;Crue10::MoteurPTConditionsInitiales::lancerService;moteurptconditionsinitiales.cpp;53;Mo_M3-6I_c10;"1"
+2023-04-17T10:07:25.480;ID_ENTREE_METHODE;DEBUG1;Crue10::MoteurPTConditionsInitiales::lancerPTCondInitInterpolationLineaire;moteurptconditionsinitiales.cpp;111;Mo_M3-6I_c10
+2023-04-17T10:07:25.480;ID_ENTREE_METHODE;DEBUG1;Crue10::MoteurPTConditionsInitiales::lancerPTCondInitCasiers;moteurptconditionsinitiales.cpp;81;Mo_M3-6I_c10
+2023-04-17T10:07:25.481;ID_SORTIE_METHODE;DEBUG1;Crue10::MoteurPTConditionsInitiales::lancerPTCondInitInterpolationLineaire;moteurptconditionsinitiales.cpp;194;Mo_M3-6I_c10
+2023-04-17T10:07:25.481;ID_ENTREE_METHODE;DEBUG1;Crue10::MoteurPTConditionsInitiales::lancerPTCondInit_Diagnostiques;moteurptconditionsinitiales.cpp;542;Mo_M3-6I_c10
+2023-04-17T10:07:25.481;ID_ENTREE_METHODE;DEBUG1;Crue10::EMHScenario::cloreServicePTConditionsInitiales;emhscenario.cpp;1727;Sc_M3-6I_c10
+2023-04-17T10:07:25.481;ID_TIMING;INFO;Crue10::EMHModeleBase::cloreServicePTConditionsInitiales;emhmodelebase.cpp;1045;Mo_M3-6I_c10;"0.002000000000";"PTCONDITIONS_INITIALES"
+2023-04-17T10:07:25.481;ID_ECRITURE_FICHIER;INFO;Crue10::FichierXML::ecrireFichier;fichierxml.cpp;356;;"C:\PROJETS\python\Crue10_tools\crue10\tests\data\in\1.2\Etu3-6I_run\RUNS\Sc_M3-6I_c10\R2023-04-17-10h07m24s\Mo_M3-6I_c10\M3-6I_c10.rpti.xml";"RPTI"
+2023-04-17T10:07:25.482;ID_ENTREE_METHODE;DEBUG1;Crue10::EMHScenario::sauverEtatSystemeIni;emhscenario.cpp;781;Sc_M3-6I_c10

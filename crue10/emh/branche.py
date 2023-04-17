@@ -536,9 +536,9 @@ class BrancheBarrageFilEau(Branche):
     :vartype QLimSup: float
     :ivar loi_QpilZam: ndarray(dtype=float, ndim=2 with 2 columns)
     :vartype loi_QpilZam: 2D-array
-    :ivar liste_elements_barrage:tableau de flottants avec 4 colonnes : Largeur, Zseuil, CoefNoy, CoefDen
+    :ivar liste_elements_barrage: tableau de flottants avec 4 colonnes : Largeur, Zseuil, CoefNoy, CoefDen
     :vartype liste_elements_barrage: np.ndarray
-    :ivar comment_manoeuvrant: commentaire loi dénoyée
+    :ivar comment_manoeuvrant: commentaire loi du régime manoeuvrant
     :vartype comment_manoeuvrant: str
     """
 
