@@ -24,6 +24,20 @@ SECTIONS = ['St_PROF6B', 'St_PROF3AM', 'St_B1_00050', 'St_B1_00150', 'St_B1_0025
             'St_B5_Am', 'St_B5_Av', 'St_B8_Am', 'St_B8_Av']
 
 
+def _print_diff(basename):
+    with open(os.path.join(FOLDER_IN, basename), 'r') as filein:
+        textin = filein.readlines()
+    with open(os.path.join(FOLDER_OUT, basename), 'r') as fileout:
+        textout = fileout.readlines()
+    print('=' * 80)
+    for line in unified_diff(
+            textin, textout,
+            fromfile=os.path.join(FOLDER_IN, basename),
+            tofile=os.path.join(FOLDER_OUT, basename), lineterm=''):
+        print(line)
+    print('=' * 80)
+
+
 class ResultatsCalculTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -87,17 +101,6 @@ class ResultatsCalculTestCase(unittest.TestCase):
         for key in desired.keys():
             np.testing.assert_equal(actual[key], desired[key])
 
-    def _print_diff(self, basename):
-        with open(os.path.join(FOLDER_IN, basename), 'r') as filein:
-            textin = filein.readlines()
-        with open(os.path.join(FOLDER_OUT, basename), 'r') as fileout:
-            textout = fileout.readlines()
-        for line in unified_diff(
-                textin, textout,
-                fromfile=os.path.join(FOLDER_IN, basename),
-                tofile=os.path.join(FOLDER_OUT, basename), lineterm=''):
-            print(line)
-
     def test_write_all_calc_pseudoperm_in_csv(self):
         basename = 'Etu3-6I_run_all_pseudoperm.csv'
         if WRITE_FILES:
@@ -105,7 +108,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
         self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_OUT, basename))
         same = cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename), shallow=False)
         if not same:
-            self._print_diff(basename)
+            _print_diff(basename)
         self.assertTrue(same)
 
     def test_write_all_calc_trans_in_csv(self):
@@ -115,7 +118,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
         self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_OUT, basename))
         same = cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename), shallow=False)
         if not same:
-            self._print_diff(basename)
+            _print_diff(basename)
         self.assertTrue(same)
 
     def test_extract_profil_long_pseudoperm_as_dataframe(self):
