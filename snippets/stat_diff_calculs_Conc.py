@@ -56,7 +56,7 @@ if PLOT_RUN_BARPLOT:
     sns.set_context('notebook', font_scale=1.5, rc={'lines.linewidth': 2.5})
     g = sns.FacetGrid(df_runs, row='variable', sharey='row', height=4, aspect=3)
     g = g.map(sns.barplot, 'etude_dossier', 'value', 'exe_id', order=ETATREF_SCENARIO_PAR_AMENAGEMENT.keys(),
-              hue_order=CRUE10_EXE.keys(), palette="husl", ci=None)
+              hue_order=CRUE10_EXE.keys(), palette="husl", errorbar=None)
 
     # Sets xlabels and ylabels from titles
     for i, axes in enumerate(g.axes[:, :]):

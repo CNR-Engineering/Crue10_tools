@@ -398,7 +398,7 @@ class Modele(EnsembleFichiersXML):
 
     def ajouter_depuis_modele(self, modele):
         """
-        Ajouter tous les sous-modèle d'un modèle source avec ses conditions initiales au modèle courant
+        Ajouter tous les sous-modèles d'un modèle source avec ses conditions initiales au modèle courant
 
         :param sous_modele: modèle à ajouter
         :type: Modele

@@ -127,6 +127,9 @@ class LoiFrottement:
                                   "cette méthode n'est pas utilisable." % self.id)
         return values[0]
 
+    def __repr__(self):
+        return 'LoiFrottement %s' % self.id
+
 
 DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto')
 DEFAULT_FK_STO.set_loi_Fk_values(np.array([(0.0, 0.0)]))

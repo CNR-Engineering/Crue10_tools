@@ -111,13 +111,13 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                             ('nb_avertissements_calcul', run.nb_avertissements_calcul()),
                         ]))
                         for var, value in values.items():
-                            df_append = pd.Series({
+                            serie = pd.Series({
                                 'etude_dossier': etude_dossier, 'etude_basename': os.path.basename(etu_path),
                                 'scenario': scenario_name, 'exe_id': exe_id,
                                 'run_idx': run_idx, 'run_id': run_id,
                                 'variable': var, 'value': value
                             })
-                            df_runs = df_runs.append(df_append, ignore_index=True)
+                            df_runs.loc[len(df_runs)] = serie
 
             except ExceptionCrue10 as e:
                 logger.critical("ERREUR CRITIQUE :\n%s" % e)
@@ -143,6 +143,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
     res_perm = {}
     cols = list(df_runs_unique.columns)
     df_diff_stat = pd.DataFrame({col: [] for col in cols + ['variable', 'value']})
+    etude = None
     etu_path_last = ''
     for _, row in df_runs_unique.iterrows():
         # Build a `Etude` instance
@@ -191,7 +192,6 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         diff = res_perm_curr - res_perm_ref
         diff_abs = np.abs(diff)
 
-        nb_calc_perm = len(resultats.res_calc_pseudoperm)
         if out_csv_diff_by_calc is not None and row['exe_id'] == 'qualif':
             df_diff = pd.DataFrame({
                 'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int64) + 1, diff.shape[1]),
@@ -212,7 +212,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         metadata = dict(row)
         for var, value in values.items():
             metadata.update({'variable': var, 'value': value})
-            df_diff_stat = df_diff_stat.append(pd.Series(metadata), ignore_index=True)
+            df_diff_stat.loc[len(df_diff_stat)] = pd.Series(metadata)
 
         # Save current etu_path to avoid reading again at next loop iteration
         etu_path_last = etu_path

@@ -623,8 +623,8 @@ class Etude(EnsembleFichiersXML):
         return errors
 
     def summary(self):
-        return "%s: %i scénario(s) %i modèle(s), %i sous-modèle(s)" % (self, len(self.scenarios),
-                                                                       len(self.modeles), len(self.sous_modeles))
+        return "%s: %i scénario(s), %i modèle(s), %i sous-modèle(s)" % (self, len(self.scenarios),
+                                                                        len(self.modeles), len(self.sous_modeles))
 
     def __repr__(self):
         return "Étude %s" % os.path.basename(self.etu_path[:-8])
