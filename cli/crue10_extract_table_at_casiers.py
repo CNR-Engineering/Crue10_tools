@@ -28,7 +28,7 @@ def crue10_extract_table_at_casiers(args):
 
     # Get results at Casiers
     if args.run_id is None:
-        run = scenario.get_last_run()
+        run = scenario.get_dernier_run()
     else:
         run = scenario.get_run(args.run_id)
     resultats = run.get_resultats_calcul()

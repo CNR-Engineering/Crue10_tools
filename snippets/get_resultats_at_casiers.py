@@ -10,7 +10,7 @@ scenario.read_all()
 sous_modele = scenario.modele.get_sous_modele('Sm_CA2020')
 print(sous_modele.validate())
 
-run = scenario.get_last_run()
+run = scenario.get_dernier_run()
 resultats = run.get_resultats_calcul()
 print("RUN=%s" % run.id)
 print(resultats.summary())

@@ -323,7 +323,7 @@ class Scenario(EnsembleFichiersXML):
         run.read_traces()
         return run
 
-    def get_last_run(self):
+    def get_dernier_run(self):
         """
         Obtenir le dernier run
 

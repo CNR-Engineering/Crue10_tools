@@ -41,7 +41,7 @@ try:
 
     # Read rcal result file
     scenario = etude.get_scenario('Sc_EtatsRef2015')
-    run = scenario.get_last_run()
+    run = scenario.get_dernier_run()
     resultats = run.get_resultats_calcul()
     print(resultats.summary())
 

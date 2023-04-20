@@ -10,7 +10,7 @@ from crue10.utils import ExceptionCrue10, logger
 etu_folder = '../../TatooineMesher_examples/VS2015/in/Etu_VS2015_conc'
 try:
     etude = Etude(os.path.join(etu_folder, 'Etu_VS2003_Conc.etu.xml'))
-    run = etude.get_scenario_courant().get_last_run()
+    run = etude.get_scenario_courant().get_dernier_run()
 
     # Affichage de quelques traces
     logger.info('AVERTISSEMENTS ET ERREURS DU CALCUL:\n' + run.get_all_traces(services=['c'], gravite_min='WARN'))

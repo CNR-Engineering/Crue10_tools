@@ -46,7 +46,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
         scenario = etude.get_scenario_courant()
         self.sous_modele = scenario.modele.liste_sous_modeles[0]
         self.sous_modele.read_all()
-        run = scenario.get_last_run()
+        run = scenario.get_dernier_run()
         self.resultats = run.get_resultats_calcul()  # ResultatsCalcul
         self.branches = scenario.modele.get_liste_branches_entre_deux_noeuds('Nd_N1', 'Nd_N5')
         self.section_names = [st.id for st in scenario.modele.get_liste_sections()]
