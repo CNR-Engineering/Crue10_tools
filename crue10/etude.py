@@ -309,15 +309,22 @@ class Etude(EnsembleFichiersXML):
         for _, scenario in self.scenarios.items():
             scenario.write_all(folder, folder_config)
 
-    def changer_version_grammaire(self, version_grammaire):
+    def changer_version_grammaire(self, version_grammaire, shallow=False):
         """
         Changer la version de grammaire
 
         :param version_grammaire: version cible de la grammaire
         :type version_grammaire: str
+        :param shallow: conversion profonde si False, peu profonde sinon
+        :type shallow: bool
         """
-        for scenario in self.get_liste_scenarios():
-            scenario.changer_version_grammaire(version_grammaire)
+        if not shallow:
+            for sous_modele in self.get_liste_sous_modeles():
+                sous_modele.changer_version_grammaire(version_grammaire)  # `shallow` argument does not exist
+            for modele in self.get_liste_modeles():
+                modele.changer_version_grammaire(version_grammaire, shallow=True)
+            for scenario in self.get_liste_scenarios():
+                scenario.changer_version_grammaire(version_grammaire, shallow=True)
         if self.version_grammaire == '1.2' and version_grammaire == '1.3':  # HARDCODED to support g1.2
             # Add dreg files
             for modele in self.get_liste_modeles():

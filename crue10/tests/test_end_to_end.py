@@ -15,15 +15,24 @@ class EndToEndTestCase(unittest.TestCase):
     def _same_folders(self, folder_in, folder_out, version_grammaire, etu_changed=True):
         comparison = dircmp(folder_in, folder_out, ignore=['Config', 'CONFIG'])
 
-        print("DIFF_FILES = %s" % comparison.diff_files)
-        print("COMMON = %s" % comparison.common)
         nb_common_xml = NB_XML_FILES
         if version_grammaire == VERSION_GRAMMAIRE_PRECEDENTE:
             nb_common_xml -= 1  # dreg
-        self.assertEqual(len(comparison.common), nb_common_xml)
-        self.assertEqual(len(comparison.left_only), 0)
-        self.assertEqual(len(comparison.right_only), 0)
+
+        has_error = False
+        if len(comparison.common) != nb_common_xml:
+            print("DIFF_FILES = %s" % comparison.diff_files)
+            print("COMMON = %s" % comparison.common)
+            has_error = True
+        if len(comparison.left_only) != 0:
+            print("LEFT ONLY %s" % comparison.left_only)
+            has_error = True
+        if len(comparison.right_only) != 0:
+            print("LEFT ONLY %s" % comparison.right_only)
+            has_error = True
+
         self.assertEqual(len(comparison.diff_files), 1 if etu_changed else 0)  # etu.xml
+        self.assertFalse(has_error)
 
     def _test_write_from_scratch(self, version_grammaire):
         folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', version_grammaire, 'Etu_from_scratch')

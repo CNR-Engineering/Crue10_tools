@@ -119,17 +119,19 @@ class EnsembleFichiersXML(ABC):
                                          % (grammaires_supportees, version_grammaire))
         if version_grammaire == self.version_grammaire:
             logger.warning("Changement de grammaire vers %s ignoré car %s est déjà dans cette grammaire"
-                           % (self, version_grammaire))
+                           % (version_grammaire, self))
             return  # nothing to do
 
         self.version_grammaire = version_grammaire
 
-    def changer_version_grammaire(self, version_grammaire):
+    def changer_version_grammaire(self, version_grammaire, shallow=False):
         """
         Changer la version de la grammaire
 
         :param version_grammaire: version de la grammaire cible
         :type version_grammaire: str
+        :param shallow: conversion profonde si False, peu profonde sinon
+        :type shallow: bool
         """
         if not self.was_read and not self.xml_trees:
             raise ExceptionCrue10("%s doit être lu (avec la méthode `read_all`) avant de changer sa grammaire" % self)

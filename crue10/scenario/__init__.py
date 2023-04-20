@@ -712,6 +712,11 @@ class Scenario(EnsembleFichiersXML):
         mo_folder = os.path.join(run_folder, self.modele.id)
         self.write_all(run_folder, folder_config=None, write_model=False)
         self.modele.write_all(mo_folder, folder_config=None)
+
+        # Write etu.xml
+        if etude.version_grammaire != self.version_grammaire:
+            etude = deepcopy(etude)  # avoid modifying given parameter `etude`
+            etude.changer_version_grammaire(self.version_grammaire, shallow=False)
         etude.write_etu(run_folder)
 
         # Write xxcprovx.dat for Crue9
@@ -856,14 +861,17 @@ class Scenario(EnsembleFichiersXML):
         if write_model:
             self.modele.write_all(folder, folder_config)
 
-    def changer_version_grammaire(self, version_grammaire):
+    def changer_version_grammaire(self, version_grammaire, shallow=False):
         """
         Changer la version de grammaire
 
         :param version_grammaire: version cible de la grammaire
         :type version_grammaire: str
+        :param shallow: conversion profonde si False, peu profonde sinon
+        :type shallow: bool
         """
-        self.modele.changer_version_grammaire(version_grammaire)
+        if not shallow:
+            self.modele.changer_version_grammaire(version_grammaire)
 
         # HARDCODED to support g1.2
         if version_grammaire == '1.2' and self.version_grammaire == '1.3':  # backward

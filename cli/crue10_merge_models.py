@@ -25,6 +25,7 @@ from crue10.etude import Etude
 from crue10.utils import ExceptionCrue10, logger
 from crue10.utils.cli_parser import MyArgParse
 
+
 def crue10_merge_models(args):
     if len(args.etu_path_list) != len(args.mo_name_list) != len(args.suffix_list):
         raise ExceptionCrue10("Les arguments `--etu_path_list`, `--suffix_list` et `--mo_name_list`"

@@ -111,12 +111,24 @@ class SousModele(EnsembleFichiersXML):
         self.lois_frottement = OrderedDict()
 
     def ajouter_noeud(self, noeud):
+        """
+        Ajouter un noeud au sous-modèle
+
+        :param noeud: noeud à ajouter
+        :type noeud: Noeud
+        """
         check_isinstance(noeud, Noeud)
         if noeud.id in self.noeuds:
             raise ExceptionCrue10("Le noeud %s est déjà présent" % noeud.id)
         self.noeuds[noeud.id] = noeud
 
     def ajouter_section(self, section):
+        """
+        Ajouter une section au sous-modèle
+
+        :param section: section à ajouter
+        :type section: Section
+        """
         check_isinstance(section, [SectionProfil, SectionIdem, SectionSansGeometrie, SectionInterpolee])
         if section.id in self.sections:
             raise ExceptionCrue10("La Section `%s` est déjà présente" % section.id)
@@ -184,7 +196,7 @@ class SousModele(EnsembleFichiersXML):
         Ajouter une loi de frottement au sous-modèle
 
         :param loi_frottement: loi de frottement à ajouter
-        :type loi_frottement: Casier
+        :type loi_frottement: LoiFrottement
         """
         check_isinstance(loi_frottement, LoiFrottement)
         if loi_frottement.id in self.lois_frottement:

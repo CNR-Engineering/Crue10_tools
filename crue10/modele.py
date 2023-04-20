@@ -676,12 +676,14 @@ class Modele(EnsembleFichiersXML):
         for sous_modele in self.liste_sous_modeles:
             sous_modele.write_all(folder, folder_config)
 
-    def changer_version_grammaire(self, version_grammaire):
+    def changer_version_grammaire(self, version_grammaire, shallow=False):
         """
         Changer la version de la grammaire
 
         :param version_grammaire: version de la grammaire cible
         :type version_grammaire: str
+        :param shallow: conversion profonde si False, peu profonde sinon
+        :type shallow: bool
         """
         if version_grammaire == '1.3':  # HARDCODED to support g1.2
             if 'dreg' not in self.xml_trees:
@@ -691,8 +693,9 @@ class Modele(EnsembleFichiersXML):
                 self.xml_trees['dreg'] = root
                 self.files['dreg'] = self.files['optr'][:-9] + '.dreg.xml'
 
-        for sous_modele in self.liste_sous_modeles:
-            sous_modele.changer_version_grammaire(version_grammaire)
+        if not shallow:
+            for sous_modele in self.liste_sous_modeles:
+                sous_modele.changer_version_grammaire(version_grammaire)
 
         super().changer_version_grammaire(version_grammaire)
 
