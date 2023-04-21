@@ -10,6 +10,8 @@ CRUE10_EXE_OPTS = ['-r', '-g', '-i', '-c']  # Run complet (avec tous les pré-tr
 
 CSV_DELIMITER = ';'  # delimiter for output CSV files
 
+FMT_FLOAT_CSV = '%.6e'  # float format for output CSV files
+
 GRAVITE_MAX = 'FATAL'
 GRAVITE_MIN = 'DEBUG3'
 GRAVITE_AVERTISSEMENT = 'WARN'

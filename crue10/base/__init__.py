@@ -223,9 +223,15 @@ class EnsembleFichiersXML(ABC):
                         xmlschema.assertValid(xml_tree)
                     except etree.DocumentInvalid:
                         for error in xmlschema.error_log:
-                            errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
+                            error_str = "Invalid XML at line %i: %s" % (error.line, error.message)
+                            if not isinstance(error_str, str):  # Python2 fix: encode
+                                error_str = error_str.encode('utf-8')
+                            errors_list.append(error_str)
                 except etree.XMLSyntaxError as e:
-                    errors_list.append('Error XML: %s' % e)
+                    error_str = "Error XML: %s" % e
+                    if not isinstance(error_str, str):  # Python2 fix: encode
+                        error_str = error_str.encode('utf-8')
+                    errors_list.append(error_str)
         return errors_list
 
     def check_xml_files(self, folder=None):

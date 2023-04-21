@@ -30,13 +30,13 @@ Voir [les pages wiki](https://github.com/CNR-Engineering/Crue10_tools/wiki) pour
 
 ## Tests unitaires
 
-Lancement des tests unitaires (présents dans `crue10/tests`) :
+Le lancement des tests unitaires (présents dans `crue10/tests`) se fait avec la commande :
 
 ```
-python -m unittest
+python -m unittest discover
 ````
 
-Exhaustivités des tests :
+Liste des tests unitaires par classes principales :
 * Etude => `test_end_to_end.py`, `test_file_xsd_validation.py`
 * Scenario => `test_scenario.py`
 * Modele => `test_modele.py`
@@ -48,3 +48,6 @@ Exhaustivités des tests :
     * sections => `test_emh_section.py`
 * Run => `test_run.py`
 * ResultatsCalcul => `test_resultats_calcul.py`
+
+Les tests unitaires sont vérifiés à chaque push grâce à un workflow Github et peuvent être déclenchés manuellement si
+besoin. La coche verte ou la croix rouge à côté du commit permet de savoir rapidement s'ils se sont bien passés.

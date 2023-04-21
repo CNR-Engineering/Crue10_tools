@@ -1,3 +1,4 @@
+# coding: utf-8
 from filecmp import dircmp
 import os.path
 import unittest

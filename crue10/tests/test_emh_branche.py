@@ -1,6 +1,6 @@
+# coding: utf-8
 import numpy as np
 from numpy.testing import assert_array_almost_equal
-from shapely.geometry import Point, LineString, LinearRing
 import unittest
 
 from crue10.emh.branche import BrancheSaintVenant, BrancheSeuilLateral

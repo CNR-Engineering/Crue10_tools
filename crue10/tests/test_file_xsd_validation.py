@@ -1,8 +1,10 @@
+# coding: utf-8
 """
 Remark: validation of a whole scenario is done in `test_scenario.py`.
 """
 from logging import INFO
 import os.path
+from sys import version_info
 import unittest
 
 from crue10.etude import Etude
@@ -48,36 +50,71 @@ class ScenarioTestCase(unittest.TestCase):
 
     def test_etu_validation(self):
         errors = self.etude_etu3_6_xml_errors.check_xml_files(self.etude_etu3_6_xml_errors.folder)
-        self.assertEqual(errors, {
-            'Etu3-6.etu.xml': [],
-            'M3-6_c10_ko.dclm.xml': [],
-            'M3-6_c10_ko.dlhy.xml': [],
-            'M3-6_c10_ko.ocal.xml': [
-                "Invalid XML at line 15: Element '{http://www.fudaa.fr/xsd/crue}Avancement_CRASH': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Avancement )."
-            ],
-            'M3-6_c10_ko.ores.xml': [
-                "Invalid XML at line 33: Element '{http://www.fudaa.fr/xsd/crue}OrdResNoeuds_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}OrdResNoeuds )."
-            ],
-            'M3-6_c10_ko.pcal.xml': [],
-            'M3-6_c10.dclm.xml': [],
-            'M3-6_c10.dcsp.xml': [],
-            'M3-6_c10.dfrt.xml': [],
-            'M3-6_c10.dlhy.xml': [],
-            'M3-6_c10.dptg.xml': [],
-            'M3-6_c10.dpti.xml': [],
-            'M3-6_c10.dreg.xml': [],
-            'M3-6_c10.drso.xml': [
-                "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu', attribute 'Nom': 'Nd_N1' is not a valid value of the atomic type '{http://www.fudaa.fr/xsd/crue}TypeForAttributeNomNoeud'.",
-                "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu', attribute 'Nom': Warning: No precomputed value available, the value was either invalid or something strange happened.",
-                "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu': Not all fields of key identity-constraint '{http://www.fudaa.fr/xsd/crue}PK_Noeud' evaluate to a node."
-            ],
-            'M3-6_c10.ocal.xml': [],
-            'M3-6_c10.optg.xml': [],
-            'M3-6_c10.opti.xml': [
-                "Invalid XML at line 7: Element '{http://www.fudaa.fr/xsd/crue}Sorties_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Sorties )."
-            ],
-            'M3-6_c10.optr.xml': [],
-            'M3-6_c10.ores.xml': [],
-            'M3-6_c10.pcal.xml': [],
-            'M3-6_c10.pnum.xml': []
-        })
+        if version_info[0] == 3:
+            self.assertEqual(errors, {
+                'Etu3-6.etu.xml': [],
+                'M3-6_c10_ko.dclm.xml': [],
+                'M3-6_c10_ko.dlhy.xml': [],
+                'M3-6_c10_ko.ocal.xml': [
+                    "Invalid XML at line 15: Element '{http://www.fudaa.fr/xsd/crue}Avancement_CRASH': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Avancement )."
+                ],
+                'M3-6_c10_ko.ores.xml': [
+                    "Invalid XML at line 33: Element '{http://www.fudaa.fr/xsd/crue}OrdResNoeuds_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}OrdResNoeuds )."
+                ],
+                'M3-6_c10_ko.pcal.xml': [],
+                'M3-6_c10.dclm.xml': [],
+                'M3-6_c10.dcsp.xml': [],
+                'M3-6_c10.dfrt.xml': [],
+                'M3-6_c10.dlhy.xml': [],
+                'M3-6_c10.dptg.xml': [],
+                'M3-6_c10.dpti.xml': [],
+                'M3-6_c10.dreg.xml': [],
+                'M3-6_c10.drso.xml': [
+                    "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu', attribute 'Nom': 'Nd_N1' is not a valid value of the atomic type '{http://www.fudaa.fr/xsd/crue}TypeForAttributeNomNoeud'.",
+                    "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu', attribute 'Nom': Warning: No precomputed value available, the value was either invalid or something strange happened.",
+                    "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu': Not all fields of key identity-constraint '{http://www.fudaa.fr/xsd/crue}PK_Noeud' evaluate to a node."
+                ],
+                'M3-6_c10.ocal.xml': [],
+                'M3-6_c10.optg.xml': [],
+                'M3-6_c10.opti.xml': [
+                    "Invalid XML at line 7: Element '{http://www.fudaa.fr/xsd/crue}Sorties_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Sorties )."
+                ],
+                'M3-6_c10.optr.xml': [],
+                'M3-6_c10.ores.xml': [],
+                'M3-6_c10.pcal.xml': [],
+                'M3-6_c10.pnum.xml': [],
+            })
+        else:  # Fix Python 2
+            self.assertEqual(errors, {
+                'Etu3-6.etu.xml': [],
+                'M3-6_c10_ko.dclm.xml': [],
+                'M3-6_c10_ko.dlhy.xml': [],
+                'M3-6_c10_ko.ocal.xml': [
+                    "Invalid XML at line 15: Element '{http://www.fudaa.fr/xsd/crue}Avancement_CRASH': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Avancement )."
+                ],
+                'M3-6_c10_ko.ores.xml': [
+                    "Invalid XML at line 33: Element '{http://www.fudaa.fr/xsd/crue}OrdResNoeuds_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}OrdResNoeuds )."
+                ],
+                'M3-6_c10_ko.pcal.xml': [],
+                'M3-6_c10.dclm.xml': [],
+                'M3-6_c10.dcsp.xml': [],
+                'M3-6_c10.dfrt.xml': [],
+                'M3-6_c10.dlhy.xml': [],
+                'M3-6_c10.dptg.xml': [],
+                'M3-6_c10.dpti.xml': [],
+                'M3-6_c10.dreg.xml': [],
+                'M3-6_c10.drso.xml': [
+                    "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu', attribute 'Nom': 'Nd_N1' is not a valid value of the atomic type '{http://www.fudaa.fr/xsd/crue}TypeForAttributeNomNoeud'.",
+                    "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu', attribute 'Nom': Warning: No precomputed value available, the value was either invalid or something strange happend.",
+                    "Invalid XML at line 23: Element '{http://www.fudaa.fr/xsd/crue}NoeudNiveauContinu': Not all fields of key identity-constraint '{http://www.fudaa.fr/xsd/crue}PK_Noeud' evaluate to a node."
+                ],
+                'M3-6_c10.ocal.xml': [],
+                'M3-6_c10.optg.xml': [],
+                'M3-6_c10.opti.xml': [
+                    "Invalid XML at line 7: Element '{http://www.fudaa.fr/xsd/crue}Sorties_UNEXPECTED': This element is not expected. Expected is ( {http://www.fudaa.fr/xsd/crue}Sorties )."
+                ],
+                'M3-6_c10.optr.xml': [],
+                'M3-6_c10.ores.xml': [],
+                'M3-6_c10.pcal.xml': [],
+                'M3-6_c10.pnum.xml': [],
+            })

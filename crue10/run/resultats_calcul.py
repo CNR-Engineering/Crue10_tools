@@ -11,10 +11,8 @@ from sys import version_info
 import xml.etree.ElementTree as ET
 
 from crue10.utils import ExceptionCrue10, PREFIX
-from crue10.utils.settings import CSV_DELIMITER
+from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV
 
-
-FMT_FLOAT_CSV = '{:.6e}'
 
 #: Regex pour le format des durées de Crue10
 TIME_REGEX = re.compile(r'P(?P<days>[0-9]+)DT(?P<hours>[0-9]+)H(?P<mins>[0-9]+)M(?P<secs>[0-9]+)S')
@@ -390,8 +388,10 @@ class ResultatsCalcul:
         pos_variables = [self.variables['Section'].index(var) for var in var_names]
         array = res_perm[pos_sections, :][:, pos_variables]
 
-        values_in_dict = {'branche': branche_names, 'section': section_names, 'distance': distances_list}
-        values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
+        values_in_dict = OrderedDict([('branche', branche_names), ('section', section_names),
+                                      ('distance', distances_list)])
+        for i, var in enumerate(var_names):
+            values_in_dict[var] = array[:, i]
         return pd.DataFrame(values_in_dict)
 
     def extract_profil_long_trans_at_time_as_dataframe(self, calc_name, branches, idx_time, var_names=None):
@@ -431,8 +431,10 @@ class ResultatsCalcul:
         pos_variables = [self.variables['Section'].index(var) for var in var_names]
         array = res_trans[pos_sections, :][:, pos_variables]
 
-        values_in_dict = {'branche': branche_names, 'section': section_names, 'distance': distances_list}
-        values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
+        values_in_dict = OrderedDict([('branche', branche_names), ('section', section_names),
+                                      ('distance', distances_list)])
+        for i, var in enumerate(var_names):
+            values_in_dict[var] = array[:, i]
         return pd.DataFrame(values_in_dict)
 
     def extract_profil_long_trans_max_as_dataframe(self, calc_name, branches, var_names=None,
@@ -476,8 +478,10 @@ class ResultatsCalcul:
         pos_variables = [self.variables['Section'].index(var) for var in var_names]
         array = res_trans[pos_sections, :][:, pos_variables]
 
-        values_in_dict = {'branche': branche_names, 'section': section_names, 'distance': distances_list}
-        values_in_dict.update({var: array[:, i] for i, var in enumerate(var_names)})
+        values_in_dict = OrderedDict([('branche', branche_names), ('section', section_names),
+                                      ('distance', distances_list)])
+        for i, var in enumerate(var_names):
+            values_in_dict[var] = array[:, i]
         return pd.DataFrame(values_in_dict)
 
     def get_data_trans(self, calc_name):
@@ -566,11 +570,11 @@ class ResultatsCalcul:
         :param csv_path: chemin vers le fichier CSV
         :type csv_path: str
         """
-        if version_info[0] == 3:   # Python2 fix: do not add `newline` argument
-            arguments = {'newline': ''}
+        if version_info[0] == 3:   # Python2 fix
+            arguments = {'mode': 'w', 'newline': ''}
         else:
-            arguments = {}
-        with open(csv_path, 'w', **arguments) as csv_file:  # Python2.7 fix: io.open is not compatible with csv
+            arguments = {'mode': 'wb'}
+        with open(csv_path, **arguments) as csv_file:
             fieldnames = ['calc', 'time', 'emh_type', 'emh', 'variable', 'value']
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=CSV_DELIMITER)
             csv_writer.writeheader()
@@ -585,7 +589,7 @@ class ResultatsCalcul:
                                                  'emh_type': emh_type,
                                                  'emh': emh_name,
                                                  'variable': variable,
-                                                 'value': FMT_FLOAT_CSV.format(value)})
+                                                 'value': FMT_FLOAT_CSV % value})
 
     def write_all_calc_trans_in_csv(self, csv_path):
         """
@@ -595,11 +599,11 @@ class ResultatsCalcul:
         :param csv_path: chemin vers le fichier CSV
         :type csv_path: str
         """
-        if version_info[0] == 3:   # Python2 fix: do not add `newline` argument
-            arguments = {'newline': ''}
+        if version_info[0] == 3:   # Python2 fix
+            arguments = {'mode': 'w', 'newline': ''}
         else:
-            arguments = {}
-        with open(csv_path, 'w', **arguments) as csv_file:  # Python2.7 fix: io.open is not compatible with csv
+            arguments = {'mode': 'wb'}
+        with open(csv_path, **arguments) as csv_file:
             fieldnames = ['calc', 'time', 'emh_type', 'emh', 'variable', 'value']
             csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=CSV_DELIMITER)
             csv_writer.writeheader()
@@ -615,7 +619,7 @@ class ResultatsCalcul:
                                                      'emh_type': emh_type,
                                                      'emh': emh_name,
                                                      'variable': variable,
-                                                     'value': FMT_FLOAT_CSV.format(value)})
+                                                     'value': FMT_FLOAT_CSV % value})
 
     def __repr__(self):
         return "Résultats run #%s (%i permanents, %i transitoires)" % (self.run_id, len(self.res_calc_pseudoperm),

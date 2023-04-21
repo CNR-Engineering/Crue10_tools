@@ -1,3 +1,4 @@
+# coding: utf-8
 import numpy as np
 from shapely.geometry import Point, LineString, LinearRing
 import unittest

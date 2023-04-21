@@ -1,14 +1,16 @@
+# coding: utf-8
 from collections import OrderedDict
 from difflib import unified_diff
 from filecmp import cmp
 import numpy as np
 import os
 import pickle
+from sys import version_info
 import unittest
 
 from crue10.etude import Etude
 from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
-from crue10.utils.settings import CSV_DELIMITER
+from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV
 
 
 WRITE_FILES = False
@@ -75,7 +77,8 @@ class ResultatsCalculTestCase(unittest.TestCase):
                                       ('BrancheStrickler', ['Splan', 'Vol'])]))
 
     def test_get_data_pseudoperm(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6I_run_Cc_P02.p')
+        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+                                           'Etu3-6I_run_Cc_P02.p')
 
         actual = self.resultats.get_data_pseudoperm('Cc_P02')
 
@@ -89,7 +92,8 @@ class ResultatsCalculTestCase(unittest.TestCase):
             np.testing.assert_equal(actual[key], desired[key])
 
     def test_get_data_trans(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6I_run_Cc_T01.p')
+        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+                                           'Etu3-6I_run_Cc_T01.p')
 
         actual = self.resultats.get_data_trans('Cc_T01')
 
@@ -123,32 +127,33 @@ class ResultatsCalculTestCase(unittest.TestCase):
         if WRITE_FILES:
             df_reference = self.resultats.extract_profil_long_pseudoperm_as_dataframe(
                 'Cc_P02', self.branches, ['Z', 'Q'])
-            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER)
+            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         df_actual = self.resultats.extract_profil_long_pseudoperm_as_dataframe(
             'Cc_P02', self.branches, ['Z', 'Q'])
-        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER)
+        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
 
     def test_extract_profil_long_trans_at_time_as_dataframe(self):
         basename = 'Etu3-6I_run_profil_long_T01_6h.csv'
         if WRITE_FILES:
             df_reference = self.resultats.extract_profil_long_trans_at_time_as_dataframe('Cc_T01', self.branches, 6)
-            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER)
+            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         df_actual = self.resultats.extract_profil_long_trans_at_time_as_dataframe('Cc_T01', self.branches, 6)
-        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER)
+        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
 
     def test_extract_profil_long_trans_max_as_dataframe(self):
         basename = 'Etu3-6I_run_profil_long_T01_max.csv'
         if WRITE_FILES:
             df_reference = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches)
-            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER)
+            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         df_actual = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches)
-        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER)
+        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
 
     def test_get_all_pseudoperm_var_at_emhs_as_array(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6I_run_pseudoperm_Z_at_sections.p')
+        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+                                           'Etu3-6I_run_pseudoperm_Z_at_sections.p')
 
         actual = self.resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', self.section_names)
 
@@ -161,7 +166,8 @@ class ResultatsCalculTestCase(unittest.TestCase):
         np.testing.assert_equal(actual, desired)
 
     def test_get_trans_var_at_emhs_as_array(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle', 'Etu3-6I_run_trans_T01_Z_at_sections.p')
+        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+                                           'Etu3-6I_run_trans_T01_Z_at_sections.p')
 
         actual = self.resultats.get_trans_var_at_emhs_as_array('Cc_T01', 'Z', self.section_names)
 
