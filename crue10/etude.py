@@ -261,7 +261,11 @@ class Etude(EnsembleFichiersXML):
     def read_all(self, ignore_shp=False):
         """Lire tous les fichiers de l'étude"""
         # self._read_etu() is done in `__init__` method
-        for _, scenario in self.scenarios.items():
+        for sous_modele in self.get_liste_sous_modeles():
+            sous_modele.read_all(ignore_shp=ignore_shp)
+        for modele in self.get_liste_modeles():
+            modele.read_all(ignore_shp=ignore_shp)
+        for scenario in self.get_liste_scenarios():
             scenario.read_all(ignore_shp=ignore_shp)
         self.was_read = True
 
@@ -328,7 +332,9 @@ class Etude(EnsembleFichiersXML):
         if self.version_grammaire == '1.2' and version_grammaire == '1.3':  # HARDCODED to support g1.2
             # Add dreg files
             for modele in self.get_liste_modeles():
-                self.filename_list.append(modele.files['dreg'])
+                dreg_filename = modele.files['dreg']
+                if dreg_filename not in self.filename_list:
+                    self.filename_list.append(dreg_filename)
         elif self.version_grammaire == '1.3' and version_grammaire == '1.2':  # HARDCODED to support g1.2
             # Remove dreg files
             for filename in self.filename_list:
@@ -385,7 +391,7 @@ class Etude(EnsembleFichiersXML):
 
     def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, comment=''):
         """
-        Créer scénario vierge (avec son modèle et sous-modèle associé)
+        Créer un scénario vierge (avec son modèle et sous-modèle associé) et l'ajouter à l'étude
 
         :param nom_scenario: nom du scénario
         :type nom_scenario: str
@@ -400,9 +406,7 @@ class Etude(EnsembleFichiersXML):
         modele = Modele(nom_modele, mode=self.mode, metadata={'Commentaire': comment},
                         version_grammaire=version_grammaire)
         if nom_sous_modele is not None:
-            sous_modele = SousModele(nom_sous_modele, mode=self.mode, metadata={'Commentaire': comment},
-                                     version_grammaire=version_grammaire)
-            modele.ajouter_sous_modele(sous_modele)
+            modele.create_empty_sous_modele(nom_sous_modele, self.mode, comment=comment)
         scenario = Scenario(nom_scenario, modele, mode=self.mode, metadata={'Commentaire': comment},
                             version_grammaire=version_grammaire)
         self.ajouter_scenario(scenario)

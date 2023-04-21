@@ -414,6 +414,25 @@ class Modele(EnsembleFichiersXML):
         for casier_id, value in modele.casiers_ic.items():
             self.casiers_ic[casier_id] = value
 
+    def create_empty_sous_modele(self, nom_sous_modele, mode, comment=''):
+        """
+        Créer un sous-modèle vierge et l'ajouter au modèle
+
+        :param nom_sous_modele: nom du sous-modèle
+        :type nom_sous_modele: str
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
+        :param comment: commentaire (optionnel)
+        :type comment: str
+        :return: sous-modèle vierge créé
+        :rtype: SousModele
+        """
+        version_grammaire = self.version_grammaire
+        sous_modele = SousModele(nom_sous_modele, mode=mode, metadata={'Commentaire': comment},
+                                 version_grammaire=version_grammaire)
+        self.ajouter_sous_modele(sous_modele)
+        return sous_modele
+
     def _build_graph(self):
         try:
             import networkx as nx
