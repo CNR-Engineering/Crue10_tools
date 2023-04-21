@@ -32,11 +32,14 @@ def _are_similar_and_print_diff(basename):
         textin = filein.readlines()
     with open(os.path.join(FOLDER_OUT, basename), 'r') as fileout:
         textout = fileout.readlines()
-    for line in unified_diff(
+    for i, line in enumerate(unified_diff(
             textin, textout,
             fromfile=os.path.join(FOLDER_IN, basename),
-            tofile=os.path.join(FOLDER_OUT, basename), lineterm=''):
+            tofile=os.path.join(FOLDER_OUT, basename), lineterm='')):
         print(line)
+        if i > 100:
+            print("More differences could be displayed...")
+            break
         same = False
     return same
 
