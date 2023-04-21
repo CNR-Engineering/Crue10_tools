@@ -86,6 +86,11 @@ class EnsembleFichiersXML(ABC):
                         self.files[xml_type] = self.id[3:] + '.' + xml_type + '.xml'
             else:
                 self.files = files
+            if version_grammaire == '1.2':  # Modele: HARDCODED to support g1.2
+                try:
+                    self.files.pop('dreg')
+                except KeyError:  # Etude, Scenario, SousModele
+                    pass
             self.was_read = True
 
         self.comments = {xml: '' for xml in type(self).FILES_XML}

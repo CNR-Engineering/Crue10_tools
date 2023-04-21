@@ -414,7 +414,7 @@ class Modele(EnsembleFichiersXML):
         for casier_id, value in modele.casiers_ic.items():
             self.casiers_ic[casier_id] = value
 
-    def create_empty_sous_modele(self, nom_sous_modele, mode, comment=''):
+    def create_empty_sous_modele(self, nom_sous_modele, mode, metadata=None):
         """
         Créer un sous-modèle vierge et l'ajouter au modèle
 
@@ -422,13 +422,13 @@ class Modele(EnsembleFichiersXML):
         :type nom_sous_modele: str
         :param mode: accès en lecture ('r') ou écriture ('w')
         :type mode: str
-        :param comment: commentaire (optionnel)
-        :type comment: str
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
         :return: sous-modèle vierge créé
         :rtype: SousModele
         """
         version_grammaire = self.version_grammaire
-        sous_modele = SousModele(nom_sous_modele, mode=mode, metadata={'Commentaire': comment},
+        sous_modele = SousModele(nom_sous_modele, mode=mode, metadata=metadata,
                                  version_grammaire=version_grammaire)
         self.ajouter_sous_modele(sous_modele)
         return sous_modele

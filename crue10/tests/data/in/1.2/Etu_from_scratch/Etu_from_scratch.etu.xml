@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ETU xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/etu-1.2.xsd">
   <Commentaire></Commentaire>
-  <AuteurCreation>DURON</AuteurCreation>
-  <DateCreation>2022-08-24T10:19:35.000</DateCreation>
-  <AuteurDerniereModif>DURON</AuteurDerniereModif>
-  <DateDerniereModif>2022-08-24T10:19:35.000</DateDerniereModif>
+  <AuteurCreation>USERNAME</AuteurCreation>
+  <DateCreation>2000-01-01T00:00:00.000</DateCreation>
+  <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
+  <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
   <ScenarioCourant NomRef="Sc_from_scratch"/>
   <Repertoires>
     <Repertoire Nom="CONFIG">
-      <path>Config</path>
+      <path>CONFIG</path>
     </Repertoire>
     <Repertoire Nom="FICHETUDES">
       <path>.</path>
     </Repertoire>
     <Repertoire Nom="RAPPORTS">
-      <path>Rapports</path>
+      <path>RAPPORTS</path>
     </Repertoire>
     <Repertoire Nom="RUNS">
-      <path>Runs</path>
+      <path>RUNS</path>
     </Repertoire>
   </Repertoires>
   <FichEtudes>
@@ -41,10 +41,10 @@
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
       <Commentaire></Commentaire>
-      <AuteurCreation>DURON</AuteurCreation>
-      <DateCreation>2022-08-24T10:19:35.000</DateCreation>
-      <AuteurDerniereModif>DURON</AuteurDerniereModif>
-      <DateDerniereModif>2022-08-24T10:19:35.000</DateDerniereModif>
+      <AuteurCreation>USERNAME</AuteurCreation>
+      <DateCreation>2000-01-01T00:00:00.000</DateCreation>
+      <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
+      <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <SousModele-FichEtudes>
         <DRSO NomRef="from_scratch.drso.xml"/>
         <DCSP NomRef="from_scratch.dcsp.xml"/>
@@ -58,10 +58,10 @@
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
       <Commentaire></Commentaire>
-      <AuteurCreation>DURON</AuteurCreation>
-      <DateCreation>2022-08-24T10:19:35.000</DateCreation>
-      <AuteurDerniereModif>DURON</AuteurDerniereModif>
-      <DateDerniereModif>2022-08-24T10:19:35.000</DateDerniereModif>
+      <AuteurCreation>USERNAME</AuteurCreation>
+      <DateCreation>2000-01-01T00:00:00.000</DateCreation>
+      <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
+      <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Modele-FichEtudes>
         <OPTR NomRef="from_scratch.optr.xml"/>
         <OPTG NomRef="from_scratch.optg.xml"/>
@@ -79,10 +79,10 @@
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
       <Commentaire></Commentaire>
-      <AuteurCreation>DURON</AuteurCreation>
-      <DateCreation>2022-08-24T10:19:35.000</DateCreation>
-      <AuteurDerniereModif>DURON</AuteurDerniereModif>
-      <DateDerniereModif>2022-08-24T10:19:35.000</DateDerniereModif>
+      <AuteurCreation>USERNAME</AuteurCreation>
+      <DateCreation>2000-01-01T00:00:00.000</DateCreation>
+      <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
+      <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Scenario-FichEtudes>
         <OCAL NomRef="from_scratch.ocal.xml"/>
         <ORES NomRef="from_scratch.ores.xml"/>

@@ -12,7 +12,6 @@ from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
 from crue10.utils import check_isinstance, ExceptionCrue10, logger, PREFIX
-from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE
 
 
 def read_metadata(elt, keys):
@@ -389,7 +388,7 @@ class Etude(EnsembleFichiersXML):
         self.ajouter_modele(scenario.modele)
         self.scenarios[scenario.id] = scenario
 
-    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, comment=''):
+    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, metadata=None):
         """
         Créer un scénario vierge (avec son modèle et sous-modèle associé) et l'ajouter à l'étude
 
@@ -399,15 +398,15 @@ class Etude(EnsembleFichiersXML):
         :type nom_modele: str
         :param nom_sous_modele: nom du sous-modèle (optionnel)
         :type nom_sous_modele: str
-        :param comment: commentaire (optionnel)
-        :type comment: str
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
         """
         version_grammaire = self.version_grammaire
-        modele = Modele(nom_modele, mode=self.mode, metadata={'Commentaire': comment},
+        modele = Modele(nom_modele, mode=self.mode, metadata=metadata,
                         version_grammaire=version_grammaire)
         if nom_sous_modele is not None:
-            modele.create_empty_sous_modele(nom_sous_modele, self.mode, comment=comment)
-        scenario = Scenario(nom_scenario, modele, mode=self.mode, metadata={'Commentaire': comment},
+            modele.create_empty_sous_modele(nom_sous_modele, self.mode, metadata=metadata)
+        scenario = Scenario(nom_scenario, modele, mode=self.mode, metadata=metadata,
                             version_grammaire=version_grammaire)
         self.ajouter_scenario(scenario)
         if not self.nom_scenario_courant:
