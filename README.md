@@ -33,7 +33,7 @@ Voir [les pages wiki](https://github.com/CNR-Engineering/Crue10_tools/wiki) pour
 Le lancement des tests unitaires (présents dans `crue10/tests`) se fait avec la commande :
 
 ```
-python -m unittest discover
+python -m unittest
 ````
 
 Liste des tests unitaires par classes principales :
@@ -51,3 +51,6 @@ Liste des tests unitaires par classes principales :
 
 Les tests unitaires sont vérifiés à chaque push grâce à un workflow Github et peuvent être déclenchés manuellement si
 besoin. La coche verte ou la croix rouge à côté du commit permet de savoir rapidement s'ils se sont bien passés.
+
+Remarque : les tests unitaires sont débranchés pour la version Python 2.7. Pour les lancer, il faut utiliser la
+commande `python -m unittest discover`.

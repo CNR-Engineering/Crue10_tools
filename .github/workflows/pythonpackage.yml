@@ -33,4 +33,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude geogama
     - name: Unit tests
       run: |
-        python -m unittest discover
+        python -m unittest
