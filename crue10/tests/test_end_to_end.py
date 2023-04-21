@@ -26,13 +26,15 @@ class EndToEndTestCase(unittest.TestCase):
             print("COMMON = %s" % comparison.common)
             has_error = True
         if len(comparison.left_only) != 0:
-            print("LEFT ONLY %s" % comparison.left_only)
+            print("LEFT ONLY = %s" % comparison.left_only)
             has_error = True
         if len(comparison.right_only) != 0:
-            print("LEFT ONLY %s" % comparison.right_only)
+            print("LEFT ONLY = %s" % comparison.right_only)
             has_error = True
-
-        self.assertEqual(len(comparison.diff_files), 1 if etu_changed else 0)  # etu.xml
+        nb_diff_files = 1 if etu_changed else 0  # etu.xml
+        if len(comparison.diff_files) != nb_diff_files:
+            print("DIFF FILES = %s" % comparison.diff_files)
+            has_error = True
         self.assertFalse(has_error)
 
     def _test_write_from_scratch(self, version_grammaire):

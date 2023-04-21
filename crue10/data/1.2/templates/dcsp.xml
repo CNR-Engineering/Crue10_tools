@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DCSP xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dcsp-1.2.xsd">
   <Commentaire>{{ comment|html_escape }}</Commentaire>
+  {%- if branche_list %}
   <DonCalcSansPrtBranches>
     {%- for branche in branche_list %}
     {%- if branche.type == 1 %}
@@ -114,6 +115,10 @@
     {%- endif %}
     {%- endfor %}
   </DonCalcSansPrtBranches>
+  {%- else%}
+  <DonCalcSansPrtBranches/>
+  {%- endif %}
+  {%- if casier_list %}
   <DonCalcSansPrtCasiers>
     {%- for casier in casier_list %}
     <DonCalcSansPrtCasierProfil NomRef="{{ casier.id }}">
@@ -121,4 +126,7 @@
     </DonCalcSansPrtCasierProfil>
     {%- endfor %}
   </DonCalcSansPrtCasiers>
+  {%- else %}
+  <DonCalcSansPrtCasiers/>
+  {%- endif %}
 </DCSP>

@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.3.xsd">
   <Commentaire>{{ comment|html_escape }}</Commentaire>
+  {%- if noeud_liste %}
   <Noeuds>
     {%- for noeud in noeud_liste %}
     <NoeudNiveauContinu Nom="{{ noeud.id }}">
@@ -8,6 +9,10 @@
     </NoeudNiveauContinu>
     {%- endfor %}
   </Noeuds>
+  {%- else %}
+  <Noeuds/>
+  {%- endif %}
+  {%- if casier_liste %}
   <Casiers>
     {%- for casier in casier_liste %}
     <CasierProfil Nom="{{ casier.id }}">
@@ -20,6 +25,10 @@
     </CasierProfil>
     {%- endfor %}
   </Casiers>
+  {%- else %}
+  <Casiers/>
+  {%- endif %}
+  {%- if section_liste %}
   <Sections>
     {%- for section in section_liste %}
     {%- if isinstance(section, SectionProfil) %}
@@ -46,6 +55,10 @@
     {%- endif %}
     {%- endfor %}
   </Sections>
+  {%- else %}
+  <Sections/>
+  {%- endif %}
+  {%- if branche_liste %}
   <Branches>
     {%- for branche in branche_liste %}
     {%- if branche.type == 20 %}
@@ -89,4 +102,7 @@
     {%- endif %}
     {%- endfor %}
   </Branches>
+  {%- else %}
+  <Branches/>
+  {%- endif %}
 </DRSO>
