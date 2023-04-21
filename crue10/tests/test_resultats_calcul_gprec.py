@@ -10,13 +10,13 @@ import unittest
 
 from crue10.etude import Etude
 from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
-from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV
+from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV, VERSION_GRAMMAIRE_PRECEDENTE
 
 
 WRITE_FILES = False
 
-FOLDER_IN = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.2', 'Etu3-6I_run')
-FOLDER_OUT = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', '1.2', 'Etu3-6I_run')
+FOLDER_IN = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6I_run')
+FOLDER_OUT = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6I_run')
 
 CASIERS = ['Ca_N7', 'Ca_N6']
 
