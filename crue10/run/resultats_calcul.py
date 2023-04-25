@@ -344,8 +344,8 @@ class ResultatsCalcul:
 
     def get_data_pseudoperm(self, calc_name):
         """
-        Obtenir tous les tableaux (numpy) de résultats du calcul pseudo-permanent demandé.
-        Le nom des EMHs secondaires permet d'avoir un array avec les données (ligne = calcul, colonne = variable).
+        Obtenir des tableaux numpy de résultats du calcul pseudo-permanent demandé pour chaque type d'EMH.
+        Les tableaux ont 2 dimensions : temps, emh, variable.
 
         :param calc_name: nom du calcul
         :type calc_name: str
@@ -353,6 +353,23 @@ class ResultatsCalcul:
         """
         calc = self.get_res_calc_pseudoperm(calc_name)
         return calc.file_pos.get_data(self._res_pattern, True, self._emh_type_first_branche)
+
+    def get_data_all_pseudoperm(self):
+        """
+        Obtenir des tableaux numpy de résultats de tous les calculs pseudo-permanent demandé pour chaque type d'EMH.
+        Les tableaux ont 3 dimensions : calcul, emh, variable.
+
+        :rtype: dict(np.ndarray)
+        """
+        data = {}
+        for idx_calc, calc_name in enumerate(self.res_calc_pseudoperm.keys()):
+            res = self.get_data_pseudoperm(calc_name)
+            if not data:
+                for emh_type, values in res.items():
+                    data[emh_type] = np.empty((len(self.res_calc_pseudoperm), values.shape[0], values.shape[1]))
+            for emh_type, values in res.items():
+                data[emh_type][idx_calc, :, :] = values
+        return data
 
     def extract_profil_long_pseudoperm_as_dataframe(self, calc_name, branches, var_names=None):
         """
@@ -486,8 +503,8 @@ class ResultatsCalcul:
 
     def get_data_trans(self, calc_name):
         """
-        Obtenir tous les tableaux (numpy) de résultats du calcul transitoire demandé.
-        Le nom des EMHs secondaires permet d'avoir un array avec les données (ligne = temps, colonne = variable).
+        Obtenir des tableaux numpy de résultats du calcul transitoire demandé pour chaque type d'EMH.
+        Les tableaux ont 3 dimensions : temps, emh, variable.
 
         :param calc_name: nom du calcul
         :return: dict(np.ndarray)
