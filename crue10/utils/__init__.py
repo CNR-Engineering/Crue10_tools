@@ -22,6 +22,8 @@ XML_TEMPLATES_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'templates')
 
 XSD_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'xsd')
 
+XSI_SCHEMA_LOCATION = '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation'
+
 try:
     USERNAME = os.getlogin()
 except:

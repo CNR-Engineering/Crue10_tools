@@ -6,7 +6,7 @@ import os.path
 import xml.etree.ElementTree as ET
 
 from crue10.utils import add_default_missing_metadata, ExceptionCrue10, JINJA_ENV, \
-    get_xml_root_from_file, logger, PREFIX, XML_ENCODING, XSD_FOLDER
+    get_xml_root_from_file, logger, PREFIX, XML_ENCODING, XSD_FOLDER, XSI_SCHEMA_LOCATION
 
 
 # ABC below is compatible with Python 2 and 3
@@ -86,6 +86,12 @@ class FichierXML(ABC):
             root = ET.parse(self.files[xml]).getroot()
         except ET.ParseError as e:
             raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (self.files[xml], e))
+
+        # Check version grammaire
+        version_grammaire = root.get(XSI_SCHEMA_LOCATION)[-7:-4]
+        if version_grammaire != '1.2':
+            raise ExceptionCrue10("La grammaire %s n'est pas supportée avec cette version de Crue10_tools !"
+                                  % version_grammaire)
 
         # Sets comment if the tag is found
         comment_elt = root.find(PREFIX + 'Commentaire')

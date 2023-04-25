@@ -13,7 +13,7 @@ from crue10.modele import Modele
 from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
-from crue10.utils import check_isinstance, ExceptionCrue10, JINJA_ENV, logger, PREFIX
+from crue10.utils import check_isinstance, ExceptionCrue10, JINJA_ENV, logger, PREFIX, XSI_SCHEMA_LOCATION
 from crue10.utils.settings import XML_ENCODING
 
 
@@ -117,7 +117,15 @@ class Etude(FichierXML):
 
     def _read_etu(self):
         """Ecrire le fichier etu.xml"""
-        root = ET.parse(self.etu_path).getroot()
+        try:
+            root = ET.parse(self.etu_path).getroot()
+        except ET.ParseError as e:
+            raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (self.etu_path, e))
+        # Check version grammaire
+        version_grammaire = root.get(XSI_SCHEMA_LOCATION)[-7:-4]
+        if version_grammaire != '1.2':
+            raise ExceptionCrue10("La grammaire %s n'est pas supportée avec cette version de Crue10_tools !"
+                                  % version_grammaire)
         folder = os.path.dirname(self.etu_path)
 
         # Etude metadata
