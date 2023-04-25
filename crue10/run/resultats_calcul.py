@@ -579,6 +579,46 @@ class ResultatsCalcul:
             values[:, i] = res[emh_type][:, emh_pos, var_pos]
         return values
 
+    def extract_res_trans_as_dataframe(self, lst_var, lst_emh):
+        """
+        Exports as DataFrame tabular results: time, val1, val2, etc. where each vali stands for a varname for an EMH.
+
+        :param lst_var: liste des noms de variables à extraire
+        :type lst_var: list(str)
+        :param lst_emh: liste des EMH concernés
+        :type lst_emh: list(str)
+        :return: DataFrame avec le tableau des résultats, un pas de temps par ligne.
+        :rtype: pd.DataFrame
+        """
+        # Parcours des calculs
+        for cal_name in self.res_calc_trans.keys():
+            # Préparation des dictionnaires de listes
+            dic_res = {}  # Dictionnaire des résultats, sous forme d'un dictionnaire de listes ayant chacune la dimension du nombre de pdt (pas de temps)
+            lst_time = self.get_res_calc_trans(cal_name).time_serie()
+            lst_calc = []
+            for i in range(len(lst_time)):
+                lst_calc.append(cal_name)
+            dic_res['Calcul'] = lst_calc  # La première colonne est le nom du calcul
+            dic_res['Temps'] = lst_time  # La deuxième colonne est le pdt dans le calcul
+            for emh_name in lst_emh:
+                for var_name in lst_var:
+                    try:
+                        # Les colonnes suivantes sont les valeurs pour chaque nom de variable et nom d'EMH (exemple 'Z St_P146.0a')
+                        lst_emh_name = []
+                        lst_emh_name.append(emh_name)  # On a besoin d'une liste de noms d'EHM avec un seul élément
+                        lst_res = self.get_trans_var_at_emhs_as_array(cal_name, var_name, lst_emh_name)  # Récupération d'une liste de listes (chacune à un seul élément)
+                        lst_res_1d = []
+                        for itm_res in lst_res:
+                            lst_res_1d.append(itm_res[0])  # Chaque ligne de la liste est elle-même une liste à un élément, on le récupère
+                        if len(lst_res_1d) > 0:
+                            dic_res[var_name + " " + emh_name] = lst_res_1d  # L'entrée du dictionnaire (exemple 'Z St_P146.0a') contient la liste des valeurs pour chaque pdt
+                    except ExceptionCrue10:
+                        # A priori, incompatibilité entre nom de variable et type d'EHM: pas grave, on ne sort juste pas ces résultats
+                        pass
+
+            # Le DataFrame en retour est construit à partir d'un dictionnaire de listes
+            return pd.DataFrame(dic_res)  # DataFrame (=tableau de valeurs structuré, Pandas)
+
     def write_all_calc_pseudoperm_in_csv(self, csv_path):
         """
         Écrire un fichier CSV avec les résultats de tous les calculs pseudo-permanents

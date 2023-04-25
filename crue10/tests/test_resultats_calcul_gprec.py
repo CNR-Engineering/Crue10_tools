@@ -78,31 +78,31 @@ class ResultatsCalculTestCase(unittest.TestCase):
                                       ('BrancheStrickler', ['Splan', 'Vol'])]))
 
     def test_get_data_pseudoperm(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+        reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
                                            'Etu3-6I_run_Cc_P02.p')
 
         actual = self.resultats.get_data_pseudoperm('Cc_P02')
 
         if WRITE_REFERENCE_FILES:
-            with open(REFERENCE_FILE_PATH, 'wb') as f:
+            with open(reference_file_path, 'wb') as f:
                 pickle.dump(actual, f)
 
-        with open(REFERENCE_FILE_PATH, 'rb') as f:
+        with open(reference_file_path, 'rb') as f:
             desired = pickle.load(f)
         for key in desired.keys():
             np.testing.assert_equal(actual[key], desired[key])
 
     def test_get_data_trans(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+        reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
                                            'Etu3-6I_run_Cc_T01.p')
 
         actual = self.resultats.get_data_trans('Cc_T01')
 
         if WRITE_REFERENCE_FILES:
-            with open(REFERENCE_FILE_PATH, 'wb') as f:
+            with open(reference_file_path, 'wb') as f:
                 pickle.dump(actual, f)
 
-        with open(REFERENCE_FILE_PATH, 'rb') as f:
+        with open(reference_file_path, 'rb') as f:
             desired = pickle.load(f)
         for key in desired.keys():
             np.testing.assert_equal(actual[key], desired[key])
@@ -153,29 +153,29 @@ class ResultatsCalculTestCase(unittest.TestCase):
         self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
 
     def test_get_all_pseudoperm_var_at_emhs_as_array(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+        reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
                                            'Etu3-6I_run_pseudoperm_Z_at_sections.p')
 
         actual = self.resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', self.section_names)
 
         if WRITE_REFERENCE_FILES:
-            with open(REFERENCE_FILE_PATH, 'wb') as f:
+            with open(reference_file_path, 'wb') as f:
                 pickle.dump(actual, f)
 
-        with open(REFERENCE_FILE_PATH, 'rb') as f:
+        with open(reference_file_path, 'rb') as f:
             desired = pickle.load(f)
         np.testing.assert_equal(actual, desired)
 
     def test_get_trans_var_at_emhs_as_array(self):
-        REFERENCE_FILE_PATH = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+        reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
                                            'Etu3-6I_run_trans_T01_Z_at_sections.p')
 
         actual = self.resultats.get_trans_var_at_emhs_as_array('Cc_T01', 'Z', self.section_names)
 
         if WRITE_REFERENCE_FILES:
-            with open(REFERENCE_FILE_PATH, 'wb') as f:
+            with open(reference_file_path, 'wb') as f:
                 pickle.dump(actual, f)
 
-        with open(REFERENCE_FILE_PATH, 'rb') as f:
+        with open(reference_file_path, 'rb') as f:
             desired = pickle.load(f)
         np.testing.assert_equal(actual, desired)

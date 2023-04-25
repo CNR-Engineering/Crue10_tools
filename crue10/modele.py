@@ -632,6 +632,7 @@ class Modele(EnsembleFichiersXML):
                     section_reference = section.section_reference
                     for nom_limite, xt in zip(limites_lit, section_reference.get_xt_merged_consecutive_lits_numerotes()):
                         row[nom_limite] = section_reference.interp_z(xt) + section.dz_section_reference
+
                 df.loc[len(df)] = row
 
                 if i == len(branche.liste_sections_dans_branche) - 1:

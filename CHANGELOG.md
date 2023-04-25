@@ -46,7 +46,7 @@ Détails :
             * [MAJEUR] la méthode `get_res_steady_at_sections_along_branches_as_dataframe` devient `extract_profil_long_pseudoperm_as_dataframe`
             * [MAJEUR] la méthode `get_res_unsteady_at_sections_along_branches_as_dataframe` devient `extract_profil_long_trans_at_time_as_dataframe`
             * [MAJEUR] la méthode `get_res_unsteady_max_at_sections_along_branches_as_dataframe` devient `extract_profil_long_trans_max_as_dataframe`
-            * [MAJEUR] la méthode `export_calc_unsteady_as_df` est supprimée
+            * [MAJEUR] la méthode `export_calc_unsteady_as_df` devient `extract_res_trans_as_dataframe`
             * [MAJEUR] la méthode `export_calc_unsteady_as_csv_table` est supprimée
     * `crue10.scenario.Scenario` :
         * [MAJEUR] la méthode `get_last_run` devient `get_dernier_run`
