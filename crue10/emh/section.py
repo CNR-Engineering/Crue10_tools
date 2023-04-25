@@ -14,6 +14,7 @@ Classes pour les sections :
 """
 import abc
 from builtins import super  # Python2 fix (requires module `future`)
+from collections import OrderedDict
 from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString, Point
@@ -292,7 +293,7 @@ class SectionProfil(Section):
     :ivar lits_numerotes: lits numérotés
     :vartype lits_numerotes: list(LitNumerote)
     :ivar limites_geom: limites géométriques (thalweg, axe hydraulique...)
-    :vartype limites_geom: list(LimiteGeom)
+    :vartype limites_geom: OrderedDict(LimiteGeom)
     """
 
     def __init__(self, nom_section, nom_profilsection=None):
@@ -311,7 +312,7 @@ class SectionProfil(Section):
         self.largeur_fente = None
         self.profondeur_fente = None
         self.lits_numerotes = []
-        self.limites_geom = []
+        self.limites_geom = OrderedDict()
 
     def set_profilsection_name(self, nom_profilsection=None):
         """
@@ -332,7 +333,7 @@ class SectionProfil(Section):
         :return: Abscisse curviligne de l'axe hydraulique
         :rtype: float
         """
-        for limite in self.limites_geom:
+        for _, limite in self.limites_geom.items():
             if limite.id == 'Et_AxeHyd':
                 return limite.xt
         raise ExceptionCrue10("La limite 'Et_AxeHyd' n'existe pas pour %s" % self)
@@ -416,7 +417,7 @@ class SectionProfil(Section):
         :type xt_list: list(float)
         """
         if len(xt_list) != 6:
-            raise ExceptionCrue10("Il faut exactement 5 lits numérotés pour les affecter")
+            raise ExceptionCrue10("Il faut exactement 6 xt pour affecter les 5 lits numérotés")
         check_strictly_increasing(xt_list, 'xt')
         self.lits_numerotes = []
         for bed_name, xt_min, xt_max in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
@@ -445,7 +446,7 @@ class SectionProfil(Section):
         check_isinstance(limite_geom, LimiteGeom)
         if limite_geom.id in self.limites_geom:
             raise ExceptionCrue10("La limite géométrique `%s` est déjà présente" % limite_geom.id)
-        self.limites_geom.append(limite_geom)
+        self.limites_geom[limite_geom.id] = limite_geom
 
     def interp_z(self, xt):
         """
@@ -579,7 +580,7 @@ class SectionProfil(Section):
             nom_lit = LitNumerote.BED_NAMES[idx_limite - 1]
             return self.get_dernier_lit_numerote(nom_lit).xt_max
 
-    def get_limite_geom(self, nom):
+    def get_limite_geom(self, nom_limite):
         """
         Obtenir l'abscisse curviligne de la limite géométrique recherchée
 
@@ -588,10 +589,13 @@ class SectionProfil(Section):
         :return: limite géométrique
         :rtype: LimiteGeom
         """
-        for limite in self.limites_geom:
-            if limite.id == nom:
-                return limite
-        raise ExceptionCrue10("La limite `%s` n'exsite pas pour la %s" % (nom, self))
+        try:
+            return self.limites_geom[nom_limite]
+        except KeyError:
+            raise ExceptionCrue10("La limite `%s` n'existe pas pour la %s" % (nom_limite, self))
+
+    def get_liste_limites_geom(self):
+        return [limite for _, limite in self.limites_geom.items()]
 
     def has_xz(self):
         return self.xz is not None
@@ -620,17 +624,20 @@ class SectionProfil(Section):
         coords = [(point.x + (xt - self.xt_axe) * u, point.y + (xt - self.xt_axe) * v) for xt in xt_list]
         self.geom_trace = LineString(coords)
 
-    def merge_consecutive_lit_numerotes(self):
-        """
-        Les `LitNumerote` consécutifs avec les mêmes `LitNomme` sont fusionnés en un seul et `LitNumerote` plus large
-        """
+    def get_xt_lits_numerotes_nommes(self):
         xt_list = [self.lits_numerotes[0].xt_min]
         for lit1, lit2 in zip(self.lits_numerotes[:-1], self.lits_numerotes[1:]):
             if lit1.id != lit2.id:
                 assert lit1.xt_max == lit2.xt_min
                 xt_list.append(lit1.xt_max)
         xt_list.append(self.lits_numerotes[-1].xt_max)
-        self.set_lits_numerotes(xt_list)
+        return xt_list
+
+    def merge_consecutive_lit_numerotes(self):
+        """
+        Les `LitNumerote` consécutifs avec les mêmes `LitNomme` sont fusionnés en un seul `LitNumerote` plus large
+        """
+        self.set_lits_numerotes(self.get_xt_lits_numerotes_nommes())
 
     def get_min_z(self):
         """

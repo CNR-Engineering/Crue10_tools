@@ -51,7 +51,7 @@
         {%- endfor %}
       </LitNumerotes>
       <Etiquettes>
-        {%- for limite in section.limites_geom %}
+        {%- for limite in section.get_liste_limites_geom() %}
         <Etiquette Nom="{{ limite.id }}">
           <PointFF>{{ limite.xt }} {{ section.interp_z(limite.xt) }}</PointFF>
         </Etiquette>
