@@ -22,6 +22,9 @@
       {%- for profil_casier in casier.profils_casier %}
       <ProfilCasier NomRef="{{ profil_casier.id }}"/>
       {%- endfor %}
+      {%- if casier.bati %}
+      <BatiCasier NomRef="{{ casier.bati.id }}"/>
+      {%- endif %}
     </CasierProfil>
     {%- endfor %}
   </Casiers>

@@ -10,7 +10,7 @@ from crue10.base import EnsembleFichiersXML
 from crue10.emh.branche import BRANCHE_CLASSES, Branche, BranchePdC, BrancheSeuilTransversal, \
     BrancheSeuilLateral, BrancheOrifice, BrancheStrickler, BrancheNiveauxAssocies, \
     BrancheBarrageGenerique, BrancheBarrageFilEau, BrancheSaintVenant, COEF_D
-from crue10.emh.casier import Casier, ProfilCasier
+from crue10.emh.casier import BatiCasier, Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAJ, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
@@ -77,6 +77,8 @@ class SousModele(EnsembleFichiersXML):
     :vartype casiers: OrderedDict(Casier)
     :ivar profils_casier: dictionnaire ordonné des profils casier
     :vartype profils_casier: OrderedDict(ProfilCasier)
+    :ivar batis_casier: dictionnaire ordonné des batis casier
+    :vartype batis_casier: OrderedDict(BatiCasier)
     :ivar lois_frottement: dictionnaire ordonné des lois de frottement (coefficients de Strickler)
     :vartype lois_frottement: OrderedDict(LoiFrottement)
     """
@@ -108,6 +110,7 @@ class SousModele(EnsembleFichiersXML):
         self.branches = OrderedDict()
         self.casiers = OrderedDict()
         self.profils_casier = OrderedDict()
+        self.batis_casier = OrderedDict()
         self.lois_frottement = OrderedDict()
 
     def ajouter_noeud(self, noeud):
@@ -177,19 +180,34 @@ class SousModele(EnsembleFichiersXML):
         for profilcasier in casier.profils_casier:
             if profilcasier.id not in self.profils_casier:
                 self.ajouter_profil_casier(profilcasier)
+        if casier.bati is not None:
+            if casier.bati.id not in self.batis_casier:
+                self.ajouter_bati_casier(casier.bati)
         self.casiers[casier.id] = casier
 
     def ajouter_profil_casier(self, profil_casier):
         """
         Ajouter un profil casier au sous-modèle
 
-        :param casier: profil casier à ajouter
-        :type casier: ProfilCasier
+        :param profil_casier: profil casier à ajouter
+        :type profil_casier: ProfilCasier
         """
         check_isinstance(profil_casier, ProfilCasier)
         if profil_casier.id in self.profils_casier:
             raise ExceptionCrue10("Le profil casier %s est déjà présent" % profil_casier.id)
         self.profils_casier[profil_casier.id] = profil_casier
+
+    def ajouter_bati_casier(self, bati_casier):
+        """
+        Ajouter un bati casier au sous-modèle
+
+        :param bati_casier: bati casier à ajouter
+        :type bati_casier: BatiCasier
+        """
+        check_isinstance(bati_casier, BatiCasier)
+        if bati_casier.id in self.batis_casier:
+            raise ExceptionCrue10("Le bati casier %s est déjà présent" % bati_casier.id)
+        self.batis_casier[bati_casier.id] = bati_casier
 
     def ajouter_loi_frottement(self, loi_frottement):
         """
@@ -259,6 +277,18 @@ class SousModele(EnsembleFichiersXML):
         except KeyError:
             raise ExceptionCrue10("Le casier %s n'est pas dans le %s" % (nom_casier, self))
 
+    def get_bati_casier(self, nom_bati_casier):
+        """
+        :param nom_bati_casier: nom du bati casier
+        :type nom_bati_casier: str
+        :return: bati casier demandé
+        :rtype: BatiCasier
+        """
+        try:
+            return self.batis_casier[nom_bati_casier]
+        except KeyError:
+            raise ExceptionCrue10("Le bati casier %s n'est pas dans le %s" % (nom_bati_casier, self))
+
     def get_loi_frottement(self, nom_loi_frottement):
         """
         :param nom_loi_frottement: nom de la loi de frottement
@@ -284,6 +314,20 @@ class SousModele(EnsembleFichiersXML):
         :rtype: list(Casier)
         """
         return [casier for _, casier in self.casiers.items()]
+
+    def get_liste_profils_casier(self):
+        """
+        :return: liste des profils casier
+        :rtype: list(ProfilCasier)
+        """
+        return [pc for _, pc in self.profils_casier.items()]
+
+    def get_liste_batis_casier(self):
+        """
+        :return: liste des batis casier
+        :rtype: list(BatiCasier)
+        """
+        return [bc for _, bc in self.batis_casier.items()]
 
     def get_liste_sections(self, section_type=None, ignore_inactive=False):
         """
@@ -489,10 +533,20 @@ class SousModele(EnsembleFichiersXML):
                     noeud = self.get_noeud(emh_profils_casier.find(PREFIX + 'Noeud').get('NomRef'))
                     casier = Casier(emh_profils_casier.get('Nom'), noeud, is_active=is_active)
                     casier.comment = get_optional_commentaire(emh_profils_casier)
+
+                    # ProfilCasiers
                     for emh_pc in emh_profils_casier.findall(PREFIX + 'ProfilCasier'):
                         pc = ProfilCasier(emh_pc.get('NomRef'))
                         self.ajouter_profil_casier(pc)
                         casier.ajouter_profil_casier(pc)
+
+                    # BatiCasier
+                    emh_bc = emh_profils_casier.find(PREFIX + 'BatiCasier')
+                    if emh_bc is not None:
+                        bc = BatiCasier(emh_bc.get('NomRef'))
+                        self.ajouter_bati_casier(bc)
+                        casier.set_bati(bc)
+
                     self.ajouter_casier(casier)
 
     def _read_dptg(self):
@@ -515,7 +569,7 @@ class SousModele(EnsembleFichiersXML):
                     profil_casier.xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
                     profil_casier.xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
 
-            if emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
+            elif emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
                     nom_section = emh.get('Nom').replace('Ps_', 'St_')  # Not necessary consistant
                     section = self.get_section(nom_section)
@@ -544,11 +598,18 @@ class SousModele(EnsembleFichiersXML):
 
                     section.set_xz(parse_loi(emh))
 
-            if emh_group.tag == (PREFIX + 'DonPrtGeoSections'):
+            elif emh_group.tag == (PREFIX + 'DonPrtGeoCasiers'):
+                for emh in emh_group.findall(PREFIX + 'BatiCasier'):
+                    bati_casier = self.get_bati_casier(emh.get('Nom'))
+                    bati_casier.comment = get_optional_commentaire(emh)
+                    bati_casier.set_values(float(emh.find(PREFIX + 'SplanBati').text),
+                                           float(emh.find(PREFIX + 'ZBatiTotal').text))
+
+            elif emh_group.tag == (PREFIX + 'DonPrtGeoSections'):
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoSectionIdem'):
                     self.get_section(emh.get('NomRef')).dz_section_reference = float(emh.find(PREFIX + 'Dz').text)
 
-            if emh_group.tag == (PREFIX + 'DonPrtGeoBranches'):
+            elif emh_group.tag == (PREFIX + 'DonPrtGeoBranches'):
                 for emh in emh_group.findall(PREFIX + 'DonPrtGeoBrancheSaintVenant'):
                     nom_branche = emh.get('NomRef')
                     self.get_branche(nom_branche).CoefSinuo = float(emh.find(PREFIX + 'CoefSinuo').text)
@@ -693,7 +754,7 @@ class SousModele(EnsembleFichiersXML):
                 nom_casier = obj['properties'][emh_field]
                 coords = [coord[:2] for coord in obj['geometry']['coordinates']]  # Ignore Z
                 geoms[nom_casier] = LinearRing(coords)
-        for _, casier in self.casiers.items():
+        for casier in self.get_liste_casiers():
             try:
                 casier.set_geom(geoms[casier.id])
             except KeyError:
@@ -764,7 +825,8 @@ class SousModele(EnsembleFichiersXML):
         """
         self._write_xml_file(
             'dptg', folder,
-            profil_casier_list=[pc for _, pc in self.profils_casier.items()],
+            profil_casier_list=self.get_liste_profils_casier(),
+            bati_casier_list=sorted(self.get_liste_batis_casier(), key=lambda bc: bc.id),  # alphabetic order
             section_profil_list=sorted(self.get_liste_sections_profil(), key=lambda st: st.id),  # alphabetic order
             section_idem_list=sorted(self.get_liste_sections_idem(), key=lambda st: st.id),  # alphabetic order
             branche_saintvenant_list=sorted(self.get_liste_branches([20]), key=lambda br: br.id),  # alphabetic order
@@ -1232,10 +1294,10 @@ class SousModele(EnsembleFichiersXML):
         if sous_modele.version_grammaire != self.version_grammaire:
             raise ExceptionCrue10Grammar("La grammaire du %s à reprendre n'est pas compatible avec le %s"
                                          % (sous_modele, self))
-        for _, loi_frottement in sous_modele.lois_frottement.items():
+        for loi_frottement in sous_modele.get_liste_lois_frottement():
             loi_frottement.id = loi_frottement.id + suffix
             self.ajouter_loi_frottement(loi_frottement)
-        for _, noeud in sous_modele.noeuds.items():
+        for noeud in sous_modele.get_liste_noeuds():
             if noeud.id not in self.noeuds:
                 self.ajouter_noeud(noeud)
         for section_type in [SectionProfil, SectionIdem, SectionSansGeometrie, SectionInterpolee]:
@@ -1244,9 +1306,11 @@ class SousModele(EnsembleFichiersXML):
                 self.ajouter_section(section)
         for branche in sous_modele.get_liste_branches():
             self.ajouter_branche(branche)
-        for _, profils_casier in sous_modele.profils_casier.items():
-            self.ajouter_profil_casier(profils_casier)
-        for _, casier in sous_modele.casiers.items():
+        for profil_casier in sous_modele.get_liste_profils_casier():
+            self.ajouter_profil_casier(profil_casier)
+        for bati_casier in sous_modele.get_liste_batis_casier():
+            self.ajouter_bati_casier(bati_casier)
+        for casier in sous_modele.get_liste_casiers():
             self.ajouter_casier(casier)
 
     def validate(self):

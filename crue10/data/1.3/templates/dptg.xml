@@ -63,7 +63,19 @@
   {%- else %}
   <DonPrtGeoProfilSections/>
   {%- endif %}
+  {%- if bati_casier_list %}
+  <DonPrtGeoCasiers>
+    {%- for bati_casier in bati_casier_list %}
+    <BatiCasier Nom="{{ bati_casier.id }}">
+      <Commentaire>{{ bati_casier.comment }}</Commentaire>
+      <SplanBati>{{ bati_casier.SplanBati }}</SplanBati>
+      <ZBatiTotal>{{ bati_casier.ZBatiTotal }}</ZBatiTotal>
+    </BatiCasier>
+    {%- endfor %}
+  </DonPrtGeoCasiers>
+  {%- else %}
   <DonPrtGeoCasiers/>
+  {%- endif %}
   {%- if section_idem_list %}
   <DonPrtGeoSections>
     {%- for section in section_idem_list %}

@@ -45,6 +45,47 @@ def get_negative_area(x_array, y_array):
     return negative_area
 
 
+class BatiCasier:
+    """
+    BatiCasier
+
+    :ivar id: nom du bati casier
+    :vartype id: str
+    :ivar SplanBati: SplanBati
+    :vartype SplanBati: float
+    :ivar ZBatiTotal: ZBatiTotal
+    :vartype ZBatiTotal: float
+    :ivar comment: commentaire optionnel
+    :vartype comment: str
+    """
+
+    def __init__(self, nom_bati_casier):
+        """
+        :param nom_bati_casier: nom du bati casier
+        :type nom_bati_casier: str
+        """
+        check_preffix(nom_bati_casier, 'Bc_')
+        self.id = nom_bati_casier
+        self.SplanBati = 0.0
+        self.ZBatiTotal = 0.0
+
+    def set_values(self, SplanBati, ZBatiTotal):
+        """
+        Affecter les valeurs du bati
+
+        :param SplanBati: SplanBati
+        :type SplanBati: float
+        :param ZBatiTotal: ZBatiTotal
+        :type ZBatiTotal: float
+        """
+        self.SplanBati = SplanBati
+        self.ZBatiTotal = ZBatiTotal
+        self.comment = ''
+
+    def __str__(self):
+        return "BatiCasier #%s"
+
+
 class ProfilCasier:
     """
     ProfilCasier = données permettant de calculer une loi de volume fonction d'une cote à partir d'un profil
@@ -184,6 +225,8 @@ class Casier:
     :vartype noeud_reference: Noeud
     :ivar profils_casier: liste des profils casier (en général un seul)
     :vartype profils_casier: list(ProfilCasier)
+    :ivar bati: batis casier (en général vide)
+    :vartype bati: BatiCasier
     :ivar CoefRuis: "coefficient modulation du débit linéique de ruissellement"
     :vartype CoefRuis: float
     :ivar comment: commentaire optionnel
@@ -206,6 +249,7 @@ class Casier:
         self.geom = None
         self.noeud_reference = noeud
         self.profils_casier = []
+        self.bati = None
         self.CoefRuis = 0.0
         self.comment = ''
 
@@ -229,6 +273,15 @@ class Casier:
         """
         check_isinstance(profil_casier, ProfilCasier)
         self.profils_casier.append(profil_casier)
+
+    def set_bati(self, bati_casier):
+        """
+        Affecter le bati casier
+
+        :param bati_casier: BatiCasier
+        """
+        check_isinstance(bati_casier, BatiCasier)
+        self.bati = bati_casier
 
     def somme_longueurs(self):
         """
