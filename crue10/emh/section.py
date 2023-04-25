@@ -624,7 +624,14 @@ class SectionProfil(Section):
         coords = [(point.x + (xt - self.xt_axe) * u, point.y + (xt - self.xt_axe) * v) for xt in xt_list]
         self.geom_trace = LineString(coords)
 
-    def get_xt_lits_numerotes_nommes(self):
+    def get_xt_merged_consecutive_lits_numerotes(self):
+        """
+        Obtenir la liste des abscisses transversale des limites de lits numérotées
+        en fusionnant les lits nommés consécutifs
+
+        :return: liste des abscisses transversale des limites
+        :rtype: list(float)
+        """
         xt_list = [self.lits_numerotes[0].xt_min]
         for lit1, lit2 in zip(self.lits_numerotes[:-1], self.lits_numerotes[1:]):
             if lit1.id != lit2.id:
@@ -637,7 +644,7 @@ class SectionProfil(Section):
         """
         Les `LitNumerote` consécutifs avec les mêmes `LitNomme` sont fusionnés en un seul `LitNumerote` plus large
         """
-        self.set_lits_numerotes(self.get_xt_lits_numerotes_nommes())
+        self.set_lits_numerotes(self.get_xt_merged_consecutive_lits_numerotes())
 
     def get_min_z(self):
         """

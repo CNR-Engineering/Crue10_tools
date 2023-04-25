@@ -9,11 +9,9 @@ from sys import version_info
 import unittest
 
 from crue10.etude import Etude
-from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
+from crue10.tests import DATA_TESTS_FOLDER_ABSPATH, WRITE_REFERENCE_FILES
 from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV, VERSION_GRAMMAIRE_COURANTE
 
-
-WRITE_FILES = True
 
 FOLDER_IN = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_COURANTE, 'Etu3-6I_run')
 FOLDER_OUT = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_COURANTE, 'Etu3-6I_run')
@@ -85,7 +83,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
         actual = self.resultats.get_data_pseudoperm('Cc_P02')
 
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             with open(REFERENCE_FILE_PATH, 'wb') as f:
                 pickle.dump(actual, f)
 
@@ -100,7 +98,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
         actual = self.resultats.get_data_trans('Cc_T01')
 
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             with open(REFERENCE_FILE_PATH, 'wb') as f:
                 pickle.dump(actual, f)
 
@@ -111,7 +109,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
     def test_write_all_calc_pseudoperm_in_csv(self):
         basename = 'Etu3-6I_run_all_pseudoperm.csv'
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_IN, basename))
         self.resultats.write_all_calc_pseudoperm_in_csv(os.path.join(FOLDER_OUT, basename))
         same = _are_similar_and_print_diff(basename)
@@ -119,7 +117,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
     def test_write_all_calc_trans_in_csv(self):
         basename = 'Etu3-6I_run_all_trans.csv'
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_IN, basename))
         self.resultats.write_all_calc_trans_in_csv(os.path.join(FOLDER_OUT, basename))
         same = _are_similar_and_print_diff(basename)
@@ -127,7 +125,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
     def test_extract_profil_long_pseudoperm_as_dataframe(self):
         basename = 'Etu3-6I_run_profil_long_P02.csv'
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             df_reference = self.resultats.extract_profil_long_pseudoperm_as_dataframe(
                 'Cc_P02', self.branches, ['Z', 'Q'])
             df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
@@ -138,7 +136,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
     def test_extract_profil_long_trans_at_time_as_dataframe(self):
         basename = 'Etu3-6I_run_profil_long_T01_6h.csv'
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             df_reference = self.resultats.extract_profil_long_trans_at_time_as_dataframe('Cc_T01', self.branches, 6)
             df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         df_actual = self.resultats.extract_profil_long_trans_at_time_as_dataframe('Cc_T01', self.branches, 6)
@@ -147,7 +145,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
     def test_extract_profil_long_trans_max_as_dataframe(self):
         basename = 'Etu3-6I_run_profil_long_T01_max.csv'
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             df_reference = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches)
             df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         df_actual = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches)
@@ -160,7 +158,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
         actual = self.resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', self.section_names)
 
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             with open(REFERENCE_FILE_PATH, 'wb') as f:
                 pickle.dump(actual, f)
 
@@ -174,7 +172,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
 
         actual = self.resultats.get_trans_var_at_emhs_as_array('Cc_T01', 'Z', self.section_names)
 
-        if WRITE_FILES:
+        if WRITE_REFERENCE_FILES:
             with open(REFERENCE_FILE_PATH, 'wb') as f:
                 pickle.dump(actual, f)
 

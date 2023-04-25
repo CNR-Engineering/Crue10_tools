@@ -3,8 +3,6 @@ import numpy as np
 from shapely.geometry import Point, LineString, LinearRing
 import unittest
 
-from crue10.emh.casier import Casier, ProfilCasier
-from crue10.emh.noeud import Noeud
 from crue10.emh.section import LoiFrottement, SectionProfil, SectionIdem, SectionInterpolee, SectionSansGeometrie
 from crue10.utils import ExceptionCrue10
 
@@ -13,6 +11,8 @@ class SectionTestCase(unittest.TestCase):
 
     def setUp(self):
         self.section = SectionProfil('St_1')
+        self.section.set_xz(np.array([(0.0, 1.0), (50.0, 1.0)]))
+        self.section.set_lits_numerotes([0.0, 10.0, 20.0, 30.0, 40.0, 50.0])
         self.point = Point(0, 0)
         self.linestring = LineString([(0, 0), (1, 1)])
         self.linearring = LinearRing([(0, 0), (1, 1), (1, 0)])
@@ -33,3 +33,8 @@ class SectionTestCase(unittest.TestCase):
 
     def test_nom_section(self):
         pass
+
+    def test_get_xt_merged_consecutive_lits_numerotes(self):
+        desired = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0]
+        actual = self.section.get_xt_merged_consecutive_lits_numerotes()
+        self.assertEqual(actual, desired)

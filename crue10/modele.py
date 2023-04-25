@@ -6,11 +6,12 @@ import fiona
 from lxml import etree
 import numpy as np
 import os.path
+import pandas as pd
 from shapely.geometry import LineString, mapping, Point
 
 from crue10.base import EnsembleFichiersXML
-from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
-from crue10.emh.section import SectionProfil, LitNumerote
+from crue10.emh.branche import Branche, BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
+from crue10.emh.section import SectionIdem, SectionProfil, LimiteGeom, LitNumerote
 from crue10.utils import check_isinstance, check_preffix, DATA_FOLDER_ABSPATH, duration_iso8601_to_seconds, \
     duration_seconds_to_iso8601, get_xml_root_from_file, logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
@@ -589,6 +590,54 @@ class Modele(EnsembleFichiersXML):
         self.branches_ic[nom_branche_nouvelle] = self.branches_ic[nom_branche]
         self.noeuds_ic[nom_noeud] = (1 - section_pos_ratio) * niveau_amont + section_pos_ratio * niveau_aval
         self.noeuds_ic[nom_noeud_aval] = niveau_aval
+
+    def extract_limites_as_dataframe(self, branches):
+        """
+        Extraction d'un DataFrame pandas avec les limites géométriques et de lits nommées pour chaque section
+        se situant le long des branches
+
+        :param branches: liste des branches
+        :type branches: list(Branche)
+        :rtype: pd.DataFrame
+        """
+        columns = ['branche', 'section', 'distance']
+        limites_geom = [LimiteGeom.AXE_HYDRAULIQUE, LimiteGeom.THALWEG]
+        limites_lit = ['Et_' + limite for limite in LitNumerote.LIMIT_NAMES]
+
+        df = pd.DataFrame(columns=columns + limites_geom + limites_lit)
+        distance = 0.0
+        for branche in branches:
+            for i, section in enumerate(branche.liste_sections_dans_branche):
+                row = {
+                    'branche': branche.id,
+                    'section': section.id,
+                    'distance': distance + section.xp,
+                }
+
+                # Limites géométriques
+                for nom_limite_geom in limites_geom:
+                    if isinstance(section, SectionProfil):
+                        xt = section.get_limite_geom(nom_limite_geom).xt
+                        row[nom_limite_geom] = section.interp_z(xt)
+                    elif isinstance(section, SectionIdem):
+                        section_reference = section.section_reference
+                        xt = section_reference.get_limite_geom(nom_limite_geom).xt
+                        row[nom_limite_geom] = section_reference.interp_z(xt) + section.dz_section_reference
+
+                # Limites de lits numérotées
+                if isinstance(section, SectionProfil):
+                    for nom_limite, xt in zip(limites_lit, section.get_xt_merged_consecutive_lits_numerotes()):
+                        row[nom_limite] = section.interp_z(xt)
+                elif isinstance(section, SectionIdem):
+                    section_reference = section.section_reference
+                    for nom_limite, xt in zip(limites_lit, section_reference.get_xt_merged_consecutive_lits_numerotes()):
+                        row[nom_limite] = section_reference.interp_z(xt) + section.dz_section_reference
+                df.loc[len(df)] = row
+
+                if i == len(branche.liste_sections_dans_branche) - 1:
+                    distance += section.xp
+
+        return df
 
     def reset_initial_conditions(self):
         """

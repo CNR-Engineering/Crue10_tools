@@ -1,10 +1,17 @@
 # coding: utf-8
+from filecmp import cmp
 import numpy as np
 import os.path
 import unittest
 
 from crue10.etude import Etude
+from crue10.tests import DATA_TESTS_FOLDER_ABSPATH, WRITE_REFERENCE_FILES
 from crue10.utils import ExceptionCrue10
+from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV, VERSION_GRAMMAIRE_COURANTE
+
+
+FOLDER_IN = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_COURANTE)
+FOLDER_OUT = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_COURANTE)
 
 
 class ModeleTestCase(unittest.TestCase):
@@ -13,6 +20,7 @@ class ModeleTestCase(unittest.TestCase):
         etude = Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.2', 'Etu3-6', 'Etu3-6.etu.xml'))
         self.modele = etude.get_modele('Mo_M3-6_c10')
         self.modele.read_all()
+        self.branches = self.modele.get_liste_branches_entre_deux_noeuds('Nd_N1', 'Nd_N5')
 
     def test_get(self):
         # SousModele
@@ -64,7 +72,16 @@ class ModeleTestCase(unittest.TestCase):
             self.modele.get_branche_barrage()
 
     def test_get_liste_branches_entre_deux_noeuds(self):
-        self.assertEqual([branche.id for branche in self.modele.get_liste_branches_entre_deux_noeuds('Nd_N1', 'Nd_N5')],
+        self.assertEqual([branche.id for branche in self.branches],
                          ['Br_B1', 'Br_B2', 'Br_B3', 'Br_B4'])
         with self.assertRaises(ExceptionCrue10):
             self.modele.get_liste_branches_entre_deux_noeuds('Nd_N5', 'Nd_N1')
+
+    def test_extract_limites_as_dataframe(self):
+        basename = 'Etu3-6_limites_Nd_N1-Nd_N5.csv'
+        if WRITE_REFERENCE_FILES:
+            df_reference = self.modele.extract_limites_as_dataframe(self.branches)
+            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
+        df_actual = self.modele.extract_limites_as_dataframe(self.branches)
+        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
