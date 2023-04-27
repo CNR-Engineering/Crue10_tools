@@ -883,7 +883,7 @@ class Scenario(EnsembleFichiersXML):
             self.ajouter_variable('OrdResBranches', 'OrdResBrancheOrifice', 'Ouv', 'Dde', False)
 
             self.ajouter_variable('OrdResModeles', 'OrdResModeleRegul', 'QZregul', 'DdeMultiple', True)
-            for varname in ['Mode', 'LoiRegul', 'Zcns']:
+            for varname in ['LoiRegul', 'Mode', 'Zcns']:
                 self.ajouter_variable('OrdResModeles', 'OrdResModeleRegul', varname, 'Dde', True)
 
         super().changer_version_grammaire(version_grammaire)
