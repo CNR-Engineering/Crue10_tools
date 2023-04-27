@@ -83,8 +83,8 @@
   <OrdResModeles>
     <OrdResModeleRegul>
       <DdeMultiple NomRef="QZregul">true</DdeMultiple>
-      <Dde NomRef="Mode">true</Dde>
       <Dde NomRef="LoiRegul">true</Dde>
+      <Dde NomRef="Mode">true</Dde>
       <Dde NomRef="Zcns">true</Dde>
     </OrdResModeleRegul>
   </OrdResModeles>

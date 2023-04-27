@@ -1124,6 +1124,14 @@ class SousModele(EnsembleFichiersXML):
                     return True
         return False
 
+    def supprimer_branche(self, nom_branche):
+        self.branches.pop(nom_branche)
+
+    def supprimer_noeud_si_orphelin(self, nom_noeud):
+        branches = self.get_connected_branches(nom_noeud)
+        if not branches:
+            self.noeuds.pop(nom_noeud)
+
     def supprimer_noeud_entre_deux_branches_fluviales(self, noeud):
         """
         Supprimer le noeud du sous-modèle en fusionnant les 2 branches consécutives qui l'entourent
