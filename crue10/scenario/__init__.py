@@ -1107,5 +1107,9 @@ class Scenario(EnsembleFichiersXML):
         else:
             logger.error("=> %i erreur(s) dans le scénario %s" % (nb_errors, self))
 
+    def summary(self):
+        return "%s: %i calculs(s) dont %i pseudo-permanent(s) et %i transitoires(s) actifs" \
+               % (self, len(self.calculs), len(self.liste_ord_calc_pseudoperm), len(self.liste_ord_calc_trans))
+
     def __repr__(self):
         return "Scénario %s" % self.id
