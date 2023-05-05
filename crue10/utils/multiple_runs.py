@@ -63,13 +63,11 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                     scenario = etude.get_scenario(scenario_name)
                     logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actifs()))
 
-                    # Shift 'prod' to the end (it was to call `normalize_for_g1_2_1` safely)
-                    if 'prod' in crue_exe_dict:
-                        value = crue_exe_dict.pop('prod')
-                        crue_exe_dict['prod'] = value
-
                     for run_idx, (exe_id, crue10_exe) in enumerate(crue_exe_dict.items()):
                         values = OrderedDict()
+
+                        if exe_id == 'qualif':
+                            scenario.changer_version_grammaire('1.3')
 
                         run_id = scenario_name[3:] + '_' + exe_id
                         run_id = run_id[:32]  # avoid error with too long identifier
