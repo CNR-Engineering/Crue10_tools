@@ -16,6 +16,10 @@
     - les commentaires fonctionnels sont hébergés dans le dictionnaire de données.
   -->
 
+  <!--||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||					
+			ATTENTION : Pour toute modification du fichier, exécuter dev_genererResIndus.bat à la racine de la solution dans le répertoire "src"
+		  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
+
   <!-- Type de controle qui sera effectué sur la variation de la loi, sachant 
     que l'ordre de rangement des points donne toujours l'ordre de progression -->
   <TypeControleLois>

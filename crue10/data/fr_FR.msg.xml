@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <!-- Ce fichier xml est à mettre dans le répertoire de l'exécutable Crue10 -->
-<DecodageMessages xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/messages-1.3.xsd">
+<DecodageMessages xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/messages-1.2.xsd">
 <!-- Ce fichier contient les messages permettant de décoder les traces de l'exécutable Crue10 -->
 <!-- Format des éléments : -->
 <!-- 	<Message ID="xxxxxx"> -->
@@ -464,8 +464,8 @@
 		<Message ID="ID_REGUL_TYPE_INCONNU">
 			<Texte>Erreur : le type de régulation {1} n'est pas reconnu.</Texte>
 		</Message>
-		<Message ID="ID_REGUL_QREGUL_INCONNU">
-			<Texte>Erreur : dans la régulation {1}, pour la définition du débit {2}, le Qregul {3} n'est pas reconnu.</Texte>
+		<Message ID="ID_REGUL_QZREGUL_INCONNU">
+			<Texte>Erreur : dans la régulation {1}, pour la définition du débit {2}, le QZregul {3} n'est pas reconnu.</Texte>
 		</Message>
 		<Message ID="ID_REGUL_MODE_INCONNU">
 			<Texte>Erreur : dans la régulation {1}, pour la définition de la condition {2}, le mode de crue {3} n'est pas reconnu.</Texte>
@@ -473,11 +473,11 @@
 		<Message ID="ID_REGUL_LOI_PARAM_ABSENT">
 			<Texte>Erreur : dans la loi de régulation{1}, le paramètre {2} est absent.</Texte>
 		</Message>
-		<Message ID="ID_REGUL_LOI_ACTIVE">
-			<Texte>Régulation {nomEMH} : loi {1} active {2}, TempsSimu {3}, débit de détermination du mode de crue {4}</Texte>
+		<Message ID="ID_ENCHAIN_EMH_VAR_INCONNU">
+			<Texte>Erreur : l'EMH {1} ou la variable {2} utilisées pour l'enchaînement n'est pas reconnu.</Texte>
 		</Message>
-		<Message ID="ID_REGUL_CHGT_LOI_ACTIVE">
-			<Texte>Régulation {nomEMH} : loi {1} active {2}, TempsSimu {3}, débit de détermination du mode de crue {4}</Texte>
+		<Message ID="ID_ENCHAIN_LOI_ABSENT">
+			<Texte>Aucune loi {1} associée à {nomEMH} pour {2} trouvée dans {3}.</Texte>
 		</Message>
 		<Message ID="ID_ERRBLK">
 			<Texte>{nomEMH} : Une erreur bloquante a été détectée au cours du service {1}. Regardez les messages précédents.</Texte>
@@ -816,6 +816,9 @@
 		<Message ID="ID_PARAMCLIMVAR">
 			<Texte>Paramètres de CLimM variable : sur EMH={nomEMH} type {2}, active {1}, loi {3}.</Texte>
 		</Message>
+		<Message ID="ID_PARAMCLIMREGUL">
+			<Texte>Paramètres de CLimM de régulation : sur EMH={nomEMH} type {2}, active {1}.</Texte>
+		</Message>
 		<Message ID="ID_PARAMMANOEUVREVAR">
 			<Texte>Paramètres de manœuvre variable : sur EMH={nomEMH} type {3}, active {1}, sensOuverture {2}, loi {4}.</Texte>
 		</Message>
@@ -845,6 +848,15 @@
 		</Message>
 		<Message ID="ID_VARSEC_EMHSECTION_ZNORMAL_ZHAUT">
 			<Texte>Section {nomEMH} : la section possède un Z normal Zn supérieur à Zhaut</Texte>
+		</Message>
+		<Message ID="ID_REGUL_LOI_ACTIVE">
+			<Texte>Régulation {nomEMH} : loi {1} active {2}, TempsSimu {3}, débit de détermination du mode de crue {4}</Texte>
+		</Message>
+		<Message ID="ID_REGUL_CHGT_LOI_ACTIVE">
+			<Texte>Régulation {nomEMH} : loi {1} active {2}, TempsSimu {3}, débit de détermination du mode de crue {4}</Texte>
+		</Message>
+		<Message ID="ID_ENCHAIN_CALC_TRANS_INCONNU">
+			<Texte>Le calcul transitoire demandé '{1}' ne correspond pas à '{2}' présent dans {nomEMH} pour l'enchaînement; le second est pris en compte</Texte>
 		</Message>
 	</Messages>
 </DecodageMessages>
