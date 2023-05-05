@@ -18,14 +18,16 @@ from crue10.utils.multiple_runs import get_run_steady_results, launch_runs
 from _params import CRUE10_EXE, CRUE10_EXE_REFERENCE, CSV_DELIMITER, write_csv
 
 
-DOSSIER = os.path.join('..', '..', 'Crue10_examples', 'Cas-tests')
+DOSSIER_IN = os.path.join('..', '..', 'Crue10_examples', 'Cas-tests')
 RUN_CALCULATIONS, WRITE_DIFF_DATAFRAME, PLOT_RUN_BARPLOT, PLOT_DIFF_BARPLOT, PLOT_DIFF_HEATMAP = \
     True, True, True, True, True
 CRUE10_EXE_HEATMAP = 'qualif'
 
 # Nommage des fichiers de sortie du script
-OUT_CSV_RUNS_FILE = '../tmp/stat_calculs_Cas-tests/bilan_runs.csv'
-OUT_CSV_DIFF_FILE = '../tmp/stat_calculs_Cas-tests/bilan_stat_diff.csv'
+DOSSIER_OUT = os.path.join('..', 'tmp', 'stat_calculs_Cas-tests')
+os.makedirs(DOSSIER_OUT)
+OUT_CSV_RUNS_FILE = os.path.join(DOSSIER_OUT, 'bilan_runs.csv')
+OUT_CSV_DIFF_FILE = os.path.join(DOSSIER_OUT, 'bilan_stat_diff.csv')
 
 
 logger.setLevel(logging.INFO)
@@ -33,7 +35,7 @@ t1 = time()
 
 
 if RUN_CALCULATIONS:
-    df_runs = launch_runs(DOSSIER, None, CRUE10_EXE, overwrite=True)
+    df_runs = launch_runs(DOSSIER_IN, None, CRUE10_EXE, overwrite=True)
     write_csv(df_runs, OUT_CSV_RUNS_FILE)
 
 
@@ -41,7 +43,7 @@ if WRITE_DIFF_DATAFRAME:
     df_runs = pd.read_csv(OUT_CSV_RUNS_FILE, delimiter=CSV_DELIMITER)
     cols = ['etude_dossier', 'etude_basename', 'scenario', 'run_idx', 'run_id', 'exe_id']
     df_runs_unique = df_runs[cols].drop_duplicates()
-    df_diff_stat = get_run_steady_results(DOSSIER, df_runs_unique, CRUE10_EXE_REFERENCE)
+    df_diff_stat = get_run_steady_results(DOSSIER_IN, df_runs_unique, CRUE10_EXE_REFERENCE)
     write_csv(df_diff_stat, OUT_CSV_DIFF_FILE)
 
 
