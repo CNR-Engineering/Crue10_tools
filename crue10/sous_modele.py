@@ -100,10 +100,16 @@ class SousModele(EnsembleFichiersXML):
         :type metadata: dict(str)
         :param version_grammaire: version de la grammaire
         :type version_grammaire: str
+        :param was_read_shp: True si le dossier avec les shp est lu ou si le sous-modèle est écrit
+        :type was_read_shp: bool
         """
         check_preffix(nom_sous_modele, 'Sm_')
         self.id = nom_sous_modele
         super().__init__(mode, files, metadata, version_grammaire=version_grammaire)
+        if mode == 'r':
+            self.was_read_shp = False
+        else:
+            self.was_read_shp = True
 
         self.noeuds = OrderedDict()
         self.sections = OrderedDict()
@@ -761,7 +767,10 @@ class SousModele(EnsembleFichiersXML):
                 raise ExceptionCrue10GeometryNotFound(casier)
 
     def read_all(self, ignore_shp=False):
-        """Lire tous les fichiers du sous-modèle"""
+        """
+        Lire tous les fichiers du sous-modèle
+        Les fichiers sont lus si le dossier existe et si
+        """
         if not self.was_read:
             # Read xml files
             self._read_dfrt()
@@ -772,7 +781,8 @@ class SousModele(EnsembleFichiersXML):
             self.set_active_sections()
 
             # Read shp files
-            if not ignore_shp:
+            if not ignore_shp and os.path.exists(os.path.dirname(self.files['noeuds'])):
+                self.was_read_shp = True
                 try:
                     if self.noeuds:
                         self._read_shp_noeuds()
@@ -917,9 +927,9 @@ class SousModele(EnsembleFichiersXML):
         """
         logger.debug("Écriture du %s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 
-        # Create folder if not existing
-        if folder_config is not None:
+        if folder_config is not None and self.was_read_shp:
             sm_folder = os.path.join(folder, folder_config, self.id.upper())
+            # Create folder if not existing
             if not os.path.exists(sm_folder):
                 os.makedirs(sm_folder)
             if self.noeuds:
