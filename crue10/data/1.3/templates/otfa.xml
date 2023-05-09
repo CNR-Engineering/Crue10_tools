@@ -19,15 +19,15 @@
       <Commentaire></Commentaire>
       <LancerComparaison>true</LancerComparaison>
       <Reference>
-        <Etude>{{ campagne.chemin_etude }}</Etude>
-        <Scenario>{{ campagne.nom_scenario }}</Scenario>
+        <Etude>{{ campagne.chemin_etude_ref }}</Etude>
+        <Scenario>{{ campagne.nom_scenario_ref }}</Scenario>
         <Coeur>old_c10m10</Coeur>
         <LancerCalcul>true</LancerCalcul>
         <Transitoire>false</Transitoire>
       </Reference>
       <Cible>
-        <Etude></Etude>
-        <Scenario></Scenario>
+        <Etude>{{ campagne.chemin_etude_cible }}</Etude>
+        <Scenario>{{ campagne.nom_scenario_cible }}</Scenario>
         <Coeur>c10m10</Coeur>
         <LancerCalcul>true</LancerCalcul>
         <Transitoire>false</Transitoire>

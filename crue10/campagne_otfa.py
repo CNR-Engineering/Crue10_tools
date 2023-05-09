@@ -9,7 +9,8 @@ from crue10.utils import check_isinstance
 from snippets._params import ETATREF_SCENARIO_PAR_AMENAGEMENT
 
 
-DOSSIER = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc')
+DOSSIER_REF = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc')
+DOSSIER_CIBLE = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc_g1.3')
 
 
 class Campagne:
@@ -17,9 +18,11 @@ class Campagne:
     Campagne OTFA
     """
 
-    def __init__(self, chemin_etude, nom_scenario):
-        self.chemin_etude = chemin_etude
-        self.nom_scenario = nom_scenario
+    def __init__(self, chemin_etude_ref, nom_scenario_ref, chemin_etude_cible, nom_scenario_cible):
+        self.chemin_etude_ref = chemin_etude_ref
+        self.nom_scenario_ref = nom_scenario_ref
+        self.chemin_etude_cible = chemin_etude_cible
+        self.nom_scenario_cible = nom_scenario_cible
 
 
 class FichierOtfa(EnsembleFichiersXML):
@@ -57,11 +60,13 @@ otfa = FichierOtfa('Conc', mode='w', files={'otfa': 'Conc.otfa.xml'},
                    metadata={'Commentaire': "OTFA pour les derniers modèles de concession"})
 
 for etude_dossier, nom_scenario in ETATREF_SCENARIO_PAR_AMENAGEMENT.items():
-    for etu_path in glob(os.path.join(DOSSIER, etude_dossier, '*.etu.xml')):  # FIXME: only one etu.xml should be found by folder!
+    for etu_path in glob(os.path.join(DOSSIER_REF, etude_dossier, '*.etu.xml')):  # FIXME: only one etu.xml should be found by folder!
         etude = Etude(etu_path)
         if nom_scenario is None:
             nom_scenario = etude.get_scenario_courant().id
-        campagne = Campagne(os.path.relpath(etu_path, start=os.path.join(DOSSIER, 'OTFA_C10C10')), nom_scenario)
+        campagne = Campagne(os.path.relpath(etu_path, start=os.path.join(DOSSIER_REF, 'OTFA_C10C10')), nom_scenario,
+                            os.path.relpath(os.path.join(DOSSIER_CIBLE, etude_dossier, os.path.basename(etu_path)),
+                                            start=os.path.join(DOSSIER_REF, 'OTFA_C10C10')), nom_scenario)
         otfa.ajouter_campagne(campagne)
 
-otfa.write_otfa(os.path.join(DOSSIER, 'OTFA_C10C10'))
+otfa.write_otfa(os.path.join(DOSSIER_REF, 'OTFA_C10C10'))
