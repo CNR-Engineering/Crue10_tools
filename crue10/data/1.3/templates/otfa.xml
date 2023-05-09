@@ -16,7 +16,7 @@
   <LignesCampagne>
     {%- for campagne in campagnes %}
     <LigneCampagne Numero="{{ loop.index0 + 1 }}">
-      <Commentaire></Commentaire>
+      <Commentaire>{{ campagne.commentaire }}</Commentaire>
       <LancerComparaison>true</LancerComparaison>
       <Reference>
         <Etude>{{ campagne.chemin_etude_ref }}</Etude>
