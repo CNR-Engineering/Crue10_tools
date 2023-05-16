@@ -66,7 +66,6 @@
 	</xs:complexType>
 	<xs:complexType name="TypeZabs">
 		<xs:attribute name="NomRef" type="TypeForAttributeNomRefSection" use="required" />
-		<xs:attribute name="Pond" type="xs:double" use="optional" default="1" />
 	</xs:complexType>
 	<xs:complexType name="TypeDefQregul">
 		<xs:sequence minOccurs="0" maxOccurs="unbounded">
@@ -112,7 +111,7 @@
 	<xs:complexType name="TypeCondZinf">
 		<xs:simpleContent>
 			<xs:extension base="xs:double">
-				<xs:attribute name="NomRef" type="TypeForAttributeNomRefSection" use="required" />
+				<xs:attribute name="NomRef" type="xs:string" use="required" />
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -239,7 +238,7 @@
 			<xs:selector xpath="crue:LoiReguls/crue:LoiRegul/crue:CondRegul/crue:CondQsup"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
-		<xs:keyref name="FK_CondZinf_TO_Qregul" refer="PK_Qregul">
+		<xs:keyref name="FK_CondZinf_TO_Zregul" refer="PK_Zregul">
 			<xs:selector xpath="crue:LoiReguls/crue:LoiRegul/crue:CondRegul/crue:CondZinf"/>
 			<xs:field xpath="@NomRef"/>
 		</xs:keyref>
