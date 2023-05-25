@@ -689,7 +689,7 @@ class SousModele(EnsembleFichiersXML):
                         else:
                             regime_manoeuvrant_elt = emh.find(PREFIX + 'RegimeManoeuvrant')
                         branche.set_loi_QpilZam(parse_loi(regime_manoeuvrant_elt))
-                        branche.comment_denoye = get_optional_commentaire(regime_manoeuvrant_elt)
+                        branche.comment_manoeuvrant = get_optional_commentaire(regime_manoeuvrant_elt)
 
                     elif emh.tag == PREFIX + 'DonCalcSansPrtBrancheSaintVenant':
                         branche.CoefBeta = float(emh.find(PREFIX + 'CoefBeta').text)

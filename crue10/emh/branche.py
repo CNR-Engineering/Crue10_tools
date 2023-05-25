@@ -556,9 +556,10 @@ class BrancheBarrageFilEau(Branche):
         return 'LoiQpilZam_%s' % self.id[3:]
 
     def set_loi_QpilZam(self, loi_QpilZam):
-        """Affecte la loi QZam
+        """
+        Affecte la loi QpilZam
 
-        :param loi_QpilZam: loi QZam
+        :param loi_QpilZam: loi QpilZam
         :type loi_QpilZam: 2D-array
         """
         check_isinstance(loi_QpilZam, np.ndarray)
