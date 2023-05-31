@@ -30,7 +30,7 @@
 	-->
 	<xs:complexType name="TypeManoeuvreRegul">
 		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef" use="required" />
-		<xs:attribute type="TypeForAttributeNomRefDistant" name="Param" use="required" />
+		<xs:attribute type="xs:string" name="Param" use="required" />
 	</xs:complexType>
 
 	<!--
