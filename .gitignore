@@ -7,10 +7,13 @@ __pycache__/
 .hypothesis/
 .idea/
 .pytest_cache/
-crue10/tests/data/out/*
-crue10_examples/
-docs/html
 venv/
+
+crue10/tests/data/out/*
+docs/html
 tmp/
 *.xml.lock
 *_all.csv
+
+ISSUE*/
+PR*/
