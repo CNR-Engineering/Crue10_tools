@@ -14,7 +14,7 @@ from crue10.sous_modele import SousModele
 
 
 # Build a submodel
-sous_modele = SousModele('Sm_fromscratch', access='w')
+sous_modele = SousModele('Sm_fromscratch', mode='w')
 sous_modele.ajouter_lois_frottement_par_defaut()
 
 # Add nodes
@@ -88,7 +88,7 @@ section2_am.set_lits_numerotes((0.0, 0.0, 1.0, 9.0, 10.0, 10.0))
 section2_am.build_orthogonal_trace(axe_geom)
 sous_modele.ajouter_section(section2_am)
 
-section2_av = SectionIdem('St_2_Av', section2_am, dz=0.0)
+section2_av = SectionIdem('St_2_Av', section2_am, dz_section_reference=0.0)
 sous_modele.ajouter_section(section2_av)
 
 section4_am = SectionSansGeometrie('St_4_Am')
@@ -101,9 +101,9 @@ sous_modele.ajouter_section(section5_am)
 section5_av = SectionSansGeometrie('St_5_Av')
 sous_modele.ajouter_section(section5_av)
 
-section6_am = SectionIdem('St_6_Am', section2_am, dz=0.0)
+section6_am = SectionIdem('St_6_Am', section2_am, dz_section_reference=0.0)
 sous_modele.ajouter_section(section6_am)
-section6_av = SectionIdem('St_6_Av', section2_am, dz=0.0)
+section6_av = SectionIdem('St_6_Av', section2_am, dz_section_reference=0.0)
 sous_modele.ajouter_section(section6_av)
 
 section12_am = SectionSansGeometrie('St_12_Am')
@@ -116,12 +116,12 @@ sous_modele.ajouter_section(section14_am)
 section14_av = SectionSansGeometrie('St_14_Av')
 sous_modele.ajouter_section(section14_av)
 
-section15_am = SectionIdem('St_15_Am', section2_am, dz=0.0)
+section15_am = SectionIdem('St_15_Am', section2_am, dz_section_reference=0.0)
 sous_modele.ajouter_section(section15_am)
-section15_av = SectionIdem('St_15_Av', section2_am, dz=0.0)
+section15_av = SectionIdem('St_15_Av', section2_am, dz_section_reference=0.0)
 sous_modele.ajouter_section(section15_av)
 
-section20_am = SectionIdem('St_20_Am', section2_am, dz=0.0)
+section20_am = SectionIdem('St_20_Am', section2_am, dz_section_reference=0.0)
 sous_modele.ajouter_section(section20_am)
 
 section20_middle = SectionProfil('St_20_middle')
@@ -132,7 +132,7 @@ section20_middle.set_lits_numerotes((0.0, 0.0, 1.0, 9.0, 10.0, 10.0))
 section20_middle.build_orthogonal_trace(axe_geom)
 sous_modele.ajouter_section(section20_middle)
 
-section20_av = SectionIdem('St_20_Av', section20_middle, dz=-1.0)
+section20_av = SectionIdem('St_20_Av', section20_middle, dz_section_reference=-1.0)
 sous_modele.ajouter_section(section20_av)
 
 
@@ -145,7 +145,7 @@ branche1.ajouter_section_dans_branche(section1_av, 11.0)  # => branche1.length =
 sous_modele.ajouter_branche(branche1)
 
 branche2 = BrancheSeuilTransversal('Br_2-SeuilTransversal', noeud2, noeud4)
-branche2.set_liste_elements_seuil_avec_coeff_par_defaut(np.array([(10.0, -2.0), (5.0, -1.75), (6.8, 0.2)]))
+branche2.set_liste_elements_seuil_avec_coef_par_defaut(np.array([(10.0, -2.0), (5.0, -1.75), (6.8, 0.2)]))
 branche2.ajouter_section_dans_branche(section2_am, 0.0)
 branche2.ajouter_section_dans_branche(section2_av, 10.1)
 sous_modele.ajouter_branche(branche2)

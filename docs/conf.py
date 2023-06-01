@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Crue10_tools'
-copyright = '2022, CNR-Engineering'
+copyright = '2023, CNR-Engineering'
 author = 'CNR-Engineering'
 
 
@@ -45,7 +45,7 @@ language = 'fr'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['crue10/tests']
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -53,7 +53,12 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinxdoc'
+html_theme = 'sphinx_rtd_theme'
+html_logo = '../media/LogoFC.128x128.png'
+html_favicon = '../media/LogoFC.32x32.ico'
+html_title = 'Crue10_tools'
+html_last_updated_fmt = '%d %B %Y'  # add generation date
+html_css_files = ["custom.css"]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

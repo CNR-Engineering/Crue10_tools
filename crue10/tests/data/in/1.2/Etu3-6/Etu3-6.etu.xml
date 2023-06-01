@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ETU xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/etu-1.2.xsd">
+  <Commentaire>Etu3-6 : étude basée sur Etu3-0</Commentaire>
+  <AuteurCreation>BALAYN_P</AuteurCreation>
+  <DateCreation>2012-05-30T12:00:00.000</DateCreation>
+  <AuteurDerniereModif>DURON</AuteurDerniereModif>
+  <DateDerniereModif>2022-08-24T10:52:29.538</DateDerniereModif>
+  <ScenarioCourant NomRef="Sc_M3-6_c10"/>
+  <Repertoires>
+    <Repertoire Nom="CONFIG">
+      <path>CONFIG</path>
+    </Repertoire>
+    <Repertoire Nom="FICHETUDES">
+      <path>.</path>
+    </Repertoire>
+    <Repertoire Nom="RAPPORTS">
+      <path>RAPPORTS</path>
+    </Repertoire>
+    <Repertoire Nom="RUNS">
+      <path>RUNS</path>
+    </Repertoire>
+  </Repertoires>
+  <FichEtudes>
+    <FichEtude Nom="M3-6_c10.dclm.xml" Chemin=".\" Type="DCLM"/>
+    <FichEtude Nom="M3-6_c10.dcsp.xml" Chemin=".\" Type="DCSP"/>
+    <FichEtude Nom="M3-6_c10.dfrt.xml" Chemin=".\" Type="DFRT"/>
+    <FichEtude Nom="M3-6_c10.dlhy.xml" Chemin=".\" Type="DLHY"/>
+    <FichEtude Nom="M3-6_c10.dptg.xml" Chemin=".\" Type="DPTG"/>
+    <FichEtude Nom="M3-6_c10.dpti.xml" Chemin=".\" Type="DPTI"/>
+    <FichEtude Nom="M3-6_c10.drso.xml" Chemin=".\" Type="DRSO"/>
+    <FichEtude Nom="M3-6_c10.ocal.xml" Chemin=".\" Type="OCAL"/>
+    <FichEtude Nom="M3-6_c10.optg.xml" Chemin=".\" Type="OPTG"/>
+    <FichEtude Nom="M3-6_c10.opti.xml" Chemin=".\" Type="OPTI"/>
+    <FichEtude Nom="M3-6_c10.optr.xml" Chemin=".\" Type="OPTR"/>
+    <FichEtude Nom="M3-6_c10.ores.xml" Chemin=".\" Type="ORES"/>
+    <FichEtude Nom="M3-6_c10.pcal.xml" Chemin=".\" Type="PCAL"/>
+    <FichEtude Nom="M3-6_c10.pnum.xml" Chemin=".\" Type="PNUM"/>
+  </FichEtudes>
+  <SousModeles>
+    <SousModele Nom="Sm_M3-6_c10">
+      <Type>Crue10</Type>
+      <IsActive>true</IsActive>
+      <Commentaire>Sc_M3-6_c9 converti en CRUE10
+
+Régimes permanents seuls. CLimM : Qapp, Zimp, Ouv --&gt; incompatible avec c10m9</Commentaire>
+      <AuteurCreation>gressier</AuteurCreation>
+      <DateCreation>2017-06-23T09:06:14.245</DateCreation>
+      <AuteurDerniereModif>gressier</AuteurDerniereModif>
+      <DateDerniereModif>2017-06-23T09:06:14.245</DateDerniereModif>
+      <SousModele-FichEtudes>
+        <DRSO NomRef="M3-6_c10.drso.xml"/>
+        <DCSP NomRef="M3-6_c10.dcsp.xml"/>
+        <DPTG NomRef="M3-6_c10.dptg.xml"/>
+        <DFRT NomRef="M3-6_c10.dfrt.xml"/>
+      </SousModele-FichEtudes>
+    </SousModele>
+  </SousModeles>
+  <Modeles>
+    <Modele Nom="Mo_M3-6_c10">
+      <Type>Crue10</Type>
+      <IsActive>true</IsActive>
+      <Commentaire>Sc_M3-6_c9 converti en CRUE10
+
+Régimes permanents seuls. CLimM : Qapp, Zimp, Ouv --&gt; incompatible avec c10m9</Commentaire>
+      <AuteurCreation>gressier</AuteurCreation>
+      <DateCreation>2017-06-23T09:06:14.245</DateCreation>
+      <AuteurDerniereModif>gressier</AuteurDerniereModif>
+      <DateDerniereModif>2017-06-23T09:06:14.245</DateDerniereModif>
+      <Modele-FichEtudes>
+        <OPTR NomRef="M3-6_c10.optr.xml"/>
+        <OPTG NomRef="M3-6_c10.optg.xml"/>
+        <OPTI NomRef="M3-6_c10.opti.xml"/>
+        <PNUM NomRef="M3-6_c10.pnum.xml"/>
+        <DPTI NomRef="M3-6_c10.dpti.xml"/>
+      </Modele-FichEtudes>
+      <Modele-SousModeles>
+        <Modele-SousModele NomRef="Sm_M3-6_c10"/>
+      </Modele-SousModeles>
+    </Modele>
+  </Modeles>
+  <Scenarios>
+    <Scenario Nom="Sc_M3-6_c10">
+      <Type>Crue10</Type>
+      <IsActive>true</IsActive>
+      <Commentaire>Régimes permanents seuls. CLimM : Qapp, Zimp, Ouv --&gt; incompatible avec c10m9</Commentaire>
+      <AuteurCreation>gressier</AuteurCreation>
+      <DateCreation>2017-06-23T09:06:14.245</DateCreation>
+      <AuteurDerniereModif>GRESSIER</AuteurDerniereModif>
+      <DateDerniereModif>2020-11-27T16:09:53.952</DateDerniereModif>
+      <Scenario-FichEtudes>
+        <OCAL NomRef="M3-6_c10.ocal.xml"/>
+        <ORES NomRef="M3-6_c10.ores.xml"/>
+        <PCAL NomRef="M3-6_c10.pcal.xml"/>
+        <DCLM NomRef="M3-6_c10.dclm.xml"/>
+        <DLHY NomRef="M3-6_c10.dlhy.xml"/>
+      </Scenario-FichEtudes>
+      <Scenario-Modeles>
+        <Scenario-Modele NomRef="Mo_M3-6_c10"/>
+      </Scenario-Modeles>
+    </Scenario>
+  </Scenarios>
+</ETU>

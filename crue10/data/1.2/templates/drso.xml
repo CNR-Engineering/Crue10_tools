@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.2.xsd">
+  <Commentaire>{{ comment|html_escape }}</Commentaire>
+  {%- if noeud_liste %}
+  <Noeuds>
+    {%- for noeud in noeud_liste %}
+    <NoeudNiveauContinu Nom="{{ noeud.id }}">
+      <Commentaire>{{ noeud.comment|html_escape }}</Commentaire>
+    </NoeudNiveauContinu>
+    {%- endfor %}
+  </Noeuds>
+  {%- else %}
+  <Noeuds/>
+  {%- endif %}
+  {%- if casier_liste %}
+  <Casiers>
+    {%- for casier in casier_liste %}
+    <CasierProfil Nom="{{ casier.id }}">
+      <Commentaire>{{ casier.comment|html_escape }}</Commentaire>
+      <IsActive>{% if casier.is_active %}true{% else %}false{% endif %}</IsActive>
+      <Noeud NomRef="{{ casier.noeud_reference.id }}"/>
+      {%- for profil_casier in casier.profils_casier %}
+      <ProfilCasier NomRef="{{ profil_casier.id }}"/>
+      {%- endfor %}
+      {%- if casier.bati %}
+      <BatiCasier NomRef="{{ casier.bati.id }}"/>
+      {%- endif %}
+    </CasierProfil>
+    {%- endfor %}
+  </Casiers>
+  {%- else %}
+  <Casiers/>
+  {%- endif %}
+  {%- if section_liste %}
+  <Sections>
+    {%- for section in section_liste %}
+    {%- if isinstance(section, SectionProfil) %}
+    <SectionProfil Nom="{{ section.id }}">
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
+      <ProfilSection NomRef="{{ section.nom_profilsection }}"/>
+    </SectionProfil>
+    {%- endif %}
+    {%- if isinstance(section, SectionIdem) %}
+    <SectionIdem Nom="{{ section.id }}">
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
+      <Section NomRef="{{ section.section_reference.id }}"/>
+    </SectionIdem>
+    {%- endif %}
+    {%- if isinstance(section, SectionInterpolee) %}
+    <SectionInterpolee Nom="{{ section.id }}">
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
+    </SectionInterpolee>
+    {%- endif %}
+    {%- if isinstance(section, SectionSansGeometrie) %}
+    <SectionSansGeometrie Nom="{{ section.id }}">
+      <Commentaire>{{ section.comment|html_escape }}</Commentaire>
+    </SectionSansGeometrie>
+    {%- endif %}
+    {%- endfor %}
+  </Sections>
+  {%- else %}
+  <Sections/>
+  {%- endif %}
+  {%- if branche_liste %}
+  <Branches>
+    {%- for branche in branche_liste %}
+    {%- if branche.type == 20 %}
+    <BrancheSaintVenant Nom="{{ branche.id }}">
+      <Commentaire>{{ branche.comment|html_escape }}</Commentaire>
+      <IsActive>{% if branche.is_active %}true{% else %}false{% endif %}</IsActive>
+      <NdAm NomRef="{{ branche.noeud_amont.id }}"/>
+      <NdAv NomRef="{{ branche.noeud_aval.id }}"/>
+      <BrancheSaintVenant-Sections>
+        {%- for section in branche.liste_sections_dans_branche %}
+        <BrancheSaintVenant-Section NomRef="{{ section.id }}">
+          <Pos>{% if loop.first %}Amont{% elif loop.last %}Aval{% else %}Interne{% endif %}</Pos>
+          <Xp>{{ section.xp|float2str }}</Xp>
+          <CoefPond>{{ section.CoefPond }}</CoefPond>
+          <CoefConv>{{ section.CoefConv }}</CoefConv>
+          <CoefDiv>{{ section.CoefDiv }}</CoefDiv>
+        </BrancheSaintVenant-Section>
+        {%- endfor %}
+      </BrancheSaintVenant-Sections>
+    </BrancheSaintVenant>
+    {%- else %}
+    <{{branche.type_name}} Nom="{{ branche.id }}">
+      <Commentaire>{{ branche.comment|html_escape }}</Commentaire>
+      <IsActive>{% if branche.is_active %}true{% else %}false{% endif %}</IsActive>
+      <NdAm NomRef="{{ branche.noeud_amont.id }}"/>
+      <NdAv NomRef="{{ branche.noeud_aval.id }}"/>
+      {%- if branche.type in (14, 15) %}
+      <SectionPilote NomRef="{{ branche.section_pilote.id }}"/>
+      {%- endif %}
+      <Branche-Sections>
+        <Branche-Section NomRef="{{ branche.get_section_amont().id }}">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="{{ branche.get_section_aval().id }}">
+          <Pos>Aval</Pos>
+          <Xp>{{ branche.length }}</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </{{branche.type_name}}>
+    {%- endif %}
+    {%- endfor %}
+  </Branches>
+  {%- else %}
+  <Branches/>
+  {%- endif %}
+</DRSO>

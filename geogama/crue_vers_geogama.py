@@ -261,7 +261,7 @@ try:
                         id_limite = j + 1
                         list_limite_point.append([oidPoint, id_limite])
                 else:
-                    logger.warn("Profil sans geom - " + profil.id)
+                    logger.warning("Profil sans geom - " + profil.id)
                     
         del cursor
         

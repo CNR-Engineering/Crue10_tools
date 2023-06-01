@@ -2,19 +2,16 @@
 from builtins import super  # Python2 fix
 from collections import OrderedDict
 from copy import deepcopy
-from io import open  # Python2 fix
 import os.path
 from shutil import copyfile, rmtree
 import time
-import xml.etree.ElementTree as ET
 
-from crue10.base import FichierXML
+from crue10.base import EnsembleFichiersXML
 from crue10.modele import Modele
 from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
-from crue10.utils import check_isinstance, ExceptionCrue10, JINJA_ENV, logger, PREFIX, XSI_SCHEMA_LOCATION
-from crue10.utils.settings import XML_ENCODING
+from crue10.utils import check_isinstance, ExceptionCrue10, logger, PREFIX
 
 
 def read_metadata(elt, keys):
@@ -25,48 +22,51 @@ def read_metadata(elt, keys):
     return metadata
 
 
-class Etude(FichierXML):
-    """Étude Crue10
+class Etude(EnsembleFichiersXML):
+    """
+    Étude Crue10
 
-    :param access: 'r' to read and 'w' to write
-    :type access: str
-    :param folders: dict with folders (keys correspond to `FOLDERS` list)
-    :type folders: {str}
-    :param filename_list: list of xml file names
-    :type filename_list: [str]
-    :param nom_scenario_courant: current scenario identifier
-    :type nom_scenario_courant: str
-    :param scenarios: dict with scenario name and Scenario object
-    :type scenarios: {str: Scenario}
-    :param modeles: Dict with modele name and Modele object
-    :type modeles: {str: Modele}
-    :param liste_sous_modeles: Dictionnaire des sous-modèles (id: objet)
-    :type liste_sous_modeles: {str: SousModele}
+    :ivar mode: accès en lecture ('r') ou écriture ('w')
+    :vartype mode: str
+    :ivar folders: dictionnaire avec les dossiers (les valeurs par défaut sont dans `FOLDERS`)
+    :vartype folders: OrderedDict(str)
+    :ivar filename_list: liste des fichiers XML de l'étude
+    :vartype filename_list: list(str)
+    :ivar nom_scenario_courant: nom du scnéario courant (None si aucun)
+    :vartype nom_scenario_courant: str
+    :ivar scenarios: dictionnaire avec le nom du scénario et l'instance Scenario associée
+    :vartype scenarios: OrderedDict(Scenario)
+    :ivar modeles: dictionnaire avec le nom du modèle et l'instance Modele associée
+    :vartype modeles: OrderedDict(Modele)
+    :ivar sous_modeles: dictionnaire avec le nom du sous-modèle et l'instance SousModele associée
+    :vartype sous_modeles: OrderedDict(SousModele)
     """
 
     FOLDERS = OrderedDict([('CONFIG', 'Config'), ('FICHETUDES', '.'),
                            ('RAPPORTS', 'Rapports'), ('RUNS', 'Runs')])
     FILES_XML = ['etu']
-    SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + Modele.FILES_XML_OPTIONAL + SousModele.FILES_XML
+    SUB_FILES_XML = Scenario.FILES_XML + Modele.FILES_XML + SousModele.FILES_XML
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
-    def __init__(self, etu_path, folders=None, access='r', metadata=None, comment=''):
+    def __init__(self, etu_path, folders=None, mode='r', metadata=None, version_grammaire=None, comment=''):
         """
-        :param etu_path: Fichier étude Crue10 (*.etu.xml)
+        :param etu_path: Fichier étude Crue10 (etu.xml)
         :type etu_path: str
         :param folders: dictionnaire avec les sous-dossiers
         :type folders: OrderedDict(str)
-        :param access: accès en lecture ('r') ou écriture ('w')
-        :type access: str
-        :param files: dictionnaire des chemins vers les fichiers xml
-        :type files: dict(str)
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
         :param metadata: dictionnaire avec les méta-données
         :type metadata: dict(str)
+        :param version_grammaire: version de la grammaire
+        :type version_grammaire: str
+        :param comment: commentaire optionnel
+        :type comment: str
         """
-        files = {'etu': etu_path} if access == 'r' else None
-        super().__init__(access, files, metadata)
+        files = {'etu': etu_path} if mode == 'r' else None
+        super().__init__(mode, files, metadata, version_grammaire=version_grammaire)
         self.files['etu'] = etu_path  # FIXME: hack to overwrite the special key 'etu'
-        self.access = access
+        self.mode = mode
         if folders is None:
             self.folders = Etude.FOLDERS
         else:
@@ -83,9 +83,9 @@ class Etude(FichierXML):
         self.modeles = OrderedDict()
         self.sous_modeles = OrderedDict()
 
-        if access == 'r':
+        if mode == 'r':
             self._read_etu()
-        elif access == 'w':
+        elif mode == 'w':
             pass
         else:
             raise NotImplementedError
@@ -100,6 +100,10 @@ class Etude(FichierXML):
 
     @property
     def folder(self):
+        """
+        :return: Dossier racine de l'étude
+        :rtype: str
+        """
         return os.path.abspath(os.path.dirname(self.etu_path))
 
     def get_chemin_vers_fichier(self, filename):
@@ -116,16 +120,10 @@ class Etude(FichierXML):
         return run_names
 
     def _read_etu(self):
-        """Ecrire le fichier etu.xml"""
-        try:
-            root = ET.parse(self.etu_path).getroot()
-        except ET.ParseError as e:
-            raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (self.etu_path, e))
-        # Check version grammaire
-        version_grammaire = root.get(XSI_SCHEMA_LOCATION)[-7:-4]
-        if version_grammaire != '1.2':
-            raise ExceptionCrue10("La grammaire %s n'est pas supportée avec cette version de Crue10_tools !"
-                                  % version_grammaire)
+        """Lire le fichier etu.xml"""
+        if os.path.isdir(self.etu_path):
+            raise ExceptionCrue10("Le chemin vers l'étude est un dossier, il faut spécifier le fichier .etu.xml")
+        root = self._get_xml_root_set_version_grammaire_and_comment('etu')
         folder = os.path.dirname(self.etu_path)
 
         # Etude metadata
@@ -172,7 +170,8 @@ class Etude(FichierXML):
                 files[shp_name] = os.path.join(folder, self.folders['CONFIG'],
                                                nom_sous_modele.upper(), shp_name + '.shp')
 
-            sous_modele = SousModele(nom_sous_modele, files=files, metadata=metadata)
+            sous_modele = SousModele(nom_sous_modele, files=files, metadata=metadata,
+                                     version_grammaire=self.version_grammaire)
             self.ajouter_sous_modele(sous_modele)
         if not self.sous_modeles:
             raise ExceptionCrue10("Il faut au moins un sous-modèle !")
@@ -187,17 +186,20 @@ class Etude(FichierXML):
                 metadata = read_metadata(elt_modele, Modele.METADATA_FIELDS)
 
                 elt_fichiers = elt_modele.find(PREFIX + 'Modele-FichEtudes')
-                for ext in (Modele.FILES_XML + Modele.FILES_XML_OPTIONAL):
+                files_xml = deepcopy(Modele.FILES_XML)
+                if self.version_grammaire == '1.2':  # HARDCODED to support g1.2
+                    files_xml.remove('dreg')
+                for ext in files_xml:
                     try:
                         filename = elt_fichiers.find(PREFIX + ext.upper()).attrib['NomRef']
                     except AttributeError:
-                        if ext not in Modele.FILES_XML_OPTIONAL:
-                            raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
+                        raise ExceptionCrue10("Le fichier %s n'est pas renseigné dans le modèle !" % ext)
                     if filename is None:
                         raise ExceptionCrue10("Le modèle n'a pas de fichier %s !" % ext)
                     files[ext] = self.get_chemin_vers_fichier(filename)
 
-                modele = Modele(model_name, files=files, metadata=metadata)
+                modele = Modele(model_name, files=files, metadata=metadata,
+                                version_grammaire=self.version_grammaire)
 
                 elt_sous_modeles = elt_modele.find(PREFIX + 'Modele-SousModeles')
                 for elt_sm in elt_sous_modeles:
@@ -229,12 +231,13 @@ class Etude(FichierXML):
                 elt_models = elt_scenario.find(PREFIX + 'Scenario-Modeles')
                 modele = None
                 for i, elt_modele in enumerate(elt_models):
-                    modele = self.modeles[elt_modele.get('NomRef')]
+                    modele = self.get_modele(elt_modele.get('NomRef'))
                     if i != 0:
                         raise NotImplementedError  # A single Modele for a Scenario!
 
                 metadata = read_metadata(elt_scenario, Scenario.METADATA_FIELDS)
-                scenario = Scenario(nom_scenario, modele, files=files, metadata=metadata)
+                scenario = Scenario(nom_scenario, modele, files=files, metadata=metadata,
+                                    version_grammaire=self.version_grammaire)
 
                 runs = elt_scenario.find(PREFIX + 'Runs')
                 if runs is not None:
@@ -242,23 +245,28 @@ class Etude(FichierXML):
                         run_id = run_elt.get('Nom')
                         metadata = read_metadata(run_elt, Run.METADATA_FIELDS)
                         run_mo_path = os.path.join(self.folder, self.folders['RUNS'], scenario.id,
-                                                     run_id, scenario.modele.id)
-                        scenario.add_run(Run(os.path.basename(self.etu_path), run_mo_path, metadata=metadata))
+                                                   run_id, scenario.modele.id)
+                        scenario.ajouter_run(Run(os.path.basename(self.etu_path), run_mo_path, metadata=metadata))
 
                 elt_current_run = elt_scenario.find(PREFIX + 'RunCourant')
                 if elt_current_run is not None:
-                    scenario.set_current_run_id(elt_current_run.get('NomRef'))
+                    scenario.set_run_courant(elt_current_run.get('NomRef'))
 
                 self.ajouter_scenario(scenario)
 
         if not self.scenarios:
             raise ExceptionCrue10("Il faut au moins un scénario !")
 
-    def read_all(self):
+    def read_all(self, ignore_shp=False):
         """Lire tous les fichiers de l'étude"""
         # self._read_etu() is done in `__init__` method
-        for _, scenario in self.scenarios.items():
-            scenario.read_all()
+        for sous_modele in self.get_liste_sous_modeles():
+            sous_modele.read_all(ignore_shp=ignore_shp)
+        for modele in self.get_liste_modeles():
+            modele.read_all(ignore_shp=ignore_shp)
+        for scenario in self.get_liste_scenarios():
+            scenario.read_all(ignore_shp=ignore_shp)
+        self.was_read = True
 
     def move(self, folder):
         self.files['etu'] = os.path.join(folder, os.path.basename(self.etu_path))
@@ -270,18 +278,13 @@ class Etude(FichierXML):
         Si folder n'est pas renseigné alors le fichier lu est remplacé
         """
         if folder is None:
-            etu_path = os.path.join(self.folder, os.path.basename(self.etu_path))
+            etu_folder = self.folder
         else:
-            etu_path = os.path.join(folder, os.path.basename(self.etu_path))
+            etu_folder = folder
         xml = 'etu'
 
-        has_regul = False
-        for filename in self.filename_list:
-            if filename.endswith('.dreg.xml'):
-                has_regul = True
-                break
-
-        template_render = JINJA_ENV.get_template(xml + '.xml').render(
+        self._write_xml_file(
+            xml, etu_folder,
             folders=[(name, folder_str) for name, folder_str in self.folders.items()],
             metadata=self.metadata,
             current_scenario_id=self.nom_scenario_courant,
@@ -289,15 +292,12 @@ class Etude(FichierXML):
             modeles=[mo for _, mo in self.modeles.items()],
             sous_modeles=[sm for _, sm in self.sous_modeles.items()],
             scenarios=[sc for _, sc in self.scenarios.items()],
-            has_regul=has_regul,
         )
-        with open(etu_path, 'w', encoding=XML_ENCODING) as out:
-            out.write(template_render)
 
     def write_all(self, folder=None, ignore_shp=False):
         """Écrire tous les fichiers de l'étude"""
         folder = self.folder if folder is None else folder
-        logger.debug("Écriture de l'%s dans %s" % (self, folder))
+        logger.debug("Écriture de l'%s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 
         # Create folder if not existing
         if not os.path.exists(folder):
@@ -312,13 +312,43 @@ class Etude(FichierXML):
         for _, scenario in self.scenarios.items():
             scenario.write_all(folder, folder_config)
 
+    def changer_version_grammaire(self, version_grammaire, shallow=False):
+        """
+        Changer la version de grammaire
+
+        :param version_grammaire: version cible de la grammaire
+        :type version_grammaire: str
+        :param shallow: conversion profonde si False, peu profonde sinon
+        :type shallow: bool
+        """
+        if not shallow:
+            for sous_modele in self.get_liste_sous_modeles():
+                sous_modele.changer_version_grammaire(version_grammaire)  # `shallow` argument does not exist
+            for modele in self.get_liste_modeles():
+                modele.changer_version_grammaire(version_grammaire, shallow=True)
+            for scenario in self.get_liste_scenarios():
+                scenario.changer_version_grammaire(version_grammaire, shallow=True)
+        if self.version_grammaire == '1.2' and version_grammaire == '1.3':  # HARDCODED to support g1.2
+            # Add dreg files
+            for modele in self.get_liste_modeles():
+                dreg_filename = modele.files['dreg']
+                if dreg_filename not in self.filename_list:
+                    self.filename_list.append(dreg_filename)
+        elif self.version_grammaire == '1.3' and version_grammaire == '1.2':  # HARDCODED to support g1.2
+            # Remove dreg files
+            for filename in self.filename_list:
+                if filename.endswith('.dreg.xml'):
+                    self.filename_list.remove(filename)
+        super().changer_version_grammaire(version_grammaire)
+
     def add_files(self, file_list):
         for file in file_list:
             if file not in self.filename_list:
                 self.filename_list.append(file)
 
     def ajouter_modele(self, modele):
-        """Ajouter un modèle à l'étude
+        """
+        Ajouter un modèle à l'étude
 
         :param modele: modèle à ajouter
         :type modele: Modele
@@ -332,7 +362,8 @@ class Etude(FichierXML):
         self.modeles[modele.id] = modele
 
     def ajouter_sous_modele(self, sous_modele):
-        """Ajouter un sous-modèle à l'étude
+        """
+        Ajouter un sous-modèle à l'étude
 
         :param sous_modele: sous-modèle à ajouter
         :type sous_modele: SousModele
@@ -357,20 +388,26 @@ class Etude(FichierXML):
         self.ajouter_modele(scenario.modele)
         self.scenarios[scenario.id] = scenario
 
-    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, comment=''):
+    def create_empty_scenario(self, nom_scenario, nom_modele, nom_sous_modele=None, metadata=None):
         """
-        Créer scénario vierge (avec son modèle et sous-modèle associé)
+        Créer un scénario vierge (avec son modèle et sous-modèle associé) et l'ajouter à l'étude
 
         :param nom_scenario: nom du scénario
+        :type nom_scenario: str
         :param nom_modele: nom du modèle
+        :type nom_modele: str
         :param nom_sous_modele: nom du sous-modèle (optionnel)
-        :param comment: commentaire (optionnel)
+        :type nom_sous_modele: str
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
         """
-        modele = Modele(nom_modele, access=self.access, metadata={'Commentaire': comment})
+        version_grammaire = self.version_grammaire
+        modele = Modele(nom_modele, mode=self.mode, metadata=metadata,
+                        version_grammaire=version_grammaire)
         if nom_sous_modele is not None:
-            sous_modele = SousModele(nom_sous_modele, access=self.access, metadata={'Commentaire': comment})
-            modele.ajouter_sous_modele(sous_modele)
-        scenario = Scenario(nom_scenario, modele, access=self.access, metadata={'Commentaire': comment})
+            modele.create_empty_sous_modele(nom_sous_modele, self.mode, metadata=metadata)
+        scenario = Scenario(nom_scenario, modele, mode=self.mode, metadata=metadata,
+                            version_grammaire=version_grammaire)
         self.ajouter_scenario(scenario)
         if not self.nom_scenario_courant:
             self.nom_scenario_courant = scenario.id
@@ -434,7 +471,7 @@ class Etude(FichierXML):
         Retourne la liste des scénarios
 
         :return: liste des scénarios
-        :rtype: [Scenario]
+        :rtype: list(Scenario)
         """
         return [scenario for _, scenario in self.scenarios.items()]
 
@@ -443,7 +480,7 @@ class Etude(FichierXML):
         Retourne la liste des modèles
 
         :return: liste des modèles
-        :rtype: [Modele]
+        :rtype: list(Modele)
         """
         return [modele for _, modele in self.modeles.items()]
 
@@ -452,11 +489,11 @@ class Etude(FichierXML):
         Retourne la liste des sous-modèles
 
         :return: liste des sous-modèles
-        :rtype: [SousModele]
+        :rtype: list(SousModele)
         """
         return [sous_modele for _, sous_modele in self.sous_modeles.items()]
 
-    def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible):
+    def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible, overwrite=False):
         """
         Copie d'un scénario existant et ajout à l'étude courante
         Attention le modèle et les sous-modèles restent partagés avec le scénario source
@@ -466,6 +503,8 @@ class Etude(FichierXML):
         :type nom_scenario_source: str
         :param nom_scenario_cible: nom du scénario cible
         :type nom_scenario_cible: str
+        :param overwrite: écrase le scénario s'il est déjà présent dans l'étude
+        :type overwrite: bool
         :return: nouveau scénario
         :rtype: Scenario
         """
@@ -477,10 +516,13 @@ class Etude(FichierXML):
             out_path = os.path.join(self.folder, nom_scenario_cible[3:] + '.' + xml_type + '.xml')
             copyfile(in_path, out_path)
             scenario_files[xml_type] = out_path  # overwrite Scenario file path
-        scenario = Scenario(nom_scenario_cible, scenario_ori.modele, access='w',
+        scenario = Scenario(nom_scenario_cible, scenario_ori.modele, mode='w',
                             files=scenario_files, metadata=scenario_ori.metadata)
         scenario.read_all()
+        if overwrite and scenario.id in self.scenarios:
+            del self.scenarios[scenario.id]
         self.ajouter_scenario(scenario)
+        
         return scenario
 
     def ajouter_scenario_par_copie_profonde(self, nom_scenario_source, suffixe, overwrite=False):
@@ -577,15 +619,15 @@ class Etude(FichierXML):
             time.sleep(sleep)
 
     def check_xml_files(self, folder=None):
-        """Validation des fichiers XML à partir des schémas XSD"""
+        """Validation des fichiers XML à partir des schémas XSD de la grammaire de l'étude"""
         errors = {}
-        for file_path in self.filename_list:
-            errors[file_path] = self._check_xml_file(file_path)
+        for file_path in [self.etu_path] + self.filename_list:
+            errors[os.path.basename(file_path)] = self._check_xml_file(file_path)
         return errors
 
     def summary(self):
-        return "%s: %i scénario(s) %i modèle(s), %i sous-modèle(s)" % (self, len(self.scenarios),
-                                                                       len(self.modeles), len(self.sous_modeles))
+        return "%s: %i scénario(s), %i modèle(s), %i sous-modèle(s)" % (self, len(self.scenarios),
+                                                                        len(self.modeles), len(self.sous_modeles))
 
     def __repr__(self):
         return "Étude %s" % os.path.basename(self.etu_path[:-8])

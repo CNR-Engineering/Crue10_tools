@@ -17,15 +17,17 @@ from _params import CRUE10_EXE, CRUE10_EXE_REFERENCE, CSV_DELIMITER, \
     ETATREF_SCENARIO_PAR_AMENAGEMENT, write_csv
 
 
-DOSSIER = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc')
+DOSSIER_IN = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc')
 RUN_CALCULATIONS, WRITE_DIFF_DATAFRAME, PLOT_RUN_BARPLOT, PLOT_DIFF_BARPLOT, PLOT_BOXPLOT = \
     True, True, True, True, True
 REFERENCE = list(CRUE10_EXE.keys())[0]
 
 # Nommage des fichiers de sortie du script
-OUT_CSV_RUNS_FILE = '../tmp/stat_calculs_Conc/bilan_runs.csv'
-OUT_CSV_DIFF_FILE = '../tmp/stat_calculs_Conc/bilan_stat_diff.csv'
-OUT_CSV_DIFF_BY_CALC = '../tmp/stat_calculs_Conc/%s_diff_qualif-prod.csv'  # %s = etude_dossier
+DOSSIER_OUT = os.path.join('..', 'tmp', 'stat_calculs_Conc')
+os.makedirs(DOSSIER_OUT)
+OUT_CSV_RUNS_FILE = os.path.join(DOSSIER_OUT, 'bilan_runs.csv')
+OUT_CSV_DIFF_FILE = os.path.join(DOSSIER_OUT, 'bilan_stat_diff.csv')
+OUT_CSV_DIFF_BY_CALC = os.path.join(DOSSIER_OUT, '%s_diff_qualif-prod.csv')  # %s = etude_dossier
 
 
 logger.setLevel(logging.INFO)
@@ -33,8 +35,8 @@ t1 = time()
 
 
 if RUN_CALCULATIONS:
-    df_runs = launch_runs(DOSSIER, ETATREF_SCENARIO_PAR_AMENAGEMENT,
-                          CRUE10_EXE, overwrite=False)
+    df_runs = launch_runs(DOSSIER_IN, ETATREF_SCENARIO_PAR_AMENAGEMENT,
+                          CRUE10_EXE, overwrite=True)
     write_csv(df_runs, OUT_CSV_RUNS_FILE)
 
 
@@ -42,7 +44,7 @@ if WRITE_DIFF_DATAFRAME:
     df_runs = pd.read_csv(OUT_CSV_RUNS_FILE, delimiter=CSV_DELIMITER)
     cols = ['etude_dossier', 'etude_basename', 'scenario', 'run_idx', 'run_id', 'exe_id']
     df_runs_unique = df_runs[cols].drop_duplicates()
-    df_diff_stat = get_run_steady_results(DOSSIER, df_runs_unique, CRUE10_EXE_REFERENCE,
+    df_diff_stat = get_run_steady_results(DOSSIER_IN, df_runs_unique, CRUE10_EXE_REFERENCE,
                                           out_csv_diff_by_calc=OUT_CSV_DIFF_BY_CALC)
     write_csv(df_diff_stat, OUT_CSV_DIFF_FILE)
 
@@ -56,7 +58,7 @@ if PLOT_RUN_BARPLOT:
     sns.set_context('notebook', font_scale=1.5, rc={'lines.linewidth': 2.5})
     g = sns.FacetGrid(df_runs, row='variable', sharey='row', height=4, aspect=3)
     g = g.map(sns.barplot, 'etude_dossier', 'value', 'exe_id', order=ETATREF_SCENARIO_PAR_AMENAGEMENT.keys(),
-              hue_order=CRUE10_EXE.keys(), palette="husl", ci=None)
+              hue_order=CRUE10_EXE.keys(), palette="husl", errorbar=None)
 
     # Sets xlabels and ylabels from titles
     for i, axes in enumerate(g.axes[:, :]):

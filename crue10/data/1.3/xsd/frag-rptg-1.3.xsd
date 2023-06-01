@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns:crue="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.3 Release 0
+			schéma incomplet: voir le même sans le préfixe frag-
+			pour la validation par fichier
+		</xs:documentation>
+	</xs:annotation>
+
+	<!-- Enregistrement des résultatss de prétraitement géométrique -->
+
+	<xs:element name="ResPrtGeo">
+		<xs:complexType>
+			<xs:attribute name="Href" type="xs:token" use="required" />
+			<xs:attribute name="OffsetMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ResPrtGeos">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResPrtGeo" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="RPTG">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element ref="Parametrage" />
+				<xs:element ref="ContexteSimulation" />
+				<xs:element ref="StructureResultat" />
+				<xs:element ref="ResPrtGeos" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

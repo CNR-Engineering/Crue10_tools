@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OTFA xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/otfa-1.3.xsd">
+  <Commentaire>{{ metadata.Commentaire|html_escape }}</Commentaire>
+  <AuteurCreation>{{ metadata.AuteurCreation }}</AuteurCreation>
+  <DateCreation>{{ metadata.DateCreation }}</DateCreation>
+  <AuteurDerniereModif>{{ metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+  <DateDerniereModif>{{ metadata.DateDerniereModif }}</DateDerniereModif>
+  <Reference-Options>
+    <EffacerRunAvant>true</EffacerRunAvant>
+    <EffacerRunApres>true</EffacerRunApres>
+  </Reference-Options>
+  <Cible-Options>
+    <EffacerRunAvant>true</EffacerRunAvant>
+    <EffacerRunApres>true</EffacerRunApres>
+  </Cible-Options>
+  <LignesCampagne>
+    {%- for campagne in campagnes %}
+    <LigneCampagne Numero="{{ loop.index0 + 1 }}">
+      <Commentaire>{{ campagne.commentaire }}</Commentaire>
+      <LancerComparaison>true</LancerComparaison>
+      <Reference>
+        <Etude>{{ campagne.chemin_etude_ref }}</Etude>
+        <Scenario>{{ campagne.nom_scenario_ref }}</Scenario>
+        <Coeur>old_c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Reference>
+      <Cible>
+        <Etude>{{ campagne.chemin_etude_cible }}</Etude>
+        <Scenario>{{ campagne.nom_scenario_cible }}</Scenario>
+        <Coeur>c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Cible>
+    </LigneCampagne>
+    {%- endfor %}
+  </LignesCampagne>
+</OTFA>

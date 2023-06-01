@@ -116,11 +116,11 @@ if __name__ == '__main__':
 
         # Write a clean etu.xml file
         for run in runs_liste:
-            scenario.add_run(run)
-        scenario.set_current_run_id(runs_liste[-1].id)
+            scenario.ajouter_run(run)
+        scenario.set_run_courant(runs_liste[-1].id)
         etude.write_etu()
     elif POST:
-        runs_liste = [scenario.get_run(run_id) for run_id in scenario.get_liste_run_ids()]
+        runs_liste = [scenario.get_run(run_id) for run_id in scenario.get_liste_noms_runs()]
 
     if POST:
         nom_sections = ['St_RET155.030',  # Fk_RET5min
@@ -156,8 +156,8 @@ if __name__ == '__main__':
             # Check that run does not contains errors
             if run.nb_erreurs_bloquantes() == 0:
                 df_all.at[run.id, 'has_errors'] = False
-                results = run.get_results()
-                values = results.get_res_all_steady_var_at_emhs('Z', nom_sections)[IDX_CALC]
+                resultats = run.get_resultats_calcul()
+                values = resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', nom_sections)[IDX_CALC]
                 for i, nom_section in enumerate(nom_sections):
                     df_all.at[run.id, 'Z_' + nom_section] = values[i]
 

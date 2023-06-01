@@ -1,22 +1,26 @@
 # coding: utf-8
 """
 Classes pour les sections :
-    - LoiFrottement
-    - LitNumerote
-    - LimiteGeom
-    - Section
-        - SectionProfil
-        - SectionIdem
-        - SectionInterpolee
-        - SectionSansGeometrie
+
+- :class:`LoiFrottement`
+- :class:`LitNumerote`
+- :class:`LimiteGeom`
+- :class:`Section`
+
+    - :class:`SectionProfil`
+    - :class:`SectionIdem`
+    - :class:`SectionInterpolee`
+    - :class:`SectionSansGeometrie`
 """
 import abc
 from builtins import super  # Python2 fix (requires module `future`)
+from collections import OrderedDict
 from copy import deepcopy
 import numpy as np
 from shapely.geometry import LineString, Point
 
-from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, logger
+from crue10.utils import check_strictly_increasing, check_2d_array_shape, check_isinstance, check_preffix, \
+    ExceptionCrue10, logger
 
 
 # ABC below is compatible with Python 2 and 3
@@ -28,15 +32,16 @@ DISTANCE_TOL = 0.01  # m
 
 
 def extrap(x, xp, yp):
-    """Linear interpolation (equivalent to np.interp with extrapolation)
+    """
+    Interpolation linéaire (equivalente à `np.interp` with extrapolation)
 
     :param x: The x-coordinates at which to evaluate the interpolated values.
-    :type x: The x-coordinates at which to evaluate the interpolated values
+    :type x: 1d-array
     :param xp: The x-coordinates of the data points, must be increasing
     :type xp: 1d-array
     :param yp: The y-coordinates of the data points, same length as xp
     :type xp: 1d-array
-    :return: he interpolated values, same shape as x
+    :return: The interpolated values, same shape as x
     """
     y = np.interp(x, xp, yp)
     y = np.where(x < xp[0], yp[0]+(x-xp[0])*(yp[0]-yp[1])/(xp[0]-xp[1]), y)
@@ -46,18 +51,19 @@ def extrap(x, xp, yp):
 
 class LoiFrottement:
     """
-    Friction law (Strickler coefficient could vary with Z elevation)
+    Loi de frottement (coefficient(s) de Strickler éventuellement variable(s) avec le niveau d'eau)
 
-    :param id: friction law identifier
-    :type id: str
-    :param type: friction law type
-    :type type: str
-    :param loi_Fk: ndarray(dtype=float, ndim=2) with Strickler coefficient varying with elevation
-    :type loi_Fk: 2D-array
-    :param comment: optional text explanation
-    :type comment: str
+    :ivar id: nom de la loi de frottement
+    :vartype id: str
+    :ivar type: type de loi de frottement
+    :vartype type: str
+    :ivar _loi_Fk: tableau de coefficients de Strickler fonction de la cote, shape=(nb_values, 2)
+    :vartype loi_Fk: np.ndarray
+    :ivar comment: optional text explanation
+    :vartype comment: str
     """
 
+    #: Types possibles de loi de frottement
     TYPES = ['FkSto', 'Fk']
 
     def __init__(self, nom_loi_frottement, type, comment=''):
@@ -65,31 +71,65 @@ class LoiFrottement:
         if type not in LoiFrottement.TYPES:
             raise NotImplementedError
         self.id = nom_loi_frottement
-        self.loi_Fk = None
+        self._loi_Fk = None
         self.type = type
         self.comment = comment
 
     def set_loi_Fk_values(self, loi_values):
+        """
+        Affecter le tableau de coefficients de Strickler fonction de la cote
+
+        :param loi_values: tableau de coefficients de Strickler fonction de la cote
+        :type loi_values: np.ndarray
+        """
         check_isinstance(loi_values, np.ndarray)
-        self.loi_Fk = loi_values
+        check_strictly_increasing(loi_values[:, 0], 'z')
+        check_2d_array_shape(loi_values, 1, 2)
+        self._loi_Fk = loi_values
 
     def set_loi_constant_value(self, value):
+        """
+        Affecter la valeur de coefficient de Strickler (non variable avec la cote)
+
+        :param value: coefficient de Strickler à affecter
+        :type value: float
+        """
         check_isinstance(value, float)
-        self.loi_Fk[:, 1] = value
+        self._loi_Fk[:, 1] = value
 
     def shift_loi_Fk_values(self, value):
+        """
+        Sommer le coefficient de Strickler avec la valeur souhaitée (positive ou négative)
+
+        :param value: coefficient de Strickler à affecter
+        :type value: float
+        """
         check_isinstance(value, float)
-        self.loi_Fk[:, 1] += value
+        self._loi_Fk[:, 1] += value
+
+    def get_loi_Fk(self):
+        return self._loi_Fk
 
     def get_loi_Fk_values(self):
-        return self.loi_Fk[:, 1]
+        """
+        :return: tableau de coefficients de Strickler fonction de la cote
+        :rtype: np.ndarray
+        """
+        return self._loi_Fk[:, 1]
 
     def get_loi_Fk_value(self):
+        """
+        :return: valeur de coefficient de Strickler
+        :rtype: float
+        """
         values = self.get_loi_Fk_values()
         if len(values) != 1:
             raise ExceptionCrue10("La loi de frottement %s contient plus de 1 valeur, "
                                   "cette méthode n'est pas utilisable." % self.id)
         return values[0]
+
+    def __repr__(self):
+        return 'LoiFrottement %s' % self.id
 
 
 DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto')
@@ -102,22 +142,35 @@ DEFAULT_FK_MIN.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
 
 class LitNumerote:
     """
-    Lit numéroté (= intervalle entre 2 limites de lit)
+    Lit numéroté = intervalle entre 2 limites de lit
 
-    :param id: bed identifier (a key of `BED_NAMES`)
-    :type id: str
-    :param xt_min: first curvilinear abscissa
-    :type xt_min: str
-    :param xt_max: first curvilinear abscissa
-    :type xt_max: str
-    :param loi_frottement: friction law (take the associated default law if it is not given)
-    :type loi_frottement: LoiFrottement
+    :ivar id: identifiant du lit numéroté (une clé de `BED_NAMES`)
+    :vartype id: str
+    :ivar xt_min: première abscisse curviligne
+    :vartype xt_min: float
+    :ivar xt_max: dernière abscisse curviligne
+    :vartype xt_max: float
+    :ivar loi_frottement: loi de frottement
+    :vartype loi_frottement: LoiFrottement
     """
 
+    #: Ordre des lits nommés
     BED_NAMES = ['Lt_StoD', 'Lt_MajD', 'Lt_Mineur', 'Lt_MajG', 'Lt_StoG']
+
+    #: Limites entre lits
     LIMIT_NAMES = ['RD', 'StoD-MajD', 'MajD-Min', 'Min-MajG', 'MajG-StoG', 'RG']
 
     def __init__(self, nom_lit, xt_min, xt_max, loi_frottement=None):
+        """
+        :param nom_lit: identifiant du lit numéroté (une clé de `BED_NAMES`)
+        :type nom_lit: str
+        :param xt_min: première abscisse curviligne
+        :type xt_min: float
+        :param xt_max: dernière abscisse curviligne
+        :type xt_max: float
+        :param loi_frottement: loi de frottement (si absent alors la loi par défaut est prise en fonction du type de lit)
+        :type loi_frottement: LoiFrottement
+        """
         if nom_lit not in LitNumerote.BED_NAMES:
             raise RuntimeError
         self.id = nom_lit
@@ -134,10 +187,12 @@ class LitNumerote:
 
     @property
     def is_active(self):
+        """Est un lit actif (= un lit mineur ou majeur)"""
         return 'Maj' in self.id or 'Min' in self.id
 
     @property
     def get_est_mineur(self):
+        """Est un lit mineur"""
         return 'Min' in self.id
 
     def __repr__(self):
@@ -148,16 +203,22 @@ class LimiteGeom:
     """
     Limite géométrique
 
-    :param id: nom de la limite
-    :type id: str
-    :param xt: abscisse curviligne
-    :type xt: float
+    :ivar id: nom de la limite
+    :vartype id: str
+    :ivar xt: abscisse curviligne
+    :vartype xt: float
     """
 
     AXE_HYDRAULIQUE = 'Et_AxeHyd'
     THALWEG = 'Et_Thalweg'
 
     def __init__(self, id, xt):
+        """
+        :param id: nom de la limite
+        :type id: str
+        :param xt: abscisse curviligne
+        :type xt: float
+        """
         check_preffix(id, 'Et_')
         self.id = id
         self.xt = xt
@@ -170,25 +231,29 @@ class Section(ABC):
     """
     Méthode abstraite pour les sections
 
-    :param id: section identifier
-    :type id: str
-    :param xp: curvilinear abscissa of section on its associated branch
-    :type xp: float
-    :param is_active: True if the section is connected to an active branch => used to read rcal
-    :type is_active: bool
-    :param CoefPond: "coefficient de pondération amont/aval de la discrétisation de la perte de charge régulière J
+    :ivar id: nom de la section
+    :vartype id: str
+    :ivar is_active: True si la section est connectée à une branche active => utilisé pour lire le fichier rcal
+    :vartype is_active: bool
+    :ivar xp: abscisse curviligne de la section le long de sa branche associée
+    :vartype xp: float
+    :ivar CoefPond: "coefficient de pondération amont/aval de la discrétisation de la perte de charge régulière J
         entre la section et sa suivante"
-    :type CoefPond: float
-    :param CoefConv: "coefficient de perte de charge ponctuelle en cas de convergence entre la section et sa
+    :vartype CoefPond: float
+    :ivar CoefConv: "coefficient de perte de charge ponctuelle en cas de convergence entre la section et sa
         suivante"
-    :type CoefConv: float
-    :param CoefDiv: "coefficient de perte de charge ponctuelle en cas de divergence entre la section et sa suivante"
-    :type CoefDiv: float
-    :param comment: optional text explanation
-    :type comment: str
+    :vartype CoefConv: float
+    :ivar CoefDiv: "coefficient de perte de charge ponctuelle en cas de divergence entre la section et sa suivante"
+    :vartype CoefDiv: float
+    :ivar comment: commentaire optionnel
+    :vartype comment: str
     """
 
     def __init__(self, nom_section):
+        """
+        :param nom_section: nom de la section
+        :type nom_section: str
+        """
         self.id = nom_section
         self.is_active = False
         self.xp = -1
@@ -198,6 +263,7 @@ class Section(ABC):
         self.comment = ''
 
     def validate(self):
+        """Valider"""
         errors = []
         if len(self.id) > 32:  # valid.nom.tooLong.short
             errors.append((self, "Le nom est trop long, il d\u00e9passe les 32 caract\u00e8res"))
@@ -211,28 +277,32 @@ class SectionProfil(Section):
     """
     SectionProfil
 
-    :param nom_profilsection: profil section identifier (should start with `Ps_`)
-    :type nom_profilsection: str
-    :param comment_profilsection: commentaire du ProfilSection
-    :type comment_profilsection: str
-    :param xt_axe: transversal position of hydraulic axis
-    :type xt_axe: float
-    :param xz: ndarray(dtype=float, ndim=2)
-        Array containing series of transversal abscissa and elevation (first axis should be strictly increasing)
-    :type xz: 2D-array
-    :param geom_trace: polyline section trace (only between left and right bank)
-    :type geom_trace: shapely.geometry.LineString
-    :param largeur_fente: largeur de la fente
-    :type largeur_fente: float
-    :param profondeur_fente: profondeur de la fente
-    :type profondeur_fente: float
-    :param lits_numerotes: lits numérotés
-    :type lits_numerotes: [LitNumerote]
-    :param limites_geom: limites géométriques (thalweg, axe hydraulique...)
-    :type limites_geom: [LimiteGeom]
+    :ivar nom_profilsection: nom de la SectionProfil (doit commencer par `Ps_`)
+    :vartype nom_profilsection: str
+    :ivar comment_profilsection: commentaire du ProfilSection
+    :vartype comment_profilsection: str
+    :ivar xz: tableau avec les abscisses transversales et la cote (les abscisses doivent être strictement croissantes),
+        shape=(nb_values, 2)
+    :vartype xz: np.ndarray
+    :ivar geom_trace: polyline de la trace de la section (entre les rives gauche et droite)
+    :vartype geom_trace: shapely.geometry.LineString
+    :ivar largeur_fente: largeur de la fente
+    :vartype largeur_fente: float
+    :ivar profondeur_fente: profondeur de la fente
+    :vartype profondeur_fente: float
+    :ivar lits_numerotes: lits numérotés
+    :vartype lits_numerotes: list(LitNumerote)
+    :ivar limites_geom: limites géométriques (thalweg, axe hydraulique...)
+    :vartype limites_geom: OrderedDict(LimiteGeom)
     """
 
     def __init__(self, nom_section, nom_profilsection=None):
+        """
+        :param nom_section: nom de la section
+        :type nom_section: str
+        :param nom_profilsection: nom du ProfilSection
+        :type nom_profilsection: str
+        """
         super().__init__(nom_section)
         self.nom_profilsection = ''
         self.comment_profilsection = ''
@@ -242,9 +312,15 @@ class SectionProfil(Section):
         self.largeur_fente = None
         self.profondeur_fente = None
         self.lits_numerotes = []
-        self.limites_geom = []
+        self.limites_geom = OrderedDict()
 
     def set_profilsection_name(self, nom_profilsection=None):
+        """
+        Affecter le nom du ProfilSection
+
+        :param nom_profilsection: nom du ProfilSection (si None alors il sera déterminé automatiquement)
+        :type nom_profilsection: str
+        """
         if nom_profilsection is None:
             self.nom_profilsection = 'Ps_' + self.id[3:]
         else:
@@ -253,23 +329,38 @@ class SectionProfil(Section):
 
     @property
     def xt_axe(self):
-        """Curvilinear abscissa of hydraulic axis intersection"""
-        for limite in self.limites_geom:
+        """
+        :return: Abscisse curviligne de l'axe hydraulique
+        :rtype: float
+        """
+        for _, limite in self.limites_geom.items():
             if limite.id == 'Et_AxeHyd':
                 return limite.xt
         raise ExceptionCrue10("La limite 'Et_AxeHyd' n'existe pas pour %s" % self)
 
     @property
     def is_avec_fente(self):
+        """Dispose d'une fente"""
         return self.largeur_fente is not None and self.profondeur_fente is not None
 
     @property
     def xz_filtered(self):
+        """
+        :return: Tableau avec les abscisses transversales et la cote entre les rives gauche et droite
+        :rtype: np.ndarray
+        """
         return self.xz[np.logical_and(self.lits_numerotes[0].xt_min <= self.xz[:, 0],
                                       self.xz[:, 0] <= self.lits_numerotes[-1].xt_max), :]
 
     def set_xz(self, array):
+        """
+        Affecter le tableau avec les abscisses transversales et la cote
+
+        :param array: tableau avec les abscisses transversales et la cote à affecter
+        :type array: np.ndarray
+        """
         check_isinstance(array, np.ndarray)
+        check_2d_array_shape(array, 2, 2)
         new_array = array[0, :]
         duplicated_xt = []
         for (xt1, z1), (xt2, z2) in zip(array, array[1:]):
@@ -278,27 +369,39 @@ class SectionProfil(Section):
             else:
                 new_array = np.vstack((new_array, [xt2, z2]))
         self.xz = new_array
-        if any(x > y for x, y in zip(new_array[:, 0], new_array[1:, 0])):
-            raise ExceptionCrue10("Les valeurs de xt ne sont pas croissantes (points doublons tolérés mais ignorés)")
+        check_strictly_increasing(new_array[:, 0], 'xt')
         if duplicated_xt:
-            logger.warn("%i points doublons ignorés pour %s: %s" % (len(duplicated_xt), self, duplicated_xt))
+            logger.warning("%i points doublons ignorés pour %s: %s" % (len(duplicated_xt), self, duplicated_xt))
 
-    def set_geom_trace(self, trace):
-        check_isinstance(trace, LineString)
-        if trace.has_z:
+    def set_geom_trace(self, geom_trace):
+        """
+        Affecter la trace de la section
+
+        :param geom_trace: polyline de la trace de la section (entre les rives gauche et droite)
+        :type geom_trace: shapely.geometry.LineString
+        """
+        check_isinstance(geom_trace, LineString)
+        if geom_trace.has_z:
             raise ExceptionCrue10("La trace de la %s ne doit pas avoir de Z !" % self)
         if not self.lits_numerotes:
             raise ExceptionCrue10('xz has to be set before (to check consistency)')
-        self.geom_trace = trace
+        self.geom_trace = geom_trace
 
         # Display a warning if geometry is not consistent with self.xz array
         range_xt = self.xz_filtered[:, 0].max() - self.xz_filtered[:, 0].min()
         diff_xt = range_xt - self.geom_trace.length
         if abs(diff_xt) > 1e-2:
-            logger.warn("Écart de longueur pour la section %s: %s" % (self, diff_xt))
+            logger.warning("Écart de longueur pour la section %s: %s" % (self, diff_xt))
 
     def ajouter_fente(self, largeur, profondeur):
-        """Adds (or replaces if already exists) fente width and depth"""
+        """
+        Ajouter (ou remplacer) la largeur et la profondeur de la fente
+
+        :param largeur: largeur de la fente
+        :type largeur: float
+        :param profondeur: profondeur de la fente
+        :type profondeur: float
+        """
         if largeur <= 0:
             raise ExceptionCrue10("La largeur de fente doit être strictement positive")
         if profondeur <= 0:
@@ -307,34 +410,61 @@ class SectionProfil(Section):
         self.profondeur_fente = profondeur
 
     def set_lits_numerotes(self, xt_list):
-        """Add directly the 5 beds from a list of 6 ordered xt values"""
+        """
+        Affecter les 5 lits numérotés à partir de la liste ordonnée des 6 abscisses curvilignes
+
+        :param xt_list: liste ordonnée des 6 abscisses curvilignes
+        :type xt_list: list(float)
+        """
         if len(xt_list) != 6:
-            raise ExceptionCrue10("Il faut exactement 5 lits numérotés pour les affecter")
-        if any(x > y for x, y in zip(xt_list, xt_list[1:])):
-            raise ExceptionCrue10("Les valeurs de xt ne sont pas croissantes")
+            raise ExceptionCrue10("Il faut exactement 6 xt pour affecter les 5 lits numérotés")
+        check_strictly_increasing(xt_list, 'xt')
         self.lits_numerotes = []
         for bed_name, xt_min, xt_max in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
             lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
             self.lits_numerotes.append(lit_numerote)
 
     def ajouter_lit(self, lit_numerote):
+        """
+        Ajouter le lit numéroté
+
+        :param lit_numerote: lit numéroter à ajouter
+        :type lit_numerote: LitNumerote
+        """
         check_isinstance(lit_numerote, LitNumerote)
         if lit_numerote.id in self.lits_numerotes:
             raise ExceptionCrue10("Le lit numéroté `%s` est déjà présent" % lit_numerote.id)
         self.lits_numerotes.append(lit_numerote)
 
     def ajouter_limite_geom(self, limite_geom):
+        """
+        Ajouter la limite géométrique
+
+        :param limite_geom: limite géométrique à ajouter
+        :type limite_geom: LimiteGeom
+        """
         check_isinstance(limite_geom, LimiteGeom)
         if limite_geom.id in self.limites_geom:
             raise ExceptionCrue10("La limite géométrique `%s` est déjà présente" % limite_geom.id)
-        self.limites_geom.append(limite_geom)
+        self.limites_geom[limite_geom.id] = limite_geom
 
     def interp_z(self, xt):
+        """
+        Interpoler la cote à partir d'une absicisse donnée
+
+        :param xt: abscisse curviligne
+        :return: niveau interpolé
+        :rtype: np.ndarray
+        """
         return np.interp(xt, self.xz[:, 0], self.xz[:, 1])
 
     def interp_point(self, xt):
         """
-        Interpolation et extrapolation (si en dehors des rives RD et RG) d'un point le long de la trace
+        Interpolation et extrapolation (si en dehors des rives gauche et droite) d'un point le long de la trace
+
+        :param xt: abscisse curviligne
+        :type: float
+        :rtype: shapely.geometry.Point
         """
         if not self.lits_numerotes:
             raise ExceptionCrue10('Les lits numerotés doivent être définis au préalable')
@@ -365,6 +495,12 @@ class SectionProfil(Section):
         return Point(x, y)
 
     def get_coord(self, add_z=False):
+        """
+        Obtenir les coordonnées (x, y) (ou (x, y, z)) des points composant le profil en travers
+
+        :param add_z: prise en compte du z si True
+        :return: list(float)
+        """
         if self.xz is None:
             raise ExceptionCrue10("`%s`: 3D trace could not be computed (xz is missing)!" % self)
         if self.geom_trace is None:
@@ -399,22 +535,44 @@ class SectionProfil(Section):
                 bed_pos = np.logical_and(lit.xt_min < xt, xt <= lit.xt_max)
             else:
                 bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
-            coeff[bed_pos] = lit.loi_frottement.loi_Fk[:, 1].mean()
+            coeff[bed_pos] = lit.loi_frottement.get_loi_Fk_values().mean()
         return coeff
 
     def get_premier_lit_numerote(self, nom):
+        """
+        Obtenir le premier lit numéroté demandé
+
+        :param nom: nom du lit à rechercher
+        :type nom: str
+        :rtype: LitNumerote
+        """
         for lit in self.lits_numerotes:
             if lit.id == nom:
                 return lit
         raise ExceptionCrue10("Aucun lit `%s` pour la %s" % (nom, self))
 
     def get_dernier_lit_numerote(self, nom):
+        """
+        Obtenir le dernier lit numéroté demandé
+
+        :param nom: nom du lit à rechercher
+        :type nom: str
+        :rtype: LitNumerote
+        """
         for lit in reversed(self.lits_numerotes):
             if lit.id == nom:
                 return lit
         raise ExceptionCrue10("Aucun lit `%s` pour la %s" % (nom, self))
 
     def get_xt_limite_lit(self, nom_limite):
+        """
+        Obtenir l'abscisse curviligne de la limite de lit recherchée
+
+        :param nom_limite: nom de la limite de lit à rechercher
+        :type nom_limite: str
+        :return: abscisse curviligne
+        :rtype: float
+        """
         idx_limite = LitNumerote.LIMIT_NAMES.index(nom_limite)
         if idx_limite == 0:
             return self.get_premier_lit_numerote(LitNumerote.BED_NAMES[0]).xt_min
@@ -422,11 +580,22 @@ class SectionProfil(Section):
             nom_lit = LitNumerote.BED_NAMES[idx_limite - 1]
             return self.get_dernier_lit_numerote(nom_lit).xt_max
 
-    def get_limite_geom(self, nom):
-        for limite in self.limites_geom:
-            if limite.id == nom:
-                return limite
-        raise ExceptionCrue10("La limite `%s` n'exsite pas pour la %s" % (nom, self))
+    def get_limite_geom(self, nom_limite):
+        """
+        Obtenir l'abscisse curviligne de la limite géométrique recherchée
+
+        :param nom_limite: nom de la limite géométrique à rechercher
+        :type nom_limite: str
+        :return: limite géométrique
+        :rtype: LimiteGeom
+        """
+        try:
+            return self.limites_geom[nom_limite]
+        except KeyError:
+            raise ExceptionCrue10("La limite `%s` n'existe pas pour la %s" % (nom_limite, self))
+
+    def get_liste_limites_geom(self):
+        return [limite for _, limite in self.limites_geom.items()]
 
     def has_xz(self):
         return self.xz is not None
@@ -434,36 +603,61 @@ class SectionProfil(Section):
     def has_trace(self):
         return self.geom_trace is not None
 
-    def build_orthogonal_trace(self, axe_geom):
+    def build_orthogonal_trace(self, branche_geom):
         """
-        Section xp is supposed to be normalized (ie. xp is consistent with axe_geom length)
+        Construire une trace orthogonale (ligne droite entre les rives gauche et droite) à la trace de la branche
+
+        Attention: le `xp` de la section est supposé avoir été normalisé
+        (ie. xp est cohérent avec la longueur de axe_geom)
+
+        :param branche_geom: trace de la branche
+        :type branche_geom: shapely.geometry.LineString
         """
-        check_isinstance(axe_geom, LineString)
-        xp = min(self.xp, axe_geom.length)  # in case xp is not consistant
-        point = axe_geom.interpolate(xp)
-        point_avant = axe_geom.interpolate(max(xp - DIFF_XP, 0.0))
-        point_apres = axe_geom.interpolate(min(xp + DIFF_XP, axe_geom.length))
-        distance = axe_geom.project(point_apres) - axe_geom.project(point_avant)
+        check_isinstance(branche_geom, LineString)
+        xp = min(self.xp, branche_geom.length)  # in case xp is not consistant
+        point = branche_geom.interpolate(xp)
+        point_avant = branche_geom.interpolate(max(xp - DIFF_XP, 0.0))
+        point_apres = branche_geom.interpolate(min(xp + DIFF_XP, branche_geom.length))
+        distance = branche_geom.project(point_apres) - branche_geom.project(point_avant)
         u, v = (point_avant.y - point_apres.y) / distance, (point_apres.x - point_avant.x) / distance
         xt_list = [self.xz_filtered[0, 0], self.xz_filtered[-1, 0]]  # only extremities are written
         coords = [(point.x + (xt - self.xt_axe) * u, point.y + (xt - self.xt_axe) * v) for xt in xt_list]
         self.geom_trace = LineString(coords)
 
-    def merge_consecutive_lit_numerotes(self):
-        """Consective LitNumerote with the same `LitNomme` are merged in single and wider bed (LitNumerote)"""
+    def get_xt_merged_consecutive_lits_numerotes(self):
+        """
+        Obtenir la liste des abscisses transversale des limites de lits numérotées
+        en fusionnant les lits nommés consécutifs
+
+        :return: liste des abscisses transversale des limites
+        :rtype: list(float)
+        """
         xt_list = [self.lits_numerotes[0].xt_min]
         for lit1, lit2 in zip(self.lits_numerotes[:-1], self.lits_numerotes[1:]):
             if lit1.id != lit2.id:
                 assert lit1.xt_max == lit2.xt_min
                 xt_list.append(lit1.xt_max)
         xt_list.append(self.lits_numerotes[-1].xt_max)
-        self.set_lits_numerotes(xt_list)
+        return xt_list
+
+    def merge_consecutive_lit_numerotes(self):
+        """
+        Les `LitNumerote` consécutifs avec les mêmes `LitNomme` sont fusionnés en un seul `LitNumerote` plus large
+        """
+        self.set_lits_numerotes(self.get_xt_merged_consecutive_lits_numerotes())
 
     def get_min_z(self):
-        return self.xz[:, 1].min()
+        """
+        :return: cote minimale du profil en travers (entre les rives gauche et droite)
+        :rtype: float
+        """
+        # TODO: prendre en compte la fente?
+        return self.xz_filtered[:, 1].min()
 
     def validate(self):
         """
+        Valider
+
         TODO: validate.thalweg.NotInLitMineur, validate.etiquette.definedSeveralTimes
         """
         errors = super().validate()
@@ -534,22 +728,34 @@ class SectionIdem(Section):
     """
     SectionIdem
 
-    :param section_reference: parent (= initial/reference) section
-    :type section_reference: SectionProfil
-    :param dz_section_reference: vertical shift (in meters)
-    :type dz_section_reference: float
+    :ivar section_reference: section de référence (ou source)
+    :vartype section_reference: SectionProfil
+    :ivar dz_section_reference: décalage vertical (en mètres)
+    :vartype dz_section_reference: float
     """
 
-    def __init__(self, nom_section, parent_section, dz=0.0):
+    def __init__(self, nom_section, section_reference, dz_section_reference=0.0):
+        """
+
+        :param nom_section: nom de la section
+        :type nom_section: str
+        :param section_reference: section de référence (ou source)
+        :type section_reference: SectionProfil
+        :param dz_section_reference: décalage vertical (en mètres)
+        :type dz_section_reference: float
+        """
         super().__init__(nom_section)
-        check_isinstance(parent_section, SectionProfil)
-        self.section_reference = parent_section
-        self.dz_section_reference = dz
+        check_isinstance(section_reference, SectionProfil)
+        self.section_reference = section_reference
+        self.dz_section_reference = dz_section_reference
 
     def get_as_sectionprofil(self):
         """
-        Return a SectionProfil instance from the original section
+        Retourne une instance `SectionProfil` à partir de la section de référence
+
+        :rtype: SectionProfil
         """
+        # TODO: copier la fente!
         new_section = deepcopy(self.section_reference)
         new_section.id = self.id
         new_section.xp = self.xp
@@ -560,8 +766,11 @@ class SectionIdem(Section):
         return new_section
 
     def get_min_z(self):
-        section = self.get_as_sectionprofil()
-        return section.xz[:, 1].min()
+        """
+        :return: cote minimale du profil en travers
+        :rtype: float
+        """
+        return self.section_reference.get_min_z() + self.dz_section_reference
 
 
 class SectionInterpolee(Section):

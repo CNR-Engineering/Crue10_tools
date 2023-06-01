@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ETU xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/etu-1.3.xsd">
+  <Commentaire>{{ metadata.Commentaire|html_escape }}</Commentaire>
+  <AuteurCreation>{{ metadata.AuteurCreation }}</AuteurCreation>
+  <DateCreation>{{ metadata.DateCreation }}</DateCreation>
+  <AuteurDerniereModif>{{ metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+  <DateDerniereModif>{{ metadata.DateDerniereModif }}</DateDerniereModif>
+  {%- if current_scenario_id %}
+  <ScenarioCourant NomRef="{{ current_scenario_id }}"/>
+  {%- endif %}
+  <Repertoires>
+    {%- for name, folder in folders %}
+    <Repertoire Nom="{{ name }}">
+      <path>{{ folder }}</path>
+    </Repertoire>
+    {%- endfor %}
+  </Repertoires>
+  <FichEtudes>
+	{%- for filename, xml_type in files %}
+    <FichEtude Nom="{{ filename }}" Chemin=".\" Type="{{ xml_type }}"/>
+    {%- endfor %}
+  </FichEtudes>
+  <SousModeles>
+    {%- for sous_modele in sous_modeles %}
+    <SousModele Nom="{{ sous_modele.id }}">
+      <Type>{{ sous_modele.metadata.Type }}</Type>
+      <IsActive>{{ sous_modele.metadata.IsActive }}</IsActive>
+      <Commentaire>{{ sous_modele.metadata.Commentaire|html_escape }}</Commentaire>
+      <AuteurCreation>{{ sous_modele.metadata.AuteurCreation }}</AuteurCreation>
+      <DateCreation>{{ sous_modele.metadata.DateCreation }}</DateCreation>
+      <AuteurDerniereModif>{{ sous_modele.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+      <DateDerniereModif>{{ sous_modele.metadata.DateDerniereModif }}</DateDerniereModif>
+      <SousModele-FichEtudes>
+        <DRSO NomRef="{{ sous_modele.file_basenames.drso }}"/>
+        <DCSP NomRef="{{ sous_modele.file_basenames.dcsp }}"/>
+        <DPTG NomRef="{{ sous_modele.file_basenames.dptg }}"/>
+        <DFRT NomRef="{{ sous_modele.file_basenames.dfrt }}"/>
+      </SousModele-FichEtudes>
+    </SousModele>
+	{%- endfor %}
+  </SousModeles>
+  <Modeles>
+    {%- for modele in modeles %}
+    <Modele Nom="{{ modele.id }}">
+      <Type>{{ modele.metadata.Type }}</Type>
+      <IsActive>{{ modele.metadata.IsActive }}</IsActive>
+      <Commentaire>{{ modele.metadata.Commentaire|html_escape }}</Commentaire>
+      <AuteurCreation>{{ modele.metadata.AuteurCreation }}</AuteurCreation>
+      <DateCreation>{{ modele.metadata.DateCreation }}</DateCreation>
+      <AuteurDerniereModif>{{ modele.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+      <DateDerniereModif>{{ modele.metadata.DateDerniereModif }}</DateDerniereModif>
+      <Modele-FichEtudes>
+        <OPTR NomRef="{{ modele.file_basenames.optr }}"/>
+        <OPTG NomRef="{{ modele.file_basenames.optg }}"/>
+        <OPTI NomRef="{{ modele.file_basenames.opti }}"/>
+        <PNUM NomRef="{{ modele.file_basenames.pnum }}"/>
+        <DPTI NomRef="{{ modele.file_basenames.dpti }}"/>
+        <DREG NomRef="{{ modele.file_basenames.dreg }}"/>
+      </Modele-FichEtudes>
+      <Modele-SousModeles>
+        {%- for sous_modele in modele.liste_sous_modeles %}
+        <Modele-SousModele NomRef="{{ sous_modele.id }}"/>
+        {%- endfor %}
+      </Modele-SousModeles>
+    </Modele>
+	{%- endfor %}
+  </Modeles>
+  <Scenarios>
+    {%- for scenario in scenarios %}
+    <Scenario Nom="{{ scenario.id }}">
+      <Type>{{ scenario.metadata.Type }}</Type>
+      <IsActive>{{ scenario.metadata.IsActive }}</IsActive>
+      <Commentaire>{{ scenario.metadata.Commentaire|html_escape }}</Commentaire>
+      <AuteurCreation>{{ scenario.metadata.AuteurCreation }}</AuteurCreation>
+      <DateCreation>{{ scenario.metadata.DateCreation }}</DateCreation>
+      <AuteurDerniereModif>{{ scenario.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+      <DateDerniereModif>{{ scenario.metadata.DateDerniereModif }}</DateDerniereModif>
+      <Scenario-FichEtudes>
+        <OCAL NomRef="{{ scenario.file_basenames.ocal }}"/>
+        <ORES NomRef="{{ scenario.file_basenames.ores }}"/>
+        <PCAL NomRef="{{ scenario.file_basenames.pcal }}"/>
+        <DCLM NomRef="{{ scenario.file_basenames.dclm }}"/>
+        <DLHY NomRef="{{ scenario.file_basenames.dlhy }}"/>
+      </Scenario-FichEtudes>
+      <Scenario-Modeles>
+        <Scenario-Modele NomRef="{{ scenario.modele.id }}"/>
+      </Scenario-Modeles>
+      {%- if scenario.runs %}
+      <Runs>
+        {%- for run_id, run in scenario.runs.items() %}
+        <Run Nom="{{ run_id }}">
+          <Commentaire>{{ run.metadata.Commentaire|html_escape }}</Commentaire>
+          <AuteurCreation>{{ run.metadata.AuteurCreation }}</AuteurCreation>
+          <DateCreation>{{ run.metadata.DateCreation }}</DateCreation>
+          <AuteurDerniereModif>{{ run.metadata.AuteurDerniereModif }}</AuteurDerniereModif>
+          <DateDerniereModif>{{ run.metadata.DateDerniereModif }}</DateDerniereModif>
+        </Run>
+        {%- endfor %}
+      </Runs>
+      <RunCourant NomRef="{{ scenario.nom_run_courant }}"/>
+      {%- endif %}
+    </Scenario>
+	{%- endfor %}
+  </Scenarios>
+</ETU>

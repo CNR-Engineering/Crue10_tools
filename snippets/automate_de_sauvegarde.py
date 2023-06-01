@@ -1,3 +1,15 @@
+"""
+Automate de sauvegarde
+
+NH = niveau haut => procédure : ouverture barrage avec lâcher d'alerte si besoin
+NTH = niveau très haut => procédure : gradient barrage
+
+Principes :
+
+* 3 calculs successifs pour un calcul AS
+* Aucune temporisation n'est prise en compte
+* DeltaH n'est pas considéré
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import os.path
@@ -30,7 +42,9 @@ def get_time_of_first_value_above(x_array, y_array, y_target):
 
 
 def xy_array_tronquer_avant(xy_array, x_target):
-    """Tronquer une loi avant une abscisse cible
+    """
+    Tronquer une loi avant une abscisse cible
+
     :param xy_array: tableau en entrée
     :param x_target: valeur de x avant laquelle tronquer
     :return: np.ndarray
@@ -42,7 +56,9 @@ def xy_array_tronquer_avant(xy_array, x_target):
 
 
 def xy_array_ajouter_gradient_apres(xy_array, gradient, duration):
-    """Ajouter un point après la loi actuelle pour modélisation un gradient constant sur une durée définie
+    """
+    Ajouter un point après la loi actuelle pour modélisation un gradient constant sur une durée définie
+
     :param xy_array: tableau en entrée
     :param gradient: gradient en m3/s/h
     :param duration: durée en s
@@ -55,16 +71,7 @@ def xy_array_ajouter_gradient_apres(xy_array, gradient, duration):
 
 
 class AutomateSauvegarde:
-    """Automate de sauvegarde
 
-    NH = niveau haut => procédure : ouverture barrage avec lâcher d'alerte si besoin
-    NTH = niveau très haut => procédure : gradient barrage
-
-    Principes :
-    * 3 calculs successifs pour un calcul AS
-    * Aucune temporisation n'est prise en compte
-    * DeltaH n'est pas considéré
-    """
     def __init__(self, scenario, nh_z, nth_z, nh_gradient, nth_gradient):
         self.scenario = scenario
         self.loi_hydraulique = scenario.get_loi_hydraulique(LOI_BARRAGE)
@@ -80,10 +87,10 @@ class AutomateSauvegarde:
     def set_hydrogramme_and_run(self, run_id=None, comment=''):
         self.loi_hydraulique.set_values(self.hydrogramme)
         run = scenario.create_and_launch_new_run(etude, run_id=run_id, comment=comment, force=True)
-        results = run.get_results()
-        calc = results.get_calc_unsteady(CALCUL_TRANS)
+        resultats = run.get_resultats_calcul()
+        calc = resultats.get_res_calc_trans(CALCUL_TRANS)
         self.time = calc.time_serie()
-        self.z_array = results.get_res_unsteady_var_at_emhs(CALCUL_TRANS, 'Z', [SECTION_AS])[:, 0]
+        self.z_array = resultats.get_trans_var_at_emhs_as_array(CALCUL_TRANS, 'Z', [SECTION_AS])[:, 0]
         return run
 
     def run_all(self):
@@ -133,9 +140,9 @@ etude.write_etu()
 
 
 # Extraction des résultats pour le graphique
-results = run.get_results()
-z_array = results.get_res_unsteady_var_at_emhs(CALCUL_TRANS, 'Z', [SECTION_AS])[:, 0]
-q_barrage, q_usine = results.get_res_unsteady_var_at_emhs(CALCUL_TRANS, 'Q', [SECTION_BGE, SECTION_USINE]).T
+resultats = run.get_resultats_calcul()
+z_array = resultats.get_trans_var_at_emhs_as_array(CALCUL_TRANS, 'Z', [SECTION_AS])[:, 0]
+q_barrage, q_usine = resultats.get_trans_var_at_emhs_as_array(CALCUL_TRANS, 'Q', [SECTION_BGE, SECTION_USINE]).T
 
 # Mise en graphique des résultats
 fig, ax1 = plt.subplots(figsize=(16, 9))

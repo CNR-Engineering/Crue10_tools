@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-Write a markdown documentation file for command line scripts.
+Écrire un fichier markdown de documentation pour les scripts en ligne de commande
 """
 import importlib
 from glob import glob
@@ -25,7 +25,7 @@ class CommandLineScript:
         self.name = os.path.splitext(basename)[0]
 
     def help_msg(self):
-        """Returns help message with description and usage"""
+        """Retourne un message d'aide avec la description et l'utilisation"""
         mod = importlib.import_module('%s' % self.name)
         return getattr(mod, 'parser').format_help().replace(os.path.basename(__file__), os.path.basename(self.path))
 

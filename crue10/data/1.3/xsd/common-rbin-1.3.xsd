@@ -1,0 +1,281 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns:crue="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.3 Release 0
+			Ce schéma est utilisé pour les éléments communs
+			aux fichiers xml liés aux résultats binaires (RPTG.xml et RCAL.xml).
+			Il est inclus dans rcal-x.y.xsd et rptg-x.y.xsd
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="Delimiteur">
+		<xs:complexType>
+			<xs:attribute name="Nom" type="TypeForAttributeNom" use="required" />
+			<xs:attribute name="Chaine" type="TypeString8" use="required" />
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- Parametrage -->
+	<xs:element name="Parametrage">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="NbrOctetMot" type="xs:positiveInteger" fixed="8"/>
+				<xs:element ref="Delimiteur" minOccurs="5" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Contexte de la simulation -->
+	<xs:element name="ContexteSimulation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="DateSimulation" type="xs:dateTime" />
+				<xs:element ref="VersionCrue" />
+				<xs:element name="Etude" type="xs:token" />
+				<xs:element name="Scenario" type="TypeNomRefDistant" />
+				<xs:element name="Run" type="TypeNomRefDistant" />
+				<xs:element name="Modele" type="TypeNomRefDistant" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Structure de donnees des resultats du fichier binaire -->
+
+	<!-- Enregistrement de base = une variable résultat : le nom de la variable métier demandée est dans l'attribut NomRef de VariableRes,
+			et doit nécessairement exister dans CrueConfigMetier.xls (élément Variable, attribut Nom de type xs:ID)
+			Quand la Variable résultat est un type à plusieurs dimensions, il faut utiliser l'élément VariableResLoi et préciser plus loin le nombre
+			de points stockés dans <VariableResLoiNbrPt> -->
+	<xs:element name="VariableRes">
+		<xs:complexType>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="VariableResLoi">
+		<xs:complexType>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="VariableResLoiNbrPt">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:nonNegativeInteger">
+					<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- les noeuds -->
+	<xs:element name="Noeud">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefNoeud" use="required" />
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="TypeTypeEMHNoeud">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les TypeEMH de CatEMHNoeud
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:choice>
+			<xs:element ref="Noeud" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+	</xs:complexType>
+
+	<xs:element name="Noeuds">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element name="NoeudNiveauContinu"					type="TypeTypeEMHNoeud" />
+			</xs:sequence>
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<!-- les casiers -->
+	<xs:element name="Casier">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefCasier" use="required" />
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="TypeTypeEMHCasier">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les TypeEMH de CatEMHCasier
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:choice>
+			<xs:element ref="Casier" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+	</xs:complexType>
+
+	<xs:element name="Casiers">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element name="CasierProfil"				type="TypeTypeEMHCasier" />
+			</xs:sequence>
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+
+	<!-- les sections -->
+	<xs:element name="Section">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefSection" use="required" />
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="TypeTypeEMHSection">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les TypeEMH de CatEMHSection
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:choice>
+			<xs:element ref="Section" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+	</xs:complexType>
+
+	<xs:element name="Sections">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element name="SectionIdem"					type="TypeTypeEMHSection" />
+				<xs:element name="SectionInterpolee"		type="TypeTypeEMHSection" />
+				<xs:element name="SectionProfil"				type="TypeTypeEMHSection" />
+				<xs:element name="SectionSansGeometrie"	type="TypeTypeEMHSection" />
+			</xs:sequence>
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<!-- les branches -->
+	<xs:element name="Branche">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefBranche" use="required" />
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="TypeTypeEMHBranche">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les TypeEMH de CatEMHBranche
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:choice>
+			<xs:element ref="Branche" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+	</xs:complexType>
+
+	<xs:element name="Branches">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element name="BrancheBarrageFilEau"    type="TypeTypeEMHBranche" />
+				<xs:element name="BrancheBarrageGenerique" type="TypeTypeEMHBranche" />
+				<xs:element name="BrancheNiveauxAssocies"  type="TypeTypeEMHBranche" />
+				<xs:element name="BrancheOrifice"          type="TypeTypeEMHBranche" />
+				<xs:element name="BranchePdc"              type="TypeTypeEMHBranche" />
+				<xs:element name="BrancheSaintVenant"      type="TypeTypeEMHBranche" />
+				<xs:element name="BrancheSeuilLateral"     type="TypeTypeEMHBranche" />
+				<xs:element name="BrancheSeuilTransversal" type="TypeTypeEMHBranche" />
+				<xs:element name="BrancheStrickler"        type="TypeTypeEMHBranche" />
+			</xs:sequence>
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Structure des résultats par CatEMH et par TypeEMH -->
+	<xs:element name="StructureResultat">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="Noeuds"   />
+				<xs:element ref="Casiers"  />
+				<xs:element ref="Sections" />
+				<xs:element ref="Branches" />
+			</xs:sequence>
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dpti-1.2.xsd">
+  <Commentaire></Commentaire>
+  <DonPrtCIniNoeuds/>
+  <DonPrtCIniCasiers/>
+  <DonPrtCIniSections/>
+  <DonPrtCIniBranches/>
+</DPTI>

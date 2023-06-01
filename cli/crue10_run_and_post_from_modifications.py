@@ -45,20 +45,20 @@ def crue10_run_and_post_from_modifications(args):
 
         if run.nb_erreurs() == 0:
             try:
-                results = run.get_results()
+                resultats = run.get_resultats_calcul()
             except Exception as e:
                 logger.error(e)
-                logger.warn("Les fichiers de résultats du Run `%s` ne sont pas exploitables" % run.id)
-            res = results.get_res_steady(args.calc_name)
-            pos_Z = results.variables['Section'].index('Z')
+                logger.warning("Les fichiers de résultats du Run `%s` ne sont pas exploitables" % run.id)
+            res = resultats.get_data_pseudoperm(args.calc_name)
+            pos_Z = resultats.variables['Section'].index('Z')
             values = res['Section'][:, pos_Z]
             t1 = perf_counter()
             writer.writerow({'variable': 'time_crue', 'value': run.get_time()})
             writer.writerow({'variable': 'time_total', 'value': t1 - t0})
-            for emh_name, value in zip(results.emh['Section'], values):
+            for emh_name, value in zip(resultats.emh['Section'], values):
                 writer.writerow({'variable': emh_name, 'value': value})
         else:
-            logger.warn("Le Run `%s` contient des erreurs et sera ignoré" % run.id)
+            logger.warning("Le Run `%s` contient des erreurs et sera ignoré" % run.id)
 
 
 parser = MyArgParse(description=__doc__)

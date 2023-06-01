@@ -11,6 +11,7 @@ crue10.emh.branche module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.emh.casier module
 ------------------------
@@ -19,6 +20,7 @@ crue10.emh.casier module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.emh.noeud module
 -----------------------
@@ -27,6 +29,7 @@ crue10.emh.noeud module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.emh.section module
 -------------------------
@@ -35,7 +38,7 @@ crue10.emh.section module
    :members:
    :undoc-members:
    :show-inheritance:
-
+   :special-members: __init__
 
 Module contents
 ---------------

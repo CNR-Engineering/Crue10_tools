@@ -1,0 +1,448 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns:crue="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.3 Release 0
+			schéma definissant les types, éléments partageables.
+			Cette xsd est incomplète et n'est pas valide.
+			Elle doit être associée à
+			nomRef-fichierConcat-1.3.xsd ou
+			nomRef-fichierUnique-1.3.xsd
+			pour former une xsd complète.
+			Ce mécanisme n'est pas direct mais les schema xsd 
+			ne fournissent pas de moyen simple
+			pour redéfinir un attribut tout
+			en modifiant son type :
+			transformer un xs:TOKEN en xs:IDREF
+		</xs:documentation>
+	</xs:annotation>
+	
+	<xs:element name="VersionCrue">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<!-- Ci-dessous, avec quelles versions de Crue cette grammaire est compatible -->
+				<xs:pattern value="10\.[4-4]\.([0-9])+" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<xs:element name="Commentaire" type="xs:string" />
+
+	<xs:simpleType name="TypeDoublePositiveOrNull">
+		<xs:annotation>
+			<xs:documentation>
+				Type à utiliser pour les doubles qui doivent être
+				positifs ou nuls
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:double">
+			<xs:minInclusive value="0" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeDoublePositiveStrict">
+		<xs:restriction base="xs:double">
+			<xs:minExclusive value="0" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeString8">
+		<xs:restriction base="xs:string">
+			<xs:length value="8" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeHexBinary64Bits">
+		<xs:restriction base="xs:hexBinary">
+			<xs:length value="8" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeDoubleOuHexBinary64Bits">
+		<xs:union memberTypes="xs:double TypeHexBinary64Bits" />
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeDateNull">
+		<xs:restriction base="xs:string">
+			<xs:length value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- Obligé de définir ce type sinon la validation ne se fait pas correction dans le cas de la xsd globale. -->
+	<xs:simpleType name="TypeDateDebSce">
+		<xs:union memberTypes="xs:dateTime TypeDateNull"/>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeNom">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les attributs "Nom"
+				(sauf Noeud, DefQregul et DefZregul) soit xs:ID.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:ID">
+			<!-- 32 caractère max -->
+			<xs:maxLength value="32" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeNomQregul">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les attributs "Nom" de DefQregul
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="32" />
+			<xs:pattern value="Q.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+		<xs:simpleType name="TypeForAttributeNomZregul">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les attributs "Nom" de DefZregul
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="32" />
+			<xs:pattern value="Z.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="TypeEmpty">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tout type vide.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+
+	<xs:complexType name="TypeNomRefDistant">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les éléments ayant un
+				attribut NomRef inter-fichier.
+				Ce type utilise TypeForAttributeNomRefDistant
+				qui est défini différemment
+				pour un contrôle fichierUnique (dans nomRef-fichierUnique-1.3.xsd) ou
+				pour un contrôle fichierConcat (dans nomRef-fichierConcat-1.3.xsd)
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeNomRefLocal">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les éléments ayant un
+				attribut NomRef qui pointe en local
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute type="xs:IDREF" name="NomRef" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeNomRefNoeud">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les éléments ayant un
+				attribut NomRef qui pointe vers un Noeud
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute type="TypeForAttributeNomRefNoeud" name="NomRef" use="required" />
+	</xs:complexType>
+
+	<xs:simpleType name="TypeForAttributeNomRefNoeud">
+		<xs:restriction base="xs:token">
+			<xs:pattern value="Nd_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeNomRefCasier">
+		<xs:restriction base="TypeForAttributeNomRefDistant">
+			<xs:pattern value="Ca_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="TypeForAttributeNomRefBranche">
+		<xs:restriction base="TypeForAttributeNomRefDistant">
+			<xs:pattern value="Br_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeNomRefSection">
+		<xs:restriction base="TypeForAttributeNomRefDistant">
+			<xs:pattern value="St_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeNomRefCalc">
+		<xs:restriction base="TypeForAttributeNomRefDistant">
+			<xs:pattern value="Cc_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeNomRefCalcTransExt">
+		<xs:restriction base="xs:token">
+			<xs:pattern value="Cc_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeNomRefSectionExt">
+		<xs:restriction base="xs:token">
+			<xs:pattern value="St_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="TypeNom">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les éléments n'ayant qu'un
+				attribut Nom
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute type="TypeForAttributeNom" name="Nom" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeNomFic">
+		<xs:annotation>
+			<xs:documentation>
+				Type a utiliser pour tous les éléments n'ayant qu'un
+				attribut NomFic, nom de fichier non unique
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute type="xs:token" name="NomFic" use="required" />
+	</xs:complexType>
+
+	<xs:element name="PointFF" type="TypeVec2d" />
+
+	<xs:complexType name="TypeSeriePointFF">
+		<xs:annotation>
+			<xs:documentation>
+				Définit une serie non nommée de PointFF.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="PointFF" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="TypeNullString">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeForAttributeString8">
+		<xs:restriction base="xs:string">
+			<xs:length value="8" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="TypeLoi" abstract="true">
+		<xs:attribute name="Nom" use="required" type="TypeForAttributeNom" />
+		<xs:attribute name="Type" use="required" type="TypeForAttributeNomRefDistant" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeLoiDF">
+		<xs:complexContent>
+			<xs:extension base="TypeLoi">
+				<xs:sequence>
+					<xs:element ref="Commentaire" minOccurs="0" />
+					<xs:element name="DateZeroLoiDF" nillable="true" minOccurs="1">
+						<xs:simpleType>
+							<xs:union memberTypes="xs:dateTime TypeNullString" />
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="EvolutionFF" type="TypeSeriePointFF" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="TypeLoiFF">
+		<xs:complexContent>
+			<xs:extension base="TypeLoi">
+				<xs:sequence>
+					<xs:element ref="Commentaire" minOccurs="0" />
+					<xs:element name="EvolutionFF" type="TypeSeriePointFF" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:simpleType name="TypeForAttributeNomBatiCasier">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Bc_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomBranche">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Br_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomCasier">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Ca_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomCalc">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Cc_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomEtiquette">
+		<xs:restriction base="xs:token">
+			<xs:pattern value="Et_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeLitNomme">
+		<xs:restriction base="xs:token">
+			<xs:pattern value="Lt_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomModele">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Mo_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Transfert dans nomRef-fichierConcat-1.3.xsd et nomRef-fichierUnique-1.3.xsd
+		pour pouvoir contrôler l'unicité du noeud dans le sous modèle
+	<xs:simpleType name="TypeForAttributeNomNoeud">
+		<xs:restriction base="xs:token">
+			<xs:maxLength value="32" />
+			<xs:pattern value="Nd_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	-->
+	<xs:simpleType name="TypeForAttributeNomProfilCasier">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Pc_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomProfilSection">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Ps_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomScenario">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Sc_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomSousModele">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="Sm_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomSection">
+		<xs:restriction base="TypeForAttributeNom">
+			<xs:pattern value="St_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeVec2d">
+		<xs:annotation>
+			<xs:documentation>
+				Permet de spécifier des valeurs du style vecteur 2d. Exemple 0.00 1.00
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:whiteSpace value="collapse" />
+			<xs:pattern value="((\+|\-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)((E|e)(\+|\-)?[0-9]+)?
+(\+|\-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)((E|e)(\+|\-)?[0-9]+)?)?" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeVec3d">
+		<xs:annotation>
+			<xs:documentation>
+				Permet de spécifier des valeurs du style vecteur 3d. Exemple 0.00 1.00 2.00
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:whiteSpace value="collapse" />
+			<xs:pattern
+				value="((\+|\-)?(0|[1-9][0-9]*)?(\.[0-9]*)?((E|e)(\+|\-)?[0-9]+)?
+(\+|\-)?(0|[1-9][0-9]*)?(\.[0-9]*)?((E|e)(\+|\-)?[0-9]+)?
+(\+|\-)?(0|[1-9][0-9]*)?(\.[0-9]*)?((E|e)(\+|\-)?[0-9]+)?)?" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeSeverite">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="DEBUG3" />
+			<xs:enumeration value="DEBUG2" />
+			<xs:enumeration value="DEBUG1" />
+			<xs:enumeration value="FCT3" />
+			<xs:enumeration value="FCT2" />
+			<xs:enumeration value="FCT1" />
+			<xs:enumeration value="INFO" />
+			<xs:enumeration value="WARN" />
+			<xs:enumeration value="ERRNBLK" />
+			<xs:enumeration value="ERRBLK" />
+			<xs:enumeration value="FATAL" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="TypeAvancement">
+		<xs:sequence>
+			<xs:element name="SortieFichier" type="xs:boolean" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TypeTrace">
+		<xs:sequence>
+			<xs:element name="SortieEcran" type="xs:boolean" />
+			<xs:element name="SortieFichier" type="xs:boolean" />
+			<xs:element name="VerbositeEcran" type="TypeSeverite" />
+			<xs:element name="VerbositeFichier" type="TypeSeverite" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TypeResultat">
+		<xs:sequence>
+			<xs:element name="SortieFichier" type="xs:boolean" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TypeSorties">
+		<xs:annotation>
+			<xs:documentation>
+				Paramétrage des sorties des prétraitements et du calcul
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Avancement" type="TypeAvancement" />
+			<xs:element name="Trace" type="TypeTrace" />
+			<xs:element name="Resultat" type="TypeResultat" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TypeRegle">
+		<xs:sequence>
+			<xs:element name="IsActive" type="xs:boolean" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:simpleType name="TypeDuree">
+		<xs:annotation>
+			<xs:documentation>
+        Type a utiliser pour toutes les durees :
+				restriction de xs:duration avec année et mois obligatoirement à 0 
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:duration">
+			<!-- Restriction du format des durées : un caractère au moins obligatoire dans chaque champ, partie décimale des secondes limitée à 3 décimales
+			<xs:pattern value="P0Y0M([0-9])*DT([0-9])*H([0-9])*M([0-9])*S"/> 
+			-->
+			<xs:whiteSpace value="collapse" />
+			<xs:pattern value="P(0Y0M)?[0-9]+DT[0-9]+H[0-9]+M([0-9])+(\.[0-9]{1,3})?S"/> 
+		</xs:restriction>
+	</xs:simpleType>
+
+</xs:schema>

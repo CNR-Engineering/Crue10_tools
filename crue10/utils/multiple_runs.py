@@ -2,10 +2,10 @@
 from collections import OrderedDict
 from glob import glob
 import logging
-import os
-import pandas as pd
 from multiprocessing import Pool
 import numpy as np
+import os
+import pandas as pd
 
 from crue10.etude import Etude
 from crue10.utils import ExceptionCrue10, logger
@@ -21,10 +21,10 @@ def launch_scenario_modifications(function, modifications_liste, ncsize=NCSIZE):
 def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_PATH}, overwrite=True):
     """
     :param dossier: dossier contenant des sous-dossiers avec un ou plusieurs .etu.xml
-    :param scenarios_dict: dictionnaire avec le scénario à lancer (mettre None pour prendre le scénario par défaut
+    :param scenarios_dict: dictionnaire avec les scénarios à lancer (mettre None pour prendre un scénario par défaut)
     :param crue_exe_dict: dictionnaire avec les coeurs à lancer (identifiant et chemin vers crue10.exe)
-    :param overwrite: overwrite run if already exists
-    :returns pd.DataFrame
+    :param overwrite: écrase les Run s'ils existent déjà
+    :rtype: pd.DataFrame
     """
     LOGGER_LEVEL = logger.level
     df_runs = pd.DataFrame({'etude_dossier': [], 'etude_basename': [], 'scenario': [], 'exe_id': [],
@@ -61,18 +61,13 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
 
                 for scenario_name in scenario_names:
                     scenario = etude.get_scenario(scenario_name)
-                    logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actif()))
-
-                    # Shift 'prod' to the end to call `normalize_for_10_2` safely
-                    if 'prod' in crue_exe_dict:
-                        value = crue_exe_dict.pop('prod')
-                        crue_exe_dict['prod'] = value
+                    logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actifs()))
 
                     for run_idx, (exe_id, crue10_exe) in enumerate(crue_exe_dict.items()):
-                        if exe_id == 'prod':
-                            scenario.normalize_for_10_2()
-
                         values = OrderedDict()
+
+                        if exe_id == 'qualif':
+                            scenario.changer_version_grammaire('1.3')
 
                         run_id = scenario_name[3:] + '_' + exe_id
                         run_id = run_id[:32]  # avoid error with too long identifier
@@ -92,16 +87,16 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
 
                         # Get nb_calc_perm
                         try:
-                            results = run.get_results()
-                            values['nb_calc_perm'] = len(results.calc_steady_dict)
+                            resultats = run.get_resultats_calcul()
+                            values['nb_calc_perm'] = len(resultats.res_calc_pseudoperm)
                         except IOError as e:
-                            logger.warn("Aucun résultat trouvé (fichier rcal manquant) pour le Run #%s" % run_id)
+                            logger.warning("Aucun résultat trouvé (fichier rcal manquant) pour le Run #%s" % run_id)
                             values['nb_calc_perm'] = 0
 
                         # Compute nb_services_ok
                         nb_services_ok = 0
                         for service, traces in run.traces.items():
-                            if traces and run.nb_erreurs([service]) == 0:
+                            if traces and run.nb_erreurs_bloquantes([service]) == 0:
                                 if service == 'r':
                                     # Display a message to check Crue10 version
                                     logger.debug("%s: %s" % (exe_id, traces[0].get_message()))
@@ -110,17 +105,17 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                         # Save criteria in values and append them in df_runs
                         values.update(OrderedDict([
                             ('nb_services_ok', nb_services_ok),
-                            ('nb_erreurs_calculs', run.nb_erreurs_calcul()),
-                            ('nb_avertissements_calculs', run.nb_avertissements_calcul()),
+                            ('nb_erreurs_calcul', run.nb_erreurs_calcul()),
+                            ('nb_avertissements_calcul', run.nb_avertissements_calcul()),
                         ]))
                         for var, value in values.items():
-                            df_append = pd.Series({
+                            serie = pd.Series({
                                 'etude_dossier': etude_dossier, 'etude_basename': os.path.basename(etu_path),
                                 'scenario': scenario_name, 'exe_id': exe_id,
                                 'run_idx': run_idx, 'run_id': run_id,
                                 'variable': var, 'value': value
                             })
-                            df_runs = df_runs.append(df_append, ignore_index=True)
+                            df_runs.loc[len(df_runs)] = serie
 
             except ExceptionCrue10 as e:
                 logger.critical("ERREUR CRITIQUE :\n%s" % e)
@@ -136,7 +131,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
     :param reference:
     :param variable:
     :param emh_type:
-    :returns pd.DataFrame
+    :rtype: pd.DataFrame
     """
     # Sort df_runs_unique to have 'prod' in first position to compute differences
     df_runs_unique = df_runs_unique.sort_values(['etude_dossier', 'scenario', 'exe_id'],
@@ -146,31 +141,32 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
     res_perm = {}
     cols = list(df_runs_unique.columns)
     df_diff_stat = pd.DataFrame({col: [] for col in cols + ['variable', 'value']})
+    etude = None
     etu_path_last = ''
     for _, row in df_runs_unique.iterrows():
-        # Build a Study instance
+        # Build a `Etude` instance
         etude_dossier = row['etude_dossier']
         etu_path = os.path.join(dossier, etude_dossier, row['etude_basename'])
         if etu_path != etu_path_last:
             logger.info(">>>>>>>>>> Dossier étude: %s <<<<<<<<<<" % etude_dossier)
             etude = Etude(etu_path)
 
-        # Get a Scenario instance and read its data
+        # Get a `Scenario` instance and read its data
         scenario = etude.get_scenario(row['scenario'])
         logger.setLevel(logging.ERROR)
         scenario.read_all()
         logger.setLevel(LOGGER_LEVEL)
 
-        # Get a Run instance and read all steady results
+        # Get a `Run` instance and read all steady results
         run = scenario.get_run(row['run_id'])
         logger.info(run)
         try:
-            results = run.get_results()
+            resultats = run.get_resultats_calcul()
         except IOError as e:
             logger.error("Un fichier de sortie du Run `%s` manque: %s" % (run.id, e))
             continue
         key = (scenario.id, row['exe_id'])
-        res_perm_curr = results.get_res_all_steady_var_at_emhs(variable, results.emh[emh_type])
+        res_perm_curr = resultats.get_all_pseudoperm_var_at_emhs_as_array(variable, resultats.emh[emh_type])
         res_perm[key] = res_perm_curr
 
         # Get reference results to compute differences
@@ -194,11 +190,10 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         diff = res_perm_curr - res_perm_ref
         diff_abs = np.abs(diff)
 
-        nb_calc_perm = len(results.calc_steady_dict)
         if out_csv_diff_by_calc is not None and row['exe_id'] == 'qualif':
             df_diff = pd.DataFrame({
-                'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int) + 1, diff.shape[1]),
-                'emh': results.emh[emh_type] * diff.shape[0],
+                'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int64) + 1, diff.shape[1]),
+                'emh': resultats.emh[emh_type] * diff.shape[0],
                 'diff': diff.flatten()
             })
             df_diff.to_csv(out_csv_diff_by_calc % etude_dossier, sep=';', index=False)
@@ -215,7 +210,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         metadata = dict(row)
         for var, value in values.items():
             metadata.update({'variable': var, 'value': value})
-            df_diff_stat = df_diff_stat.append(pd.Series(metadata), ignore_index=True)
+            df_diff_stat.loc[len(df_diff_stat)] = pd.Series(metadata)
 
         # Save current etu_path to avoid reading again at next loop iteration
         etu_path_last = etu_path

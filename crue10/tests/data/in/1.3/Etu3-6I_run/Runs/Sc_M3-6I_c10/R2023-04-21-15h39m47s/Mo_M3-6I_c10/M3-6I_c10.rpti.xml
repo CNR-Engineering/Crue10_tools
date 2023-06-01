@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<RPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/rpti-1.3.xsd">
+
+  <!--Le fichier RPTI est le fichier de résultat du prétraitement des conditions initiales. Son périmètre est le modèle-->
+
+  <Commentaire>Commentaire RPTI</Commentaire>
+
+  <ResPrtCIniCasiers>
+    <ResPrtCIniCasier NomRef="Ca_N6">
+      <!--Zini= 2.926-->
+      <Zini>40076872b020c49c</Zini>
+    </ResPrtCIniCasier>
+    <ResPrtCIniCasier NomRef="Ca_N7">
+      <!--Zini= 2.926-->
+      <Zini>40076872b020c49c</Zini>
+    </ResPrtCIniCasier>
+  </ResPrtCIniCasiers>
+
+  <ResPrtCIniSections>
+    <ResPrtCIniSection NomRef="St_B1_00050">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.6306-->
+      <Zini>400d0b780346dc5e</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_B1_00150">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.5398-->
+      <Zini>400c5182a9930be1</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_B1_00250">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.449-->
+      <Zini>400b978d4fdf3b64</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_B1_00350">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.3582-->
+      <Zini>400add97f62b6ae8</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_B1_00450">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.2674-->
+      <Zini>400a23a29c779a6b</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_B5_Am">
+      <!--Qini= 0-->
+      <Qini>0000000000000000</Qini>
+      <!--Zini= 3.222-->
+      <Zini>4009c6a7ef9db22d</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_B5_Av">
+      <!--Qini= 0-->
+      <Qini>0000000000000000</Qini>
+      <!--Zini= 2.926-->
+      <Zini>40076872b020c49c</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_B8_Am">
+      <!--Qini= 0-->
+      <Qini>0000000000000000</Qini>
+      <!--Zini= 2.926-->
+      <Zini>40076872b020c49c</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_B8_Av">
+      <!--Qini= 0-->
+      <Qini>0000000000000000</Qini>
+      <!--Zini= 2-->
+      <Zini>4000000000000000</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF1">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 2-->
+      <Zini>4000000000000000</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF10">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.5852-->
+      <Zini>400cae7d566cf41f</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF2">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 2.312-->
+      <Zini>40027ef9db22d0e6</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF3A">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 2.779-->
+      <Zini>40063b645a1cac08</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF3AM">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 2.779-->
+      <Zini>40063b645a1cac08</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF3AV">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 2.624-->
+      <Zini>4004fdf3b645a1cb</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF3B">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 2.624-->
+      <Zini>4004fdf3b645a1cb</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF4">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 2.926666666666667-->
+      <Zini>400769d0369d036a</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF5">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.074333333333333-->
+      <Zini>4008983c131d5acb</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF6A">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.222-->
+      <Zini>4009c6a7ef9db22d</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF6B">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.222-->
+      <Zini>4009c6a7ef9db22d</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF7">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.3128-->
+      <Zini>400a809d495182aa</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF8">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.4036-->
+      <Zini>400b3a92a3055326</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROF9">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.4944-->
+      <Zini>400bf487fcb923a3</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROFSTR1">
+      <!--Qini= 0-->
+      <Qini>0000000000000000</Qini>
+      <!--Zini= 2.926-->
+      <Zini>40076872b020c49c</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_PROFSTR2">
+      <!--Qini= 0-->
+      <Qini>0000000000000000</Qini>
+      <!--Zini= 2.926-->
+      <Zini>40076872b020c49c</Zini>
+    </ResPrtCIniSection>
+    <ResPrtCIniSection NomRef="St_Prof11">
+      <!--Qini= 100-->
+      <Qini>4059000000000000</Qini>
+      <!--Zini= 3.676-->
+      <Zini>400d6872b020c49c</Zini>
+    </ResPrtCIniSection>
+  </ResPrtCIniSections>
+
+</RPTI>

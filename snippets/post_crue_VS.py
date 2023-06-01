@@ -17,12 +17,12 @@ try:
 
     # Read rcal result file and its results
     run = etude.get_scenario('Sc_EtatsRef2015').get_run('R2019-04-16-14h09m19s')
-    results = run.get_results()
+    resultats = run.get_resultats_calcul()
     calc_name = 'Cc_Avr_2006'
 
-    pos_Q = results.variables['Section'].index('Q')
-    calc_trans = results.get_calc_unsteady(calc_name)
-    Q_at_sections = results.get_res_unsteady(calc_name)['Section'][:, :, pos_Q]
+    pos_Q = resultats.variables['Section'].index('Q')
+    calc_trans = resultats.get_res_calc_trans(calc_name)
+    Q_at_sections = resultats.get_data_trans(calc_name)['Section'][:, :, pos_Q]
     # print(Q_at_sections[:, run.emh['Section'].index('St_RET15.100')])
     Qmin_at_sections = Q_at_sections.min(axis=0)
     Qmax_at_sections = Q_at_sections.max(axis=0)
@@ -43,7 +43,7 @@ try:
                 if branche.is_active:
                     values = {var: 'NA' for var in variables}
 
-                    idx_section = results.emh['Section'].index(
+                    idx_section = resultats.emh['Section'].index(
                         branche.get_section_amont().id)  # same results for upstream and downstream sections
                     values['Qmin'] = round(Qmin_at_sections[idx_section], 0)
                     values['Qmax'] = round(Qmax_at_sections[idx_section], 0)

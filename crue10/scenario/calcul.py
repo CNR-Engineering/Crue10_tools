@@ -1,4 +1,12 @@
 # coding: utf-8
+"""
+Classe abstraite : :class:`Calcul`
+
+Classes dérivées :
+
+* :class:`CalcPseudoPerm`
+* :class:`CalcTrans`
+"""
 import abc
 from builtins import super  # python2 compatibility, requires module `future`
 from collections import OrderedDict
@@ -12,11 +20,16 @@ ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 class Calcul(ABC):
     """
-    Abstract class for Sections
+    Classe abstraite pour les calculs
 
-    - id
-    - comment
-    - values:
+    :ivar id: nom du calcul
+    :vartype id: str
+    :ivar comment: commentaire du calcul
+    :vartype comment: str
+    :ivar values: paramètres du calcul (EMH, type et valeur/loi pour la CLimM...)
+    :vartype values: list
+
+    Contenu d'une valeur (élément de `values`):
         * nom_emh
         * CLIM_TYPE_TO_TAG_VALUE.keys()[*]
         * IsActive <bool>
@@ -27,11 +40,21 @@ class Calcul(ABC):
         * nom_fic
     """
     def __init__(self, nom, comment=''):
+        """
+        :param nom: nom du calcul
+        :type nom: str
+        :param comment: commentaire optionnel
+        :type comment: str
+        """
         self.id = nom
         self.comment = comment
         self.values = []
 
-    def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None, typ_loi=None, param_loi=None, nom_fic=None):
+    def ajouter_valeur(self, nom_emh, clim_tag, is_active, value, sens=None, typ_loi=None,
+                       param_loi=None, nom_fic=None):
+        """
+        Ajouter une valeur (voir la définition de la classe pour plus de détails)
+        """
         check_isinstance(nom_emh, str)  # TODO: check that EMH exists
         check_isinstance(is_active, bool)
         check_isinstance(sens, [type(None), str])
@@ -39,6 +62,10 @@ class Calcul(ABC):
 
 
 class CalcPseudoPerm(Calcul):
+    """
+    Calcul pseudo-permanent
+    """
+
     CLIM_TYPE_TO_TAG_VALUE = {
         'CalcPseudoPermNoeudQapp': 'Qapp',
         'CalcPseudoPermNoeudNiveauContinuZimp': 'Zimp',
@@ -53,23 +80,51 @@ class CalcPseudoPerm(Calcul):
         super().ajouter_valeur(nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic)
 
     def get_valeur(self, nom_emh):
+        """
+        Obtenir la valeur de la CLimMs de l'EMH demandé
+
+        :param nom_emh: nom de l'EMH demandé
+        :type nom_emh: str
+        :rtype: float
+        """
         idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
         nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = self.values[idx]
         return value
 
     def multiplier_valeur(self, nom_emh, facteur):
+        """
+        Appliquer un facteur multiplicatif sur la ClimM de l'EMH
+
+        :param nom_emh: nom de l'EMH demandé
+        :type nom_emh: str
+        :param facteur: facteur multiplicatif
+        :type facteur: float
+        """
         check_isinstance(facteur, float)
         idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
         nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = self.values[idx]
         self.values[idx] = nom_emh, clim_tag, is_active, value * facteur, sens, typ_loi, param_loi, nom_fic
 
     def set_valeur(self, nom_emh, value):
+        """
+        Affecter la valeur sur la ClimM de l'EMH
+
+        :param nom_emh: nom de l'EMH demandé
+        :type nom_emh: str
+        :param facteur: valeur
+        :type facteur: float
+        """
         check_isinstance(value, float)
         idx = [emh_id for emh_id, _, _, _, _, _, _, _ in self.values].index(nom_emh)
         nom_emh, clim_tag, is_active, _, sens, typ_loi, param_loi, nom_fic = self.values[idx]
         self.values[idx] = nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic
 
     def get_somme_Qapp(self):
+        """
+        Obtenir la somme des débits dans le modèle (les débits sortant sont négatifs)
+
+        :rtype: float
+        """
         sum = 0.0
         for _, clim_tag, _, value, _, _, _, _ in self.values:
             if clim_tag == 'CalcPseudoPermNoeudQapp':
@@ -77,6 +132,11 @@ class CalcPseudoPerm(Calcul):
         return sum
 
     def get_somme_positive_Qapp(self):
+        """
+        Obtenir la somme des débits entrants dans le modèle
+
+        :rtype: float
+        """
         sum = 0.0
         for _, clim_tag, _, value, _, _, _, _ in self.values:
             if clim_tag == 'CalcPseudoPermNoeudQapp' and value > 0:
@@ -88,6 +148,10 @@ class CalcPseudoPerm(Calcul):
 
 
 class CalcTrans(Calcul):
+    """
+    Calcul transitoire
+    """
+
     CLIM_TYPE_TO_TAG_VALUE = {
         'CalcTransNoeudQapp': 'HydrogrammeQapp',
         'CalcTransNoeudNiveauContinuLimnigramme': 'Limnigramme',

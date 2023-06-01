@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationScenario xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xi="http://www.w3.org/2001/XInclude" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/scenario-1.2.xsd">
+<xi:include href="file:/{{ crueconfigmetier_path }}" />
+<ScenarioFichiers>
+<xi:include href="file:/{{ folder }}/{{ scenario.file_basenames.ocal }}" />
+<xi:include href="file:/{{ folder }}/{{ scenario.file_basenames.ores }}" />
+<xi:include href="file:/{{ folder }}/{{ scenario.file_basenames.pcal }}" />
+<xi:include href="file:/{{ folder }}/{{ scenario.file_basenames.dclm }}" />
+<xi:include href="file:/{{ folder }}/{{ scenario.file_basenames.dlhy }}" />
+</ScenarioFichiers>
+<ValidationModele>
+<ModeleFichiers>
+<xi:include href="file:/{{ folder }}/{{ modele.file_basenames.optr }}" />
+<xi:include href="file:/{{ folder }}/{{ modele.file_basenames.optg }}" />
+<xi:include href="file:/{{ folder }}/{{ modele.file_basenames.opti }}" />
+<xi:include href="file:/{{ folder }}/{{ modele.file_basenames.pnum }}" />
+<xi:include href="file:/{{ folder }}/{{ modele.file_basenames.dpti }}" />
+</ModeleFichiers>
+<SousModeleFichiers>
+{%- for sous_modele in sous_modele_liste %}
+<xi:include href="file:/{{ folder }}/{{ sous_modele.file_basenames.drso }}" />
+<xi:include href="file:/{{ folder }}/{{ sous_modele.file_basenames.dcsp }}" />
+<xi:include href="file:/{{ folder }}/{{ sous_modele.file_basenames.dptg }}" />
+<xi:include href="file:/{{ folder }}/{{ sous_modele.file_basenames.dfrt }}" />
+{%- endfor %}
+</SousModeleFichiers>
+</ValidationModele>
+</ValidationScenario>

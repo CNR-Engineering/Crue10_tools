@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-
 from setuptools import find_packages, setup
+from crue10 import VERSION
 
 
 with open('requirements.txt') as f:
@@ -9,11 +9,11 @@ with open('requirements.txt') as f:
 
 setup(
     name='Crue10_tools',
-    version='3.1',
-    author='Luc Duron',
+    version=VERSION,
+    author='Luc DURON',
     author_email='l.duron@cnr.tm.fr',
     packages=find_packages(),
     install_requires=requirements,
-    description='Python library for Crue10 file formats',
+    description='Librairie Python pour les formats de fichiers Crue10',
     url='https://github.com/CNR-Engineering/crue10_tools',
 )

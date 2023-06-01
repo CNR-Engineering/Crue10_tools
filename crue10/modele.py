@@ -6,56 +6,58 @@ import fiona
 from lxml import etree
 import numpy as np
 import os.path
+import pandas as pd
 from shapely.geometry import LineString, mapping, Point
 
-from crue10.base import FichierXML
-from crue10.emh.branche import BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique, BrancheSaintVenant
-from crue10.emh.section import SectionProfil, LitNumerote
-from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
-    ExceptionCrue10, logger, PREFIX, write_default_xml_file, write_xml_from_tree
+from crue10.base import EnsembleFichiersXML
+from crue10.emh.branche import Branche, BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
+from crue10.emh.section import SectionIdem, SectionProfil, LimiteGeom, LitNumerote
+from crue10.utils import check_isinstance, check_preffix, DATA_FOLDER_ABSPATH, duration_iso8601_to_seconds, \
+    duration_seconds_to_iso8601, get_xml_root_from_file, logger, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
 
 
-class Modele(FichierXML):
+class Modele(EnsembleFichiersXML):
     """
     Modèle Crue10
 
     :param id: nom du modèle
-    :type id: str
-    :param liste_sous_modeles: liste des sous-modèles
-    :type liste_sous_modeles: list(SousModele)
-    :param noeuds_ic: conditions initiales aux noeuds
-    :type noeuds_ic: dict
-    :param casiers_ic: conditions initiales aux casiers
-    :type casiers_ic: dict
-    :param branches_ic: conditions initiales aux branches
-    :type branches_ic: dict
-    :param graph: graphe orienté avec tous les noeuds et branches actives
-    :type graph: networkx.DiGraph
+    :vartype id: str
+    :ivar liste_sous_modeles: liste des sous-modèles
+    :vartype liste_sous_modeles: list(SousModele)
+    :ivar noeuds_ic: conditions initiales aux noeuds (Zini)
+    :vartype noeuds_ic: OrderedDict
+    :ivar casiers_ic: conditions initiales aux casiers (Qruis)
+    :vartype casiers_ic: OrderedDict
+    :ivar branches_ic: conditions initiales aux branches (Qini et selon les types de branches : Qruis, Ouv et SensOuv)
+    :vartype branches_ic: OrderedDict
+    :ivar graph: graphe orienté avec tous les noeuds et branches actives
+    :vartype graph: networkx.DiGraph
     """
 
-    FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti']
-    FILES_XML_OPTIONAL = ['dreg']
+    FILES_XML = ['optr', 'optg', 'opti', 'pnum', 'dpti', 'dreg']
     FILES_XML_WITHOUT_TEMPLATE = ['optr', 'optg', 'opti', 'pnum', 'dreg']
 
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_modele, access='r', files=None, metadata=None):
+    def __init__(self, nom_modele, mode='r', files=None, metadata=None, version_grammaire=None):
         """
         :param nom_modele: nom du modèle
         :type nom_modele: str
-        :param access: accès en lecture ('r') ou écriture ('w')
-        :type access: str
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
         :param files: dictionnaire des chemins vers les fichiers xml
         :type files: dict(str)
         :param metadata: dictionnaire avec les méta-données
         :type metadata: dict(str)
+        :param version_grammaire: version de la grammaire
+        :type version_grammaire: str
         """
         check_preffix(nom_modele, 'Mo_')
         self.id = nom_modele
-        super().__init__(access, files, metadata)
+        super().__init__(mode, files, metadata, version_grammaire=version_grammaire)
 
         self.liste_sous_modeles = []
         self._graph = None
@@ -67,12 +69,14 @@ class Modele(FichierXML):
 
     @property
     def graph(self):
+        """Graphe orienté avec les noeuds et les branches du modèle"""
         if self._graph is None:
             self._build_graph()
         return self._graph
 
     @staticmethod
     def rename_emh(dictionary, old_id, new_id, replace_obj=True):
+        """Renommer une EMH (changer son attribut id) dans un dictionnaire"""
         dictionary[new_id] = dictionary.pop(old_id)
         if replace_obj:
             dictionary[new_id].id = new_id
@@ -90,12 +94,24 @@ class Modele(FichierXML):
                 Modele.rename_emh(dictionary, old_id, new_id, replace_obj)
 
     def rename_noeud(self, old_id, new_id):
+        """Renommer un noeud"""
         logger.debug("Renommage Noeud: %s -> %s" % (old_id, new_id))
         for sous_modele in self.liste_sous_modeles:
             Modele.rename_emh(sous_modele.noeuds, old_id, new_id)
             Modele.rename_emh(self.noeuds_ic, old_id, new_id, replace_obj=False)
 
     def rename_emhs(self, suffix, emh_list=['Fk', 'Nd', 'Cd', 'St', 'Br'], emhs_to_preserve=[]):
+        """
+        Renommer les EMHs de tous les sous-modèles du modèle courant
+
+        :param suffix: suffixe à ajouter aux EMHs
+            (pour les sections sans géométrie, le suffixe à ajouter est mis avant le suffixe `_Am` ou `_Av`)
+        :type suffix: str
+        :param emh_list: liste des types d'EMHs à renommer
+        :type emh_list: list(str)
+        :param emhs_to_preserve: liste des noeuds à ne pas renommer
+        :type emhs_to_preserve: list(str)
+        """
         for sous_modele in self.liste_sous_modeles:
             if 'Fk' in emh_list:
                 Modele.rename_key_and_obj(sous_modele.lois_frottement, suffix)
@@ -162,7 +178,7 @@ class Modele(FichierXML):
         :param nom_branche: nom de la branche
         :type nom_branche: str
         :return: branche demandée
-        :rtype: crue10.emh.branche.Branche
+        :rtype: Branche
         """
         for branche in self.get_liste_branches():
             if branche.id == nom_branche:
@@ -174,7 +190,7 @@ class Modele(FichierXML):
         :param nom_casier: nom du casier
         :type nom_casier: str
         :return: casier demandé
-        :rtype: crue10.emh.casier.Casier
+        :rtype: Casier
         """
         for casier in self.get_liste_casiers():
             if casier.id == nom_casier:
@@ -186,7 +202,7 @@ class Modele(FichierXML):
         :param nom_loi_frottement: nom de la loi de frottement
         :type nom_loi_frottement: str
         :return: loi de frottement demandée
-        :rtype: crue10.emh.section.LoiFrottement
+        :rtype: LoiFrottement
         """
         for loi in self.get_liste_lois_frottement():
             if loi.id == nom_loi_frottement:
@@ -196,7 +212,7 @@ class Modele(FichierXML):
     def get_liste_noeuds(self):
         """
         :return: liste des noeuds
-        :rtype: [Noeud]
+        :rtype: list(Noeud)
         """
         noeuds = []
         for sous_modele in self.liste_sous_modeles:
@@ -206,7 +222,7 @@ class Modele(FichierXML):
     def get_liste_casiers(self):
         """
         :return: liste des casiers
-        :rtype: [Casier]
+        :rtype: list(Casier)
         """
         casiers = []
         for sous_modele in self.liste_sous_modeles:
@@ -215,12 +231,12 @@ class Modele(FichierXML):
 
     def get_liste_sections(self, section_type=None, ignore_inactive=False):
         """
-        :param section_type: classe du type de section (ie. classe fille de Section)
-        :type section_type: list, optional
+        :param section_type: classe du type de section (ie. classe fille de `Section`, par ex. `SectionProfil`)
+        :type section_type: class, optional
         :param ignore_inactive:
         :type ignore_inactive: bool, optional
         :return: liste des sections
-        :rtype: [Section]
+        :rtype: list(Section)
         """
         sections = []
         for sous_modele in self.liste_sous_modeles:
@@ -233,7 +249,7 @@ class Modele(FichierXML):
         :param filter_branch_types: liste des types de branches
         :type filter_branch_types: [int]
         :return: liste des branches
-        :rtype: [Branche]
+        :rtype: list(Branche)
         """
         branches = []
         for sous_modele in self.liste_sous_modeles:
@@ -245,7 +261,7 @@ class Modele(FichierXML):
         :param ignore_sto: True pour ignorer les lois de type `FkSto`
         :type ignore_sto: bool, optional
         :return: liste des lois de frottement
-        :rtype: [LoiFrottement]
+        :rtype: list(LoiFrottement)
         """
         lois = []
         for sous_modele in self.liste_sous_modeles:
@@ -255,7 +271,7 @@ class Modele(FichierXML):
     def get_missing_active_sections(self, section_id_list):
         """
         Returns the list of the requested sections which are not found (or not active) in the current modele
-            (section type is not checked)
+        (section type is not checked)
 
         :param section_id_list: list of section identifiers
         """
@@ -264,28 +280,28 @@ class Modele(FichierXML):
     def get_duplicated_noeuds(self):
         """
         :return: liste des noeuds dupliqués
-        :rtype: [Noeud]
+        :rtype: list(Noeud)
         """
         return [nd for nd, count in Counter([noeud.id for noeud in self.get_liste_noeuds()]).items() if count > 1]
 
     def get_duplicated_casiers(self):
         """
         :return: liste des casiers dupliqués
-        :rtype: [Casier]
+        :rtype: list(Casier)
         """
         return [ca for ca, count in Counter([casier.id for casier in self.get_liste_casiers()]).items() if count > 1]
 
     def get_duplicated_sections(self):
         """
         :return: liste des sections dupliquées
-        :rtype: [Section]
+        :rtype: list(Section)
         """
         return [st for st, count in Counter([section.id for section in self.get_liste_sections()]).items() if count > 1]
 
     def get_duplicated_branches(self):
         """
         :return: liste des branches dupliquées
-        :rtype: [Branche]
+        :rtype: list(Branche)
         """
         return [br for br, count in Counter([branche.id for branche in self.get_liste_branches()]).items() if count > 1]
 
@@ -299,7 +315,7 @@ class Modele(FichierXML):
     def get_branche_barrage(self):
         """
         :return: branche barrage du modèle (active ou non)
-        :rtype: {BrancheBarrageFilEau, BrancheBarrageGenerique}
+        :rtype: BrancheBarrageFilEau | BrancheBarrageGenerique
         """
         liste_branches = []
         for branche in self.get_liste_branches():
@@ -370,13 +386,24 @@ class Modele(FichierXML):
         return duration_iso8601_to_seconds(pdtcst_elt.text)
 
     def ajouter_sous_modele(self, sous_modele):
+        """
+        Ajouter un sous-modèle au modèle
+
+        :param sous_modele: sous-modèle à ajouter
+        :type: SousModele
+        """
         check_isinstance(sous_modele, SousModele)
         if sous_modele.id in self.liste_sous_modeles:
             raise ExceptionCrue10("Le sous-modèle %s est déjà présent" % sous_modele.id)
         self.liste_sous_modeles.append(sous_modele)
 
     def ajouter_depuis_modele(self, modele):
-        """Add modele in current modele with the related initial conditions"""
+        """
+        Ajouter tous les sous-modèles d'un modèle source avec ses conditions initiales au modèle courant
+
+        :param sous_modele: modèle à ajouter
+        :type: Modele
+        """
         for sous_modele in modele.liste_sous_modeles:
             self.ajouter_sous_modele(sous_modele)
 
@@ -387,6 +414,25 @@ class Modele(FichierXML):
             self.branches_ic[branche_id] = values
         for casier_id, value in modele.casiers_ic.items():
             self.casiers_ic[casier_id] = value
+
+    def create_empty_sous_modele(self, nom_sous_modele, mode, metadata=None):
+        """
+        Créer un sous-modèle vierge et l'ajouter au modèle
+
+        :param nom_sous_modele: nom du sous-modèle
+        :type nom_sous_modele: str
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
+        :return: sous-modèle vierge créé
+        :rtype: SousModele
+        """
+        version_grammaire = self.version_grammaire
+        sous_modele = SousModele(nom_sous_modele, mode=mode, metadata=metadata,
+                                 version_grammaire=version_grammaire)
+        self.ajouter_sous_modele(sous_modele)
+        return sous_modele
 
     def _build_graph(self):
         try:
@@ -403,7 +449,17 @@ class Modele(FichierXML):
                 self._graph.add_edge(branche.noeud_amont.id, branche.noeud_aval.id,
                                      branche=branche.id, weight=weight)
 
-    def get_branches_liste_entre_noeuds(self, nom_noeud_amont, nom_noeud_aval):
+    def get_liste_branches_entre_deux_noeuds(self, nom_noeud_amont, nom_noeud_aval):
+        """
+        Obtenir la liste des branches entre 2 noeuds
+        (le chemin le plus court, en passant par des branches Saint-Venant est retenu)
+
+        :param nom_noeud_amont: nom du noeud amont
+        :type nom_noeud_amont: str
+        :param nom_noeud_aval: nom du noeud aval
+        :type nom_noeud_aval: str
+        :rtype: list(Branche)
+        """
         try:
             import networkx as nx
         except ImportError:  # ModuleNotFoundError not available in Python2
@@ -416,14 +472,14 @@ class Modele(FichierXML):
         try:
             path = nx.shortest_path(self.graph, nom_noeud_amont, nom_noeud_aval, weight='weight')  # minimize weight
         except nx.exception.NetworkXException as e:
-            raise ExceptionCrue10("PROBLÈME AVEC LE GRAPHE : %s" % e)
+            raise ExceptionCrue10("PROBLÈME AVEC LE GRAPHE :\n%s" % e)
 
-        branches_list = []
+        branches = []
         for u, v in zip(path, path[1:]):
             edge_data = self.graph.get_edge_data(u, v)
             nom_branche = edge_data['branche']
-            branches_list.append(self.get_branche(nom_branche))
-        return branches_list
+            branches.append(self.get_branche(nom_branche))
+        return branches
 
     def set_pnum_CalcPseudoPerm_TolMaxZ(self, value):
         """
@@ -480,11 +536,19 @@ class Modele(FichierXML):
         sub_elt.text = duration_seconds_to_iso8601(value)
 
     def renommer(self, nom_modele_cible, folder):
+        """
+        Renommer le modèle courant
+
+        :param nom_modele_cible: nouveau nom du modèle
+        :type nom_modele_cible: str
+        :param folder: dossier pour les fichiers XML
+        :type folder: str
+        """
         self.id = nom_modele_cible
         for xml_type in Modele.FILES_XML:
             self.files[xml_type] = os.path.join(folder, nom_modele_cible[3:] + '.' + xml_type + '.xml')
 
-    def supprimer_noeuds_entre_deux_branches_fluviales(self):
+    def supprimer_noeuds_entre_branches_fluviales(self):
         """
         Remove all intermediate removable nodes which are located between 2 adjacent fluvial branches
         Downstream Branche and the intermediate SectionIdem are safely removed
@@ -502,14 +566,18 @@ class Modele(FichierXML):
     def decouper_branche_fluviale(self, nom_sous_modele, nom_branche, nom_branche_nouvelle, nom_section, nom_noeud):
         """
         Découper une branche fluviale au niveau de la section cible intermédiaire (doit exister sur la branche),
-            tout en conservant les conditions aux limites
+        tout en conservant les conditions aux limites (interpolation linéaire du débit et de la cote au nouveau noeud)
 
+        :param nom_sous_modele: nom du sous-modèle
+        :type nom_sous_modele: str
         :param nom_branche: nom de la branche à découper
+        :type nom_branche: str
         :param nom_branche_nouvelle: nom de la nouvelle branche (partie aval)
+        :type nom_branche_nouvelle: str
         :param nom_section: nom de la section servant à la découpe
+        :type nom_section: str
         :param nom_noeud: nom du noeud à créer
-        :return: position relative de la section, entre 0 (amont) et 1 (aval)
-        :rtype: float
+        :type nom_noeud: str
         """
         sous_modele = self.get_sous_modele(nom_sous_modele)
         branche = self.get_branche(nom_branche)
@@ -523,8 +591,59 @@ class Modele(FichierXML):
         self.noeuds_ic[nom_noeud] = (1 - section_pos_ratio) * niveau_amont + section_pos_ratio * niveau_aval
         self.noeuds_ic[nom_noeud_aval] = niveau_aval
 
+    def extract_limites_as_dataframe(self, branches):
+        """
+        Extraction d'un DataFrame pandas avec les limites géométriques et de lits nommées pour chaque section
+        se situant le long des branches
+
+        :param branches: liste des branches
+        :type branches: list(Branche)
+        :rtype: pd.DataFrame
+        """
+        columns = ['branche', 'section', 'distance']
+        limites_geom = [LimiteGeom.AXE_HYDRAULIQUE, LimiteGeom.THALWEG]
+        limites_lit = ['Et_' + limite for limite in LitNumerote.LIMIT_NAMES]
+
+        df = pd.DataFrame(columns=columns + limites_geom + limites_lit)
+        distance = 0.0
+        for branche in branches:
+            for i, section in enumerate(branche.liste_sections_dans_branche):
+                row = {
+                    'branche': branche.id,
+                    'section': section.id,
+                    'distance': distance + section.xp,
+                }
+
+                # Limites géométriques
+                for nom_limite_geom in limites_geom:
+                    if isinstance(section, SectionProfil):
+                        xt = section.get_limite_geom(nom_limite_geom).xt
+                        row[nom_limite_geom] = section.interp_z(xt)
+                    elif isinstance(section, SectionIdem):
+                        section_reference = section.section_reference
+                        xt = section_reference.get_limite_geom(nom_limite_geom).xt
+                        row[nom_limite_geom] = section_reference.interp_z(xt) + section.dz_section_reference
+
+                # Limites de lits numérotées
+                if isinstance(section, SectionProfil):
+                    for nom_limite, xt in zip(limites_lit, section.get_xt_merged_consecutive_lits_numerotes()):
+                        row[nom_limite] = section.interp_z(xt)
+                elif isinstance(section, SectionIdem):
+                    section_reference = section.section_reference
+                    for nom_limite, xt in zip(limites_lit, section_reference.get_xt_merged_consecutive_lits_numerotes()):
+                        row[nom_limite] = section_reference.interp_z(xt) + section.dz_section_reference
+
+                df.loc[len(df)] = row
+
+                if i == len(branche.liste_sections_dans_branche) - 1:
+                    distance += section.xp
+
+        return df
+
     def reset_initial_conditions(self):
-        """Set initial conditions to default values"""
+        """
+        Réinitialiser les conditions initiales aux valeurs par défaut
+        """
         self.noeuds_ic = OrderedDict([(noeud.id, 1.0E30) for noeud in self.get_liste_noeuds()])
 
         self.casiers_ic = OrderedDict([(casier.id, 0.0) for casier in self.get_liste_casiers()])
@@ -547,7 +666,7 @@ class Modele(FichierXML):
         """
         self.reset_initial_conditions()
 
-        for emh_group in self._get_xml_root_and_set_comment('dpti'):
+        for emh_group in self._get_xml_root_set_version_grammaire_and_comment('dpti'):
 
             if emh_group.tag == (PREFIX + 'DonPrtCIniNoeuds'):
                 for emh_ci in emh_group.findall(PREFIX + 'DonPrtCIniNoeudNiveauContinu'):
@@ -572,22 +691,21 @@ class Modele(FichierXML):
                         self.branches_ic[branche_id]['type'] = 20
                         self.branches_ic[branche_id]['values']['Qruis'] = float(emh_ci.find(PREFIX + 'Qruis').text)
 
-    def read_all(self):
+    def read_all(self, ignore_shp=False):
         """
         Lire tous les fichiers du modèle
         """
         if not self.was_read:
-            self._set_xml_trees()
-
             for sous_modele in self.liste_sous_modeles:
-                sous_modele.read_all()
+                sous_modele.read_all(ignore_shp=ignore_shp)
 
             self._read_dpti()
+            self._set_xml_trees()  # should be after read_dpi to set version_grmamaire and check if dreg is expected
         self.was_read = True
 
     def _write_dpti(self, folder):
         """
-        Ecrire le fichier dpti.xml
+        Écrire le fichier dpti.xml
 
         :param folder: dossier de sortie
         """
@@ -603,29 +721,64 @@ class Modele(FichierXML):
         Écrire tous les fichiers du modèle
         """
 
-        logger.debug("Écriture du %s dans %s" % (self, folder))
+        logger.debug("Écriture du %s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 
         # Create folder if not existing
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        for xml_type in Modele.FILES_XML_WITHOUT_TEMPLATE:
+        files_xml = deepcopy(Modele.FILES_XML_WITHOUT_TEMPLATE)
+        if self.version_grammaire == '1.2':  # HARDCODED to support g1.2
+            files_xml.remove('dreg')
+        for xml_type in files_xml:
             try:
                 xml_path = os.path.join(folder, os.path.basename(self.files[xml_type]))
                 if self.xml_trees:
                     write_xml_from_tree(self.xml_trees[xml_type], xml_path)
                 else:
-                    write_default_xml_file(xml_type, xml_path)
+                    write_default_xml_file(xml_type, self.version_grammaire, xml_path)
             except KeyError:
-                if xml_type not in Modele.FILES_XML_OPTIONAL:
-                    raise ExceptionCrue10("Le fichier %s est absent !" % xml_type)
+                raise ExceptionCrue10("Le fichier %s est absent !" % xml_type)
 
         self._write_dpti(folder)
 
         for sous_modele in self.liste_sous_modeles:
             sous_modele.write_all(folder, folder_config)
 
+    def changer_version_grammaire(self, version_grammaire, shallow=False):
+        """
+        Changer la version de la grammaire
+
+        :param version_grammaire: version de la grammaire cible
+        :type version_grammaire: str
+        :param shallow: conversion profonde si False, peu profonde sinon
+        :type shallow: bool
+        """
+        if version_grammaire == '1.3':  # HARDCODED to support g1.2
+            if 'dreg' not in self.xml_trees:
+                # Add dreg in self.xml_trees if missing (because is from grammar v1.2)
+                xml_path = os.path.join(DATA_FOLDER_ABSPATH, version_grammaire, 'fichiers_vierges', 'default.dreg.xml')
+                root = get_xml_root_from_file(xml_path)
+                self.xml_trees['dreg'] = root
+                self.files['dreg'] = self.files['optr'][:-9] + '.dreg.xml'
+
+        if not shallow:
+            for sous_modele in self.liste_sous_modeles:
+                sous_modele.changer_version_grammaire(version_grammaire)
+
+        super().changer_version_grammaire(version_grammaire)
+
     def write_topological_graph(self, out_files, nodesep=0.8, prog='dot'):
+        """
+        Écrire un ensemble de fichiers (png, svg et/ou dot) représentant le schéma topologique du modèle
+
+        :param out_files: liste des fichiers de sortie (l'extension détermine le format)
+        :type out_files: list(str)
+        :param nodesep: ratio pour modifier l'espacement (par ex. 0.5 ou 2)
+        :type nodesep: float
+        :param prog: outil de rendu
+        :type prog: str
+        """
         try:
             import pydot
         except ImportError:  # ModuleNotFoundError not available in Python2
@@ -721,6 +874,12 @@ class Modele(FichierXML):
         geofile.save()
 
     def write_shp_sectionprofil_as_points(self, shp_path):
+        """
+        Écrire un fichier SHP (de type point) avec les coordonnées x, y, z des SectionProfils
+
+        :param shp_path: chemin vers le fichier SHP de sortie
+        :type shp_path: str
+        """
         schema = {'geometry': '3D Point', 'properties': {'id_section': 'str', 'Z': 'float'}}
         with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
             for sous_modele in self.liste_sous_modeles:
@@ -731,6 +890,12 @@ class Modele(FichierXML):
                                        'properties': {'id_section': section.id, 'Z': coord[-1]}})
 
     def write_shp_limites_lits_numerotes(self, shp_path):
+        """
+        Écrire un fichier SHP (de type polyligne ouverte) avec la délimitation des lits numérotés (pour chaque branche)
+
+        :param shp_path: chemin vers le fichier SHP de sortie
+        :type shp_path: str
+        """
         schema = {'geometry': 'LineString', 'properties': {'id_limite': 'str', 'id_branche': 'str'}}
         with fiona.open(shp_path, 'w', driver='ESRI Shapefile', schema=schema) as out_shp:
             for sous_modele in self.liste_sous_modeles:
@@ -757,11 +922,11 @@ class Modele(FichierXML):
 
         duplicated_sections = self.get_duplicated_sections()
         if duplicated_sections:
-            logger.warn("Sections dupliquées: %s" % duplicated_sections)
+            logger.warning("Sections dupliquées: %s" % duplicated_sections)
 
         duplicated_branches = self.get_duplicated_branches()
         if duplicated_branches:
-            logger.warn("Branches dupliquées: %s" % duplicated_branches)
+            logger.warning("Branches dupliquées: %s" % duplicated_branches)
 
     def summary(self):
         return "%s: %i sous-modèle(s)" % (self, len(self.liste_sous_modeles))

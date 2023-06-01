@@ -3,6 +3,7 @@ from builtins import super  # Python2 fix
 from datetime import datetime
 from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
+from jinja2.filters import do_lower
 import logging
 import numpy as np
 import os
@@ -16,14 +17,6 @@ from crue10.utils.settings import XML_ENCODING
 
 DATA_FOLDER_ABSPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'data')
 
-XML_DEFAULT_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'default')
-
-XML_TEMPLATES_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'templates')
-
-XSD_FOLDER = os.path.join(DATA_FOLDER_ABSPATH, 'xsd')
-
-XSI_SCHEMA_LOCATION = '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation'
-
 try:
     USERNAME = os.getlogin()
 except:
@@ -35,10 +28,12 @@ except:
 SELF_CLOSING_TAGS = [
     'IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'Lois', 'OrdreDRSO',
     'HydrogrammeQapp', 'Limnigramme',  # dclm
+    'Qmode', 'DefQregul', 'DefZregul', 'Qabs', 'Zabs', 'CondMode',  #dreg
 ]
 
 PREFIX = "{http://www.fudaa.fr/xsd/crue}"
 
+XSI_SCHEMA_LOCATION = '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation'
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
@@ -93,7 +88,26 @@ def check_isinstance(obj, type):
             raise ExceptionCrue10("L'objet %s n'est pas de type `%s`" % (obj, type))
 
 
+def check_2d_array_shape(array, min_axis_0, len_axis_1):
+    len_axis_0, len_axis_1 = array.shape
+    if len_axis_0 < min_axis_0:
+        raise ExceptionCrue10("Le premier axe n'a pas au moins %i valeurs" % min_axis_0)
+    if len_axis_1 != len_axis_1:
+        raise ExceptionCrue10("Le second axe n'a pas exactement %i valeurs" % len_axis_1)
+
+
+def check_strictly_increasing(array, label):
+    if any(x > y for x, y in zip(array, array[1:])):
+        raise ExceptionCrue10("Les valeurs de %s ne sont pas strictement croissantes %s" % (label, array))
+
+
 def check_preffix(name, preffix):
+    """
+    Lève une exception si le nom de l'élément ne commence par le préffixe
+
+    :param name: nom de l'élément
+    :param preffix: préffixe à vérifier
+    """
     if not name.startswith(preffix):
         raise ExceptionCrue10("Le nom `%s` ne commence pas par `%s`" % (name, preffix))
 
@@ -115,8 +129,9 @@ def parse_loi(elt, group='EvolutionFF', line='PointFF'):
     return np.array(values)
 
 
-def write_default_xml_file(xml_type, file_path):
-    shutil.copyfile(os.path.join(XML_DEFAULT_FOLDER, xml_type + '.xml'), file_path)
+def write_default_xml_file(xml_type, version_grammaire, file_path):
+    shutil.copyfile(os.path.join(DATA_FOLDER_ABSPATH, version_grammaire, 'fichiers_vierges',
+                                 'default.%s.xml' % xml_type), file_path)
 
 
 def get_xml_root_from_file(file_path):
@@ -160,35 +175,53 @@ def write_xml_from_tree(xml_tree, file_path):
         out_xml.write(text)
 
 
-JINJA_ENV = Environment(loader=FileSystemLoader(XML_TEMPLATES_FOLDER))
+JINJA_ENV = Environment(loader=FileSystemLoader(os.path.join(DATA_FOLDER_ABSPATH)))
 JINJA_ENV.filters = {
-    'float2str': float2str,
     'abs': abs,
+    'float2str': float2str,
     'html_escape': html_escape,
+    'lower': do_lower,
 }
 
 
 class ExceptionCrue10(Exception):
-    """Custom exception for Crue file content check"""
+    """Exception Crue10 générale"""
 
     def __init__(self, message):
-        """!
-        :param message <str>: error message description
+        """
+        :param message: messsage décrivant l'erreur
+        :type message: str
         """
         super().__init__(message)
         self.message = message
 
 
 class ExceptionCrue10GeometryNotFound(ExceptionCrue10):
+    """Exception Crue10 pour les problèmes de géométrie (fichiers SHP en particulier)"""
+
     def __init__(self, emh):
         super().__init__("%s n'a pas de géométrie !" % emh)
+
+
+class ExceptionCrue10Grammar(ExceptionCrue10):
+    """Exception Crue10 pour les problèmes de grammaire"""
+
+    def __init__(self, message):
+        """
+        :param message: messsage décrivant l'erreur
+        :type message: str
+        """
+        super().__init__(message)
+        self.message = message
 
 
 def duration_seconds_to_iso8601(duration_in_seconds):
     """
     Converts a duration in seconds to ISO 8601 text format
     (See ISO format at https://fr.wikipedia.org/wiki/ISO_8601#Dur%C3%A9e)
+
     :param duration_in_seconds: float measuring a duration in seconds
+    :type duration_in_seconds: float
     :return: ISO 8601 text format (e.g. "P0Y0M0DT0H0M0S". Info: the letter `T` separates days and hours)
     """
     if duration_in_seconds < 0:
@@ -224,7 +257,9 @@ def duration_seconds_to_iso8601(duration_in_seconds):
 def duration_iso8601_to_seconds(duration_in_iso8601):
     """
     Converts ISO 8601 text format to a duration in seconds
+
     :param duration_in_iso8601: ISO 8601 text format (e.g. "P0Y0M0DT0H0M0S". Info: the letter `T` separates days and hours)
+    :type duration_in_iso8601: str
     :return: float measuring a duration in seconds
     """
     match = re.match(r"^P0Y0M(?P<days>[\d.]+)DT(?P<hours>[\d.]+)H(?P<minutes>[\d.]+)M(?P<seconds>[\d.]+)S$",
@@ -237,28 +272,36 @@ def duration_iso8601_to_seconds(duration_in_iso8601):
 
 def extract_pdt_from_elt(elt):
     """
-    Extract the time step
+    Extraction du pas de temps (constant ou variable) à partir de l'élément XML
+
     :param elt: XML tree
-    :return: float (if constant) or a list of tuple (if variable)
+    :return: flottant (si pas de temps constant) ou une liste de tuple (si variable)
 
     # Exemple d'un pas de temps constant
-    <PdtRes>
-      <PdtCst>P0Y0M0DT1H0M0S</PdtCst>
-    </PdtRes>
+
+    .. code-block:: xml
+
+       <PdtRes>
+         <PdtCst>P0Y0M0DT1H0M0S</PdtCst>
+       </PdtRes>
 
     # Exemple d'un pas de temps variable (en permanent)
-    <Pdt>
-      <PdtVar>
-        <ElemPdt>
-          <NbrPdt>10</NbrPdt>
-          <DureePdt>P0Y0M0DT0H12M0S</DureePdt>
-        </ElemPdt>
-        <ElemPdt>
-          <NbrPdt>100</NbrPdt>
-          <DureePdt>P0Y0M0DT3H0M0S</DureePdt>
-        </ElemPdt>
-      </PdtVar>
-    </Pdt>
+
+    .. code-block:: xml
+
+       <Pdt>
+         <PdtVar>
+           <ElemPdt>
+             <NbrPdt>10</NbrPdt>
+             <DureePdt>P0Y0M0DT0H12M0S</DureePdt>
+           </ElemPdt>
+           <ElemPdt>
+             <NbrPdt>100</NbrPdt>
+             <DureePdt>P0Y0M0DT3H0M0S</DureePdt>
+           </ElemPdt>
+         </PdtVar>
+       </Pdt>
+
     """
     assert len(elt) == 1
     if elt[0].tag.endswith('PdtCst'):

@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.2 Release 1
+			schema incomplet: voir le meme sans le préfixe frag-
+			pour la validation par fichier
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:simpleType name="TypeSensOrifice">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Bidirect" />
+			<xs:enumeration value="Direct" />
+			<xs:enumeration value="Indirect" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="TypeFormulePdc">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Divergent" />
+			<xs:enumeration value="Borda" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="TypeDCSPBrancheClassique">
+		<xs:sequence>
+			<xs:element name="CoefBeta" type="TypeDoublePositiveStrict" />
+			<xs:element name="CoefRuisQdm" type="TypeDoublePositiveOrNull" />
+			<xs:element name="CoefRuis" type="xs:double" />
+		</xs:sequence>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef"
+			use="required" />
+	</xs:complexType>
+	
+	<xs:complexType name="TypeDCSPCasier">
+		<xs:sequence>
+			<xs:element name="CoefRuis" type="xs:double" />
+		</xs:sequence>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef"
+			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeDCSPBranchePDC">
+		<xs:sequence>
+			<xs:element name="Pdc" type="TypeLoiFF" />
+		</xs:sequence>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef"
+			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeDCSPBrancheOrifice">
+		<xs:sequence>
+			<xs:element name="ElemOrifice" type="TypeElemOrifice"
+				minOccurs="1" />
+		</xs:sequence>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef"
+			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeDCSPBrancheSeuil">
+		<xs:sequence>
+			<xs:element name="FormulePdc" type="TypeFormulePdc" />
+			<xs:choice minOccurs="1" maxOccurs="unbounded">
+				<xs:element name="ElemSeuilAvecPdc" type="TypeElemSeuilPDC" />
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef"
+			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeDCSPBrancheBarrageFilEau">
+		<xs:sequence>
+			<xs:element name="QLimInf" type="xs:double" />
+			<xs:element name="QLimSup" type="xs:double" />
+			<xs:choice minOccurs="1" maxOccurs="unbounded">
+				<xs:element name="ElemSeuil" type="TypeElemSeuil" />
+			</xs:choice>
+			<xs:element name="RegimeDenoye" type="TypeLoiFF" />
+		</xs:sequence>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef"
+			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeDCSPBrancheBarrageGenerique">
+		<xs:sequence>
+			<xs:element name="QLimInf" type="xs:double" />
+			<xs:element name="QLimSup" type="xs:double" />
+			<xs:element name="RegimeNoye" type="TypeLoiFF" />
+			<xs:element name="RegimeDenoye" type="TypeLoiFF" />
+		</xs:sequence>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef"
+			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeDCSPBrancheNiveauxAssocies">
+		<xs:sequence>
+			<xs:element name="QLimInf" type="xs:double" />
+			<xs:element name="QLimSup" type="xs:double" />
+			<xs:element name="Zasso" type="TypeLoiFF" />
+		</xs:sequence>
+		<xs:attribute type="TypeForAttributeNomRefDistant" name="NomRef"
+			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="TypeDCSPBranches">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="DonCalcSansPrtBrancheSaintVenant" type="TypeDCSPBrancheClassique" />
+			<xs:element name="DonCalcSansPrtBrancheSeuilTransversal" type="TypeDCSPBrancheSeuil" />
+			<xs:element name="DonCalcSansPrtBrancheSeuilLateral" type="TypeDCSPBrancheSeuil" />
+			<xs:element name="DonCalcSansPrtBrancheOrifice" type="TypeDCSPBrancheOrifice" />
+			<xs:element name="DonCalcSansPrtBrancheBarrageFilEau" type="TypeDCSPBrancheBarrageFilEau" />
+			<xs:element name="DonCalcSansPrtBranchePdc" type="TypeDCSPBranchePDC" />
+			<xs:element name="DonCalcSansPrtBrancheBarrageGenerique" type="TypeDCSPBrancheBarrageGenerique" />
+			<xs:element name="DonCalcSansPrtBrancheNiveauxAssocies" type="TypeDCSPBrancheNiveauxAssocies" />
+		</xs:choice>
+	</xs:complexType>
+
+	<xs:complexType name="TypeDCSPCasiers">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="DonCalcSansPrtCasierProfil" type="TypeDCSPCasier" />
+		</xs:choice>
+	</xs:complexType>
+
+	<!-- ELEMENT ORIFICE -->
+	<xs:complexType name="TypeElemOrifice">
+		<xs:sequence>
+			<xs:element name="CoefCtrLim" type="TypeDoublePositiveStrict" />
+			<xs:element name="Largeur" type="TypeDoublePositiveOrNull" />
+			<xs:element name="Zseuil" type="xs:double" />
+			<xs:element name="Haut" type="TypeDoublePositiveStrict" />
+			<xs:element name="CoefD" type="TypeDoublePositiveStrict" />
+			<xs:element name="SensOrifice" type="TypeSensOrifice" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- ELEMENT SEUILS -->
+	<xs:complexType name="TypeElemSeuilPDC">
+		<xs:sequence>
+			<xs:element name="Largeur" type="TypeDoublePositiveOrNull" />
+			<xs:element name="Zseuil" type="xs:double" />
+			<xs:element name="CoefD" type="TypeDoublePositiveStrict" />
+			<xs:element name="CoefPdc" type="xs:double" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TypeElemSeuil">
+		<xs:sequence>
+			<xs:element name="Largeur" type="TypeDoublePositiveOrNull" />
+			<xs:element name="Zseuil" type="xs:double" />
+			<xs:element name="CoefD" type="TypeDoublePositiveStrict" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- GENERAL -->
+	<xs:element name="DCSP">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element name="DonCalcSansPrtBranches" type="TypeDCSPBranches" />
+				<xs:element name="DonCalcSansPrtCasiers" type="TypeDCSPCasiers" />
+
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

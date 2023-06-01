@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ORES xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/ores-1.2.xsd">
+  <Commentaire>{{ comment|html_escape }}</Commentaire>
+  {%- for type1, values1 in variables.items() %}
+  <{{ type1 }}>
+    {%- for type2, values2 in values1.items() %}
+    <{{ type2 }}>
+      {%- for varname, (type_demande, active) in values2.items() %}
+      <{{ type_demande }} NomRef="{{ varname }}">{{ active|lower }}</{{ type_demande }}>
+      {%- endfor %}
+    </{{ type2 }}>
+    {%- endfor %}
+  </{{ type1 }}>
+  {%- endfor %}
+</ORES>

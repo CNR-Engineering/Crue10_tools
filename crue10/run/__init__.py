@@ -6,7 +6,7 @@ from io import open
 import os.path
 import subprocess
 
-from crue10.run.results import RunResults
+from crue10.run.resultats_calcul import ResultatsCalcul
 from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 from crue10.run.trace import Trace
 from crue10.utils import add_default_missing_metadata, ExceptionCrue10, logger
@@ -19,6 +19,16 @@ FMT_RUN_IDENTIFIER = "R%Y-%m-%d-%Hh%Mm%Ss"
 
 
 def get_path_file_unique_matching(folder, ext_pattern):
+    """
+    Obtenir le chemin vers le premier fichier répondant au motif fourni
+
+    :param folder: dossier à parcourir
+    :type folder: str
+    :param ext_pattern: motif du nom de fichier (ex. `*.rcal.xml`)
+    :type ext_pattern: str
+    :return: chemin vers le fichier
+    :rtype: str
+    """
     file_path_list = []
     for file_path in glob(os.path.join(folder, ext_pattern)):
         file_path_list.append(file_path)
@@ -30,6 +40,14 @@ def get_path_file_unique_matching(folder, ext_pattern):
 
 
 def get_run_identifier(datetime_obj=None):
+    """
+    Obtenir le nom du Run à partir d'un objet datetime ou de l'horodatage actuel si non fourni
+
+    :param datetime_obj: horodatage (pris à l'horodatage actuel si non fourni)
+    :type datetime_obj: datetime.datetime
+    :return: nom du Run
+    :rtype: str
+    """
     if datetime_obj is None:
         return datetime.now().strftime(FMT_RUN_IDENTIFIER)
     else:
@@ -38,37 +56,53 @@ def get_run_identifier(datetime_obj=None):
 
 class Run:
     """
-    Run
+    Run = sorties suite à l'exécution d'un ou plusieurs services Crue10
 
-    :param id: run identifier corresponding to folder name
-    :type id: str
-    :param run_path: path to the folder of the run (exactly one folder before run_mo_path)
-    :type run_path: str
-    :param run_mo_path: path to the folder of the model (corresponds to the longest path)
-    :type run_mo_path: str
-    :param metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
-    :type metadata: dict
-    :param traces: list of traces for each service
-    :type traces: OrderedDict
+    :ivar id: nom du run
+    :vartype id: str
+    :ivar run_path: chemin vers le dossier du run (exactement un niveau de moins que `run_mo_path`)
+    :vartype run_path: str
+    :ivar run_mo_path: chemin vers le dossier du modèle (correspond au chemin le plus profond)
+    :vartype run_mo_path: str
+    :ivar metadata: dictionnaire avec les méta-données
+    :vartype metadata: dict(str)
+    :ivar traces: liste des traces de chaque service
+    :vartype traces: OrderedDict(list(str))
     """
 
+    #: Liste des abréviations des services (dans l'ordre d'exécution par Crue10)
     SERVICES = ['r', 'g', 'i', 'c']
+
+    #: Noms usuels des services
     SERVICES_NAMES = {
         'r': 'pré-traitements réseau',
         'g': 'pré-traitements géométriques',
         'i': 'pré-traitements conditions initiales',
         'c': 'calcul',
     }
+
+    #: Noms des fichiers de compte-rendu des services
     FILES_CSV = {
         'r': 'cptr',
         'g': 'cptg',
         'i': 'cpti',
         'c': 'ccal',
     }
+
+    #: Noms des fichiers XML de sortie pour chacun des services
     FILES_XML = ['rptr', 'rptg', 'rpti', 'rcal']
+
     METADATA_FIELDS = ['Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif', 'DateDerniereModif']
 
     def __init__(self, etude_basename, run_mo_path, metadata=None):
+        """
+        :param etude_basename: nom de l'étude
+        :type etude_basename: str
+        :param run_mo_path: chemin vers le dossier du modèle (correspond au chemin le plus profond)
+        :type run_mo_path: str
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
+        """
         self.etude_basename = etude_basename
         self.run_path = os.path.normpath(os.path.join(run_mo_path, '..'))
         self.id = os.path.basename(self.run_path)
@@ -90,15 +124,13 @@ class Run:
         Exécuter un Run avec plusieurs services
 
         Attention:
-            - aucune vérification de la pertinence des services (en fonction de ceux déjà lancés)
-            - les fichiers de sortie de crue10.exe sont écrasés s'ils existent déjà
+        - aucune vérification de la pertinence des services (en fonction de ceux déjà lancés)
+        - les fichiers de sortie et de listing de Crue10 sont écrasés s'ils existent déjà
 
         :param services: liste des services
         :type services: list(str)
         :param exe_path: chemin vers l'exécutable crue10.exe
         :type exe_path: str
-        :return: run lancé
-        :rtype: Run
         """
         self._check_services(services)
 
@@ -110,6 +142,8 @@ class Run:
 
         # Run crue10.exe in command line and redirect stdout and stderr in csv files
         etu_path = os.path.join(run_folder, self.etude_basename)
+        if 'cygwin' in os.path.basename(exe_path):  # Hack for cygwin paths
+            etu_path = etu_path.replace('C:', '/cygdrive/c')
         cmd_list = [exe_path] + exe_opts + [etu_path]
         logger.info("Éxécution : %s" % ' '.join(cmd_list))
         with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
@@ -120,6 +154,12 @@ class Run:
         self.read_traces(services)
 
     def read_traces(self, services=SERVICES):
+        """
+        Lire les traces des différents services
+
+        :param services: liste des services
+        :type services: list(str)
+        """
         self._check_services(services)
 
         # Check stdout.csv (only compulsory output file)
@@ -139,13 +179,24 @@ class Run:
             try:
                 csv_path = get_path_file_unique_matching(self.run_mo_path, '*.' + csv_type + '.csv')
             except IOError as e:
-                logger.warn("Le service `%s` n'a pas de trace :\n%s" % (Run.SERVICES_NAMES[service], e))
+                logger.warning("Le service `%s` n'a pas de trace :\n%s" % (Run.SERVICES_NAMES[service], e))
                 return  # further services will not have a csv with traces
             with open(csv_path, 'r') as in_csv:
                 for row in in_csv:
                     self.traces[service].append(Trace(row.replace('\n', '')))
 
     def get_service_traces(self, service, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
+        """
+        Obtenir les traces du service qui ont une gravité entre les 2 bornes
+
+        :param service: identifiant du service
+        :type service: str
+        :param gravite_min: niveau de gravité minimal
+        :type gravite_min: str
+        :param gravite_max: niveau de gravité maximal
+        :type gravite_max: str
+        :return: list(str)
+        """
         self._check_service(service)
         gravite_min_int = ENUM_SEVERITE[gravite_min]
         gravite_max_int = ENUM_SEVERITE[gravite_max]
@@ -153,6 +204,12 @@ class Run:
                 if gravite_min_int >= trace.gravite_int >= gravite_max_int]
 
     def nb_avertissements(self, services=SERVICES):
+        """
+        :param services: liste des services
+        :type services: list(str)
+        :return: nombre total d'avertissements
+        :rtype: int
+        """
         nb = 0
         for service in services:
             nb += len(self.get_service_traces(service, gravite_min=GRAVITE_AVERTISSEMENT,
@@ -160,24 +217,55 @@ class Run:
         return nb
 
     def nb_avertissements_calcul(self):
+        """
+        :return: nombre total d'avertissements du service de calculs
+        :rtype: int
+        """
         return self.nb_avertissements(['c'])
 
     def nb_erreurs(self, services=SERVICES):
+        """
+        :param services: liste des services
+        :type services: list(str)
+        :return: nombre total d'erreurs
+        :rtype: int
+        """
         nb = 0
         for service in services:
             nb += len(self.get_service_traces(service, gravite_min=GRAVITE_MIN_ERROR))
         return nb
 
     def nb_erreurs_calcul(self):
+        """
+        :return: nombre total d'erreurs du service de calculs
+        :rtype: int
+        """
         return self.nb_erreurs(['c'])
 
     def nb_erreurs_bloquantes(self, services=SERVICES):
+        """
+        :param services: liste des services
+        :type services: list(str)
+        :return: nombre total d'erreurs bloquantes
+        :rtype: int
+        """
         nb = 0
         for service in services:
             nb += len(self.get_service_traces(service, gravite_min=GRAVITE_MIN_ERROR_BLK))
         return nb
 
     def get_all_traces(self, services=SERVICES, gravite_min=GRAVITE_MIN, gravite_max=GRAVITE_MAX):
+        """
+        Obtenir les traces de tous les services qui ont une gravité entre les 2 bornes
+
+        :param service: liste des services
+        :type service: list(str)
+        :param gravite_min: niveau de gravité minimal
+        :type gravite_min: str
+        :param gravite_max: niveau de gravité maximal
+        :type gravite_max: str
+        :rtype: str
+        """
         self._check_services(services)
         text = ''
         for service in services:
@@ -187,17 +275,38 @@ class Run:
         return text
 
     def get_all_traces_above_warn(self, services=SERVICES, gravite_max=GRAVITE_MAX):
+        """
+        Obtenir les traces d'avertissement et éventuellement d'erreurs de tous les services
+
+        :param service: liste des services
+        :type service: list(str)
+        :param gravite_max: niveau de gravité maximal
+        :type gravite_max: str
+        :rtype: str
+        """
         return self.get_all_traces(services, gravite_min=GRAVITE_AVERTISSEMENT, gravite_max=gravite_max)
 
     def get_service_time(self, service):
+        """
+        Obtenir le temps écoulé du service demandé
+
+        :param service: identifiant du service
+        :type service: str
+        :rtype: float
+        """
         self._check_service(service)
-        if service not in Run.SERVICES:
-            raise ExceptionCrue10("Le service `%s` n'est pas reconnu" % service)
         for trace in self.traces[service]:
             if trace.id == 'ID_TIMING':
                 return float(trace.parametres[0].replace('"', ''))
 
     def get_time(self, services=SERVICES):
+        """
+        Obtenir le temps écoulé par plusieurs services
+
+        :param services: liste des services
+        :type services: list(str)
+        :rtype: float
+        """
         time = 0
         for service in services:
             time += self.get_service_time(service)
@@ -207,9 +316,17 @@ class Run:
         raise NotImplementedError  # TODO
 
     def has_computation_traces(self):
+        """A des traces de calculs"""
         return len(self.traces['c']) != 0
 
-    def get_results(self):
+    def get_resultats_calcul(self):
+        """
+        Obtenir une instance ResultatsCalcul pour post-traiter les résultats de calcul du Run.
+        Il faut que le Run contiennent des résultats (même partiels) du service de calcul.
+
+        :return: résultats du calcul
+        :rtype: ResultatsCalcul
+        """
         # Check that some traces were read
         if not self.has_computation_traces:
             # Remark: rcal.xml should not exist in this case (a previous service encountered a problem)
@@ -219,14 +336,15 @@ class Run:
         # Check if errors are in computation traces
         traces_errors = self.get_service_traces(service='c', gravite_min=GRAVITE_MIN_ERROR_BLK)
         if traces_errors:
-            logger.warn("Le run #%s contient des résultats partiels car des erreurs bloquantes "
-                        "se trouvent dans les traces du calcul :\n%s" % (self.id, '\n'.join(traces_errors)))
+            logger.warning("Le run #%s contient des résultats partiels car des erreurs bloquantes "
+                           "se trouvent dans les traces du calcul :\n%s" % (self.id, '\n'.join(traces_errors)))
 
         # Get file and returns results
         rcal_path = get_path_file_unique_matching(self.run_mo_path, '*.rcal.xml')
-        return RunResults(rcal_path)
+        return ResultatsCalcul(rcal_path)
 
     def set_comment(self, comment):
+        """Définir le commentaire"""
         self.metadata['Commentaire'] = comment
 
     def __repr__(self):

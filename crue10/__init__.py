@@ -1,1 +1,4 @@
-VERSION = '0.31'
+# coding: utf-8
+
+#: Version du dépôt Crue10_tools
+VERSION = '4.0'

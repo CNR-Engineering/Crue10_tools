@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://www.fudaa.fr/xsd/crue" xmlns:crue="http://www.fudaa.fr/xsd/crue" xmlns="http://www.fudaa.fr/xsd/crue">
+
+	<xs:annotation>
+		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
+		<xs:documentation xml:lang="fr">
+			Version 1.3 Release 0
+			schéma incomplet: voir le même sans le préfixe frag-
+			pour la validation par fichier
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:complexType name="TypePdtCst">
+		<xs:sequence>
+			<xs:element name="PdtCst" type="TypeDuree" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="PdtRes" type="TypePdtCst" />
+	<xs:element name="IniCalcCI" type="TypeEmpty" />
+	<xs:element name="IniCalcPrecedent" type="TypeEmpty" />
+	<xs:element name="IniCalcCliche" type="TypeNomFic"/>
+	<xs:element name="PrendreClicheFinPermanent" type="TypeNomFic"/>
+	<xs:element name="PrendreClichePonctuel">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="TypeNomFic">
+					<xs:sequence>
+						<xs:element name="TempsSimu" type="TypeDuree"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PrendreClichePeriodique">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="TypeNomFic">
+					<xs:sequence>
+						<xs:element ref="PdtRes"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="OrdCalcPseudoPerm">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="TypeNomRefDistant">
+					<xs:sequence>
+						<xs:choice>
+							<xs:element ref="IniCalcCI" />
+							<xs:element ref="IniCalcPrecedent" />
+							<xs:element ref="IniCalcCliche" />
+						</xs:choice>
+						<xs:element ref="PrendreClicheFinPermanent" minOccurs="0" maxOccurs="1"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="OrdCalcTrans">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="TypeNomRefDistant">
+					<xs:sequence>
+						<xs:element name="DureeCalc" type="TypeDuree"/>
+						<xs:element ref="PdtRes"/>
+						<xs:choice>
+							<xs:element ref="IniCalcCI" />
+							<xs:element ref="IniCalcPrecedent" />
+							<xs:element ref="IniCalcCliche" />
+						</xs:choice>
+						<xs:element ref="PrendreClichePonctuel" minOccurs="0"/>
+						<xs:element ref="PrendreClichePeriodique" minOccurs="0"/>
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="OCAL">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Commentaire" minOccurs="0" />
+				<xs:element name="Sorties" type="TypeSorties" />
+				<xs:element ref="OrdCalcPseudoPerm" minOccurs="0"
+					maxOccurs="unbounded" />
+				<xs:element ref="OrdCalcTrans" minOccurs="0"
+					maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

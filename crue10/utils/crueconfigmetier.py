@@ -4,7 +4,8 @@ import xml.etree.ElementTree as ET
 from crue10.utils import DATA_FOLDER_ABSPATH, ExceptionCrue10, PREFIX
 
 
-CCM_FILE = os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml')
+#: Chemin vers le fichier CCM
+CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml'))
 
 
 ENUM_SEVERITE = {}

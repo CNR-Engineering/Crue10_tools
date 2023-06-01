@@ -22,6 +22,7 @@ crue10.etude module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.modele module
 --------------------
@@ -30,6 +31,7 @@ crue10.modele module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 crue10.sous\_modele module
 --------------------------
@@ -38,6 +40,7 @@ crue10.sous\_modele module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 
 Module contents
@@ -47,3 +50,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__

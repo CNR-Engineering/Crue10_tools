@@ -2,17 +2,21 @@
 from builtins import super  # Python2 fix
 from collections import OrderedDict
 from copy import deepcopy
+from lxml import etree
 import numpy as np
 import os.path
+import re
 import shutil
+import tempfile
 import time
 
-from crue10.base import FichierXML
+from crue10.base import EnsembleFichiersXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
-    ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, \
-    logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree
+    ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, get_xml_root_from_file, \
+    JINJA_ENV, logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree, DATA_FOLDER_ABSPATH
+from crue10.utils.crueconfigmetier import CCM_FILE
 from crue10.utils.settings import CRUE10_EXE_PATH
 from crue10.utils.sorties import Sorties
 from .calcul import Calcul, CalcPseudoPerm, CalcTrans
@@ -21,14 +25,14 @@ from .loi_hydraulique import LoiHydraulique
 
 class OrdCalcPseudoPerm:
     """
-    OrdCalcPseudoPerm : paramètres des calculs permanents
+    OrdCalcPseudoPerm = paramètres des calculs pseudo-permanents
 
-    :param id: nom du calcul
-    :type id: str
-    :param init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
-    :type init: (str, str)
-    :param cliche_fin: chemin du cliché
-    :type cliche_fin: str
+    :ivar id: nom du calcul
+    :vartype id: str
+    :ivar init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
+    :vartype init: (str, str)
+    :ivar cliche_fin: chemin du cliché
+    :vartype cliche_fin: str
     """
     def __init__(self, calc_id, calc_init, cliche_fin):
         self.id = calc_id
@@ -38,23 +42,35 @@ class OrdCalcPseudoPerm:
 
 class OrdCalcTrans:
     """
-    OrdCalcTrans : paramètres des calculs transitoires
+    OrdCalcTrans = paramètres des calculs transitoires
 
-    :param id: nom du calcul
-    :type id: str
-    :param duree: durée du calcul
-    :type duree: float
-    :param pdt_res: pas de temps de sortie des résultats
-    :type pdt_res: float|list
-    :param init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
-    :type init: (str, str)
-    :param cliche_ponctuel: chemin et temps d'extraction du cliché ponctuel
-    :type cliche_ponctuel: (str, str)
-    :param cliche_periodique: chemin et pas de temps du cliché périodique
-    :type cliche_periodique: (str, str)
+    :ivar id: nom du calcul
+    :vartype id: str
+    :ivar duree: durée du calcul
+    :vartype duree: float
+    :ivar pdt_res: pas de temps de sortie des résultats
+    :vartype pdt_res: float|list
+    :ivar init: méthode d'initialisation (IniCalcCI|IniCalcPrecedent|IniCalcCliche) et chemin du cliché
+    :vartype init: (str, str)
+    :ivar cliche_ponctuel: chemin et temps d'extraction du cliché ponctuel
+    :vartype cliche_ponctuel: (str, str)
+    :ivar cliche_periodique: chemin et pas de temps du cliché périodique
+    :vartype cliche_periodique: (str, str)
     """
 
     def __init__(self, calc_id, duree, pdt_res, calc_init, cliche_ponctuel, cliche_periodique):
+        """
+        :param calc_id: nom du calcul
+        :type calc_id: str
+        :param duree: durée en secondes
+        :type duree: float
+        :param pdt_res: pas de temps (constant ou variable)
+        :type pdt_res: float|list
+        :param calc_init: initialisation du calcul
+        :type calc_init: tuple
+        :param cliche_ponctuel: cliché ponctuel
+        :param cliche_periodique: cliché périodique
+        """
         check_isinstance(duree, float)
         check_isinstance(pdt_res, (float, list))
         self.id = calc_id
@@ -65,12 +81,15 @@ class OrdCalcTrans:
         self.cliche_periodique = cliche_periodique
 
     def get_duree_in_iso8601(self):
+        """Obtenir la durée en ISO8601"""
         return duration_seconds_to_iso8601(self.duree)
 
     def is_pdt_res_cst(self):
+        """Dispose d'un pas de temps constant"""
         return isinstance(self.pdt_res, float)
 
     def get_pdt_res_in_iso8601(self):
+        """Obtenir le pas de temps (constant ou variable) en ISO8601"""
         if self.is_pdt_res_cst():
             return duration_seconds_to_iso8601(self.pdt_res)
         else:
@@ -80,43 +99,53 @@ class OrdCalcTrans:
             return res
 
 
-class Scenario(FichierXML):
+class Scenario(EnsembleFichiersXML):
     """
     Scénario Crue10
 
-    :param id: nom du scénario
-    :type id: str
-    :param modele: modèle
-    :type modele: Modele
-    :param calculs: liste des calculs
-    :type calculs: [Calcul]
-    :param liste_ord_calc_pseudoperm: liste des paramètres des calculs permanents
-    :type liste_ord_calc_pseudoperm: [OrdCalcPseudoPerm]
-    :param liste_ord_calc_trans: liste des paramètres des calculs transitoires
-    :type liste_ord_calc_trans: [OrdCalcTrans]
-    :param lois_hydrauliques: dictionnaire des lois hydrauliques
-    :type lois_hydrauliques: OrderedDict(LoiHydraulique)
-    :param runs: dictionnaire des runs
-    :type runs: OrderedDict(Run)
-    :param current_run_id: nom du scénario courant
-    :type current_run_id: str
+    :ivar id: nom du scénario
+    :vartype id: str
+    :ivar modele: modèle
+    :vartype modele: Modele
+    :ivar calculs: liste des calculs
+    :vartype calculs: list(Calcul)
+    :ivar liste_ord_calc_pseudoperm: liste des paramètres des calculs permanents
+    :vartype liste_ord_calc_pseudoperm: list(OrdCalcPseudoPerm)
+    :ivar liste_ord_calc_trans: liste des paramètres des calculs transitoires
+    :vartype liste_ord_calc_trans: list(OrdCalcTrans)
+    :ivar lois_hydrauliques: dictionnaire ordonné des lois hydrauliques
+    :vartype lois_hydrauliques: OrderedDict(LoiHydraulique)
+    :ivar runs: dictionnaire ordonné des runs
+    :vartype runs: OrderedDict(Run)
+    :ivar nom_run_courant: nom du scénario courant
+    :vartype nom_run_courant: str
+    :ivar variables: variables de sortie du service de calcul
+    :vartype variables: OrderedDict(OrderedDict(OrderedDict([(str, (str, bool))])))
     """
 
     FILES_XML = ['ocal', 'ores', 'pcal', 'dclm', 'dlhy']
-    FILES_XML_WITHOUT_TEMPLATE = ['ores', 'pcal']
+    FILES_XML_WITHOUT_TEMPLATE = ['pcal']
     METADATA_FIELDS = ['Type', 'IsActive', 'Commentaire', 'AuteurCreation', 'DateCreation', 'AuteurDerniereModif',
                        'DateDerniereModif']
 
-    def __init__(self, nom_scenario, modele, access='r', files=None, metadata=None):
+    def __init__(self, nom_scenario, modele, mode='r', files=None, metadata=None, version_grammaire=None):
         """
-        :param nom_scenario: scenario name
-        :param modele: a Modele instance
-        :param files: dict with xml path files
-        :param metadata: dict containing metadata
+        :param nom_scenario: nom du scénario
+        :type nom_scenario: str
+        :param modele: modèle
+        :type modele: Modele
+        :param mode: accès en lecture ('r') ou écriture ('w')
+        :type mode: str
+        :param files: dictionnaire des chemins vers les fichiers xml
+        :type files: dict(str)
+        :param metadata: dictionnaire avec les méta-données
+        :type metadata: dict(str)
+        :param version_grammaire: version de la grammaire
+        :type version_grammaire: str
         """
         check_preffix(nom_scenario, 'Sc_')
         self.id = nom_scenario
-        super().__init__(access, files, metadata)
+        super().__init__(mode, files, metadata, version_grammaire=version_grammaire)
 
         self.calculs = []
         self.liste_ord_calc_pseudoperm = []  # OrdCalcPseudoPerm
@@ -128,10 +157,21 @@ class Scenario(FichierXML):
 
         self.ocal_sorties = Sorties()
 
-        self.current_run_id = None
+        self.nom_run_courant = None
         self.runs = OrderedDict()
 
+        self.variables = OrderedDict()
+        if mode == 'w':
+            self.set_variables_par_defaut()
+
     def get_function_apply_modifications(self, etude):
+        """
+        Obtenir la fonction qui permet d'appliquer les modifications et de lancer un Run associé
+
+        :param etude: étude
+        :type etude: Etude
+        :return: function
+        """
         curr_etude = deepcopy(etude)
         curr_etude.ignore_others_scenarios(self.id)
 
@@ -154,26 +194,52 @@ class Scenario(FichierXML):
         return fun
 
     def ajouter_calcul(self, calcul):
+        """
+        Ajouter un calcul au scénario
+
+        :param calcul: calcul (pseudo-permanent ou transitoire) à ajouter
+        :type calcul: CalcPseudoPerm | CalcTrans
+        """
         check_isinstance(calcul, Calcul)
         self.calculs.append(calcul)
 
     def ajouter_loi_hydraulique(self, loi_hydraulique):
+        """
+        Ajouter une loi hydraulique au scénario
+
+        :param run: loi hydraulique à ajouter
+        :type run: LoiHydraulique
+        """
         check_isinstance(loi_hydraulique, LoiHydraulique)
         self.lois_hydrauliques[loi_hydraulique.id] = loi_hydraulique
 
-    def add_run(self, run):
+    def ajouter_run(self, run):
+        """
+        Ajouter un Run au scénario
+
+        :param run: run à ajouter
+        :type run: Run
+        """
         check_isinstance(run, Run)
         if run.id in self.runs:
             raise ExceptionCrue10("Le Run %s est déjà présent" % run.id)
         self.runs[run.id] = run
 
     def get_calcul(self, nom_calcul):
+        """
+        :param nom_calcul: nom du calcul demandé
+        :rtype: Calcul
+        """
         for calcul in self.calculs:
             if calcul.id == nom_calcul:
                 return calcul
         raise ExceptionCrue10("Le calcul `%s` n'existe pas" % nom_calcul)
 
     def get_ord_calc_pseudoperm(self, nom_calcul):
+        """
+        :param nom_calcul: nom du calcul pseudo-permanent demandé
+        :rtype: OrdCalcPseudoPerm
+        """
         for ord_calc in self.liste_ord_calc_pseudoperm:
             if nom_calcul == ord_calc.id:
                 return ord_calc
@@ -181,19 +247,37 @@ class Scenario(FichierXML):
         raise ExceptionCrue10("Le calcul pseudo-permanent `%s` n'est pas actif" % nom_calcul)
 
     def get_ord_calc_trans(self, nom_calcul):
+        """
+        :param nom_calcul: nom du calcul transitoire demandé
+        :rtype: OrdCalcTrans
+        """
         for ord_calc in self.liste_ord_calc_trans:
             if nom_calcul == ord_calc.id:
                 return ord_calc
         self.get_calcul(nom_calcul)  # Check that the calculation exists
         raise ExceptionCrue10("Le calcul transitoire `%s` n'est pas actif" % nom_calcul)
 
-    def get_nb_calc_pseudoperm_actif(self):
+    def get_nb_calc_pseudoperm_actifs(self):
+        """
+        :return: nombre de calculs pseudo-permanents actifs
+        :rtype: int
+        """
         return len(self.liste_ord_calc_pseudoperm)
 
-    def get_nb_calc_trans_actif(self):
+    def get_nb_calc_trans_actifs(self):
+        """
+        :return: nombre de calculs transitoires actifs
+        :rtype: int
+        """
         return len(self.liste_ord_calc_trans)
 
     def get_liste_calc_pseudoperm(self, ignore_inactive=False):
+        """
+        Obtenir la liste des calculs pseudo-permanents
+
+        :param ignore_inactive: True pour ignorer les calculs inactifs
+        :rtype: list(CalcPseudoPerm)
+        """
         calculs = []
         for calcul in self.calculs:
             if isinstance(calcul, CalcPseudoPerm):
@@ -205,6 +289,12 @@ class Scenario(FichierXML):
         return calculs
 
     def get_liste_calc_trans(self, ignore_inactive=False):
+        """
+        Obtenir la liste des calculs transitoires
+
+        :param ignore_inactive: True pour ignorer les calculs inactifs
+        :rtype: list(CalcTrans)
+        """
         calculs = []
         for calcul in self.calculs:
             if isinstance(calcul, CalcTrans):
@@ -216,6 +306,12 @@ class Scenario(FichierXML):
         return calculs
 
     def get_run(self, run_id):
+        """
+        Obtenir un run à patir de son nom
+
+        :param run_id: nom du run
+        :rtype: Run
+        """
         if not self.runs:
             raise ExceptionCrue10("Aucun run n'existe pour ce scénario")
         run = None
@@ -227,55 +323,59 @@ class Scenario(FichierXML):
         run.read_traces()
         return run
 
-    def get_last_run(self):
+    def get_dernier_run(self):
+        """
+        Obtenir le dernier run
+
+        :return: dernier run
+        :rtype: Run
+        """
         if not self.runs:
             raise ExceptionCrue10("Aucun run n'existe pour ce scénario")
         run_id = list(self.runs.keys())[-1]
         return self.get_run(run_id)
 
-    def get_liste_run_ids(self):
+    def get_liste_noms_runs(self):
+        """
+        Obtenir la liste des noms de runs
+
+        :return: liste des noms des runs
+        :rtype: list(str)
+        """
         return [run_id for run_id, _ in self.runs.items()]
 
     def get_loi_hydraulique(self, nom_loi):
+        """
+        Obtenir la loi hydraulique à partir de son nom
+
+        :param nom_loi: nom de la loi hydraulique
+        :rtype: LoiHydraulique
+        """
         try:
             return self.lois_hydrauliques[nom_loi]
         except KeyError:
             raise ExceptionCrue10("La loi `%s` n'existe pas" % nom_loi)
 
     def set_modele(self, modele):
+        """
+        Affecter le modèle au scénario
+
+        :param modele: modèle à affecter
+        :type modele: Modele
+        """
         check_isinstance(modele, Modele)
         self.modele = modele
 
-    def set_current_run_id(self, run_id):
+    def set_run_courant(self, run_id):
+        """
+        Mettre à jour le nom du run courant
+
+        :param run_id: nom du run
+        :type run_id: str
+        """
         if run_id not in self.runs:
             raise ExceptionCrue10("Le Run '%s' n'existe pas" % run_id)
-        self.current_run_id = run_id
-
-    def set_ocal_OrdCalcTrans_DureeCalc(self, calc_name, value):
-        """
-        Affecter la durée fournie pour le calcul transitoire demandé
-
-        :param calc_name: nom du calcul transitoire
-        :type calc_name: str
-        :param value: durée (en secondes)
-        :type value: float
-        """
-        check_isinstance(value, float)
-        elt = self._get_ocal_OrdCalcTrans(calc_name).find(PREFIX + 'DureeCalc')
-        elt.text = duration_seconds_to_iso8601(value)
-
-    def set_ocal_OrdCalcTrans_PdtCst(self, calc_name, value):
-        """
-        Affecter le pas de temps de sortie fourni pour le calcul transitoire demandé
-
-        :param calc_name: nom du calcul transitoire
-        :type calc_name: str
-        :param value: pas de temps (en secondes)
-        :type value: float
-        """
-        check_isinstance(value, float)
-        elt = self._get_ocal_OrdCalcTrans(calc_name).find(PREFIX + 'PdtRes').find(PREFIX + 'PdtCst')
-        elt.text = duration_seconds_to_iso8601(value)
+        self.nom_run_courant = run_id
 
     def apply_modifications(self, modifications):
         """
@@ -283,22 +383,25 @@ class Scenario(FichierXML):
 
         Les modifications possibles sont :
 
-        # Sur le scénario ou modèle
+        ## Sur le scénario ou modèle
+
         - `pnum.CalcPseudoPerm.Pdt`: <float> => affection du pas de temps (en secondes) pour les calculs permanents
         - `pnum.CalcPseudoPerm.TolMaxZ`: <float> => affection de la tolérance en niveau (en m) pour les calculs
-            permanents
+          permanents
         - `pnum.CalcPseudoPerm.TolMaxQ`: <float> => affection de la tolérance en débit (en m3/s) pour les calculs
-            permanents
+          permanents
         - `Qapp_factor.NomCalcul.NomNoeud`: <float> => application du facteur multiplicatif au débit du calcul
-            NomCalcul au noeud nommé NomNoeud
+          NomCalcul au noeud nommé NomNoeud
         - `Zimp.NomCalcul.NomNoeud`: <float> => application de la cote au calcul NomCalcul au noeud nommé NomNoeud
         - `branche_barrage.CoefD`: <float> => application du coefficient à la branche barrage
 
-        # Sur les sous-modèles
+        ## Sur les sous-modèles
+
         - `Fk_NomLoi`: <float> => modification du Strickler de la loi de frottement nommée NomLoi
         - `Fk_shift.*`: <float> => modification par somme du Strickler de toutes les lois de frottement (sauf celles du stockage)
 
-        :@param modifications: dict of modifications
+        :param modifications: dictionnaire des modifications
+        :type modifications: dict
         """
         check_isinstance(modifications, dict)
         for modification_key, modification_value in modifications.items():
@@ -336,7 +439,7 @@ class Scenario(FichierXML):
         """
         Lire le fichier dclm.xml
         """
-        root = self._get_xml_root_and_set_comment('dclm')
+        root = self._get_xml_root_set_version_grammaire_and_comment('dclm')
 
         for elt_calc in root:
             if elt_calc.tag == PREFIX + 'CalcPseudoPerm':
@@ -420,12 +523,12 @@ class Scenario(FichierXML):
         """
         Lire le fichier dlhy.xml
         """
-        root = self._get_xml_root_and_set_comment('dlhy')
+        root = self._get_xml_root_set_version_grammaire_and_comment('dlhy')
 
         for elt_loi in root.find(PREFIX + 'Lois'):  # LoiDF, LoiFF
             loi_hydraulique = LoiHydraulique(elt_loi.get('Nom'), elt_loi.get('Type'),
                                              comment=get_optional_commentaire(elt_loi))
-            if loi_hydraulique.has_time():
+            if loi_hydraulique.est_temporel():
                 date_zero = elt_loi.find(PREFIX + 'DateZeroLoiDF').text
                 if date_zero is not None:
                     loi_hydraulique.set_date_zero(date_zero)
@@ -436,7 +539,7 @@ class Scenario(FichierXML):
         """
         Lire le fichier ocal.xml
         """
-        root = self._get_xml_root_and_set_comment('ocal')
+        root = self._get_xml_root_set_version_grammaire_and_comment('ocal')
 
         # Read Sorties
         elt = root.find(PREFIX + 'Sorties')
@@ -486,59 +589,92 @@ class Scenario(FichierXML):
                                     cliche_ponctuel, cliche_periodique)
             self.liste_ord_calc_trans.append(ord_calc)
 
-    def read_all(self):
+    def _read_ores(self):
+        """
+        Lire le fichier ores.xml
+        """
+        root = self._get_xml_root_set_version_grammaire_and_comment('ores')
+        self._set_variables(root)
+
+    def read_all(self, ignore_shp=False):
         """Lire tous les fichiers du scénario"""
         if not self.was_read:
             self._set_xml_trees()
-            self.modele.read_all()
+            self.modele.read_all(ignore_shp=ignore_shp)
 
             self._read_dclm()
             self._read_dlhy()
             self._read_ocal()
+            self._read_ores()
 
         self.was_read = True
 
     def renommer(self, nom_scenario_cible, folder):
+        """
+        Renommer le scénario courant
+
+        :param nom_scenario_cible: nouveau nom du scénario
+        :type nom_scenario_cible: str
+        :param folder: dossier pour les fichiers XML
+        :type folder: str
+        """
         self.id = nom_scenario_cible
         for xml_type in Scenario.FILES_XML:
             self.files[xml_type] = os.path.join(folder, nom_scenario_cible[3:] + '.' + xml_type + '.xml')
 
     def remove_run(self, run_id):
-        run_path = os.path.join(self.runs[run_id].run_mo_path, '..')
+        """
+        Supprimer un run
+
+        :param run_id: nom du run à supprimer
+        """
+        run_path = os.path.join(self.get_run(run_id).run_mo_path, '..')
         logger.debug("Suppression du Run #%s (%s)" % (run_id, run_path))
         del self.runs[run_id]
         if os.path.exists(run_path):
             shutil.rmtree(run_path)
 
     def remove_all_runs(self, sleep=0.0):
-        """Suppression de tous les Runs existants"""
-        for run_id in self.get_liste_run_ids():
+        """
+        Supprimer tous les Runs existants
+
+        :param sleep: temps d'attente (en secondes)
+        :type sleep: float
+        """
+        for run_id in self.get_liste_noms_runs():
             self.remove_run(run_id)
         if sleep > 0.0:  # Avoid potential conflict if folder is rewritten directly afterwards
             time.sleep(sleep)
 
     def create_new_run(self, etude, run_id=None, comment='', force=False):
         """
-        Créer un nouveau dossier de Run
-             L'instance de `etude` est modifiée mais le fichier etu.xml n'est pas mis à jour
-             (Si nécessaire, cela doit être fait après en appelant la méthode spécifique)
+        Description détaillée:
+            Créer un nouveau dossier de Run
+            L'instance de `etude` est modifiée mais le fichier etu.xml n'est pas mis à jour
+            (Si nécessaire, cela doit être fait après en appelant la méthode spécifique)
 
-        1) Création d'un nouveau run (sans enregistrer la mise à jour du fichier etu.xml en entrée)
-        2) Ecriture des fichiers XML dans un nouveau dossier du run
+            1) Création d'un nouveau run (sans enregistrer la mise à jour du fichier etu.xml en entrée)
+            2) Ecriture des fichiers XML dans un nouveau dossier du run
 
-        Même comportement que Fudaa-Crue :
+            Même comportement que Fudaa-Crue :
 
-        - Dans le fichier etu.xml:
-            - on conserve la liste des Runs précédents (sans copier les fichiers)
-            - on conserve les Sm/Mo/Sc qui sont hors du Sc courant
-        - Seuls les XML du scénario courant sont écrits dans le dossier du run
-        - Les XML du modèle associés sont écrits dans un sous-dossier
-        - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
+            - Dans le fichier etu.xml:
+
+                - on conserve la liste des Runs précédents (sans copier les fichiers)
+                - on conserve les Sm/Mo/Sc qui sont hors du Sc courant
+
+            - Seuls les XML du scénario courant sont écrits dans le dossier du run
+            - Les XML du modèle associés sont écrits dans un sous-dossier
+            - Les données géographiques (fichiers shp) des sous-modèles ne sont pas copiées
 
         :param etude: étude courante
+        :type etude: Etude
         :param run_id: nom du Run (si vide alors son nom correspondra à l'horodatage)
+        :type run_id: str
         :param comment: commentaire du Run
+        :type comment: str
         :param force: écraser le Run s'il existe déjà
+        :type force: bool
         :return: run non lancé
         :rtype: Run
         """
@@ -565,8 +701,8 @@ class Scenario(FichierXML):
         if run_id in etude.get_liste_run_names():
             raise ExceptionCrue10("Le Run `%s` existe déjà dans l'étude" % run_id)
 
-        self.add_run(run)
-        self.set_current_run_id(run.id)
+        self.ajouter_run(run)
+        self.set_run_courant(run.id)
 
         # Update etude attribute
         etude.nom_scenario_courant = self.id
@@ -576,6 +712,11 @@ class Scenario(FichierXML):
         mo_folder = os.path.join(run_folder, self.modele.id)
         self.write_all(run_folder, folder_config=None, write_model=False)
         self.modele.write_all(mo_folder, folder_config=None)
+
+        # Write etu.xml
+        if etude.version_grammaire != self.version_grammaire:
+            etude = deepcopy(etude)  # avoid modifying given parameter `etude`
+            etude.changer_version_grammaire(self.version_grammaire, shallow=False)
         etude.write_etu(run_folder)
 
         # Write xxcprovx.dat for Crue9
@@ -591,15 +732,40 @@ class Scenario(FichierXML):
 
     def create_and_launch_new_run(self, etude, run_id=None, exe_path=CRUE10_EXE_PATH, comment='', force=False):
         """
-        Créé et lance un nouveau run
+        Créer et lancer un nouveau run
+
+        :param etude: étude courante
+        :type etude: Etude
+        :param run_id: nom du Run (si vide alors son nom correspondra à l'horodatage)
+        :type run_id: str
+        :param exe_path: chemin vers l'exécutable crue10.exe
+        :type exe_path: str
+        :param comment: commentaire du Run
+        :type comment: str
+        :param force: écraser le Run s'il existe déjà
+        :type force: bool
+        :return: run lancé
+        :rtype: Run
         """
         run = self.create_new_run(etude, run_id=run_id, comment=comment, force=force)
         run.launch_services(Run.SERVICES, exe_path=exe_path)
         return run
 
-    def create_and_launch_new_multiple_sequential_runs(self, modifications_liste, etude, exe_path=CRUE10_EXE_PATH, force=False):
+    def create_and_launch_new_multiple_sequential_runs(self, modifications_liste, etude,
+                                                       exe_path=CRUE10_EXE_PATH, force=False):
         """
-        Créé et lance des runs séquentiels selon les modifications demandées
+        Créer et lancer des runs séquentiels selon les modifications demandées
+
+        :param modifications: liste avec les dictionnaires contenant les modifications
+        :type modifications: list(dict(str))
+        :param etude: étude courante
+        :type etude: Etude
+        :param exe_path: chemin vers l'exécutable crue10.exe
+        :type exe_path: str
+        :param force: écraser le Run s'il existe déjà
+        :type force: bool
+        :return: liste des runs lancés
+        :rtype: list(Run)
         """
         etude.ignore_others_scenarios(self.id)
         run_liste = []
@@ -619,7 +785,7 @@ class Scenario(FichierXML):
 
     def _write_dclm(self, folder):
         """
-        Ecrire le fichier dclm.xml
+        Écrire le fichier dclm.xml
 
         :param folder: dossier de sortie
         """
@@ -633,7 +799,7 @@ class Scenario(FichierXML):
 
     def _write_dlhy(self, folder):
         """
-        Ecrire le fichier dlhy.xml
+        Écrire le fichier dlhy.xml
 
         :param folder: dossier de sortie
         """
@@ -644,7 +810,7 @@ class Scenario(FichierXML):
 
     def _write_ocal(self, folder):
         """
-        Ecrire le fichier dclm.xml
+        Écrire le fichier ocal.xml
 
         :param folder: dossier de sortie
         """
@@ -655,9 +821,26 @@ class Scenario(FichierXML):
             liste_ord_calc_trans=self.liste_ord_calc_trans,
         )
 
+    def _write_ores(self, folder):
+        """
+        Écrire le fichier ores.xml
+
+        :param folder: dossier de sortie
+        """
+        # Tri des variables par ordre alphabétique (sauf pour les variables liées à la régulation)
+        for type1, values1 in self.variables.items():
+            for type2, values2 in values1.items():
+                if type2 != 'OrdResModeleRegul':
+                    self.variables[type1][type2] = OrderedDict(sorted(values2.items()))
+
+        self._write_xml_file(
+            'ores', folder,
+            variables=self.variables,
+        )
+
     def write_all(self, folder, folder_config=None, write_model=True):
         """Écrire tous les fichiers du scénario"""
-        logger.debug("Écriture de %s dans %s" % (self, folder))
+        logger.debug("Écriture de %s dans %s (grammaire %s)" % (self, folder, self.version_grammaire))
 
         # Create folder if not existing
         if not os.path.exists(folder):
@@ -668,43 +851,121 @@ class Scenario(FichierXML):
             if self.xml_trees:
                 write_xml_from_tree(self.xml_trees[xml_type], xml_path)
             else:
-                write_default_xml_file(xml_type, xml_path)
+                write_default_xml_file(xml_type, self.version_grammaire, xml_path)
 
         self._write_dclm(folder)
         self._write_dlhy(folder)
         self._write_ocal(folder)
+        self._write_ores(folder)
 
         if write_model:
             self.modele.write_all(folder, folder_config)
 
-    def normalize_for_10_2(self):
+    def changer_version_grammaire(self, version_grammaire, shallow=False):
         """
-        Normaliser le scénario pour Crue v10.2 : supprime quelques variables si elles sont présentes dans le ores
+        Changer la version de grammaire
+
+        :param version_grammaire: version cible de la grammaire
+        :type version_grammaire: str
+        :param shallow: conversion profonde si False, peu profonde sinon
+        :type shallow: bool
+        """
+        if not shallow:
+            self.modele.changer_version_grammaire(version_grammaire)
+
+        # HARDCODED to support g1.2
+        if version_grammaire == '1.2' and self.version_grammaire == '1.3':  # backward
+            self.supprimer_variables('OrdResBranches', 'OrdResBrancheOrifice', ['Ouv'])
+
+            del self.variables['OrdResModeles']
+
+        elif version_grammaire == '1.3' and self.version_grammaire == '1.2':  # forward
+            self.ajouter_variable('OrdResBranches', 'OrdResBrancheOrifice', 'Ouv', 'Dde', False)
+
+            self.ajouter_variable('OrdResModeles', 'OrdResModeleRegul', 'QZregul', 'DdeMultiple', True)
+            for varname in ['LoiRegul', 'Mode', 'Zcns']:
+                self.ajouter_variable('OrdResModeles', 'OrdResModeleRegul', varname, 'Dde', True)
+
+        super().changer_version_grammaire(version_grammaire)
+
+    def ajouter_variable(self, type1, type2, varname, type_demande, active):
+        """
+        Ajouter une nouvelle variable de sortie du service de calcul
+
+        :param type1: type de 1er niveau (ex. : `OrdResSections`)
+        :type type1: str
+        :param type2: type de 2nd niveau (ex. : `OrdResSection`)
+        :type type2: str
+        :param varname: nom de la variable
+        :type varname: str
+        :param type_demande: `Dde` ou `DdeMultiple`
+        :type type_demande: str
+        :param active: true si la variable est demandée, false sinon
+        :type active: bool
+        """
+        if type1 not in self.variables:
+            self.variables[type1] = OrderedDict()
+        if type2 not in self.variables[type1]:
+            self.variables[type1][type2] = OrderedDict()
+        if varname in self.variables[type1][type2]:
+            raise ExceptionCrue10("la variable %s/%s/%s déjà présente" % (type1, type2, varname))
+        self.variables[type1][type2][varname] = (type_demande, active)
+
+    def _set_variables(self, ores_root):
+        for elt1 in ores_root[1:]:
+            type1 = elt1.tag[len(PREFIX):]
+            for elt2 in elt1:
+                type2 = elt2.tag[len(PREFIX):]
+                for elt_dde in elt2:
+                    varname = elt_dde.get('NomRef')
+                    type_demande = elt_dde.tag[len(PREFIX):]
+                    active = elt_dde.text == 'true'
+                    self.ajouter_variable(type1, type2, varname, type_demande, active)
+
+    def set_variables_par_defaut(self):
+        xml_tree = get_xml_root_from_file(os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire,
+                                                       'fichiers_vierges', 'default.ores.xml'))
+        self._set_variables(xml_tree)
+
+    def supprimer_variables(self, type1, type2, var_list):
+        """
+        Supprimer les variables demandées si elles existent
+
+        :param type1: type de 1er niveau (ex. : `OrdResSections`)
+        :type type1: str
+        :param type2: type de 2nd niveau (ex. : `OrdResSection`)
+        :type type2: str
+        :param var_list: liste avec le nom des variables (ex: ['Z', 'Q'])
+        :type var_list: list
+        """
+        for varname in var_list:
+            if varname in self.variables[type1][type2]:
+                del self.variables[type1][type2][varname]
+
+    def normalize_for_g1_2_1(self):  # HARDCODED to support g1.2.1 ?
+        """
+        Normaliser le scénario pour la grammaire v1.2.1 :
+        Supprime quelques variables si elles sont présentes dans le ores
         """
         variables_to_remove = ['Cr', 'J', 'Jf', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin',
                                'Pact', 'Rhact', 'Tauact', 'Ustaract']
-        tree = self.xml_trees['ores']
-        elt_section = tree.find(PREFIX + 'OrdResSections').find(PREFIX + 'OrdResSection')
-        for elt_dde in elt_section:
-            if elt_dde.get('NomRef') in variables_to_remove:
-                elt_section.remove(elt_dde)
+        # 'Cr', 'Kact_eq', 'KmajD', 'KmajG', 'Kmin', 'Pact', 'Rhact' still exist in g1.2
+        self.supprimer_variables('OrdResSections', 'OrdResSection', variables_to_remove)
 
     def get_clim_values_from_all_calc_pseudoperm(self, nom_noeud, delta_t):
         """
         Extraction des valeurs imposées à un noeud sous forme de chronique temporelle
 
         :param nom_noeud: nom du noeud sur lequel extraire la chronique temporelle
+        :type nom_noeud: str
         :param delta_t: durée entre 2 calculs pseudo-permanents
+        :type delta_t: float
         :return: 2D-array
         """
         res = []
         for i, calcul in enumerate(self.calculs):
             if isinstance(calcul, CalcPseudoPerm):
-                for values in calcul.values:
-                    nom_emh, clim_tag, is_active, value, sens, typ_loi, param_loi, nom_fic = values
-                    if nom_emh == nom_noeud:
-                        res.append([i * delta_t, value])
-                        break
+                res.append([i * delta_t, calcul.get_valeur(nom_noeud)])
             else:
                 break  # No CalcPseudoPerm possible afterwards
         return np.array(res)
@@ -715,7 +976,9 @@ class Scenario(FichierXML):
         (le premier calcul permanent est conservé car il faut en avoir un pour démarrer le transitoire)
 
         :param delta_t: durée entre 2 calculs pseudo-permanents
+        :type delta_t: float
         :param nom_calcul: nom du calcul transitoire à créer
+        :type nom_calcul: str
         """
         if not all([isinstance(calcul, CalcPseudoPerm) for calcul in self.calculs]):
             raise ExceptionCrue10("Tous les calculs ne sont pas permanents")
@@ -765,6 +1028,88 @@ class Scenario(FichierXML):
         self.liste_ord_calc_pseudoperm = [OrdCalcPseudoPerm(calcul.id, ('IniCalcCI', None), None)]
         self.liste_ord_calc_trans = [OrdCalcTrans(new_calcul.id, duree_float, self.modele.get_pnum_CalcTrans_PdtCst(),
                                                   ('IniCalcPrecedent', None), None, None)]
+
+    def get_rendered_xml_scenario(self, folder):
+        """
+        Obtenir le contenu du fichier scenario.xml généré à la volée
+
+        :param folder: chemin du dossier contenant les fichiers XML du scénario
+        :type folder: str
+        :return: chaîne de caractères avec le contenu XML
+        :rtype: str
+        """
+        logger.debug("Validation XSD (grammaire %s) du %s" % (self.version_grammaire, self))
+
+        template_path = self.version_grammaire + '/templates/scenario.xml'  # os.path.join not working on Windows
+        template_render = JINJA_ENV.get_template(template_path).render(
+            crueconfigmetier_path=CCM_FILE,
+            folder=folder,
+            scenario=self,
+            modele=self.modele,
+            sous_modele_liste=self.modele.liste_sous_modeles,
+        )
+        template_render = template_render.replace(os.sep, '/')
+        return template_render
+
+    def check_xml_scenario(self, folder):
+        """
+        Validation XML du scénario par rapport à son schéma XSD
+
+        :param folder: chemin du dossier contenant les fichiers XML du scénario
+        :type folder: str
+        :return: liste des erreurs
+        :rtype: list(str)
+        """
+        # Render, build and write complete XML file
+        template_render = self.get_rendered_xml_scenario(folder)
+        xml_tree = etree.ElementTree(etree.fromstring(template_render.encode('utf-8')))
+        xml_tree.xinclude()  # replace `xi:include` by its content
+
+        xml_content = etree.tostring(xml_tree).decode('utf-8')
+        xml_content = re.sub(r' xml:base="file:/(.*?)"', '', xml_content)
+
+        tmp_path = tempfile.NamedTemporaryFile().name
+        with open(tmp_path, 'w') as out:
+            out.write(xml_content)
+
+        # Prepare XSD
+        xsd_path = os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
+                                '%s-%s.xsd' % ('scenario', self.version_grammaire))
+        xsd_tree = etree.parse(xsd_path)
+        xmlschema = etree.XMLSchema(xsd_tree)
+
+        # List errors
+        errors_list = []
+        try:
+            xml_tree = etree.fromstring(xml_content)
+            try:
+                xmlschema.assertValid(xml_tree)
+            except etree.DocumentInvalid:
+                for error in xmlschema.error_log:
+                    errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
+        except etree.XMLSyntaxError as e:
+            errors_list.append('Error XML: %s' % e)
+        return errors_list
+
+    def log_check_xml_scenario(self, folder):
+        """
+        Afficher le bilan de la vérification XML du scénario
+
+        :param folder: chemin du dossier contenant les fichiers XML du scénario
+        :type folder: str
+        """
+        errors = self.check_xml_scenario(folder)
+        nb_errors = len(errors)
+        for i, error in enumerate(errors):
+            logger.error("    #%i: %s" % (i + 1, error))
+        if nb_errors == 0:
+            logger.info("=> Aucune erreur dans le scénario %s" % self)
+        else:
+            logger.error("=> %i erreur(s) dans le scénario %s" % (nb_errors, self))
+
+    def summary(self):
+        return "%s: %i calculs(s) dont %i pseudo-permanent(s) et %i transitoires(s) actifs" \
+               % (self, len(self.calculs), len(self.liste_ord_calc_pseudoperm), len(self.liste_ord_calc_trans))
 
     def __repr__(self):
         return "Scénario %s" % self.id

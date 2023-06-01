@@ -10,15 +10,15 @@ scenario.read_all()
 sous_modele = scenario.modele.get_sous_modele('Sm_CA2020')
 print(sous_modele.validate())
 
-run = scenario.get_last_run()
-results = run.get_results()
+run = scenario.get_dernier_run()
+resultats = run.get_resultats_calcul()
 print("RUN=%s" % run.id)
-print(results.summary())
+print(resultats.summary())
 
-casier_names = results.emh['Casier']
-res = results.get_res_all_steady_var_at_emhs('Z', casier_names)
+casier_names = resultats.emh['Casier']
+res = resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', casier_names)
 
-df_time = pd.DataFrame(results.calc_steady_dict.keys(), columns=['calcul'])
+df_time = pd.DataFrame(resultats.res_calc_pseudoperm.keys(), columns=['calcul'])
 df_res = pd.DataFrame(res, columns=casier_names)
 
 df_all = pd.concat([df_time, df_res], axis=1)
@@ -42,7 +42,7 @@ for casier_name in casier_names:
                     noeud_amont = branche.noeud_aval
                 else:
                     noeud_amont = branche.noeud_amont
-                z_amont = results.get_res_all_steady_var_at_emhs('Z', [noeud_amont.id])[-1][0]
+                z_amont = resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', [noeud_amont.id])[-1][0]
 
                 if isinstance(branche, BrancheSeuilLateral):
                     z_tn = branche.get_min_z()

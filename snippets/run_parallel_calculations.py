@@ -52,14 +52,14 @@ if __name__ == '__main__':
 
     # Write a clean etu.xml file
     for run in runs_liste:
-        scenario.add_run(run)
-    scenario.set_current_run_id(runs_liste[-1].id)
+        scenario.ajouter_run(run)
+    scenario.set_run_courant(runs_liste[-1].id)
     etude.write_etu()
 
     # Plot Z at PR1
     for run in runs_liste:
-        results = run.get_results()
-        values = results.get_res_all_steady_var_at_emhs('Z', ['St_RET113.600'])
+        resultats = run.get_resultats_calcul()
+        values = resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', ['St_RET113.600'])
         nb_calc_steady = values.shape[0]
         time_serie = np.arange(1, nb_calc_steady + 1, step=1)
         plt.plot(time_serie, values[:, 0], label=run.metadata['Commentaire'])
