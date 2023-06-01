@@ -34,6 +34,8 @@ Détails :
         * [MAJEUR] la méthode `get_res_steady` devient `get_data_pseudoperm`
         * [MAJEUR] la méthode `get_res_unsteady` devient `get_data_trans`
         * Pour les métadonnées des calculs :
+            * [MAJEUR] l'attribut `calc_steady_dict` devient `res_calc_pseudoperm`
+            * [MAJEUR] l'attribut `calc_unsteady_dict` devient `res_calc_trans`
             * la méthode `get_calc_steady` devient `get_res_calc_pseudoperm`
             * la méthode `get_calc_unsteady` devient `get_res_calc_trans`
             * la méthode `CalcPseudoPerm` devient `ResCalcPseudoPerm` (pour éviter le conflit avec `crue10.scenario.calcul`)

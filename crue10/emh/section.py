@@ -535,7 +535,7 @@ class SectionProfil(Section):
                 bed_pos = np.logical_and(lit.xt_min < xt, xt <= lit.xt_max)
             else:
                 bed_pos = np.logical_and(lit.xt_min <= xt, xt <= lit.xt_max)
-            coeff[bed_pos] = lit.loi_frottement.get_loi_Fk_values.mean()
+            coeff[bed_pos] = lit.loi_frottement.get_loi_Fk_values().mean()
         return coeff
 
     def get_premier_lit_numerote(self, nom):
