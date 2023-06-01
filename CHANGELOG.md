@@ -1,7 +1,7 @@
 Journal des modifications
 =========================
 
-## [4.0] - yyyy-mm-dd
+## [4.0] - 2023-06-01
 
 ### Nouveautés
 - Support en lecture/écriture des grammaires v1.2 et v1.3 :
