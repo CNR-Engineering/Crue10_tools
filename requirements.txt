@@ -3,7 +3,7 @@ future  # python2 only packages
 jinja2
 lxml
 matplotlib  # only required for some snippets
-networkx  # only requried for build_graph
+networkx  # only required for build_graph
 numpy
 # openturns==1.12  # only for snippets.probabilistic_study
 pandas

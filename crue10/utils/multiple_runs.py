@@ -59,11 +59,10 @@ def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_
                         scenario_name = etude.nom_scenario_courant
                     scenario_names = [scenario_name]
 
-                for scenario_name in scenario_names:
-                    scenario = etude.get_scenario(scenario_name)
-                    logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actifs()))
-
-                    for run_idx, (exe_id, crue10_exe) in enumerate(crue_exe_dict.items()):
+                for run_idx, (exe_id, crue10_exe) in enumerate(crue_exe_dict.items()):
+                    for scenario_name in scenario_names:
+                        scenario = etude.get_scenario(scenario_name)
+                        logger.info("%s: %i calculs" % (etu_path, scenario.get_nb_calc_pseudoperm_actifs()))
                         values = OrderedDict()
 
                         if exe_id == 'qualif':
