@@ -161,6 +161,10 @@ class ResultatsCalcul:
     :vartype emh: OrderedDict(str)
     :ivar variables: dictionnaires avec les types d'EMH secondaires donnant la liste des variables disponibles
     :vartype variables: OrderedDict(str)
+    :ivar variables_Qregul: liste des variables Qregul
+    :vartype variables_Qregul: list(str)
+    :ivar variables_Zregul: liste des variables Zregul
+    :vartype variables_Zregul: list(str)
     :ivar res_calc_pseudoperm: dictionnaires avec les métadonnées des calculs pseudo-permanents
     :vartype res_calc_pseudoperm: OrderedDict(ResCalcPseudoPerm)
     :ivar res_calc_trans: dictionnaires avec les métadonnées des calculs transitoires
@@ -171,7 +175,7 @@ class ResultatsCalcul:
     :vartype _res_pattern: list(tuple)
     """
     #: Noms des EMHs primaires
-    EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche']
+    EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche', 'Modele']
 
     def __init__(self, rcal_path):
         """
@@ -184,6 +188,8 @@ class ResultatsCalcul:
         self.emh_types = []
         self.emh = OrderedDict()
         self.variables = OrderedDict()
+        self.variables_Qregul = []
+        self.variables_Zregul = []
         self.res_calc_pseudoperm = OrderedDict()
         self.res_calc_trans = OrderedDict()
 
@@ -201,11 +207,24 @@ class ResultatsCalcul:
         return os.path.basename(os.path.normpath(os.path.join(self.rcal_folder, '..')))
 
     def _add_variables_names(self, elt, emh_sec):
+        """
+        Ajout des variables pour ce type d'EMHs
+
+        :param elt: élément XML
+        :rtype elt: xml.etree.ElementTree.Element
+        :param emh_sec: type d'EMHs
+        :rtype emh_sec: str
+        """
         if emh_sec not in self.variables:
             self.variables[emh_sec] = []
         for sub_elt in elt:
+            varname = sub_elt.get('NomRef')
             if sub_elt.tag.endswith('VariableRes'):
-                self.variables[emh_sec].append(sub_elt.get('NomRef'))
+                self.variables[emh_sec].append(varname)
+            elif sub_elt.tag.endswith('VariableResQregul'):
+                self.variables_Qregul.append(varname)
+            elif sub_elt.tag.endswith('VariableResZregul'):
+                self.variables_Zregul.append(varname)
 
     def _add_emh_names(self, elt, emh_sec):
         if int(elt.get('NbrMot')) > 0:  # Avoid empty lists in self.emh
@@ -215,7 +234,8 @@ class ResultatsCalcul:
                 self.emh_types.append(emh_sec)
                 self.emh[emh_sec] = []
             for sub_elt in elt:
-                if not sub_elt.tag.endswith('VariableRes'):
+                if not sub_elt.tag.endswith('VariableRes') and not sub_elt.tag.endswith('VariableResQregul') \
+                        and not sub_elt.tag.endswith('VariableResZregul'):
                     emh_name = sub_elt.get('NomRef')
                     self.emh[emh_sec].append(emh_name)
 
@@ -243,7 +263,10 @@ class ResultatsCalcul:
                     if not sub_elt.tag.endswith('VariableRes'):
                         self._add_emh_names(sub_elt, emh_subtype)
             else:
-                if emh_type == 'Noeud':
+                if emh_type == 'Modele':
+                    self._add_variables_names(emh_list.find(PREFIX + 'ModeleRegul'), 'Modele')
+                    self._add_emh_names(emh_list.find(PREFIX + 'ModeleRegul'), 'Modele')
+                elif emh_type == 'Noeud':
                     self._add_variables_names(emh_list.find(PREFIX + 'NoeudNiveauContinu'), 'Noeud')
                     self._add_emh_names(emh_list.find(PREFIX + 'NoeudNiveauContinu'), 'Noeud')
                 elif emh_type == 'Casier':
@@ -272,7 +295,10 @@ class ResultatsCalcul:
         emh_types_with_res = []
         for emh_type in self.emh_types:
             emh_types_with_res.append(emh_type)
-            self._res_pattern.append((emh_type, (len(self.emh[emh_type]), len(self.variables[emh_type]))))
+            nbvar = len(self.variables[emh_type])
+            if emh_type == 'Modele':
+                nbvar += len(self.variables_Qregul) + len(self.variables_Zregul)
+            self._res_pattern.append((emh_type, (len(self.emh[emh_type]), nbvar)))
         # Add emh_types which have no result data (because delimiter is still present)
         for i, emh_type in enumerate(ResultatsCalcul.EMH_PRIMARY_TYPES[:-1]):
             if emh_type not in emh_types_with_res:
@@ -339,7 +365,8 @@ class ResultatsCalcul:
             if len(self.emh[emh_type]) > 0 and len(self.variables[emh_type]) > 0:
                 text += "~> %i %s (avec %i variables)\n" % (len(self.emh[emh_type]), emh_type,
                                                             len(self.variables[emh_type]))
-        text += "=> %s calculs permanents et %i calculs transitoires\n" % (len(self.res_calc_pseudoperm), len(self.res_calc_trans))
+        text += "=> %s calculs permanents et %i calculs transitoires\n" \
+                % (len(self.res_calc_pseudoperm), len(self.res_calc_trans))
         return text
 
     def get_data_pseudoperm(self, calc_name):
