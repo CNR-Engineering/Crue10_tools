@@ -7,7 +7,7 @@ from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
 
-from crue10.utils import add_default_missing_metadata, DATA_FOLDER_ABSPATH, ExceptionCrue10, \
+from crue10.utils import add_default_missing_metadata, check_xml_file, DATA_FOLDER_ABSPATH, ExceptionCrue10, \
     ExceptionCrue10Grammar, JINJA_ENV, get_xml_root_from_file, logger, PREFIX, XSI_SCHEMA_LOCATION
 from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE, VERSION_GRAMMAIRE_PRECEDENTE, XML_ENCODING
 
@@ -209,35 +209,7 @@ class EnsembleFichiersXML(ABC):
             out.write(template_render)
 
     def _check_xml_file(self, file_path):
-        logger.debug("Validation XSD (grammaire %s) de %s" % (self.version_grammaire, file_path))
-        errors_list = []
-        file_splitted = file_path.split('.')
-        if len(file_splitted) > 2:
-            xml_type = file_splitted[-2]
-            xsd_path = os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
-                                    '%s-%s.xsd' % (xml_type, self.version_grammaire))
-            xsd_tree = etree.parse(xsd_path)
-            xsd_tree.xinclude()  # replace `xs:include` by its content
-
-            with open(file_path, 'r', encoding=XML_ENCODING) as in_xml:
-                content = '\n'.join(in_xml.readlines())
-                xmlschema = etree.XMLSchema(xsd_tree)
-                try:
-                    xml_tree = etree.fromstring(content)
-                    try:
-                        xmlschema.assertValid(xml_tree)
-                    except etree.DocumentInvalid:
-                        for error in xmlschema.error_log:
-                            error_str = "Invalid XML at line %i: %s" % (error.line, error.message)
-                            if not isinstance(error_str, str):  # Python2 fix: encode
-                                error_str = error_str.encode('utf-8')
-                            errors_list.append(error_str)
-                except etree.XMLSyntaxError as e:
-                    error_str = "Error XML: %s" % e
-                    if not isinstance(error_str, str):  # Python2 fix: encode
-                        error_str = error_str.encode('utf-8')
-                    errors_list.append(error_str)
-        return errors_list
+        return check_xml_file(file_path, self.version_grammaire)
 
     def check_xml_files(self, folder=None):
         """

@@ -166,11 +166,39 @@ class ResultatsCalculTestCase(unittest.TestCase):
             desired = pickle.load(f)
         np.testing.assert_equal(actual, desired)
 
+    def test_get_all_pseudoperm_vars_at_emh_as_array(self):
+        reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+                                           'Etu3-6I_run_pseudoperm_ZQ_at_St_PROF10.p')
+
+        actual = self.resultats.get_all_pseudoperm_vars_at_emh_as_array('St_PROF10', varname_list=['Z', 'Q'])
+
+        if WRITE_REFERENCE_FILES:
+            with open(reference_file_path, 'wb') as f:
+                pickle.dump(actual, f)
+
+        with open(reference_file_path, 'rb') as f:
+            desired = pickle.load(f)
+        np.testing.assert_equal(actual, desired)
+
     def test_get_trans_var_at_emhs_as_array(self):
         reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
                                            'Etu3-6I_run_trans_T01_Z_at_sections.p')
 
         actual = self.resultats.get_trans_var_at_emhs_as_array('Cc_T01', 'Z', self.section_names)
+
+        if WRITE_REFERENCE_FILES:
+            with open(reference_file_path, 'wb') as f:
+                pickle.dump(actual, f)
+
+        with open(reference_file_path, 'rb') as f:
+            desired = pickle.load(f)
+        np.testing.assert_equal(actual, desired)
+
+    def test_get_trans_vars_at_emh_as_array(self):
+        reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
+                                           'Etu3-6I_run_trans_T01_ZQ_at_St_PROF10.p')
+
+        actual = self.resultats.get_trans_vars_at_emh_as_array('Cc_T01', 'St_PROF10', varname_list=['Z', 'Q'])
 
         if WRITE_REFERENCE_FILES:
             with open(reference_file_path, 'wb') as f:

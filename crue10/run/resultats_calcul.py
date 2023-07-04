@@ -161,6 +161,10 @@ class ResultatsCalcul:
     :vartype emh: OrderedDict(str)
     :ivar variables: dictionnaires avec les types d'EMH secondaires donnant la liste des variables disponibles
     :vartype variables: OrderedDict(str)
+    :ivar variables_Qregul: liste des variables Qregul
+    :vartype variables_Qregul: list(str)
+    :ivar variables_Zregul: liste des variables Zregul
+    :vartype variables_Zregul: list(str)
     :ivar res_calc_pseudoperm: dictionnaires avec les métadonnées des calculs pseudo-permanents
     :vartype res_calc_pseudoperm: OrderedDict(ResCalcPseudoPerm)
     :ivar res_calc_trans: dictionnaires avec les métadonnées des calculs transitoires
@@ -171,7 +175,7 @@ class ResultatsCalcul:
     :vartype _res_pattern: list(tuple)
     """
     #: Noms des EMHs primaires
-    EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche']
+    EMH_PRIMARY_TYPES = ['Noeud', 'Casier', 'Section', 'Branche', 'Modele']
 
     def __init__(self, rcal_path):
         """
@@ -184,6 +188,8 @@ class ResultatsCalcul:
         self.emh_types = []
         self.emh = OrderedDict()
         self.variables = OrderedDict()
+        self.variables_Qregul = []
+        self.variables_Zregul = []
         self.res_calc_pseudoperm = OrderedDict()
         self.res_calc_trans = OrderedDict()
 
@@ -201,11 +207,24 @@ class ResultatsCalcul:
         return os.path.basename(os.path.normpath(os.path.join(self.rcal_folder, '..')))
 
     def _add_variables_names(self, elt, emh_sec):
+        """
+        Ajout des variables pour ce type d'EMHs
+
+        :param elt: élément XML
+        :rtype elt: xml.etree.ElementTree.Element
+        :param emh_sec: type d'EMHs
+        :rtype emh_sec: str
+        """
         if emh_sec not in self.variables:
             self.variables[emh_sec] = []
         for sub_elt in elt:
+            varname = sub_elt.get('NomRef')
             if sub_elt.tag.endswith('VariableRes'):
-                self.variables[emh_sec].append(sub_elt.get('NomRef'))
+                self.variables[emh_sec].append(varname)
+            elif sub_elt.tag.endswith('VariableResQregul'):
+                self.variables_Qregul.append(varname)
+            elif sub_elt.tag.endswith('VariableResZregul'):
+                self.variables_Zregul.append(varname)
 
     def _add_emh_names(self, elt, emh_sec):
         if int(elt.get('NbrMot')) > 0:  # Avoid empty lists in self.emh
@@ -215,7 +234,8 @@ class ResultatsCalcul:
                 self.emh_types.append(emh_sec)
                 self.emh[emh_sec] = []
             for sub_elt in elt:
-                if not sub_elt.tag.endswith('VariableRes'):
+                if not sub_elt.tag.endswith('VariableRes') and not sub_elt.tag.endswith('VariableResQregul') \
+                        and not sub_elt.tag.endswith('VariableResZregul'):
                     emh_name = sub_elt.get('NomRef')
                     self.emh[emh_sec].append(emh_name)
 
@@ -243,7 +263,10 @@ class ResultatsCalcul:
                     if not sub_elt.tag.endswith('VariableRes'):
                         self._add_emh_names(sub_elt, emh_subtype)
             else:
-                if emh_type == 'Noeud':
+                if emh_type == 'Modele':
+                    self._add_variables_names(emh_list.find(PREFIX + 'ModeleRegul'), 'Modele')
+                    self._add_emh_names(emh_list.find(PREFIX + 'ModeleRegul'), 'Modele')
+                elif emh_type == 'Noeud':
                     self._add_variables_names(emh_list.find(PREFIX + 'NoeudNiveauContinu'), 'Noeud')
                     self._add_emh_names(emh_list.find(PREFIX + 'NoeudNiveauContinu'), 'Noeud')
                 elif emh_type == 'Casier':
@@ -272,11 +295,17 @@ class ResultatsCalcul:
         emh_types_with_res = []
         for emh_type in self.emh_types:
             emh_types_with_res.append(emh_type)
-            self._res_pattern.append((emh_type, (len(self.emh[emh_type]), len(self.variables[emh_type]))))
+            nbvar = len(self.variables_extended(emh_type))
+            self._res_pattern.append((emh_type, (len(self.emh[emh_type]), nbvar)))
         # Add emh_types which have no result data (because delimiter is still present)
         for i, emh_type in enumerate(ResultatsCalcul.EMH_PRIMARY_TYPES[:-1]):
             if emh_type not in emh_types_with_res:
                 self._res_pattern.insert(i, (emh_type, (0, 0)))
+
+    def variables_extended(self, emh_type):
+        if emh_type == 'Modele':
+            return self.variables[emh_type] + self.variables_Qregul + self.variables_Zregul
+        return self.variables[emh_type]
 
     def emh_type(self, emh_name):
         for emh_type in self.emh_types:
@@ -287,11 +316,11 @@ class ResultatsCalcul:
 
     def get_variable_position(self, emh_type, varname):
         try:
-            return self.variables[emh_type].index(varname)
+            return self.variables_extended(emh_type).index(varname)
         except ValueError:
             raise ExceptionCrue10("La variable `%s` n'est pas disponible pour les %ss\n"
                                   "Les variables possibles sont : %s"
-                                  % (varname, emh_type.lower(), self.variables[emh_type]))
+                                  % (varname, emh_type.lower(), self.variables_extended(emh_type)))
 
     def get_emh_position(self, emh_type, emh_name):
         try:
@@ -336,16 +365,17 @@ class ResultatsCalcul:
     def summary(self):
         text = ""
         for emh_type in self.emh_types:
-            if len(self.emh[emh_type]) > 0 and len(self.variables[emh_type]) > 0:
+            if len(self.emh[emh_type]) > 0 and len(self.variables_extended(emh_type)) > 0:
                 text += "~> %i %s (avec %i variables)\n" % (len(self.emh[emh_type]), emh_type,
-                                                            len(self.variables[emh_type]))
-        text += "=> %s calculs permanents et %i calculs transitoires\n" % (len(self.res_calc_pseudoperm), len(self.res_calc_trans))
+                                                            len(self.variables_extended(emh_type)))
+        text += "=> %s calculs permanents et %i calculs transitoires\n" \
+                % (len(self.res_calc_pseudoperm), len(self.res_calc_trans))
         return text
 
     def get_data_pseudoperm(self, calc_name):
         """
         Obtenir des tableaux numpy de résultats du calcul pseudo-permanent demandé pour chaque type d'EMH.
-        Les tableaux ont 2 dimensions : temps, emh, variable.
+        Les tableaux ont 2 dimensions : emh, variable.
 
         :param calc_name: nom du calcul
         :type calc_name: str
@@ -527,8 +557,8 @@ class ResultatsCalcul:
 
     def get_all_pseudoperm_var_at_emhs_as_array(self, varname, emh_list):
         """
-        Obtenir un tableau numpy avec les valeurs numériques de la variable demandée aux EMHs pour tous les calculs
-        pseudo-permnants
+        Obtenir un tableau numpy avec les valeurs numériques de la variable demandée aux EMHs
+        pour tous les calculs pseudo-permnants
 
         :param varname: nom de la variable à extraire
         :type varname: str
@@ -578,6 +608,54 @@ class ResultatsCalcul:
             var_pos = self.get_variable_position(emh_type, varname)
             values[:, i] = res[emh_type][:, emh_pos, var_pos]
         return values
+
+    def get_all_pseudoperm_vars_at_emh_as_array(self, emh_name, varname_list=None):
+        """
+        Obtenir un tableau numpy avec les valeurs numériques des variables demandées à l'EMH souhaitée
+        pour tous les calculs pseudo-permnants
+
+        :param emh_name: nom de l'EMH concernée
+        :type emh_name: str
+        :param varname_list: liste des variables à extraire
+        :type varname: list(str)
+        :return: tableau numpy (lignes = temps du calcul transitoire, colonnes = variables)
+        :rtype: np.ndarray
+        """
+        emh_type = self.emh_type(emh_name)
+        emh_pos = self.get_emh_position(emh_type, emh_name)
+        if varname_list is None:
+            varname_list = self.variables_extended(emh_type)
+        varpos_list = [self.get_variable_position(emh_type, varname) for varname in varname_list]
+
+        values = np.empty((len(self.res_calc_pseudoperm), len(varname_list)))
+
+        for i, calc_name in enumerate(self.res_calc_pseudoperm.keys()):
+            res = self.get_data_pseudoperm(calc_name)
+            values[i, :] = res[emh_type][emh_pos, varpos_list]
+        return values
+
+    def get_trans_vars_at_emh_as_array(self, calc_name, emh_name, varname_list=None):
+        """
+        Obtenir un tableau numpy avec les valeurs numériques des variables demandées à l'EMH souhaitée
+        pour l'ensemble des temps du calcul transitoire demandé
+
+        :param calc_name: nom du calcul transitoire
+        :type calc_name: str
+        :param emh_name: nom de l'EMH concernée
+        :type emh_name: str
+        :param varname_list: liste des variables à extraire
+        :type varname: list(str)
+        :return: tableau numpy (lignes = temps du calcul transitoire, colonnes = variables)
+        :rtype: np.ndarray
+        """
+        emh_type = self.emh_type(emh_name)
+        emh_pos = self.get_emh_position(emh_type, emh_name)
+        if varname_list is None:
+            varname_list = self.variables_extended(emh_type)
+        varpos_list = [self.get_variable_position(emh_type, varname) for varname in varname_list]
+
+        res = self.get_data_trans(calc_name)
+        return res[emh_type][:, emh_pos, varpos_list]
 
     def extract_res_trans_as_dataframe(self, lst_var, lst_emh):
         """

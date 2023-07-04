@@ -314,3 +314,38 @@ def extract_pdt_from_elt(elt):
         return res
     else:
         raise NotImplementedError("Pas de temps impossible à traiter")
+
+
+def check_xml_content(xml_content, xsd_schema):
+    errors_list = []
+    try:
+        xml_tree = etree.fromstring(xml_content)
+        try:
+            xsd_schema.assertValid(xml_tree)
+        except etree.DocumentInvalid:
+            for error in xsd_schema.error_log:
+                error_str = "Invalid XML at line %i: %s" % (error.line, error.message)
+                if not isinstance(error_str, str):  # Python2 fix: encode
+                    error_str = error_str.encode('utf-8')
+                errors_list.append(error_str)
+    except etree.XMLSyntaxError as e:
+        error_str = "Error XML: %s" % e
+        if not isinstance(error_str, str):  # Python2 fix: encode
+            error_str = error_str.encode('utf-8')
+        errors_list.append(error_str)
+    return errors_list
+
+
+def check_xml_file(xml_path, version_grammaire):
+    logger.debug("Validation XSD (grammaire %s) de %s" % (version_grammaire, xml_path))
+    file_splitted = xml_path.split('.')
+    xml_type = file_splitted[-2]
+    xsd_path = os.path.join(DATA_FOLDER_ABSPATH, version_grammaire, 'xsd',
+                            '%s-%s.xsd' % (xml_type, version_grammaire))
+    xsd_tree = etree.parse(xsd_path)
+    xsd_tree.xinclude()  # replace `xs:include` by its content
+
+    with open(xml_path, 'r', encoding=XML_ENCODING) as in_xml:
+        content = '\n'.join(in_xml.readlines())
+        xsd_schema = etree.XMLSchema(xsd_tree)
+        return check_xml_content(content, xsd_schema)
