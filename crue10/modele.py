@@ -760,7 +760,7 @@ class Modele(EnsembleFichiersXML):
                 xml_path = os.path.join(DATA_FOLDER_ABSPATH, version_grammaire, 'fichiers_vierges', 'default.dreg.xml')
                 root = get_xml_root_from_file(xml_path)
                 self.xml_trees['dreg'] = root
-                self.files['dreg'] = self.files['optr'][:-20] + '\\' + self.id[3:] + '.dreg.xml'
+                self.files['dreg'] = os.path.join(os.path.dirname(self.files['optr']), self.id[3:] + '.dreg.xml')
 
         if not shallow:
             for sous_modele in self.liste_sous_modeles:
