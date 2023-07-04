@@ -25,7 +25,7 @@
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
 				<!-- Ci-dessous, avec quelles versions de Crue cette grammaire est compatible -->
-				<xs:pattern value="10\.[0-3]\.([0-9])+" />
+				<xs:pattern value="10\.[0-2]\.([0-9])+" />
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>

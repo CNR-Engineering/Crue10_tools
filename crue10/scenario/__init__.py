@@ -7,13 +7,13 @@ import numpy as np
 import os.path
 import re
 import shutil
+import tempfile
 import time
 
 from crue10.base import EnsembleFichiersXML
 from crue10.modele import Modele
 from crue10.run import get_run_identifier, Run
-from crue10.utils import check_isinstance, check_preffix, check_xml_content, \
-    duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
+from crue10.utils import check_isinstance, check_preffix, duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
     ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, get_xml_root_from_file, \
     JINJA_ENV, logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree, DATA_FOLDER_ABSPATH
 from crue10.utils.crueconfigmetier import CCM_FILE
@@ -1068,13 +1068,28 @@ class Scenario(EnsembleFichiersXML):
         xml_content = etree.tostring(xml_tree).decode('utf-8')
         xml_content = re.sub(r' xml:base="file:/(.*?)"', '', xml_content)
 
+        tmp_path = tempfile.NamedTemporaryFile().name
+        with open(tmp_path, 'w') as out:
+            out.write(xml_content)
+
         # Prepare XSD
         xsd_path = os.path.join(DATA_FOLDER_ABSPATH, self.version_grammaire, 'xsd',
                                 '%s-%s.xsd' % ('scenario', self.version_grammaire))
         xsd_tree = etree.parse(xsd_path)
-        xsd_schema = etree.XMLSchema(xsd_tree)
+        xmlschema = etree.XMLSchema(xsd_tree)
 
-        return check_xml_content(xml_content, xsd_schema)
+        # List errors
+        errors_list = []
+        try:
+            xml_tree = etree.fromstring(xml_content)
+            try:
+                xmlschema.assertValid(xml_tree)
+            except etree.DocumentInvalid:
+                for error in xmlschema.error_log:
+                    errors_list.append("Invalid XML at line %i: %s" % (error.line, error.message))
+        except etree.XMLSyntaxError as e:
+            errors_list.append('Error XML: %s' % e)
+        return errors_list
 
     def log_check_xml_scenario(self, folder):
         """

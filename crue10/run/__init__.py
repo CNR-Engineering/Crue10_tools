@@ -3,17 +3,16 @@ from collections import OrderedDict
 from datetime import datetime
 from glob import glob
 from io import open
-from lxml import etree
 import os.path
 import subprocess
 
 from crue10.run.resultats_calcul import ResultatsCalcul
-from crue10.utils.settings import CRUE10_EXE_PATH
+from crue10.utils.settings import CRUE10_EXE_PATH, CRUE10_EXE_OPTS
 from crue10.run.trace import Trace
-from crue10.utils import add_default_missing_metadata, check_xml_file, DATA_FOLDER_ABSPATH, ExceptionCrue10, logger
+from crue10.utils import add_default_missing_metadata, ExceptionCrue10, logger
 from crue10.utils.crueconfigmetier import ENUM_SEVERITE
 from crue10.utils.settings import GRAVITE_AVERTISSEMENT, GRAVITE_MAX, GRAVITE_MIN, \
-    GRAVITE_MIN_ERROR, GRAVITE_MIN_ERROR_BLK, XML_ENCODING
+    GRAVITE_MIN_ERROR, GRAVITE_MIN_ERROR_BLK
 
 
 FMT_RUN_IDENTIFIER = "R%Y-%m-%d-%Hh%Mm%Ss"
@@ -319,10 +318,6 @@ class Run:
     def has_computation_traces(self):
         """A des traces de calculs"""
         return len(self.traces['c']) != 0
-
-    def check_xml_rcal_file(self, version_grammaire):
-        file_path = get_path_file_unique_matching(self.run_mo_path, '*.rcal.xml')
-        return check_xml_file(file_path, version_grammaire)
 
     def get_resultats_calcul(self):
         """
