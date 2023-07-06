@@ -119,6 +119,21 @@ class Etude(EnsembleFichiersXML):
             run_names += scenario.runs.keys()
         return run_names
 
+    def reset_filename_list(self):
+        """Reconstruction de la liste des chemins"""
+        self.filename_list = []
+        filename_list = []
+        for scenario in self.get_liste_scenarios():
+            filename_list += [path for _, path in scenario.files.items()]
+
+            modele = scenario.modele
+            filename_list += [path for _, path in modele.files.items()]
+
+            for sous_modele in modele.liste_sous_modeles:
+                filename_list += [path for xml_type, path in sous_modele.files.items()
+                                  if xml_type in SousModele.FILES_XML]
+        self.add_files(filename_list)
+
     def _read_etu(self):
         """Lire le fichier etu.xml"""
         if os.path.isdir(self.etu_path):
@@ -493,6 +508,27 @@ class Etude(EnsembleFichiersXML):
         """
         return [sous_modele for _, sous_modele in self.sous_modeles.items()]
 
+    def renommer_scenario(self, nom_scenario_source, nom_scenario_cible, folder):
+        """
+        Renommer le scénario courant
+
+        Attention: il faut lancer ensuite `reset_filename_list``pour corriger les chemins
+
+        :param nom_scenario_source: ancien nom du scénario
+        :type nom_scenario_source: str
+        :param nom_scenario_cible: nouveau nom du scénario
+        :type nom_scenario_cible: str
+        :param folder: dossier pour les fichiers XML
+        :type folder: str
+        """
+        if self.nom_scenario_courant == nom_scenario_source:
+            self.nom_scenario_courant = nom_scenario_cible
+
+        scenario = self.scenarios.pop(nom_scenario_source)
+        scenario.id = nom_scenario_cible
+        self.ajouter_scenario(scenario)
+        scenario.renommer(nom_scenario_cible, folder)
+
     def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible, overwrite=False):
         """
         Copie d'un scénario existant et ajout à l'étude courante
@@ -559,9 +595,10 @@ class Etude(EnsembleFichiersXML):
         return scenario
 
     def ignore_others_scenarios(self, nom_scenario):
-        """Supprimer les sous-modèles, modèles et scénarios qui ne sont pas liés au scénario demandé
+        """
+        Supprimer les sous-modèles, modèles et scénarios qui ne sont pas liés au scénario demandé
 
-        :param nom_scenario: scénario à conserver
+        :param nom_scenario: nom du scénario à conserver
         :type nom_scenario: str
         """
         scenario_to_keep = self.get_scenario(nom_scenario)
