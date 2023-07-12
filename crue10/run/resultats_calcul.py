@@ -452,7 +452,7 @@ class ResultatsCalcul:
         :param idx_time: index de l'enregistrement temporel (0-indexed)
         :type idx_time: int
         :param var_names: liste des variables (si absent alors tout est exporté)
-        :type var_names: list
+        :type var_names: list(str)
         :return: tableau de valeurs du profil en long
         :rtype: pd.DataFrame
         """
@@ -485,7 +485,8 @@ class ResultatsCalcul:
         return pd.DataFrame(values_in_dict)
 
     def extract_profil_long_trans_max_as_dataframe(self, calc_name, branches, var_names=None,
-                                                   start_time=-float('inf'), end_time=float('inf')):
+                                                   start_time=-float('inf'), end_time=float('inf'),
+                                                   associated_time=False):
         """
         Extraction d'un profil en long (le long de branches) des maximums d'un calcul transitoire
 
@@ -494,17 +495,21 @@ class ResultatsCalcul:
         :param branches: liste des branches
         :type branches: list(Branche)
         :param var_names: liste des variables (si absent alors tout est exporté)
-        :type var_names: list
+        :type var_names: list(str)
         :param start_time: borne inférieure temporelle (début du transitoire si absent)
         :type start_time: float
         :param end_time: borne supérieure temporelle (fin du transitoire si absent)
         :type end_time: float
+        :param associated_time: ajout des temps associés aux maximums
+        :type associated_time: bool
         :return: tableau de valeurs du profil en long
         :rtype: pd.DataFrame
         """
         time = self.get_res_calc_trans(calc_name).time_serie()
         res = self.get_data_trans(calc_name)['Section']
-        res_trans = np.max(res[np.logical_and(start_time <= time, time <= end_time), :, :], axis=0)
+        res_max = np.max(res[np.logical_and(start_time <= time, time <= end_time), :, :], axis=0)
+        if associated_time:
+            res_time = np.argmax(res[np.logical_and(start_time <= time, time <= end_time), :, :], axis=0)
 
         if var_names is None:
             var_names = self.variables['Section']
@@ -523,12 +528,17 @@ class ResultatsCalcul:
 
         pos_sections = [self.emh['Section'].index(section_name) for section_name in section_names]
         pos_variables = [self.variables['Section'].index(var) for var in var_names]
-        array = res_trans[pos_sections, :][:, pos_variables]
+        res_max_sub = res_max[pos_sections, :][:, pos_variables]
+        if associated_time:
+            res_time_sub = res_time[pos_sections, :][:, pos_variables]
+            array_time = self.get_res_calc_trans(calc_name).time_serie()
 
         values_in_dict = OrderedDict([('branche', branche_names), ('section', section_names),
                                       ('distance', distances_list)])
         for i, var in enumerate(var_names):
-            values_in_dict[var] = array[:, i]
+            values_in_dict[var] = res_max_sub[:, i]
+            if associated_time:
+                values_in_dict['time_' + var] = array_time[res_time_sub[:, i]]
         return pd.DataFrame(values_in_dict)
 
     def get_data_trans(self, calc_name):

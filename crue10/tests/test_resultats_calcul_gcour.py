@@ -152,6 +152,16 @@ class ResultatsCalculTestCase(unittest.TestCase):
         df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
 
+        basename = 'Etu3-6I_run_profil_long_T01_max_with_time.csv'
+        if WRITE_REFERENCE_FILES:
+            df_reference = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches,
+                                                                                     associated_time=True)
+            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
+        df_actual = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches,
+                                                                              associated_time=True)
+        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
+        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
+
     def test_get_all_pseudoperm_var_at_emhs_as_array(self):
         reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
                                            'Etu3-6I_run_pseudoperm_Z_at_sections.p')
