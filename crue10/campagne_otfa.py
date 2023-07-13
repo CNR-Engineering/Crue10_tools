@@ -9,8 +9,8 @@ from crue10.utils import check_isinstance, get_optional_commentaire, PREFIX
 from snippets._params import ETATREF_SCENARIO_PAR_AMENAGEMENT
 
 
-DOSSIER_REF = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc')
-DOSSIER_CIBLE = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc_g1.3')
+DOSSIER_REF = os.path.join('..', '..', 'SHY_C10_Crue10_Cas-tests_gprec', 'Conc')
+DOSSIER_CIBLE = os.path.join('..', '..', 'SHY_C10_Crue10_Cas-tests', 'Conc')
 
 
 class Campagne:
@@ -94,25 +94,32 @@ class FichierOtfa(EnsembleFichiersXML):
         )
 
 
-# Complet.otfa.xml
-otfa = FichierOtfa('Complet', mode='w', files={'otfa': '../../Crue10_examples/Cas-tests/OTFA_C10C10/Complet.otfa.xml'},
+# Cas-tests.otfa.xml
+otfa = FichierOtfa('Cas-tests', mode='w', files={'otfa': '../../../SHY_C10_Crue10_Cas-tests/OTFA/Cas-tests_avec_gprec.otfa.xml'},
                    metadata={'Commentaire': "Campagne complète : lancement de toutes les lignes OTFA pour les cas-tests fonctionnels"})
 otfa.read_otfa()
-otfa.ajouter_cible(os.path.join('..', '..', 'Cas-tests_g1.3'))
-otfa.write_otfa('../../Crue10_examples/Cas-tests/OTFA_C10C10_NEW')
+for campagne in otfa.campagnes:
+    campagne.nom_scenario_cible = campagne.nom_scenario_ref
+    campagne.chemin_etude_cible = campagne.chemin_etude_ref
+    campagne.chemin_etude_ref = campagne.chemin_etude_cible.replace('..\Cas-tests',
+                                                                    '..\..\SHY_C10_Crue10_Cas-tests_gprec\Cas-tests')
+otfa.write_otfa('../../../SHY_C10_Crue10_Cas-tests/OTFA')
 
 
 # Conc.otfa.xml
-otfa = FichierOtfa('Conc', mode='w', files={'otfa': 'Conc.otfa.xml'},
+otfa = FichierOtfa('Conc', mode='w', files={'otfa': '../../../SHY_C10_Crue10_Cas-tests/Conc_avec_gprec.otfa.xml'},
                    metadata={'Commentaire': "OTFA pour les derniers modèles de concession"})
 for etude_dossier, nom_scenario in ETATREF_SCENARIO_PAR_AMENAGEMENT.items():
-    for etu_path in glob(os.path.join(DOSSIER_REF, etude_dossier, '*.etu.xml')):  # FIXME: only one etu.xml should be found by folder!
+    for etu_path in glob(os.path.join('..', DOSSIER_REF, etude_dossier, '*.etu.xml')):  # FIXME: only one etu.xml should be found by folder!
         etude = Etude(etu_path)
         if nom_scenario is None:
             nom_scenario = etude.get_scenario_courant().id
-        campagne = Campagne(os.path.relpath(etu_path, start=os.path.join(DOSSIER_REF, 'OTFA_C10C10')), nom_scenario,
+        campagne = Campagne(os.path.relpath(os.path.join(DOSSIER_REF, etude_dossier, os.path.basename(etu_path)),
+                                                         start=os.path.join(DOSSIER_CIBLE, '..', 'OTFA')),
+                            nom_scenario,
                             os.path.relpath(os.path.join(DOSSIER_CIBLE, etude_dossier, os.path.basename(etu_path)),
-                                            start=os.path.join(DOSSIER_REF, 'OTFA_C10C10')), nom_scenario)
+                                            start=os.path.join(DOSSIER_CIBLE, '..', 'OTFA')),
+                            nom_scenario)
         otfa.ajouter_campagne(campagne)
 
-otfa.write_otfa(os.path.join(DOSSIER_REF, 'OTFA_C10C10'))
+otfa.write_otfa('../../../SHY_C10_Crue10_Cas-tests/OTFA')

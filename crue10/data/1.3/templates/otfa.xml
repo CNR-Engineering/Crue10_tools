@@ -7,11 +7,11 @@
   <DateDerniereModif>{{ metadata.DateDerniereModif }}</DateDerniereModif>
   <Reference-Options>
     <EffacerRunAvant>true</EffacerRunAvant>
-    <EffacerRunApres>true</EffacerRunApres>
+    <EffacerRunApres>false</EffacerRunApres>
   </Reference-Options>
   <Cible-Options>
     <EffacerRunAvant>true</EffacerRunAvant>
-    <EffacerRunApres>true</EffacerRunApres>
+    <EffacerRunApres>false</EffacerRunApres>
   </Cible-Options>
   <LignesCampagne>
     {%- for campagne in campagnes %}
