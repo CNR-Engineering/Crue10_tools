@@ -48,6 +48,7 @@ parser.add_argument('etu_path', help="chemin vers l'étude Crue10 à lire (fichi
 parser.add_argument('--sc_name', help="nom du scénario (avec le preffixe Sc_) (si absent alors le scénario courant est pris)")
 parser.add_argument('--run_id', help="identifiant du Run à exploiter (si absent alors le dernier Run est pris)")
 parser.add_argument('calc_trans', help="nom du calcul transitoire)")
+parser.add_argument('dyke_path', help="chemin vers le fichier CSV avec les caractéristiques des digues")
 parser.add_argument('out_csv', help="chemin vers le fichier CSV de sortie")
 
 
