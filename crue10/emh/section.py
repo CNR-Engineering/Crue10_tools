@@ -712,6 +712,30 @@ class SectionProfil(Section):
 
         return errors
 
+    def get_fond_moyen(self, nom_limite1, nom_limite2):
+        """
+        Obtenir la cote du fond moyen entre les 2 limites
+
+        :param nom_limite1: nom de la limite 1 (gauche)
+        :param nom_limite2: nom de la limite 2 (droite)
+        :return: cote du fond moyen
+        :rtype: float
+        """
+        xt_min = self.get_xt_limite_lit(nom_limite1)
+        xt_max = self.get_xt_limite_lit(nom_limite2)
+        xz = self.xz[np.logical_and(xt_min <= self.xz[:, 0], self.xz[:, 0] <= xt_max), :]
+        assert len(xz) >= 2
+        return np.trapz(xz[:, 1], x=xz[:, 0]) / (xt_max - xt_min)
+
+    def get_fond_moyen_lit_actif(self):
+        """
+        Obtenir la cote du fond moyen du lit actif (mineur et majeur)
+
+        :return: cote du fond moyen du lit actif
+        :rtype: float
+        """
+        return self.get_fond_moyen('StoD-MajD', 'MajG-StoG')
+
     def summary(self):
         text = '%s:' % self
         if self.has_xz():
