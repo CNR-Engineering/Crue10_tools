@@ -11,7 +11,7 @@ class SectionTestCase(unittest.TestCase):
 
     def setUp(self):
         self.section = SectionProfil('St_1')
-        self.section.set_xz(np.array([(0.0, 1.0), (50.0, 1.0)]))
+        self.section.set_xz(np.array([(0.0, 1.0), (10.0, 0.0), (40.0, 0.0), (50.0, 1.0)]))
         self.section.set_lits_numerotes([0.0, 10.0, 20.0, 30.0, 40.0, 50.0])
         self.point = Point(0, 0)
         self.linestring = LineString([(0, 0), (1, 1)])
@@ -37,4 +37,14 @@ class SectionTestCase(unittest.TestCase):
     def test_get_xt_merged_consecutive_lits_numerotes(self):
         desired = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0]
         actual = self.section.get_xt_merged_consecutive_lits_numerotes()
+        self.assertEqual(actual, desired)
+
+    def test_get_fond_moyen(self):
+        desired = 0.2
+        actual = self.section.get_fond_moyen('RD', 'RG')
+        self.assertEqual(actual, desired)
+
+    def test_get_fond_moyen_lit_actif(self):
+        desired = 0.0
+        actual = self.section.get_fond_moyen_lit_actif()
         self.assertEqual(actual, desired)

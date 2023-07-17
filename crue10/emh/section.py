@@ -716,8 +716,8 @@ class SectionProfil(Section):
         """
         Obtenir la cote du fond moyen entre les 2 limites
 
-        :param nom_limite1: nom de la limite 1 (gauche)
-        :param nom_limite2: nom de la limite 2 (droite)
+        :param nom_limite1: nom de la limite 1 (droite)
+        :param nom_limite2: nom de la limite 2 (gauche)
         :return: cote du fond moyen
         :rtype: float
         """
