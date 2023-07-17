@@ -17,7 +17,7 @@ from _params import CRUE10_EXE, CRUE10_EXE_REFERENCE, CSV_DELIMITER, \
     ETATREF_SCENARIO_PAR_AMENAGEMENT, write_csv
 
 
-DOSSIER_IN = os.path.join('..', '..', 'Crue10_examples', 'sharepoint_modeles_Conc')
+DOSSIER_IN = os.path.join('..', '..', '..', 'SHY_C10_Crue10_Cas-tests_gprec', 'Conc')
 RUN_CALCULATIONS, WRITE_DIFF_DATAFRAME, PLOT_RUN_BARPLOT, PLOT_DIFF_BARPLOT, PLOT_BOXPLOT = \
     True, True, True, True, True
 REFERENCE = list(CRUE10_EXE.keys())[0]

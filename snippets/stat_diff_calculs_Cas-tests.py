@@ -18,7 +18,7 @@ from crue10.utils.multiple_runs import get_run_steady_results, launch_runs
 from _params import CRUE10_EXE, CRUE10_EXE_REFERENCE, CSV_DELIMITER, write_csv
 
 
-DOSSIER_IN = os.path.join('..', '..', 'Crue10_examples', 'Cas-tests')
+DOSSIER_IN = os.path.join('..', '..', '..', 'SHY_C10_Crue10_Cas-tests_gprec', 'Cas-tests')
 RUN_CALCULATIONS, WRITE_DIFF_DATAFRAME, PLOT_RUN_BARPLOT, PLOT_DIFF_BARPLOT, PLOT_DIFF_HEATMAP = \
     True, True, True, True, True
 CRUE10_EXE_HEATMAP = 'qualif'
