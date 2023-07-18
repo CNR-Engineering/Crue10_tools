@@ -512,7 +512,7 @@ class Etude(EnsembleFichiersXML):
         """
         Renommer un scénario
 
-        Attention: il faut lancer ensuite `reset_filename_list``pour corriger les chemins
+        Attention: il faut lancer ensuite `reset_filename_list` pour corriger les chemins
 
         :param nom_scenario_source: ancien nom du scénario
         :type nom_scenario_source: str
@@ -533,7 +533,7 @@ class Etude(EnsembleFichiersXML):
         """
         Renommer le modèle
 
-        Attention: il faut lancer ensuite `reset_filename_list``pour corriger les chemins
+        Attention: il faut lancer ensuite `reset_filename_list` pour corriger les chemins
 
         :param nom_modele_source: ancien nom du modèle
         :type nom_modele_source: str
@@ -546,6 +546,24 @@ class Etude(EnsembleFichiersXML):
         modele.id = nom_modele_cible
         self.ajouter_modele(modele)
         modele.renommer(nom_modele_cible, folder)
+
+    def renommer_sous_modele(self, nom_sous_modele_source, nom_sous_modele_cible, folder):
+        """
+        Renommer le sous-modèle
+
+        Attention: il faut lancer ensuite `reset_filename_list` pour corriger les chemins
+
+        :param nom_sous_modele_source: ancien nom du sous-modèle
+        :type nom_sous_modele_source: str
+        :param nom_sous_modele_cible: nouveau nom du sous-modèle
+        :type nom_sous_modele_cible: str
+        :param folder: dossier pour les fichiers XML
+        :type folder: str
+        """
+        sous_modele = self.sous_modeles.pop(nom_sous_modele_source)
+        sous_modele.id = nom_sous_modele_cible
+        self.ajouter_sous_modele(sous_modele)
+        sous_modele.renommer(nom_sous_modele_cible, folder)
 
     def ajouter_scenario_par_copie(self, nom_scenario_source, nom_scenario_cible, overwrite=False):
         """
