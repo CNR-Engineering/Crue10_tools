@@ -156,13 +156,13 @@
 		<xs:attribute type="TypeForAttributeNomRefNoeud" name="NomRef" use="required" />
 	</xs:complexType>
 
-  <xs:simpleType name="TypeForAttributeNomRefModele">
-    <xs:restriction base="TypeForAttributeNomRefDistant">
-      <xs:pattern value="Mo_.*"></xs:pattern>
-    </xs:restriction>
-  </xs:simpleType>
+	<xs:simpleType name="TypeForAttributeNomRefModele">
+		<xs:restriction base="TypeForAttributeNomRefDistant">
+			<xs:pattern value="Mo_.*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
 
-  <xs:simpleType name="TypeForAttributeNomRefNoeud">
+	<xs:simpleType name="TypeForAttributeNomRefNoeud">
 		<xs:restriction base="xs:token">
 			<xs:pattern value="Nd_.*"></xs:pattern>
 		</xs:restriction>
@@ -438,7 +438,7 @@
 	<xs:simpleType name="TypeDuree">
 		<xs:annotation>
 			<xs:documentation>
-        Type a utiliser pour toutes les durees :
+				Type a utiliser pour toutes les durees :
 				restriction de xs:duration avec année et mois obligatoirement à 0 
 			</xs:documentation>
 		</xs:annotation>

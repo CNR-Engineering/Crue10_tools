@@ -62,7 +62,7 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<!--  SousModeles -->
+	<!-- SousModeles -->
 
 	<xs:element name="SousModeles">
 		<xs:complexType>
@@ -89,7 +89,7 @@
 		</xs:complexType>
 	</xs:element>
 
-	<!--  Modeles -->
+	<!-- Modeles -->
 	
 	<xs:element name="Modele">
 		<xs:complexType>
@@ -139,7 +139,7 @@
 		</xs:complexType>
 	</xs:element>
 
-	<!--  Scenarios -->
+	<!-- Scenarios -->
 	
 	<xs:element name="Scenarios">
 		<xs:complexType>
@@ -192,7 +192,7 @@
 		</xs:complexType>
 	</xs:element>
 
-	<!--  RUNS -->
+	<!-- RUNS -->
 	
 	<xs:element name="Runs">
 		<xs:complexType>
@@ -218,7 +218,7 @@
 				<xs:element ref="DateCreation" />
 				<xs:element ref="AuteurDerniereModif" />
 				<xs:element ref="DateDerniereModif" />
-      </xs:sequence>
+			</xs:sequence>
 			<xs:attribute name="Nom" type="TypeForAttributeNom" use="required" />
 		</xs:complexType>
 	</xs:element>
@@ -548,7 +548,7 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<!--  FICHIER ETU -->
+	<!-- FICHIER ETU -->
 	
 	<xs:element name="ETU">
 		<xs:complexType>

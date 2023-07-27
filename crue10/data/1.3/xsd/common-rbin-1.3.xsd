@@ -56,19 +56,19 @@
 		</xs:complexType>
 	</xs:element>
 
-  <xs:element name="VariableResQregul">
-    <xs:complexType>
-      <xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
-    </xs:complexType>
-  </xs:element>
+	<xs:element name="VariableResQregul">
+		<xs:complexType>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
+		</xs:complexType>
+	</xs:element>
 
-  <xs:element name="VariableResZregul">
-    <xs:complexType>
-      <xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
-    </xs:complexType>
-  </xs:element>
+	<xs:element name="VariableResZregul">
+		<xs:complexType>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
+		</xs:complexType>
+	</xs:element>
 
-  <xs:element name="VariableResLoi">
+	<xs:element name="VariableResLoi">
 		<xs:complexType>
 			<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
 		</xs:complexType>
@@ -272,39 +272,39 @@
 		</xs:complexType>
 	</xs:element>
 
-  <!-- les modèles -->
-  <xs:element name="Modele">
-    <xs:complexType>
-      <xs:attribute name="NomRef" type="TypeForAttributeNomRefModele" use="required" />
-      <xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
-    </xs:complexType>
-  </xs:element>
+	<!-- les modèles -->
+	<xs:element name="Modele">
+		<xs:complexType>
+			<xs:attribute name="NomRef" type="TypeForAttributeNomRefModele" use="required" />
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
 
-  <xs:complexType name="TypeTypeEMHModele">
-    <xs:annotation>
-      <xs:documentation>
-        Type a utiliser pour tous les TypeEMH de CatEMHModele
-      </xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <!-- Attention l'ordre VariableRes, VariableResQregul puis VariableResZregul est figé -->
-      <xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element ref="VariableResQregul" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element ref="VariableResZregul" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element ref="Modele" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-    <xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
-  </xs:complexType>
-  
-  <xs:element name="Modeles">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="ModeleRegul"        type="TypeTypeEMHModele" />
-      </xs:sequence>
-      <xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
-    </xs:complexType>
-  </xs:element>
-  
+	<xs:complexType name="TypeTypeEMHModele">
+		<xs:annotation>
+			<xs:documentation>
+			Type a utiliser pour tous les TypeEMH de CatEMHModele
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<!-- Attention l'ordre VariableRes, VariableResQregul puis VariableResZregul est figé -->
+			<xs:element ref="VariableRes" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="VariableResQregul" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="VariableResZregul" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="Modele" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+	</xs:complexType>
+
+	<xs:element name="Modeles">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ModeleRegul"        type="TypeTypeEMHModele" />
+			</xs:sequence>
+			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
+		</xs:complexType>
+	</xs:element>
+
 	<!-- Structure des résultats par CatEMH et par TypeEMH -->
 	<xs:element name="StructureResultat">
 		<xs:complexType>
@@ -314,11 +314,11 @@
 					<xs:element ref="VariableResLoi" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element ref="VariableResLoiNbrPt" minOccurs="0" maxOccurs="unbounded"/>
 				</xs:choice>
-				<xs:element ref="Noeuds"   />
-				<xs:element ref="Casiers"  />
+				<xs:element ref="Noeuds" />
+				<xs:element ref="Casiers" />
 				<xs:element ref="Sections" />
 				<xs:element ref="Branches" />
-        <xs:element ref="Modeles" minOccurs="0" />
+				<xs:element ref="Modeles" minOccurs="0" />
 			</xs:sequence>
 			<xs:attribute name="NbrMot" type="xs:nonNegativeInteger" use="required" />
 		</xs:complexType>

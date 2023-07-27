@@ -80,10 +80,10 @@
 	</xs:simpleType>
 
 	<xs:simpleType name="TypeInfini">
-	    <xs:restriction base="xs:string">
-	    	<xs:enumeration value="+Infini"/>
-	    	<xs:enumeration value="-Infini"/>
-	    </xs:restriction>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="+Infini"/>
+			<xs:enumeration value="-Infini"/>
+		</xs:restriction>
 	</xs:simpleType>
 
 	<xs:simpleType name="TypeDoubleInfini">
@@ -91,9 +91,9 @@
 	</xs:simpleType>
 
 	<xs:simpleType name="TypeNull">
-	    <xs:restriction base="xs:string">
-	    	<xs:length value="0"/>
-	    </xs:restriction>
+		<xs:restriction base="xs:string">
+			<xs:length value="0"/>
+		</xs:restriction>
 	</xs:simpleType>
 
 	<xs:simpleType name="TypeToken32">
