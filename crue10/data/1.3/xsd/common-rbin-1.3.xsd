@@ -58,13 +58,13 @@
 
 	<xs:element name="VariableResQregul">
 		<xs:complexType>
-			<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
+			<xs:attribute name="NomRef" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
 
 	<xs:element name="VariableResZregul">
 		<xs:complexType>
-			<xs:attribute name="NomRef" type="TypeForAttributeNomRefDistant" use="required" />
+			<xs:attribute name="NomRef" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
 
