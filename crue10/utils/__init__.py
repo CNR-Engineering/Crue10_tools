@@ -27,6 +27,7 @@ except:
 
 SELF_CLOSING_TAGS = [
     'IniCalcCI', 'IniCalcPrecedent', 'InterpolLineaire', 'Lois', 'OrdreDRSO',
+    'InterpolBaignoire',  # opti
     'HydrogrammeQapp', 'Limnigramme',  # dclm
     'Qmode', 'DefQregul', 'DefZregul', 'Qabs', 'Zabs', 'CondMode',  #dreg
 ]

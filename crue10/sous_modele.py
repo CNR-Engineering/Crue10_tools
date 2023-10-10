@@ -587,7 +587,10 @@ class SousModele(EnsembleFichiersXML):
                                               float(fente.find(PREFIX + 'ProfondeurFente').text))
 
                     for lit_num_elt in emh.find(PREFIX + 'LitNumerotes').findall(PREFIX + 'LitNumerote'):
-                        lit_id = lit_num_elt.find(PREFIX + 'LitNomme').text
+                        lit_nomme_elt = lit_num_elt.find(PREFIX + 'LitNomme')
+                        if lit_nomme_elt is None:
+                            raise ExceptionCrue10("Pas de balise LitNomme pour la section %s" % section.id)
+                        lit_id = lit_nomme_elt.text
                         xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
                         xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
                         loi_frottement = self.get_loi_frottement(lit_num_elt.find(PREFIX + 'Frot').get('NomRef'))

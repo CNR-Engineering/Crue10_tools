@@ -172,7 +172,7 @@ class LitNumerote:
         :type loi_frottement: LoiFrottement
         """
         if nom_lit not in LitNumerote.BED_NAMES:
-            raise RuntimeError
+            raise ExceptionCrue10("Le lit `%s` est inconnu" % nom_lit)
         self.id = nom_lit
         self.xt_min = xt_min
         self.xt_max = xt_max

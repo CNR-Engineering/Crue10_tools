@@ -700,7 +700,7 @@ class Modele(EnsembleFichiersXML):
                 sous_modele.read_all(ignore_shp=ignore_shp)
 
             self._read_dpti()
-            self._set_xml_trees()  # should be after read_dpi to set version_grmamaire and check if dreg is expected
+            self._set_xml_trees()  # should be after read_dpi to set version_grammaire and check if dreg is expected
         self.was_read = True
 
     def _write_dpti(self, folder):

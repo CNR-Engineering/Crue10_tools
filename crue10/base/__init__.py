@@ -156,6 +156,8 @@ class EnsembleFichiersXML(ABC):
     def _get_xml_root_set_version_grammaire_and_comment(self, xml):
         try:
             root = ET.parse(self.files[xml]).getroot()
+        except FileNotFoundError:
+            raise ExceptionCrue10("Fichier introuvable: %s" % self.files[xml])
         except ET.ParseError as e:
             raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (self.files[xml], e))
 

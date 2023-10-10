@@ -50,6 +50,7 @@
         </LitNumerote>
         {%- endfor %}
       </LitNumerotes>
+      {%- if section.get_liste_limites_geom() %}
       <Etiquettes>
         {%- for limite in section.get_liste_limites_geom() %}
         <Etiquette Nom="{{ limite.id }}">
@@ -57,6 +58,7 @@
         </Etiquette>
         {%- endfor %}
       </Etiquettes>
+      {%- endif %}
     </ProfilSection>
     {%- endfor %}
   </DonPrtGeoProfilSections>
