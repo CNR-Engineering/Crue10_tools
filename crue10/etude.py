@@ -691,6 +691,42 @@ class Etude(EnsembleFichiersXML):
         if sleep > 0.0:  # Avoid potential conflict if folder is rewritten directly afterwards
             time.sleep(sleep)
 
+    def supprimer_modele(self, nom_modele, ignore=False):
+        """Supprimer le modèle spécifié
+
+        :param nom_modele: nom du modèle à supprimer
+        :type nom_modele: str
+        :param ignore: True si le modèle peut ne pas exister
+        :type ignore: bool, optional
+        """
+        logger.info("Suppression du modèle %s" % nom_modele)
+        if not ignore:
+            # Check that is exists if required
+            self.get_modele(nom_modele)
+
+        try:
+            del self.modeles[nom_modele]
+        except KeyError:  # ignore if not found
+            pass
+
+    def supprimer_sous_modele(self, nom_sous_modele, ignore=False):
+        """Supprimer le sous-modèle spécifié
+
+        :param nom_sous_modele: nom du sous-modèle à supprimer
+        :type nom_sous_modele: str
+        :param ignore: True si le sous-modèle peut ne pas exister
+        :type ignore: bool, optional
+        """
+        logger.info("Suppression du sous-modèle %s" % nom_sous_modele)
+        if not ignore:
+            # Check that is exists if required
+            self.get_sous_modele(nom_sous_modele)
+
+        try:
+            del self.sous_modeles[nom_sous_modele]
+        except KeyError:  # ignore if not found
+            pass
+
     def check_xml_files(self, folder=None):
         """Validation des fichiers XML à partir des schémas XSD de la grammaire de l'étude"""
         errors = {}
