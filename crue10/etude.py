@@ -637,6 +637,7 @@ class Etude(EnsembleFichiersXML):
         :param nom_scenario: nom du scénario à conserver
         :type nom_scenario: str
         """
+        self.nom_scenario_courant = nom_scenario
         scenario_to_keep = self.get_scenario(nom_scenario)
         filepath_to_keep = []  # to purge FichEtudes/FichEtude
 
