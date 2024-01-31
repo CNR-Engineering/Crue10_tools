@@ -6,7 +6,7 @@
 	<xs:annotation>
 		<!-- La Version et la Release doivent être mises à jour à chaque modification de cette xsd -->
 		<xs:documentation xml:lang="fr">
-			Version 1.3 Release 0
+			Version 1.3 Release 1
 			Ce schéma est utilisé pour les éléments communs
 			aux fichiers xml liés aux résultats binaires (RPTG.xml et RCAL.xml).
 			Il est inclus dans rcal-x.y.xsd et rptg-x.y.xsd
