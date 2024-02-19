@@ -529,7 +529,7 @@ class SectionProfil(Section):
     def get_friction_coeff_array(self):
         """Overestimation of internal beds width"""
         xt = self.xz_filtered[:, 0]
-        coeff = np.zeros(xt.shape[0], dtype=np.float)
+        coeff = np.zeros(xt.shape[0], dtype=float)
         for lit in self.lits_numerotes:
             if 'G' in lit.id:
                 bed_pos = np.logical_and(lit.xt_min < xt, xt <= lit.xt_max)

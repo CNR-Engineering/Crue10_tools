@@ -191,7 +191,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
 
         if out_csv_diff_by_calc is not None and row['exe_id'] == 'qualif':
             df_diff = pd.DataFrame({
-                'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=np.int64) + 1, diff.shape[1]),
+                'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=int) + 1, diff.shape[1]),
                 'emh': resultats.emh[emh_type] * diff.shape[0],
                 'diff': diff.flatten()
             })

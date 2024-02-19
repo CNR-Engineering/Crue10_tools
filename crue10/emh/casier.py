@@ -322,7 +322,7 @@ class Casier:
         """Remplace plusieurs profils casier par un unique profil casier donnant la même loi de volume"""
         if len(self.profils_casier) > 2:
             # Extract a sequence of bottom elevation
-            z_array_combine = np.array([], dtype=np.float64)
+            z_array_combine = np.array([], dtype=float)
             for i, pc in enumerate(self.profils_casier):
                 z_array = np.sort(pc.xz[:, 1])
                 z_array_combine = np.concatenate((z_array_combine, z_array), axis=0)
