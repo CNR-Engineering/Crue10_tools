@@ -3237,7 +3237,7 @@
       <VarOrdonnee NomRef="Sact" />
     </ItemConfigLoi>
     <ItemConfigLoi Nom="LoiZSmaj">
-      <!-- <Commentaire>Aire de la section mouillée du lit majeur e n fonction de la cote</Commentaire> -->
+      <!-- <Commentaire>Aire de la section mouillée du lit majeur en fonction de la cote</Commentaire> -->
       <TypeControleLoi NomRef="Tco_AbsCrtStrict" />
       <ExtrapolInf NomRef="Tex_OrdCst" />
       <ExtrapolSup NomRef="Tex_OrdCst" />
