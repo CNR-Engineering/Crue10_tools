@@ -4,6 +4,7 @@ from datetime import datetime
 from glob import glob
 from io import open
 from lxml import etree
+import numpy as np
 import os.path
 import subprocess
 
@@ -290,6 +291,7 @@ class Run:
     def get_service_time(self, service):
         """
         Obtenir le temps écoulé du service demandé
+        Retourne NaN si le temps n'est pas trouvé dans le compte-rendu
 
         :param service: identifiant du service
         :type service: str
@@ -299,16 +301,18 @@ class Run:
         for trace in self.traces[service]:
             if trace.id == 'ID_TIMING':
                 return float(trace.parametres[0].replace('"', ''))
+        return np.nan
 
     def get_time(self, services=SERVICES):
         """
         Obtenir le temps écoulé par plusieurs services
+        Retourne NaN si le temps n'est pas trouvé dans un des comptes-rendus
 
         :param services: liste des services
         :type services: list(str)
         :rtype: float
         """
-        time = 0
+        time = 0.0
         for service in services:
             time += self.get_service_time(service)
         return time
