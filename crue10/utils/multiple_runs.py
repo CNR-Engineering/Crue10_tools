@@ -10,12 +10,87 @@ import pandas as pd
 from crue10.etude import Etude
 from crue10.utils import ExceptionCrue10, logger
 from crue10.utils.settings import CRUE10_EXE_PATH, NCSIZE
+from snippets._params import COEUR_REFERENCE, COEUR_CIBLE
 
 
 def launch_scenario_modifications(function, modifications_liste, ncsize=NCSIZE):
     logger.info("Lancement de %i calculs en parallèle (sur %i processeurs)" % (len(modifications_liste), ncsize))
     with Pool(processes=ncsize) as pool:
         return pool.map(function, modifications_liste)
+
+
+def parse_otfa_runs(fichier_otfa):
+    """
+    :param fichier_otfa: fichier OTFA en lecture (et qui est déjà parsé)
+    :vartype fichier_otfa: FichierOtfa
+    :rtype: pd.DataFrame
+    """
+    df_runs = pd.DataFrame({'etude_dossier': [], 'etude_basename': [], 'scenario': [], 'exe_id': [],
+                            'run_idx': [], 'run_id': [],
+                            'variable': [], 'value': []})
+    for campagne in fichier_otfa.campagnes:  # (1) reference = old_c10m10, (2) cible = c10m10
+        dossier_otfa = os.path.dirname(fichier_otfa.files['otfa'])
+
+        assert campagne.chemin_etude_ref == campagne.chemin_etude_cible
+        assert campagne.nom_scenario_ref == campagne.nom_scenario_cible
+
+        etude_dossier = os.path.basename(os.path.dirname(campagne.chemin_etude_ref))
+        logger.info(">>>>>>>>>> Dossier étude: %s <<<<<<<<<<" % etude_dossier)
+
+        for run_idx, exe_id in enumerate((COEUR_REFERENCE, COEUR_CIBLE)):
+            try:
+                if run_idx == 0:
+                    etude = Etude(os.path.normpath(os.path.join(dossier_otfa, campagne.chemin_etude_ref)))
+                    scenario = etude.get_scenario(campagne.nom_scenario_ref)
+                    scenario.read_all(ignore_shp=True)
+                    run = scenario.get_run(list(scenario.runs.keys())[0])  # old_c10m10
+                elif run_idx == 1:
+                    etude = Etude(os.path.normpath(os.path.join(dossier_otfa, campagne.chemin_etude_cible)))
+                    scenario = etude.get_scenario(campagne.nom_scenario_cible)
+                    scenario.read_all(ignore_shp=True)
+                    run = scenario.get_run(list(scenario.runs.keys())[-1])  # c10m10
+                else:
+                    raise NotImplementedError
+
+                logger.info(run)
+                values = OrderedDict()
+
+                # Get nb_calc_perm
+                try:
+                    resultats = run.get_resultats_calcul()
+                    values['nb_calc_perm'] = len(resultats.res_calc_pseudoperm)
+                except IOError as e:
+                    logger.warning("Aucun résultat trouvé (fichier rcal manquant) pour le Run #%s" % run.id)
+                    values['nb_calc_perm'] = 0
+
+                # Compute nb_services_ok
+                nb_services_ok = 0
+                for service, traces in run.traces.items():
+                    if traces and run.nb_erreurs_bloquantes([service]) == 0:
+                        if service == 'r':
+                            # Display a message to check Crue10 version
+                            logger.debug("%s: %s" % (exe_id, traces[0].get_message()))
+                        nb_services_ok += 1
+
+                # Save criteria in values and append them in df_runs
+                values.update(OrderedDict([
+                    ('nb_services_ok', nb_services_ok),
+                    ('nb_erreurs_calcul', run.nb_erreurs_calcul()),
+                    ('nb_avertissements_calcul', run.nb_avertissements_calcul()),
+                ]))
+                for var, value in values.items():
+                    serie = pd.Series({
+                        'etude_dossier': etude_dossier, 'etude_basename': os.path.basename(etude.etu_path),
+                        'scenario': scenario.id, 'exe_id': exe_id,
+                        'run_idx': run_idx, 'run_id': run.id,
+                        'variable': var, 'value': value
+                    })
+                    df_runs.loc[len(df_runs)] = serie
+
+            except ExceptionCrue10 as e:
+                logger.critical("ERREUR CRITIQUE :\n%s" % e)
+
+    return df_runs
 
 
 def launch_runs(dossier, scenarios_dict=None, crue_exe_dict={'prod': CRUE10_EXE_PATH}, overwrite=True):
@@ -189,7 +264,7 @@ def get_run_steady_results(dossier, df_runs_unique, reference, out_csv_diff_by_c
         diff = res_perm_curr - res_perm_ref
         diff_abs = np.abs(diff)
 
-        if out_csv_diff_by_calc is not None and row['exe_id'] == 'qualif':
+        if out_csv_diff_by_calc is not None and row['exe_id'] == COEUR_CIBLE:
             df_diff = pd.DataFrame({
                 'id_calcul': np.repeat(np.arange(nb_common_calc, dtype=int) + 1, diff.shape[1]),
                 'emh': resultats.emh[emh_type] * diff.shape[0],

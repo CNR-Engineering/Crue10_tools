@@ -1,39 +1,21 @@
 # coding: utf-8
-"""
-Les versions des différents exécutables Crue10 :
-* 'qualif_c10m9': '10.1.12'
-* 'prod': '10.2.0'
-* 'local_v10.2': '10.2.0'  # Branche v10.2 créée le 04/07/2017 (source non précisé)
-* 'qualif_old_c10m10': '10.2.0'
-* 'qualif_c10m10v111': '10.3.0'
-* 'qualif': '10.3.2'  # Branche v10.3 (VS2017) créée le 20/03/2018 (à partir de v10.3)
-* 'local_v10.3': '10.3.2'  # Branche v10.3 créée le 25/01/2018 (à partir de DEV)
-"""
 from collections import OrderedDict
-from os import sep
+import os
 
 from crue10.utils import logger
 
 
 CSV_DELIMITER = ';'
 
+COEUR_REFERENCE = 'v10.5.0.0-VS2017'
+COEUR_CIBLE = 'v10.5.0.0-VS2022'
 
-CRUE10_EXE_REFERENCE = 'prod'
-
+DOSSIER_FUDAACRUE = 'C:/softs/FudaaCrue-1.4.3-20231201_Coeur-%s-%s' % (COEUR_CIBLE, COEUR_REFERENCE)
 
 CRUE10_EXE = OrderedDict([
-    # Liste des exécutables Crue10 à comparer
-    ('prod', 'P:/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
-    ('qualif', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
-
-    # Référence utilisée pour les calculs de différences
-    # ('prod', 'P:/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
-
-    # Calculs à comparer à la référence
-    # failed .STO/.STR missing: ('qualif_c10m9', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/c10m9/exe/crue10.exe'.replace('/', sep)),
-    # same as prod: ('qualif_old_c10m10', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/old_c10m10/exe/crue10.exe'.replace('/', sep)),
-    # ('qualif_c10m10v111', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/c10m10v111/exe/crue10.exe'.replace('/', os.sep)),
-    # ('qualif', 'Q:/Qualif_Exec/FudaaCrue/etc/coeurs/c10m10/exe/crue10.exe'.replace('/', sep)),
+    # Les 2 exécutables Crue10 à comparer (ordre : old_c10m10 puis c10m10)
+    (COEUR_REFERENCE, os.path.join(DOSSIER_FUDAACRUE, 'etc/coeurs/old_c10m10/exe/crue10.exe'.replace('/', os.sep))),
+    (COEUR_CIBLE, os.path.join(DOSSIER_FUDAACRUE, 'etc/coeurs/c10m10/exe/crue10.exe'.replace('/', os.sep))),
 ])
 
 

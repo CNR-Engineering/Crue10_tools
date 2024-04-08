@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-Statistiques sur les résulats des cas de validation du code Crue10 (tous les scénarios)
+Statistiques sur les résultats des cas de validation du code Crue10 (tous les scénarios)
 
 Beware: compatibility with Python 2 is not tested for figures (at least you have to replace `height` argument by `size`)
 """
@@ -13,15 +13,16 @@ import numpy as np
 import seaborn as sns
 from time import time
 
+from crue10.campagne_otfa import FichierOtfa
 from crue10.utils import logger
-from crue10.utils.multiple_runs import get_run_steady_results, launch_runs
-from _params import CRUE10_EXE, CRUE10_EXE_REFERENCE, CSV_DELIMITER, write_csv
+from crue10.utils.multiple_runs import get_run_steady_results, parse_otfa_runs
+from _params import CRUE10_EXE, COEUR_CIBLE, COEUR_REFERENCE, CSV_DELIMITER, write_csv
 
 
-DOSSIER_IN = os.path.join('..', '..', '..', 'SHY_C10_Crue10_Cas-tests_gprec', 'Cas-tests')
-RUN_CALCULATIONS, WRITE_DIFF_DATAFRAME, PLOT_RUN_BARPLOT, PLOT_DIFF_BARPLOT, PLOT_DIFF_HEATMAP = \
+DOSSIER = "C:/PROJETS/Cas-tests_v10.5.0.0-VS2022/"
+PARSE_OTFA, WRITE_DIFF_DATAFRAME, PLOT_RUN_BARPLOT, PLOT_DIFF_BARPLOT, PLOT_DIFF_HEATMAP = \
     True, True, True, True, True
-CRUE10_EXE_HEATMAP = 'qualif'
+CRUE10_EXE_HEATMAP = COEUR_CIBLE
 
 # Nommage des fichiers de sortie du script
 DOSSIER_OUT = os.path.join('..', 'tmp', 'stat_calculs_Cas-tests')
@@ -34,8 +35,11 @@ logger.setLevel(logging.INFO)
 t1 = time()
 
 
-if RUN_CALCULATIONS:
-    df_runs = launch_runs(DOSSIER_IN, None, CRUE10_EXE, overwrite=True)
+if PARSE_OTFA:
+    fichier_otfa = FichierOtfa('Cas-tests', mode='r',
+                               files={'otfa': os.path.join(DOSSIER, 'OTFA', 'Cas-tests.otfa.xml')})
+    fichier_otfa.read_otfa()
+    df_runs = parse_otfa_runs(fichier_otfa)
     write_csv(df_runs, OUT_CSV_RUNS_FILE)
 
 
@@ -43,7 +47,7 @@ if WRITE_DIFF_DATAFRAME:
     df_runs = pd.read_csv(OUT_CSV_RUNS_FILE, delimiter=CSV_DELIMITER)
     cols = ['etude_dossier', 'etude_basename', 'scenario', 'run_idx', 'run_id', 'exe_id']
     df_runs_unique = df_runs[cols].drop_duplicates()
-    df_diff_stat = get_run_steady_results(DOSSIER_IN, df_runs_unique, CRUE10_EXE_REFERENCE)
+    df_diff_stat = get_run_steady_results(os.path.join(DOSSIER, 'Cas-tests'), df_runs_unique, COEUR_REFERENCE)
     write_csv(df_diff_stat, OUT_CSV_DIFF_FILE)
 
 
@@ -87,7 +91,7 @@ if PLOT_RUN_BARPLOT:
 if PLOT_DIFF_BARPLOT:
     # Read data to plot
     df_diff_stat = pd.read_csv(OUT_CSV_DIFF_FILE, delimiter=CSV_DELIMITER)
-    df_diff_stat = df_diff_stat[df_diff_stat['exe_id'] != CRUE10_EXE_REFERENCE]
+    df_diff_stat = df_diff_stat[df_diff_stat['exe_id'] != COEUR_REFERENCE]
     # df_diff_stat = df_diff_stat[df_diff_stat['scenario'] != 'Sc_AV2011_c10']
     # df_diff_stat = df_diff_stat[df_diff_stat['scenario'] != 'Sc_M31-4_c10']
     df_diff_stat = df_diff_stat.sort_values(by='scenario')
