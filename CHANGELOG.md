@@ -1,6 +1,18 @@
 Journal des modifications
 =========================
 
+## [4.1] - 2024-05-24
+
+### Nouveautés
+- Ajout `Etude.renommer_sous_modele`
+
+### Corrections
+- Ajout des fichiers de données dans le package Python (via MANIFEST.in)
+- `stat_diff_calculs_{Cas-tests,Conc}.py` se lisent un Run OTFA
+- Remplacement `np.float` et `np.int` qui ont expirés (avec numpy 1.24)
+- Mise à jour des fichiers XSD et CCM
+
+
 ## [4.0] - 2023-06-01
 
 ### Nouveautés

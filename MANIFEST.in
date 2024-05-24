@@ -1,4 +1,3 @@
 include *.md
-recursive-include crue10 *.dbf *.shp *.shx
-recursive-include crue10 *.xml
-recursive-include crue10 *.xsd
+recursive-include crue10/data *.dbf *.shp *.shx
+recursive-include crue10/data *.xml *.xsd
