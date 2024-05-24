@@ -1,5 +1,4 @@
-include *.csv
 include *.md
-include *.dbf *.shp *.shx
-include *.xml
-include *.xsd
+recursive-include crue10 *.dbf *.shp *.shx
+recursive-include crue10 *.xml
+recursive-include crue10 *.xsd
