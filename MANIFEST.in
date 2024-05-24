@@ -1,0 +1,5 @@
+include *.csv
+include *.md
+include *.dbf *.shp *.shx
+include *.xml
+include *.xsd
