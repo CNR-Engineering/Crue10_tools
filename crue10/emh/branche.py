@@ -72,8 +72,8 @@ class Branche(ABC):
     :vartype noeud_aval: Noeud
     :ivar liste_sections_dans_branche: liste des sections
     :vartype liste_sections_dans_branche: list(Section)
-    :ivar comment: optional text explanation
-    :vartype comment: str, optional
+    :ivar comment: commentaire optionnel
+    :vartype comment: str
     """
 
     TYPES = {
@@ -88,13 +88,13 @@ class Branche(ABC):
         20: 'BrancheSaintVenant'
     }
 
-    # Branch types whose sections (at least 2) have a geometry (SectionProfil or SectionIdem)
+    #: Types des branches dont les sections (au minimum 2) ont une géométrie (`SectionProfil` ou `SectionIdem`)
     TYPES_WITH_GEOM = [2, 6, 15, 20]
 
-    # Branch types which have a non-zero length value
+    #: Types des branches qui ont une longueur non nulle
     TYPES_WITH_LENGTH = [6, 20]
 
-    # Branch types which should be located in the river bed (and not the floodplain)
+    #: Types des branches qui doivent être localisées dans le lit de la rivière (et pas dans la plaine d'inondation)
     TYPES_IN_MINOR_BED = [1, 2, 20]
 
     def __init__(self, nom_branche, noeud_amont, noeud_aval, type_branche, is_active=True):
@@ -159,7 +159,7 @@ class Branche(ABC):
     @property
     def length(self):
         """
-        :return: Longueur schématique affichée dans FC (peut différer de la longueur géométrique)
+        :return: Longueur schématique affichée dans Fudaa-Crue (peut différer de la longueur géométrique)
         :rtype: float
         """
         if self.type in Branche.TYPES_WITH_LENGTH:
@@ -342,7 +342,7 @@ class BrancheAvecElementsSeuil(Branche, ABC):
 
     def decouper_seuil_elem(self, largeur, delta_z):
         """
-        Découper les éléments de seuil trop longs
+        Découper les éléments de seuil dépassant une certaine largeur
 
         :param largeur: largeur maximale des éléments de seuil
         :type largeur: float
@@ -431,7 +431,7 @@ class BrancheOrifice(Branche):
         return self.Zseuil
 
     def validate(self):
-        """Valider"""
+        """Valider les données de la branche orifice"""
         errors = super().validate()
         if self.Largeur <= 0.0:
             errors.append((self, "La largeur est nulle"))

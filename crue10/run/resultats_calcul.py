@@ -127,7 +127,10 @@ class ResCalcTrans:
     """
     Métadonnées des résultats pour un calcul transitoire
 
-    XXX
+    :ivar name: nom du calcul transitoire
+    :vartype name: str
+    :ivar frame_list: liste des frames (tuple avec le temps et l'objet FilePosition)
+    :vartype frame_list: (float, FilePosition)
     """
 
     def __init__(self, name):
@@ -141,7 +144,7 @@ class ResCalcTrans:
         return np.array([frame[0] for frame in self.frame_list])
 
     def __repr__(self):
-        return "Calcul non permanent #%s (%i temps)" % (self.name, len(self.frame_list))
+        return "Calcul transitoire #%s (%i temps)" % (self.name, len(self.frame_list))
 
 
 class ResultatsCalcul:

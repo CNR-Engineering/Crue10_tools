@@ -1,9 +1,7 @@
 # coding: utf-8
 import abc
-import subprocess
 from copy import deepcopy
 from io import open  # Python2 fix
-from lxml import etree
 import os.path
 import xml.etree.ElementTree as ET
 
@@ -18,17 +16,17 @@ ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 class EnsembleFichiersXML(ABC):
     """
-    Abstract class for Crue10 XML files
+    Classe abstraite pour les fichiers XML Crue10
 
     :ivar version_grammaire: version de la grammaire
     :vartype version_grammaire: str
-    :ivar xml_trees: dict with XML trees (keys correspond to `FILES_XML_WITHOUT_TEMPLATE` list)
+    :ivar xml_trees: dictionnaire avec les arbres XML (les clés correspondent à `FILES_XML_WITHOUT_TEMPLATE`)
     :vartype xml_trees: {ET.ElementTree}
-    :ivar metadata: containing metadata (keys correspond to `METADATA_FIELDS` list)
+    :ivar metadata: dictionnaire avec les méta-données (les clés correspondent à `METADATA_FIELDS`)
     :vartype metadata: {dict}
-    :ivar files: dict with path to xml files (keys correspond to `FILES_XML` list)
+    :ivar files: dictionnaire avec les chemins vers les fichiers XML (les clés correspondent à `FILES_XML` list)
     :vartype files: {str}
-    :ivar comments: dict with comment of xml files (keys correspond to `FILES_XML` list)
+    :ivar comments: dictionnaire avec les commentaires en en-tête des fichiers XML (les clés correspondent à `FILES_XML` list)
     :vartype comments: {str}
     :ivar was_read: True si déjà lu
     :vartype was_read: bool
