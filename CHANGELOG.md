@@ -1,6 +1,10 @@
 Journal des modifications
 =========================
 
+## [X.X] en cours
+- Amélioration performances lecture binaire en utilisant `np.frombuffer` (au lieu de struct)
+
+
 ## [4.1] - 2024-05-24
 
 ### Nouveautés

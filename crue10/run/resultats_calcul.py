@@ -6,7 +6,6 @@ import numpy as np
 import os.path
 import pandas as pd
 import re
-import struct
 from sys import version_info
 import xml.etree.ElementTree as ET
 
@@ -44,11 +43,11 @@ class FilePosition:
     #: Encodage des chaînes de caractères
     ENCODING = 'utf-8'
 
-    #: Nombre de bytes pour représenter un flottant
+    #: Nombre de bytes pour représenter un flottant (double précision)
     FLOAT_SIZE = 8
 
-    #: Précision des flottants
-    FLOAT_TYPE = 'd'
+    #: Précision des flottants (double précision)
+    FLOAT_TYPE = np.float64
 
     def __init__(self, rbin_path, byte_offset):
         """
@@ -73,6 +72,7 @@ class FilePosition:
         :return: dictionnaire avec les types d'EMH secondaires et le tableau de données (shape=(nb_emh, nb_var))
         :rtype: dict(np.ndarray)
         """
+        dtype = np.dtype(FilePosition.FLOAT_TYPE).newbyteorder('<')
         res = {}
         with io.open(self.rbin_path, 'rb') as resin:
             resin.seek(self.byte_offset * FilePosition.FLOAT_SIZE)
@@ -91,9 +91,8 @@ class FilePosition:
                     emh_delimiter = resin.read(FilePosition.FLOAT_SIZE).decode(FilePosition.ENCODING).strip()
                     if emh_delimiter not in emh_type:
                         raise ExceptionCrue10("Les EMH attendus sont %s (au lieu de %s)" % (emh_type, emh_delimiter))
-                values = struct.unpack('<' + str(nb_emh * nb_var) + FilePosition.FLOAT_TYPE,
-                                       resin.read(nb_emh * nb_var * FilePosition.FLOAT_SIZE))
-                res[emh_type] = np.array(values).reshape((nb_emh, nb_var))
+                values = np.frombuffer(resin.read(nb_emh * nb_var * FilePosition.FLOAT_SIZE), dtype=dtype)
+                res[emh_type] = values.reshape((nb_emh, nb_var))
         return res
 
 
