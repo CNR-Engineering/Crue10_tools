@@ -87,7 +87,8 @@ class FilePosition:
                     raise ExceptionCrue10("Le calcul n'est pas transitoire !")
 
             for emh_type, (nb_emh, nb_var) in res_pattern:
-                if not emh_type.startswith('Branche') or emh_type == emh_type_first_branche:
+                if (emh_type == 'Branche') or \
+                        (not emh_type.startswith('Branche') or emh_type == emh_type_first_branche):
                     emh_delimiter = resin.read(FilePosition.FLOAT_SIZE).decode(FilePosition.ENCODING).strip()
                     if emh_delimiter not in emh_type:
                         raise ExceptionCrue10("Les EMH attendus sont %s (au lieu de %s)" % (emh_type, emh_delimiter))
@@ -300,9 +301,10 @@ class ResultatsCalcul:
             nbvar = len(self.variables_extended(emh_type))
             self._res_pattern.append((emh_type, (len(self.emh[emh_type]), nbvar)))
         # Add emh_types which have no result data (because delimiter is still present)
-        for i, emh_type in enumerate(ResultatsCalcul.EMH_PRIMARY_TYPES[:-1]):
+        for i, emh_type in enumerate(ResultatsCalcul.EMH_PRIMARY_TYPES[:-1]):  # Modele is optional
             if emh_type not in emh_types_with_res:
-                self._res_pattern.insert(i, (emh_type, (0, 0)))
+                if emh_type != 'Branche' or self._emh_type_first_branche is None:
+                    self._res_pattern.insert(i, (emh_type, (0, 0)))
 
     def variables_extended(self, emh_type):
         if emh_type == 'Modele':

@@ -3,6 +3,7 @@ Journal des modifications
 
 ## [X.X] en cours
 - Amélioration performances lecture binaire en utilisant `np.frombuffer` (au lieu de struct)
+- Correction plantage lecture RCAL si aucun résultat aux branches
 
 
 ## [4.1] - 2024-05-24
