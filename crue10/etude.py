@@ -452,6 +452,15 @@ class Etude(EnsembleFichiersXML):
             return self.get_scenario(self.nom_scenario_courant)
         raise ExceptionCrue10("Aucun scénario courant n'est défini dans l'étude")
 
+    def get_nom_scenario_depuis_run_id(self, nom_run):
+        """Nom du scénario porteur d'un run de ce nom
+        :param nom_run: nom du run pour lequel récupérer le scénario
+        """
+        for nom_scenario, scenario in self.scenarios.items():
+            if nom_run in scenario.runs.keys():
+                return nom_scenario
+        raise ExceptionCrue10("Le run %s n'est dans aucun scénario !" % nom_run)
+
     def get_modele(self, nom_modele):
         """Retourne le modèle demandé
 
