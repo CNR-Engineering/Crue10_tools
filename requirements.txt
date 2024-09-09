@@ -1,13 +1,13 @@
-fiona
+fiona~=1.10.0
 future  # python2 only packages
-jinja2
-lxml
-matplotlib  # only required for some snippets
-networkx  # only required for build_graph
-numpy
-# openturns==1.12  # only for snippets.probabilistic_study
-pandas
-psutil  # optional (to define NCSIZE)
-pydot  # only required for crue10.modele.Modele.write_topological_graph
-seaborn  # only required for some snippets
-shapely
+Jinja2~=3.1.4
+lxml~=5.3.0
+matplotlib~=3.9.2  # only required for some snippets
+networkx~=3.3  # only required for build_graph
+numpy~=2.1.1
+# openturns~=1.12  # only for snippets.probabilistic_study
+pandas~=2.2.2
+psutil~=6.0.0  # optional (to define NCSIZE)
+pydot~=3.0.1  # only required for crue10.modele.Modele.write_topological_graph
+seaborn~=0.13.2  # only required for some snippets
+shapely~=2.0.6
