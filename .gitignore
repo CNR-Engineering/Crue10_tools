@@ -8,6 +8,7 @@ __pycache__/
 .idea/
 .pytest_cache/
 venv/
+.venv/
 
 crue10/tests/data/out/*
 docs/html
