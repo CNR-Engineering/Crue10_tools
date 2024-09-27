@@ -288,9 +288,26 @@ class Run:
         """
         return self.get_all_traces(services, gravite_min=GRAVITE_AVERTISSEMENT, gravite_max=gravite_max)
 
+    def get_service_time_from_cpt(self, service):
+        """
+        Obtenir le temps écoulé du service demandé en mesurant l'écart entre la première et la dernière trace
+        Retourne NaN en cas d'erreur
+
+        :param service: identifiant du service
+        :type service: str
+        :rtype: float
+        """
+        self._check_service(service)
+        try:
+            start = datetime.strptime(self.traces[service][0].date, '%Y-%m-%dT%H:%M:%S.%f')
+            end = datetime.strptime(self.traces[service][-1].date, '%Y-%m-%dT%H:%M:%S.%f')
+            return (end - start).total_seconds()
+        except:
+            return np.nan
+
     def get_service_time(self, service):
         """
-        Obtenir le temps écoulé du service demandé
+        Obtenir le temps écoulé du service demandé à partir de ligne ID_TIMING du compte-rendu
         Retourne NaN si le temps n'est pas trouvé dans le compte-rendu
 
         :param service: identifiant du service
@@ -303,9 +320,23 @@ class Run:
                 return float(trace.parametres[0].replace('"', ''))
         return np.nan
 
+    def get_time_from_cpt(self, services=SERVICES):
+        """
+        Obtenir le temps écoulé par plusieurs services en mesurant l'écart entre la première et la dernière trace
+        Retourne NaN si le temps n'est pas trouvé dans un des comptes-rendus
+
+        :param services: liste des services
+        :type services: list(str)
+        :rtype: float
+        """
+        time = 0.0
+        for service in services:
+            time += self.get_service_time_from_cpt(service)
+        return time
+
     def get_time(self, services=SERVICES):
         """
-        Obtenir le temps écoulé par plusieurs services
+        Obtenir le temps écoulé par plusieurs services à partir de ligne ID_TIMING du compte-rendu
         Retourne NaN si le temps n'est pas trouvé dans un des comptes-rendus
 
         :param services: liste des services
