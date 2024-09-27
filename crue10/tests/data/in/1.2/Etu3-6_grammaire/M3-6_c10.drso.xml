@@ -1,0 +1,367 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.2.xsd">
+  <Commentaire>CrueX - Structuration des données
+
+Modèle de test utilisant les éléments de modélisation hydraulique les plus courants
+
+PBa Mai2012 sur la base de M3-0</Commentaire>
+  <Noeuds>
+    <NoeudNiveauContinu Nom="Nd_N1">
+      <Commentaire></Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_N2">
+      <Commentaire></Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_N6">
+      <Commentaire></Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_N3">
+      <Commentaire></Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_N4">
+      <Commentaire></Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_N7">
+      <Commentaire></Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_N5">
+      <Commentaire></Commentaire>
+    </NoeudNiveauContinu>
+  </Noeuds>
+  <Casiers>
+    <CasierProfil Nom="Ca_N7">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <Noeud NomRef="Nd_N7"/>
+      <ProfilCasier NomRef="Pc_N7_001"/>
+    </CasierProfil>
+    <CasierProfil Nom="Ca_N6">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <Noeud NomRef="Nd_N6"/>
+      <ProfilCasier NomRef="Pc_N6_001"/>
+      <ProfilCasier NomRef="Pc_N6_002"/>
+    </CasierProfil>
+  </Casiers>
+  <Sections>
+    <SectionProfil Nom="St_Prof11">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_Prof11"/>
+    </SectionProfil>
+    <SectionInterpolee Nom="St_B1_00050">
+      <Commentaire></Commentaire>
+    </SectionInterpolee>
+    <SectionProfil Nom="St_PROF10">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF10"/>
+    </SectionProfil>
+    <SectionInterpolee Nom="St_B1_00150">
+      <Commentaire></Commentaire>
+    </SectionInterpolee>
+    <SectionProfil Nom="St_PROF9">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF9"/>
+    </SectionProfil>
+    <SectionInterpolee Nom="St_B1_00250">
+      <Commentaire></Commentaire>
+    </SectionInterpolee>
+    <SectionProfil Nom="St_PROF8">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF8"/>
+    </SectionProfil>
+    <SectionInterpolee Nom="St_B1_00350">
+      <Commentaire></Commentaire>
+    </SectionInterpolee>
+    <SectionProfil Nom="St_PROF7">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF7"/>
+    </SectionProfil>
+    <SectionInterpolee Nom="St_B1_00450">
+      <Commentaire></Commentaire>
+    </SectionInterpolee>
+    <SectionProfil Nom="St_PROF6A">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF6A"/>
+    </SectionProfil>
+    <SectionIdem Nom="St_PROF6B">
+      <Commentaire></Commentaire>
+      <Section NomRef="St_PROF6A"/>
+    </SectionIdem>
+    <SectionInterpolee Nom="St_PROF5">
+      <Commentaire></Commentaire>
+    </SectionInterpolee>
+    <SectionProfil Nom="St_PROF4">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF4"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_PROF3A">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF3A"/>
+    </SectionProfil>
+    <SectionIdem Nom="St_PROF3AM">
+      <Commentaire></Commentaire>
+      <Section NomRef="St_PROF3A"/>
+    </SectionIdem>
+    <SectionProfil Nom="St_PROF3AV">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF3AV"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_PROF3B">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF3B"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_PROF2">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF2"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_PROF1">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROF1"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_PROFSTR1">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROFSTR1"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_PROFSTR2">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_PROFSTR2"/>
+    </SectionProfil>
+    <SectionSansGeometrie Nom="St_B5_Am">
+      <Commentaire></Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_B5_Av">
+      <Commentaire></Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_B8_Am">
+      <Commentaire></Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_B8_Av">
+      <Commentaire></Commentaire>
+    </SectionSansGeometrie>
+    <SectionProfil Nom="St_B8_Am_0001">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_B8_Am_0001"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_B8_Av_0001">
+      <Commentaire></Commentaire>
+      <ProfilSection NomRef="Ps_B8_Av_0001"/>
+    </SectionProfil>
+  </Sections>
+  <Branches>
+    <BrancheSaintVenant Nom="Br_B1">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_N1"/>
+      <NdAv NomRef="Nd_N2"/>
+      <BrancheSaintVenant-Sections>
+        <BrancheSaintVenant-Section NomRef="St_Prof11">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_B1_00050">
+          <Pos>Interne</Pos>
+          <Xp>50.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF10">
+          <Pos>Interne</Pos>
+          <Xp>100.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_B1_00150">
+          <Pos>Interne</Pos>
+          <Xp>150.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF9">
+          <Pos>Interne</Pos>
+          <Xp>200.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_B1_00250">
+          <Pos>Interne</Pos>
+          <Xp>250.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF8">
+          <Pos>Interne</Pos>
+          <Xp>300.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_B1_00350">
+          <Pos>Interne</Pos>
+          <Xp>350.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF7">
+          <Pos>Interne</Pos>
+          <Xp>400.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_B1_00450">
+          <Pos>Interne</Pos>
+          <Xp>450.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF6A">
+          <Pos>Aval</Pos>
+          <Xp>500.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+      </BrancheSaintVenant-Sections>
+    </BrancheSaintVenant>
+    <BrancheSaintVenant Nom="Br_B2">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_N2"/>
+      <NdAv NomRef="Nd_N3"/>
+      <BrancheSaintVenant-Sections>
+        <BrancheSaintVenant-Section NomRef="St_PROF6B">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF5">
+          <Pos>Interne</Pos>
+          <Xp>100.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF4">
+          <Pos>Interne</Pos>
+          <Xp>200.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF3A">
+          <Pos>Aval</Pos>
+          <Xp>300.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+      </BrancheSaintVenant-Sections>
+    </BrancheSaintVenant>
+    <BrancheSeuilTransversal Nom="Br_B3">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_N3"/>
+      <NdAv NomRef="Nd_N4"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_PROF3AM">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_PROF3AV">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheSeuilTransversal>
+    <BrancheSaintVenant Nom="Br_B4">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_N4"/>
+      <NdAv NomRef="Nd_N5"/>
+      <BrancheSaintVenant-Sections>
+        <BrancheSaintVenant-Section NomRef="St_PROF3B">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF2">
+          <Pos>Interne</Pos>
+          <Xp>100.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_PROF1">
+          <Pos>Aval</Pos>
+          <Xp>200.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+      </BrancheSaintVenant-Sections>
+    </BrancheSaintVenant>
+    <BrancheStrickler Nom="Br_B6">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_N6"/>
+      <NdAv NomRef="Nd_N7"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_PROFSTR1">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_PROFSTR2">
+          <Pos>Aval</Pos>
+          <Xp>400.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheStrickler>
+    <BrancheSeuilLateral Nom="Br_B5">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_N2"/>
+      <NdAv NomRef="Nd_N6"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_B5_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_B5_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheSeuilLateral>
+    <BrancheBarrageFilEau Nom="Br_B8">
+      <Commentaire></Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_N7"/>
+      <NdAv NomRef="Nd_N5"/>
+      <SectionPilote NomRef="St_PROF2"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_B8_Am_0001">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_B8_Av_0001">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheBarrageFilEau>
+  </Branches>
+</DRSO>

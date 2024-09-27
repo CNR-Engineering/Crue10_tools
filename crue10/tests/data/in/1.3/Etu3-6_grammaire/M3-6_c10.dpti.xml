@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dpti-1.3.xsd">
+  <Commentaire></Commentaire>
+  <DonPrtCIniNoeuds>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_N1">
+      <Zini>3.676</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_N2">
+      <Zini>3.222</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_N6">
+      <Zini>2.926</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_N3">
+      <Zini>2.779</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_N4">
+      <Zini>2.624</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_N7">
+      <Zini>2.926</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_N5">
+      <Zini>2.0</Zini>
+    </DonPrtCIniNoeudNiveauContinu>
+  </DonPrtCIniNoeuds>
+  <DonPrtCIniCasiers>
+    <DonPrtCIniCasierProfil NomRef="Ca_N7">
+      <Qruis>0.0</Qruis>
+    </DonPrtCIniCasierProfil>
+    <DonPrtCIniCasierProfil NomRef="Ca_N6">
+      <Qruis>0.0</Qruis>
+    </DonPrtCIniCasierProfil>
+  </DonPrtCIniCasiers>
+  <DonPrtCIniSections/>
+  <DonPrtCIniBranches>
+    <DonPrtCIniBrancheSaintVenant NomRef="Br_B1">
+      <Qini>100.0</Qini>
+      <Qruis>0.0</Qruis>
+    </DonPrtCIniBrancheSaintVenant>
+    <DonPrtCIniBrancheSaintVenant NomRef="Br_B2">
+      <Qini>100.0</Qini>
+      <Qruis>0.0</Qruis>
+    </DonPrtCIniBrancheSaintVenant>
+    <DonPrtCIniBranche NomRef="Br_B3">
+      <Qini>100.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBrancheSaintVenant NomRef="Br_B4">
+      <Qini>100.0</Qini>
+      <Qruis>0.0</Qruis>
+    </DonPrtCIniBrancheSaintVenant>
+    <DonPrtCIniBranche NomRef="Br_B6">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBranche NomRef="Br_B5">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+    <DonPrtCIniBranche NomRef="Br_B8">
+      <Qini>0.0</Qini>
+    </DonPrtCIniBranche>
+  </DonPrtCIniBranches>
+</DPTI>

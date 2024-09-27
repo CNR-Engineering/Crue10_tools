@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/opti-1.2.xsd">
+  <Commentaire></Commentaire>
+  <Sorties>
+    <Avancement>
+      <SortieFichier>true</SortieFichier>
+    </Avancement>
+    <Trace>
+      <SortieEcran>true</SortieEcran>
+      <SortieFichier>true</SortieFichier>
+      <VerbositeEcran>DEBUG2</VerbositeEcran>
+      <VerbositeFichier>DEBUG2</VerbositeFichier>
+    </Trace>
+    <Resultat>
+      <SortieFichier>true</SortieFichier>
+    </Resultat>
+  </Sorties>
+  <MethodeInterpol>
+    <InterpolSaintVenant>
+      <Pm_TolNdZ>0.01</Pm_TolNdZ>
+    </InterpolSaintVenant>
+  </MethodeInterpol>
+  <Regles>
+    <RegleQbrUniforme>
+      <IsActive>false</IsActive>
+      <Pm_QbrUniforme>0.001</Pm_QbrUniforme>
+    </RegleQbrUniforme>
+    <RegleQnd>
+      <IsActive>false</IsActive>
+      <Pm_Qnd>0.001</Pm_Qnd>
+    </RegleQnd>
+  </Regles>
+</OPTI>

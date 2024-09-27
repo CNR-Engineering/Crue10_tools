@@ -13,7 +13,9 @@ from crue10.base import EnsembleFichiersXML
 from crue10.emh.branche import Branche, BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
 from crue10.emh.section import SectionIdem, SectionProfil, LimiteGeom, LitNumerote
 from crue10.utils import check_isinstance, check_preffix, DATA_FOLDER_ABSPATH, duration_iso8601_to_seconds, \
-    duration_seconds_to_iso8601, get_xml_root_from_file, logger, PREFIX, write_default_xml_file, write_xml_from_tree
+    duration_seconds_to_iso8601, float2str, get_xml_root_from_file, logger, \
+    PREFIX, write_default_xml_file, write_xml_from_tree
+from crue10.utils.crueconfigmetier import DEFAULT_Pm_TolStQ
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
 
@@ -755,12 +757,34 @@ class Modele(EnsembleFichiersXML):
         :type shallow: bool
         """
         if version_grammaire == '1.3':  # HARDCODED to support g1.2
+            interpol_st_venant = self.xml_trees['opti'].find(PREFIX + 'MethodeInterpol') \
+                .find(PREFIX + 'InterpolSaintVenant')
+            if interpol_st_venant is not None:
+                # Fix indentation (add 2 whitespaces)
+                elt_Pm_TolNdZ = interpol_st_venant.find(PREFIX + 'Pm_TolNdZ')
+                elt_Pm_TolNdZ.tail += '  '
+                # Parameter `Pm_TolStQ` is added (it was in CCM before)
+                elt_Pm_TolStQ = etree.SubElement(interpol_st_venant, PREFIX + 'Pm_TolStQ')
+                elt_Pm_TolStQ.text = float2str(DEFAULT_Pm_TolStQ)
+                elt_Pm_TolStQ.tail = '\n    '
+
             if 'dreg' not in self.xml_trees:
                 # Add dreg in self.xml_trees if missing (because is from grammar v1.2)
                 xml_path = os.path.join(DATA_FOLDER_ABSPATH, version_grammaire, 'fichiers_vierges', 'default.dreg.xml')
                 root = get_xml_root_from_file(xml_path)
                 self.xml_trees['dreg'] = root
                 self.files['dreg'] = os.path.join(os.path.dirname(self.files['optr']), self.id[3:] + '.dreg.xml')
+
+        elif version_grammaire == '1.2':  # HARDCODED to support g1.2
+            interpol_st_venant = self.xml_trees['opti'].find(PREFIX + 'MethodeInterpol') \
+                .find(PREFIX + 'InterpolSaintVenant')
+            if interpol_st_venant is not None:
+                # Fix indentation (remove 2 whitespaces)
+                elt_Pm_TolNdZ = interpol_st_venant.find(PREFIX + 'Pm_TolNdZ')
+                if elt_Pm_TolNdZ.tail.endswith('  '):
+                    elt_Pm_TolNdZ.tail = elt_Pm_TolNdZ.tail[:-2]
+                # Parameter `Pm_TolStQ` removed as it was in CCM before
+                interpol_st_venant.remove(interpol_st_venant.find(PREFIX + 'Pm_TolStQ'))
 
         if not shallow:
             for sous_modele in self.liste_sous_modeles:
