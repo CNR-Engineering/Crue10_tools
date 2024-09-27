@@ -47,7 +47,7 @@ Liste des tests unitaires par classes principales :
     * noeuds => `test_emh_noeud.py`
     * sections => `test_emh_section.py`
 * Run => `test_run.py`
-* ResultatsCalcul => `test_resultats_calcul.py`
+* ResultatsCalcul => `test_resultats_calcul_gprec.py`, `test_resultats_calcul_gcour.py`
 
 Les tests unitaires sont vérifiés à chaque push grâce à un workflow Github et peuvent être déclenchés manuellement si
 besoin. La coche verte ou la croix rouge à côté du commit permet de savoir rapidement s'ils se sont bien passés.

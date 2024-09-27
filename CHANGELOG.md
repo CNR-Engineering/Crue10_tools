@@ -1,8 +1,11 @@
 Journal des modifications
 =========================
 
-## [X.X] en cours
-- Prise en compte du déplacement de Pm_TolStQ du CCM vers le OPTI pour les initialisations de type Saint-Venant (g1.3)
+## [4.2] - 2024-09-27
+### Nouveautés
+- Prise en compte du déplacement de `Pm_TolStQ` du CCM vers le OPTI pour les initialisations de type Saint-Venant (g1.3)
+
+### Corrections
 - Amélioration performances lecture binaire en utilisant `np.frombuffer` (au lieu de struct)
 - Correction plantage lecture RCAL si aucun résultat aux branches
 

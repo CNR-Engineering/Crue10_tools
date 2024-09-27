@@ -1,4 +1,4 @@
 # coding: utf-8
 
 #: Version du dépôt Crue10_tools
-VERSION = '4.1'
+VERSION = '4.2'
