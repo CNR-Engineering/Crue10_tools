@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DFRT xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dfrt-1.2.xsd">
+  <Commentaire></Commentaire>
+  <LoiFFs>
+    <LoiFF Nom="FkSto_K0" Type="FkSto">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 0.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_DefautMaj" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>-15.0 8.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_DefautMin" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>-15.0 8.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF10MAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF10MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_Prof11MAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_Prof11MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>11.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF1MAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF1MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF2MAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF2MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF3AMAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF3AMIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF3AVMAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF3AVMIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF3BMAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF3BMIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF4MAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF4MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF6AMAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF6AMIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF7MAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF7MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF8MAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF8MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF9MAJ" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 15.0</PointFF>
+        <PointFF>10.0 15.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROF9MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>10.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROFSTR1MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>11.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+    <LoiFF Nom="Fk_PROFSTR2MIN" Type="Fk">
+      <Commentaire></Commentaire>
+      <EvolutionFF>
+        <PointFF>0.0 30.0</PointFF>
+        <PointFF>11.0 30.0</PointFF>
+      </EvolutionFF>
+    </LoiFF>
+  </LoiFFs>
+</DFRT>

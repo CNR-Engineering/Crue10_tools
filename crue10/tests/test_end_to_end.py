@@ -104,3 +104,25 @@ class EndToEndTestCase(unittest.TestCase):
         folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6')
         etude.write_all(folder_out)
         self._same_folders(folder_in, folder_out, VERSION_GRAMMAIRE_PRECEDENTE, etu_changed=False)
+
+    def test_read_gprec_and_write_all_gcour_grammaire(self):
+        folder_in = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6_grammaire')
+        etu_path = os.path.join(folder_in, 'Etu3-6.etu.xml')
+        etude = Etude(etu_path)
+        etude.read_all()
+        etude.changer_version_grammaire(VERSION_GRAMMAIRE_COURANTE)
+        folder_in = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_COURANTE, 'Etu3-6_grammaire')
+        folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_COURANTE, 'Etu3-6_grammaire')
+        etude.write_all(folder_out)
+        self._same_folders(folder_in, folder_out, VERSION_GRAMMAIRE_COURANTE, etu_changed=False)
+
+    def test_read_gcour_and_write_all_gprec_grammaire(self):
+        folder_in = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_COURANTE, 'Etu3-6_grammaire')
+        etu_path = os.path.join(folder_in, 'Etu3-6.etu.xml')
+        etude = Etude(etu_path)
+        etude.read_all()
+        etude.changer_version_grammaire(VERSION_GRAMMAIRE_PRECEDENTE)
+        folder_in = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6_grammaire')
+        folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6_grammaire')
+        etude.write_all(folder_out)
+        self._same_folders(folder_in, folder_out, VERSION_GRAMMAIRE_PRECEDENTE, etu_changed=False)
