@@ -1,11 +1,13 @@
 # coding: utf-8
+"""
+Écriture d'un sous-modèle Crue10
+"""
 import logging
 import numpy as np
 import os.path
-import traceback
-from operator import attrgetter
-
 from shapely.geometry import Point, LinearRing, LineString
+import sys
+import traceback
 
 from crue10.emh.branche import BranchePdC, BrancheSeuilTransversal, \
     BrancheSeuilLateral, BrancheOrifice, BrancheStrickler, BrancheNiveauxAssocies, \
@@ -15,15 +17,16 @@ from crue10.emh.noeud import Noeud
 from crue10.emh.section import LimiteGeom, SectionIdem, SectionProfil, SectionSansGeometrie
 from crue10.sous_modele import SousModele
 from crue10.utils import logger
+from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE
 
 import arcpy
 
 
-###### Fonctions #####
-
+# Functions
 def is_not_blank(s):
     return bool(s and s.strip())
-    
+
+
 def getPointsFromGeom(geom):
     lstPoints = []
     for part in geom:
@@ -32,25 +35,21 @@ def getPointsFromGeom(geom):
     return lstPoints
 
 
-
-###### Parametres #####
-
-
-GDB = arcpy.GetParameterAsText(0)
-WHERE_TRONCON = arcpy.GetParameterAsText(1)
-FOLDER = arcpy.GetParameterAsText(2)
-SM_NAME = arcpy.GetParameterAsText(3)
-
-#Debug
-# GDB = r"D:\Temp\CNR\ExportSectionSansBranche\BDD.gdb"
-# WHERE_TRONCON = "Troncon IN ('VRH','CAF','RET','AMB','AVB','CAA','USI','ECL','PLAINE')"
-# # WHERE_TRONCON = "1=1"
-# FOLDER = r"D:\Temp\CNR\ExportSectionSansBranche"
-# SM_NAME = 'Sm_T1'
+# Parameters
+if arcpy.GetArgumentCount() == 4:
+    GDB = arcpy.GetParameterAsText(0)
+    WHERE_TRONCON = arcpy.GetParameterAsText(1)
+    FOLDER = arcpy.GetParameterAsText(2)
+    SM_NAME = arcpy.GetParameterAsText(3)
+else:
+    # Debug
+    GDB = r"C:\DATA\GeoGAMA_v2\CNRBEL93_Conc_2020\BDD.gdb"
+    WHERE_TRONCON = "Troncon IN ('VRH','CAF','RET','AMB','AVB','CAA','ECL','ISE','CGL','CPG','CRG','CPI','CGG','CVA','EMB','TUR','EDC','ABC','BLA')"
+    FOLDER = r"C:\DATA\GeoGAMA_v2\CNRBEL93_Conc_2020\outputs"
+    SM_NAME = 'Sm_BE2020'
 
 
-
-#Init Logger
+# Init logger
 formatter = logging.Formatter('%(levelname)s: %(message)s')
 
 logger.setLevel(logging.DEBUG)
@@ -66,7 +65,9 @@ logger.addHandler(handler)
 # logger.addHandler(handler2)
 
 
-#Constantes
+# Constants
+VERSION_GRAMMAIRE_CIBLE = VERSION_GRAMMAIRE_COURANTE  # "1.3" ou "1.2"
+
 arcpy.env.workspace = GDB
 
 FCLASS_NOEUD = "EMG/NOEUD"
@@ -80,7 +81,7 @@ TABLE_CASIER_LOI = "CASIER_LOI"
 TABLE_SEUIL_ELEM = "SEUIL_ELEM"
 
 
-#Variables
+# Variables
 lstNoeud = []
 hashNoeud = {}
 lstCasier = []
@@ -107,92 +108,90 @@ hashSeuilParBranche = {}
 needSectionPilote = False
 
 try:
-# if True:
-
-    logger.info("Parametres")
+    logger.info("## Parametres ##")
     logger.info(GDB)
     logger.info(WHERE_TRONCON)
     logger.info(FOLDER)
     logger.info(SM_NAME)
-    
-    ###### Lecture BDD #####
-    logger.info("##Lecture de la base##")
+
+    # Reading geodatabase
+    logger.info("## Lecture de la base ##")
 
     with arcpy.da.SearchCursor(FCLASS_NOEUD, ["OID@", "Nom_Noeud", "SHAPE@XY"], WHERE_TRONCON) as cursor:
         for row in cursor:
             if not is_not_blank(row[1]):
-                logger.warning("Noeud sans nom  - " + str(row[0]))
+                logger.warning("Noeud sans nom - " + str(row[0]))
                 continue
-                
+
             lstNoeud.append(row)
             hashNoeud[row[1]] = True
 
-    logger.info("Noeuds- " + str(len(lstNoeud)))
+    logger.info("Noeuds - " + str(len(lstNoeud)))
 
     with arcpy.da.SearchCursor(FCLASS_CASIER, ["OID@", "Nom_casier", "Nom_noeud", "Distance_appli", "SHAPE@"]) as cursor:
         for row in cursor:
             if not is_not_blank(row[1]):
-                # logger.warning("Casier sans nom  - " + str(row[0]))
+                # logger.warning("Casier sans nom - " + str(row[0]))
                 continue
             if not is_not_blank(row[2]):
                 # logger.warning("Casier sans nom  de noeud - " + str(row[1]))
                 continue
-                
-            # filtre sur les casier en fonction des noeuds    
+
+            # Filtre sur les casiers en fonction des noeuds
             if not row[2] in hashNoeud:
                 continue
-                
-                
+
             lstCasier.append(row)
             lstNomCasier.append(row[1])
-          
-    logger.info("Casiers- " + str(len(lstCasier)))
+
+    logger.info("Casiers - " + str(len(lstCasier)))
 
     if len(lstNomCasier) > 0:
         whereCasier = "Nom_Casier in ('" + "','".join(lstNomCasier) + "')"
         with arcpy.da.SearchCursor(TABLE_CASIER_LOI, ["OID@", "Nom_Casier", "Xt", "Cote"], whereCasier) as cursor:
             for row in cursor:
                 nomCasier = row[1]
-                
+
                 if not is_not_blank(nomCasier):
-                    logger.warning("Casier_Loi sans nom  - " + str(row[0]))
+                    logger.warning("Casier_Loi sans nom - " + str(row[0]))
                     continue
-                    
+
                 if not nomCasier in hashCasierLoi:
                         hashCasierLoi[nomCasier] = []
-                        
+
                 hashCasierLoi[nomCasier].append((row[2], row[3]))
 
     lstNouvellesSections = []
-    with arcpy.da.SearchCursor(TABLE_SECTION, ["OID@", "Nom_section", "Type_section", "Nom_branche", "Xp", "Nom_section_parent", "Delta_Z"], WHERE_TRONCON) as cursor:
+    with arcpy.da.SearchCursor(TABLE_SECTION, ["OID@", "Nom_section", "Type_section", "Nom_branche", "Xp", "Nom_section_parent", "Delta_Z"],
+                               WHERE_TRONCON) as cursor:
         for row in cursor:
             nomSection = row[1]
             typeSection = row[2]
             nomBranche = row[3]
             sectionParent = row[5]
-            
+
             if not is_not_blank(row[1]):
-                logger.warning("Section sans nom  - " + str(row[0]))
+                logger.warning("Section sans nom - " + str(row[0]))
                 continue
-                
+
             # if not is_not_blank(nomBranche):
-                # logger.warning("Section sans branche  - " + nomSection)
-                # continue
-                
+            #     logger.warning("Section sans branche - " + nomSection)
+            #     continue
+
             if not typeSection:
-                logger.warning("Section sans type  - " + nomSection)
+                logger.warning("Section sans type - " + nomSection)
                 continue
-            
+
             if typeSection == 1:
                 lstSectionSansGeometrie.append(row)
             elif typeSection == 2:
                 lstSectionProfil.append(row)
             elif typeSection == 3:
                 lstSectionIdem.append(row)
-          
+
             lstNomSection.append(nomSection)
-            
-    #Une fois que tout est chargée, vérifie que certaines sectionparent ne sont pas manquantes (appartenant à un autre tronçon)
+
+    # Une fois que tout est chargée, vérifie que certaines sectionparent ne sont pas manquantes (appartenant à un autre tronçon)
     for row in lstSectionIdem:
         sectionParent = row[5]
         if (sectionParent is not None) and (not sectionParent in lstNomSection):
@@ -200,29 +199,30 @@ try:
 
     logger.info("Sections- " + str(len(lstSectionSansGeometrie) + len(lstSectionProfil) + len(lstSectionIdem)))
 
-    #Boucler sur les sections Idem et vérifier que la section parente est déjà récupérée
+    # Boucler sur les sections Idem et vérifier que la section parente est déjà récupérée
     if len(lstNouvellesSections) > 0:
         whereSectionParent = "Nom_section in ('" + "','".join(lstNouvellesSections) + "')"
-        with arcpy.da.SearchCursor(TABLE_SECTION, ["OID@", "Nom_section", "Type_section", "Nom_branche", "Xp", "Nom_section_parent", "Delta_Z"], whereSectionParent) as cursor:
+        with arcpy.da.SearchCursor(TABLE_SECTION, ["OID@", "Nom_section", "Type_section", "Nom_branche", "Xp", "Nom_section_parent", "Delta_Z"],
+                                   whereSectionParent) as cursor:
             for row in cursor:
                 nomSection = row[1]
                 # print nomSection
                 typeSection = row[2]
                 nomBranche = row[3]
                 sectionParent = row[5]
-                
+
                 if not is_not_blank(row[1]):
-                    logger.warning("Section sans nom  - " + str(row[0]))
+                    logger.warning("Section sans nom - " + str(row[0]))
                     continue
-                    
+
                 # if not is_not_blank(nomBranche):
-                    # logger.warning("Section sans branche  - " + nomSection)
-                    # continue
-                    
+                #     logger.warning("Section sans branche - " + nomSection)
+                #     continue
+
                 if not typeSection:
-                    logger.warning("Section sans type  - " + nomSection)
+                    logger.warning("Section sans type - " + nomSection)
                     continue
-                
+
                 if typeSection == 1:
                     lstSectionSansGeometrie.append(row)
                 elif typeSection == 2:
@@ -231,112 +231,110 @@ try:
                     lstSectionIdem.append(row)
 
                 lstNomSection.append(nomSection)
-                
-    logger.info("Sections- " + str(len(lstSectionSansGeometrie) + len(lstSectionProfil) + len(lstSectionIdem)))
+
+    logger.info("Sections - " + str(len(lstSectionSansGeometrie) + len(lstSectionProfil) + len(lstSectionIdem)))
 
     if len(lstNomSection) > 0:
         whereSection = "Nom_section in ('" + "','".join(lstNomSection) + "')"
-        with arcpy.da.SearchCursor(FCLASS_PROFIL_POINT, ["OID@", "Nom_section", "Absc_proj", "Z", "SHAPE@XY"], whereSection,sql_clause=(None,'ORDER BY Nom_section, Absc_proj')) as cursor:
+        with arcpy.da.SearchCursor(FCLASS_PROFIL_POINT, ["OID@", "Nom_section", "Absc_proj", "Z", "SHAPE@XY"],
+                                   whereSection, sql_clause=(None, 'ORDER BY Nom_section, Absc_proj')) as cursor:
             for row in cursor:
                 hashProfilPointParOID[row[0]] = row
                 lstProfilPoint.append(str(row[0]))
-            
+
                 nomSection = row[1]
-                
+
                 if not is_not_blank(nomSection):
                     logger.warning("Profil_Point sans nom_section - " + str(row[0]))
                     continue
-                    
+
                 if not nomSection in hashProfilPointParSection:
                     hashProfilPointParSection[nomSection] = []
-                        
-                #Stocke le tuple absProj/Z dans un tableau lié à la section
+
+                # Stocke le tuple absProj/Z dans un tableau lié à la section
                 hashProfilPointParSection[nomSection].append(row)
 
         with arcpy.da.SearchCursor(FCLASS_PROFIL_TRACE, ["OID@", "Nom_section", "SHAPE@"], whereSection) as cursor:
             for row in cursor:
                 nomSection = row[1]
-                
+
                 if not is_not_blank(nomSection):
                     logger.warning("Profil_Trace sans nom_section - " + str(row[0]))
                     continue
-                    
+
                 if not nomSection in hashProfilTraceParSection:
                     hashProfilTraceParSection[nomSection] = []
-                        
+
                 hashProfilTraceParSection[nomSection].append(row[2])
-            
-   
-    if len(lstProfilPoint) > 0:         
+
+    if len(lstProfilPoint) > 0:
         whereProfilPoint = "OID_Profil_Point in (" + ",".join(lstProfilPoint) + ")"
         # print(whereProfilPoint)
         with arcpy.da.SearchCursor(TABLE_LIMITE, ["OID@", "OID_Profil_Point", "Nom_Limite"], whereProfilPoint) as cursor:
             for row in cursor:
                 oidProfilPoint = row[1]
-                
+
                 # if not oidProfilPoint in hashProfilPointParOID:
-                    # logger.warning("Limite sans point - " + str(row[0]))
-                    # continue
-                
+                #     logger.warning("Limite sans point - " + str(row[0]))
+                #     continue
+
                 nomLimite = row[2]
                 nomSection = hashProfilPointParOID[oidProfilPoint][1].encode('utf-8')
                 abscProj = hashProfilPointParOID[oidProfilPoint][2]
                 # print nomSection + " - " + str(nomLimite) + "-" + str(abscProj)
-                    
+
                 if not nomSection in hashLimitesParSection:
                     hashLimitesParSection[nomSection] = []
-                
-                #Stocke le tuple nom_limite/absProj  dans un tableau lié à la section
+
+                # Stocke le tuple nom_limite/absProj  dans un tableau lié à la section
                 hashLimitesParSection[nomSection].append((nomLimite, abscProj))
-            
 
     lstNouveauxNoeuds = []
-    lstNomBranches = []        
-    with arcpy.da.SearchCursor(FCLASS_BRANCHE, ["OID@", "Nom_branche", "Type_branche", "Longueur", "Nom_noeud_amont", "Nom_noeud_aval", "IsActif", "SHAPE@"], WHERE_TRONCON) as cursor:
+    lstNomBranches = []
+    with arcpy.da.SearchCursor(FCLASS_BRANCHE, ["OID@", "Nom_branche", "Type_branche", "Longueur", "Nom_noeud_amont", "Nom_noeud_aval", "IsActif", "SHAPE@"],
+                               WHERE_TRONCON) as cursor:
         for row in cursor:
             nomBranche = row[1].encode('utf-8')
             typeBranche = row[2]
             noeudAmont = row[4]
             noeudAval = row[5]
-            
+
             if not is_not_blank(nomBranche):
-                logger.warning("Section sans nom  - " + str(row[0]))
+                logger.warning("Section sans nom - " + str(row[0]))
                 continue
 
             if not typeBranche:
-                logger.warning("Branche sans type  - " + nomBranche)
+                logger.warning("Branche sans type - " + nomBranche)
                 continue
-            
+
             lstBranches.append(row)
             lstNomBranches.append(nomBranche)
-            
+
             if not noeudAval in hashNoeud:
                 lstNouveauxNoeuds.append(noeudAval)
             if not noeudAmont in hashNoeud:
                 lstNouveauxNoeuds.append(noeudAmont)
-                
+
             if typeBranche == 14 or typeBranche == 15:
                 needSectionPilote = True
-            
+
     logger.info("Branches - " + str(len(lstBranches)))
-    
 
     if len(lstNouveauxNoeuds) > 0:
-        #Noeuds connectés aux branches mais pas déjà récupérés (pas dans les tronçons demandés)
+        # Noeuds connectés aux branches mais pas déjà récupérés (pas dans les tronçons demandés)
         where_nouveaux_noeuds = "Nom_Noeud in ('"+ "','".join(lstNouveauxNoeuds) + "')"
         with arcpy.da.SearchCursor(FCLASS_NOEUD, ["OID@", "Nom_Noeud", "SHAPE@XY"], where_nouveaux_noeuds) as cursor:
             for row in cursor:
                 if not is_not_blank(row[1]):
-                    logger.warning("Noeud sans nom  - " + str(row[0]))
+                    logger.warning("Noeud sans nom - " + str(row[0]))
                     continue
-                    
+
                 lstNoeud.append(row)
                 hashNoeud[row[1]] = True
 
-         
     if len(lstNomBranches) > 0:
         whereclauseNomBranche = "Nom_branche in ('" + "','".join(lstNomBranches) + "')"
-        # boucle sur Seuil_Elem
+        # Boucle sur Seuil_Elem
         with arcpy.da.SearchCursor(TABLE_SEUIL_ELEM, ["OID@", "Nom_branche", "Largeur", "Z_Seuil", "CoefD", "CoefPDC"], whereclauseNomBranche) as cursor:
             for row in cursor:
                 nomBranche = row[1].encode('utf-8')
@@ -345,71 +343,64 @@ try:
                 CoefD = row[4] if row[4] is not None else 1
                 CoefPDC = row[5] if row[5] is not None else 1
                 if Largeur is None:
-                    continue #Pas de largeur
-                    
+                    continue  # Pas de largeur
+
                 if not nomBranche in hashSeuilParBranche:
                     hashSeuilParBranche[nomBranche] = []
-                 # mettre dans un hash par nombranche la liste des [(Abs/Z_classe)]
+                # Mettre dans un hash par nombranche la liste des [(Abs/Z_classe)]
                 hashSeuilParBranche[nomBranche].append((Largeur, Z_Seuil, CoefD, CoefPDC))
-         
-            
-    ###### Ecriture du sous modele #####
-    logger.info("##Ecriture sous modele##")
+    # Ecriture du SousModele
+    logger.info("## Ecriture sous modele ##")
 
-    # Build a sous_modele
-    sous_modele = SousModele(SM_NAME, mode='w')
+    # Build a SousModele
+    sous_modele = SousModele(SM_NAME, mode='w', version_grammaire=VERSION_GRAMMAIRE_CIBLE)
     sous_modele.ajouter_lois_frottement_par_defaut()
 
-
-    #Add noeud
+    # Add noeuds
     logger.info("Noeuds")
     for row in lstNoeud:
         nomNoeud = row[1].encode('utf-8')
-        logger.debug("Ajour Noeud - " + nomNoeud)
+        logger.debug("Ajout Noeud - " + nomNoeud)
         noeud = Noeud(nomNoeud)
         noeud.set_geom(Point(row[2][0], row[2][1]))
         sous_modele.ajouter_noeud(noeud)
 
+    # Add casiers
     logger.info("Casiers")
-    #Add casier
     for row in lstCasier:
         nomCasier = row[1].encode('utf-8')
         nomNoeud = row[2].encode('utf-8')
         if nomCasier in hashCasierLoi:
-            logger.debug("Ajour Casier - " + nomCasier)
+            logger.debug("Ajout Casier - " + nomCasier)
             casier = Casier(nomCasier, sous_modele.get_noeud(nomNoeud))
-            
+
             casier.set_geom(LinearRing(getPointsFromGeom(row[4])))
-            
+
             xz = hashCasierLoi[nomCasier]
-            
+
             profilcasier = ProfilCasier('Pc_' + casier.id[3:] + '_001')
             profilcasier.set_longueur(row[3])
             profilcasier.set_xz(np.array(xz))
             casier.ajouter_profil_casier(profilcasier)
-            
-            
+
             sous_modele.ajouter_casier(casier)
         else:
             logger.warning("Casier sans loi - " + nomCasier)
 
-
-
     hashSectionsValid = {}
 
+    # Add sections
     logger.info("lstSectionSansGeometrie")
-    # # Add sections
     for row in lstSectionSansGeometrie:
         nomSection = row[1].encode('utf-8')
         nomBranche = row[3]
-        
+
         xp = row[4]
         logger.debug("Ajout SectionSansGeometrie - " + nomSection)
         section = SectionSansGeometrie(nomSection)
         sous_modele.ajouter_section(section)
-        
-        
-        #Reference dans le dictionnaire des branches
+
+        # Reference dans le dictionnaire des branches
         if nomBranche:
             nomBranche = nomBranche.encode('utf-8')
             if not nomBranche in hashSectionForbranches:
@@ -421,21 +412,20 @@ try:
         nomSection = row[1].encode('utf-8')
         nomBranche = row[3]
         xp = row[4]
-        
+
         if not nomSection in hashProfilPointParSection:
             logger.warning("Section sans point - " + nomSection)
             continue
 
         if not nomSection in hashProfilTraceParSection:
             logger.warning("Section sans trace - " + nomSection)
-            continue        
-            
+            continue
+
         if not nomSection in hashLimitesParSection:
             logger.warning("Section sans limites - " + nomSection)
-            continue 
-          
-        
-        #Limites - il doit y avoir les limites 1 à 6 et la limite 14
+            continue
+
+        # Limites - il doit y avoir les limites 1 à 6 et la limite 14
         hasLimiteAxe = False
         hasLimitesNum = True
         limiteNumerote = [None] * 6
@@ -443,61 +433,59 @@ try:
         for limite in hashLimitesParSection[nomSection]:
             idLimite = limite[0]
             absLimite = limite[1]
-            # print str(idLimite) + "  -  " + str(absLimite)
+            # print str(idLimite) + " - " + str(absLimite)
             if idLimite < 7:
-                limiteNumerote[idLimite -1] = absLimite
+                limiteNumerote[idLimite - 1] = absLimite
             elif idLimite == 14:
                 hasLimiteAxe = True
                 limitesGeom.append(("Et_AxeHyd", absLimite))
             elif idLimite == 13:
                 limitesGeom.append(("Et_Thalweg", absLimite))
-            
+
         for i in range(0, 6):
             if limiteNumerote[i] is None:
                 hasLimitesNum = False
                 break
-        
+
         # if not hasLimiteAxe:
-            # logger.warning("Section sans limite Et_AxeHyd - " + nomSection)
-            # continue 
+        #     logger.warning("Section sans limite Et_AxeHyd - " + nomSection)
+        #     continue
 
         if not hasLimitesNum:
             logger.warning("Section sans limites numerotes - " + nomSection)
             continue 
-            
-            
+
         logger.debug("SectionProfil - " + nomSection)
         section = SectionProfil(nomSection)
-        
-        #ProfilPoint Abs/Z
+
+        # ProfilPoint Abs/Z
         AbsZTuples = [(row[2], row[3]) for row in hashProfilPointParSection[nomSection]]
         # print(AbsZTuples)
-        section.set_xz(np.array(AbsZTuples))  
-        
+        section.set_xz(np.array(AbsZTuples))
+
         # logger.debug(limiteNumerote)
         section.set_lits_numerotes(limiteNumerote)
         for limite in limitesGeom:
             # logger.debug(limite[0])
             section.ajouter_limite_geom(LimiteGeom(limite[0], limite[1]))
-            
-        
-        #Profil_Trace Geom : uniquement les points compris entre le premièr et la dernièr Lit_Numerote
-        points = [(row[4][0], row[4][1]) for row in hashProfilPointParSection[nomSection] if (row[2] >= limiteNumerote[0]  and row[2] <= limiteNumerote[5])]
+
+        # Profil_Trace Geom : uniquement les points compris entre le premier et le dernier LitNumerote
+        points = [(row[4][0], row[4][1]) for row in hashProfilPointParSection[nomSection]
+                  if (row[2] >= limiteNumerote[0] and row[2] <= limiteNumerote[5])]
 
         section.set_geom_trace(LineString(points))
-        
+
         sous_modele.ajouter_section(section)
-        
+
         hashSectionsValid[nomSection] = True
 
-
-        #Reference dans le dictionnaire des branches
+        # Reference dans le dictionnaire des branches
         if nomBranche:
             nomBranche = nomBranche.encode('utf-8')
             if not nomBranche in hashSectionForbranches:
                 hashSectionForbranches[nomBranche] = []
             hashSectionForbranches[nomBranche].append((nomSection, xp))
-        
+
     logger.debug("SectionIdem")
     for row in lstSectionIdem:
         nomSection = row[1].encode('utf-8')
@@ -505,40 +493,37 @@ try:
         xp = row[4]
         nomSectionParent = row[5].encode('utf-8')
         dz = row[6]
-        
+
         if dz is None:
             dz = 0
-            
+
         if not nomSectionParent in hashSectionsValid:
             logger.warning("SectionIdem [" + nomSection + "] - SectionParente non reconnue [" + nomSectionParent + "]")
             continue 
-        
+
         logger.debug("Ajout SectionIdem - " + nomSection)
         section_parent = sous_modele.get_section(nomSectionParent)
         section = SectionIdem(nomSection, section_parent, dz)
         sous_modele.ajouter_section(section)
 
-
-        #Reference dans le dictionnaire des branches
+        # Reference dans le dictionnaire des branches
         if nomBranche:
             nomBranche = nomBranche.encode('utf-8')
             if not nomBranche in hashSectionForbranches:
                 hashSectionForbranches[nomBranche] = []
             hashSectionForbranches[nomBranche].append((nomSection, xp))
 
-
     if needSectionPilote:
         sectionPilote = SectionSansGeometrie("St_Section_Pilote")
         sous_modele.ajouter_section(sectionPilote)
-        
-        
-    # # Add branches
-    #Fields : "OID@", "Nom_branche", "Type_branche", "Longueur", "Nom_noeud_amont", "Nom_noeud_aval", "IsActif"
+
+    # Add branches
+    # Fields: "OID@", "Nom_branche", "Type_branche", "Longueur", "Nom_noeud_amont", "Nom_noeud_aval", "IsActif"
     logger.debug("Branches")
     for row in lstBranches:
         nomBranche = row[1].encode('utf-8')
         typebranche = row[2]
-        
+
         if not row[4] in hashNoeud:
             logger.warning("Branche sans noeud amont - " + nomBranche)
             continue 
@@ -553,15 +538,15 @@ try:
         if len(hashSectionForbranches[nomBranche]) < 2:
             logger.warning("Branche avec moins de 2 sections - " + nomBranche)
             continue 
-            
+
         noeud1 = sous_modele.get_noeud(row[4].encode('utf-8'))
         noeud2 = sous_modele.get_noeud(row[5].encode('utf-8'))
-        
+
         sections = hashSectionForbranches[nomBranche]
         sections.sort(key=lambda tup: tup[1])
-        
+
         logger.debug("Ajout Branche - " + nomBranche)
-        
+
         branche = None
         if typebranche == 1:
             branche = BranchePdC(nomBranche, noeud1, noeud2)
@@ -582,42 +567,38 @@ try:
             branche = BrancheBarrageFilEau(nomBranche, noeud1, noeud2)
             branche.section_pilote = sous_modele.get_section("St_Section_Pilote")
         elif typebranche == 20:
-            branche = BrancheSaintVenant(nomBranche, noeud1, noeud2)    
-        
+            branche = BrancheSaintVenant(nomBranche, noeud1, noeud2)
+
         branche.set_geom(LineString(getPointsFromGeom(row[7])))
-            
+
         for section in sections:
             nomSection = section[0].encode('utf-8')
             xp = section[1]
             section = sous_modele.get_section(nomSection)
             # if nomBranche == "Br_SBE21_BE26":
-                # print nomSection
-                # print section
-                # print isinstance(section, SectionSansGeometrie)
-                
+            #     print nomSection
+            #     print section
+            #     print isinstance(section, SectionSansGeometrie)
+
             branche.ajouter_section_dans_branche(section, xp)
-            
+
             # si seuils, ajouter
             if nomBranche in hashSeuilParBranche:
                 branche.set_liste_elements_seuil(np.array(hashSeuilParBranche[nomBranche]))
-            
+
         sous_modele.ajouter_branche(branche)
 
-
-    ###### Enregistrement du sous modele #####
-    logger.info("##Validation##")
+    # Enregistrement et validation du SousModele
+    logger.info("## Validation ##")
     sous_modele.log_validation()  # could be called before `write_all`
 
-    logger.info("##Enregistrement##")
+    logger.info("## Enregistrement ##")
     sous_modele.write_all(os.path.join(FOLDER, SM_NAME), 'Config')
 
-    logger.info("##Verification##")
+    logger.info("## Verification ##")
     sous_modele.log_check_xml(os.path.join(FOLDER, SM_NAME))  # has to be called after `write_all`
-    logger.info("##Fin du traitement##")
+    logger.info("## Fin du traitement ##")
 
-# except IOError as e:
-    # logger.critical(e)
-    # sys.exit(1)
 except Exception as e:
     logger.critical(e)
     logger.critical(traceback.format_exc())
