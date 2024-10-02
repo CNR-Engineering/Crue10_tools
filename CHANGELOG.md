@@ -1,8 +1,10 @@
 Journal des modifications
 =========================
 
-## [] - En cours
-- Corrections scripts geogama
+
+## [4.3] - 2024-10-02
+### Corrections
+- Mise à jour des scripts GéoGAMA-Crue (support g1.3)
 
 
 ## [4.2] - 2024-09-27
