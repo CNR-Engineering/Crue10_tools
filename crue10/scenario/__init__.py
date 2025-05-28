@@ -21,7 +21,6 @@ from crue10.utils.settings import CRUE10_EXE_PATH
 from crue10.utils.sorties import Sorties
 from .calcul import Calcul, CalcPseudoPerm, CalcTrans
 from .loi_hydraulique import LoiHydraulique
-from bibcal_wrapper import *
 
 
 class OrdCalcPseudoPerm:
@@ -165,9 +164,6 @@ class Scenario(EnsembleFichiersXML):
         if mode == 'w':
             self.set_variables_par_defaut()
 
-        self.dic_bibcal = {}                    # Mémoire des arguments pour 'self.calc_pdt_bibcal'
-        self.bibcal_init = False                # Bibcal n'a pas été initialisé, il faudra le faire
-
     def get_function_apply_modifications(self, etude):
         """
         Obtenir la fonction qui permet d'appliquer les modifications et de lancer un Run associé
@@ -211,8 +207,8 @@ class Scenario(EnsembleFichiersXML):
         """
         Ajouter une loi hydraulique au scénario
 
-        :param loi_hydraulique: loi hydraulique à ajouter
-        :type loi_hydraulique: LoiHydraulique
+        :param run: loi hydraulique à ajouter
+        :type run: LoiHydraulique
         """
         check_isinstance(loi_hydraulique, LoiHydraulique)
         self.lois_hydrauliques[loi_hydraulique.id] = loi_hydraulique
@@ -755,213 +751,13 @@ class Scenario(EnsembleFichiersXML):
         run.launch_services(Run.SERVICES, exe_path=exe_path)
         return run
 
-    # TODO coeur industriel
-    def calc_pdt_bibcal(
-            self, etude=None, run_id=None, exe_path=CRUE10_EXE_PATH, dll_path=None, comment=None,
-            force=False, dur_rampe=None, dur_plateau=None, pdt_init=None, pdt_calc=None,
-            nom_cli=None, nom_ccperm=None, nom_cctrans=None, dic_varemh_val=None) -> tuple[Run, dict]:
-        """ Créer et lancer un nouveau run avec le cœur industriel.
-
-        :param etude: étude courante
-        :type etude: Etude
-        :param run_id: nom du Run (si vide alors son nom correspondra à l'horodatage)
-        :type run_id: str
-        :param exe_path: chemin long vers l'exécutable du cœur d'étude crue10.exe
-        :type exe_path: str
-        :param dll_path: chemin long vers la librairie dynamique du cœur industriel BibCal10.dll
-        :type dll_path: str
-        :param comment: commentaire du Run
-        :type comment: str
-        :param force: écraser le Run s'il existe déjà
-        :type force: bool
-        :param dur_rampe: durée [s] de la rampe d'initialisation
-        :type dur_rampe: float
-        :param dur_plateau: durée [s] du plateau d'initialisation après la rampe
-        :type dur_plateau: float
-        :param pdt_init: durée [s] du pas de temps utilisé pendant la phase d'initialisation
-        :type pdt_init: float
-        :param pdt_calc: durée [s] du pas de temps utilisé pendant le calcul hors initialisation
-        :type pdt_calc: float
-        :param nom_cli: chemin long vers le fichier du cliché d'initialisation avant la rampe
-        :type nom_cli: str
-        :param nom_ccperm: TODO voir si on veut s'initialiser d'après un permanent du cœur d'étude, pllutôt qu'un cliché
-        :type nom_ccperm: str
-        :param nom_cctrans: nom du calcul transitoire
-        :type nom_cctrans: str
-        :param dic_varemh_val: dictionnaire {var_emh: val} en entrée du pas de temps
-        :type dic_varemh_val: dict
-        :return: (run lancé, dictionnaire {var_emh: val} en sortie du pas de temps)
-        :rtype: tuple[Run, dict]
-        """
-
-        # 0. Définir des fonctions utilitaires
-        def mem_bibcal(**kwargs) -> any:
-            """ Inner-function utilitaire: mémoriser un paramètre non-None dans 'self.dic_bibcal' ou le restituer.
-            :param kwargs: 1 couple de paramètre nommé {nom: val}
-            :return: valeur du paramètre, juste passée ou sinon déjà connue
-            """
-            for k, v in kwargs.items():
-                if v is not None:
-                    self.dic_bibcal[k] = v
-                    return v
-                else:
-                    return self.dic_bibcal.get(k, None)
-
-        def interpol_dic(dat_cur: float, dat_deb: float, dat_fin: float, dic_val_deb: dict, dic_val_fin: dict) -> dict:
-            """ Inner-function utilitaire: interpoler linéairement un dictionnaire {nom: val},
-            et compléter les clés non communes par leur valeur présente dans un seul des deux dictionnaires.
-            :param dat_cur: date courante, pour laquelle on veut récupérer le dictionnaire interpolé
-            :param dat_deb: date de début de la période
-            :param dat_fin: date de fin de la période
-            :param dic_val_deb: dictionnaire pour le début de la période {nom: val}
-            :param dic_val_fin: dictionnaire pour la fin de la période {nom: val}
-            :return: dictionnaire dont les valeurs associées aux clés ont été interpolées
-            """
-            dic_val = {k: v for k, v in dic_val_deb.items() if v is not None}   # Par défaut, dic_val_deb si non None
-            for nom, val_fin in dic_val_fin.items():
-                if val_fin is None:
-                    continue                    # Sauter à l'itération suivante si None
-                if nom in dic_val_deb:          # Interpoler sur les clés communes
-                    val_deb = dic_val_deb.get(nom)
-                    if dat_fin != dat_deb:
-                        val_cur = val_deb + (dat_cur - dat_deb) * (val_fin - val_deb) / (dat_fin - dat_deb)
-                    else:
-                        val_cur = val_fin
-                    dic_val[nom] = val_cur
-                else:
-                    dic_val[nom] = val_fin      # Ajouter par défaut les clés de dic_val_fin
-            return dic_val
-
-        # 1. Retenir les paramètres pour un appel ultérieur ou les récupérer
-        # 1.1. Données passées en argument
-        etude = mem_bibcal(etude=etude)
-        run_id = mem_bibcal(run_id=run_id)
-        exe_path = mem_bibcal(exe_path=exe_path)
-        dll_path = mem_bibcal(dll_path=dll_path)
-        comment = mem_bibcal(comment=comment)
-        if comment is None:
-            comment = ''
-        force = mem_bibcal(force=force)
-        if force is None:
-            force = False
-        dur_rampe = mem_bibcal(dur_rampe=dur_rampe)
-        if dur_rampe is None:
-            dur_rampe = 0.
-        dur_plateau = mem_bibcal(dur_plateau=dur_plateau)
-        if dur_plateau is None:
-            dur_plateau = 0.
-        pdt_calc = mem_bibcal(pdt_calc=pdt_calc)
-        pdt_init = mem_bibcal(pdt_init=pdt_init)
-        if pdt_init is None:
-            pdt_init = pdt_calc
-        nom_cli = mem_bibcal(nom_cli=nom_cli)
-        nom_ccperm = mem_bibcal(nom_ccperm=nom_ccperm)
-        nom_cctrans = mem_bibcal(nom_cc_trans=nom_cctrans)
-        dic_varemh_val = mem_bibcal(dic_varemh_val=dic_varemh_val)
-
-        # 1.2. Récupérer certaines autres données si déjà définies
-        bibcal = mem_bibcal(bibcal=None)
-        run = mem_bibcal(run=None)
-        run_etu_path = mem_bibcal(run_etu_path=None)
-        dic_clm_cctrans = mem_bibcal(dic_clm_cctrans=None)  # dict{nom_emh: typ_clm}
-
-        # 2. Créer bibcal et run si pas déjà fait
-        if ('bibcal' not in self.dic_bibcal) or ('run' not in self.dic_bibcal):
-            # Initialiser ces données
-            bibcal = BibCalWrapper(dll_path)
-            # bibcal.cleanup()
-            # TODO? créer un run (si exe_path is not None), ou en récupérer un existant (pour éviter de relancer les pt)
-            run = self.create_new_run(etude, run_id=run_id, comment=comment, force=force)
-            run.launch_services(['r', 'g', 'i'], exe_path=exe_path)     # Prétraitements réseau, géom., cond.ini.
-            run_etu_path = os.path.join(run.run_path, os.path.basename(etude.etu_path))
-            bibcal = mem_bibcal(bibcal=bibcal)
-            run = mem_bibcal(run=run)
-            run_etu_path = mem_bibcal(run_etu_path=run_etu_path)
-        else:
-            # Récupérer ces données
-            bibcal = mem_bibcal(bibcal=None)
-            run = mem_bibcal(run=None)
-            run_etu_path = mem_bibcal(run_etu_path=None)
-
-        # 3. Initialiser bibcal, une seule fois
-        if (not self.bibcal_init) and (dic_varemh_val is not None) and (nom_cctrans is not None):
-            self.bibcal_init = True             # N'initialiser qu'une fois pour briser les appels récursifs infinis
-
-            # 3.1. Initialiser à partir d'un calcul permanent       # TODO voir comment reprendre les résultats dans bibcal
-            if nom_ccperm is not None:
-                self.remove_all_runs()                              # TODO si nécessaire sleep=1.0
-                self.set_run_courant(nom_ccperm)
-                run.launch_services(['c'], exe_path=exe_path)       # Calcul TODO vérifier si c'est bien sur nom_ccperm
-
-            # 3.2. Initialiser à partir d'un cliché
-            if nom_cli is not None:
-                bibcal.load_scenario(run_etu_path)
-                bibcal.load_snapshot(nom_cli)
-
-            # 3.3. Initialiser à partir d'une rampe et d'un plateau
-            bibcal.select_calculus(nom_cctrans)
-            dic_clm_cctrans = mem_bibcal(dic_clm_cctrans=bibcal.get_calculus_clm(nom_cctrans))  # dict{nom_emh: typ_clm}
-            bibcal.set_trans_duration(pdt_init)
-            pdt_cur = 0.
-            dic_varemh_val_ini = bibcal.get_calculus_clm_val(nom_cctrans)
-            while pdt_cur <= dur_rampe:
-                # Rampe progressive
-                # self.log_status(f"[{self.nom_mod}] Initialisation rampe {pdt_cur - (dur_rampe + dur_plat):,.0f} s")
-                dic_varemh_val_cur = interpol_dic(pdt_cur, 0., dur_rampe, dic_varemh_val_ini, dic_varemh_val)
-                self.calc_pdt_bibcal(dic_varemh_val=dic_varemh_val_cur, pdt_calc=pdt_init)  # Appel récursif
-                pdt_cur += pdt_init
-            while pdt_cur <= dur_rampe + dur_plateau:
-                # Plateau
-                # self.log_status(f"[{self.nom_mod}] Initialisation plateau {pdt_cur - (dur_rampe + dur_plat):,.0f} s")
-                self.calc_pdt_bibcal(dic_varemh_val=dic_varemh_val, pdt_calc=pdt_init)      # Appel récursif
-                pdt_cur += pdt_init
-
-            # 3.4. Prendre un cliché après l'initialisation
-            fic_cli = os.path.join(etude.folder, f"{self.id}_fin_init.cli.xml")
-            # self.log_status(f"[{self.nom_mod}] Cliché en fin d'initialisation: '{fic_cli}'")
-            bibcal.take_snapshot('cli')
-            bibcal.save_snapshot(fic_cli)
-
-        # 4. Calculer un pas de temps transitoire
-        if (bibcal is not None) and (dic_varemh_val is not None) and (dic_clm_cctrans is not None):
-            # 4.1. Passer la valeur du pdt
-            bibcal.set_trans_duration(pdt_calc)
-
-            # 4.2. Passer la valeur des CLM
-            for nom_emh, typ_clm in dic_clm_cctrans.items():
-                var_emh = None
-                if typ_clm == EnumClmType.FLOW:
-                    var_emh = f"Q {nom_emh}"
-                elif typ_clm == EnumClmType.LEVEL:
-                    var_emh = f"Z {nom_emh}"
-                if var_emh in dic_varemh_val:
-                    val = dic_varemh_val.get(var_emh)
-                    bibcal.set_clm(nom_emh, typ_clm, val)
-
-            # 4.3. Calculer sur le pdt
-            bibcal.calculate()
-
-        # 5. Récupérer les résultats aux points d'intérêt et mettre à jour le jeu de données
-        if (bibcal is not None) and (dic_varemh_val is not None):
-            for var_emh, val in dic_varemh_val.items():
-                var, nom_emh = var_emh.split(maxsplit=1)
-                if var == 'Q':
-                    val = bibcal.get_q(nom_emh)
-                elif var == 'Z':
-                    val = bibcal.get_z(nom_emh)
-                if val is not None:
-                    dic_varemh_val[var_emh] = val
-
-        # 6. Renvoyer le run et le jeu de données mis à jour
-        return run, dic_varemh_val
-
-    def create_and_launch_new_multiple_sequential_runs(
-            self, modifications_liste, etude, exe_path=CRUE10_EXE_PATH, force=False):
+    def create_and_launch_new_multiple_sequential_runs(self, modifications_liste, etude,
+                                                       exe_path=CRUE10_EXE_PATH, force=False):
         """
         Créer et lancer des runs séquentiels selon les modifications demandées
 
-        :param modifications_liste: liste avec les dictionnaires contenant les modifications
-        :type modifications_liste: list(dict(str))
+        :param modifications: liste avec les dictionnaires contenant les modifications
+        :type modifications: list(dict(str))
         :param etude: étude courante
         :type etude: Etude
         :param exe_path: chemin vers l'exécutable crue10.exe
