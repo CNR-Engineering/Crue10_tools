@@ -16,6 +16,7 @@ from crue10.utils import check_isinstance, check_preffix, check_xml_content, \
     duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
     ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, get_xml_root_from_file, \
     JINJA_ENV, logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree, DATA_FOLDER_ABSPATH
+from crue10.utils.design_patterns import factory_define, factory_make
 from crue10.utils.crueconfigmetier import CCM_FILE
 from crue10.utils.settings import CRUE10_EXE_PATH
 from crue10.utils.sorties import Sorties
@@ -99,6 +100,7 @@ class OrdCalcTrans:
             return res
 
 
+@factory_define('Scenario')                     # Cette classe pourra être appelée par factory_make('Scenario')
 class Scenario(EnsembleFichiersXML):
     """
     Scénario Crue10
@@ -207,8 +209,8 @@ class Scenario(EnsembleFichiersXML):
         """
         Ajouter une loi hydraulique au scénario
 
-        :param run: loi hydraulique à ajouter
-        :type run: LoiHydraulique
+        :param loi_hydraulique: loi hydraulique à ajouter
+        :type loi_hydraulique: LoiHydraulique
         """
         check_isinstance(loi_hydraulique, LoiHydraulique)
         self.lois_hydrauliques[loi_hydraulique.id] = loi_hydraulique
@@ -751,13 +753,13 @@ class Scenario(EnsembleFichiersXML):
         run.launch_services(Run.SERVICES, exe_path=exe_path)
         return run
 
-    def create_and_launch_new_multiple_sequential_runs(self, modifications_liste, etude,
-                                                       exe_path=CRUE10_EXE_PATH, force=False):
+    def create_and_launch_new_multiple_sequential_runs(
+            self, modifications_liste, etude, exe_path=CRUE10_EXE_PATH, force=False):
         """
         Créer et lancer des runs séquentiels selon les modifications demandées
 
-        :param modifications: liste avec les dictionnaires contenant les modifications
-        :type modifications: list(dict(str))
+        :param modifications_liste: liste avec les dictionnaires contenant les modifications
+        :type modifications_liste: list(dict(str))
         :param etude: étude courante
         :type etude: Etude
         :param exe_path: chemin vers l'exécutable crue10.exe
