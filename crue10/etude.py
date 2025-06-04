@@ -12,6 +12,7 @@ from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
 from crue10.utils import check_isinstance, ExceptionCrue10, logger, PREFIX
+from crue10.utils.design_patterns import factory_define, factory_make
 
 
 def read_metadata(elt, keys):
@@ -22,6 +23,7 @@ def read_metadata(elt, keys):
     return metadata
 
 
+@factory_define('Etude')                        # Cette classe pourra être appelée par factory_make('Etude')
 class Etude(EnsembleFichiersXML):
     """
     Étude Crue10
@@ -251,7 +253,7 @@ class Etude(EnsembleFichiersXML):
                         raise NotImplementedError  # A single Modele for a Scenario!
 
                 metadata = read_metadata(elt_scenario, Scenario.METADATA_FIELDS)
-                scenario = Scenario(nom_scenario, modele, files=files, metadata=metadata,
+                scenario = factory_make('Scenario')(nom_scenario, modele, files=files, metadata=metadata,
                                     version_grammaire=self.version_grammaire)
 
                 runs = elt_scenario.find(PREFIX + 'Runs')
@@ -421,7 +423,7 @@ class Etude(EnsembleFichiersXML):
                         version_grammaire=version_grammaire)
         if nom_sous_modele is not None:
             modele.create_empty_sous_modele(nom_sous_modele, self.mode, metadata=metadata)
-        scenario = Scenario(nom_scenario, modele, mode=self.mode, metadata=metadata,
+        scenario = factory_make('Scenario')(nom_scenario, modele, mode=self.mode, metadata=metadata,
                             version_grammaire=version_grammaire)
         self.ajouter_scenario(scenario)
         if not self.nom_scenario_courant:
@@ -597,7 +599,7 @@ class Etude(EnsembleFichiersXML):
             out_path = os.path.join(self.folder, nom_scenario_cible[3:] + '.' + xml_type + '.xml')
             copyfile(in_path, out_path)
             scenario_files[xml_type] = out_path  # overwrite Scenario file path
-        scenario = Scenario(nom_scenario_cible, scenario_ori.modele, mode='w',
+        scenario = factory_make('Scenario')(nom_scenario_cible, scenario_ori.modele, mode='w',
                             files=scenario_files, metadata=scenario_ori.metadata)
         scenario.read_all()
         if overwrite and scenario.id in self.scenarios:

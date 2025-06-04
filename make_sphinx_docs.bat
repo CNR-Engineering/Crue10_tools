@@ -1,5 +1,7 @@
 @echo off
 
+REM pip install sphinx_rtd_theme
+
 REM Build docs folder with conf.py
 REM sphinx-quickstart
 
