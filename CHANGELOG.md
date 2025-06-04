@@ -2,6 +2,11 @@ Journal des modifications
 =========================
 
 
+## [4.4] - 2025-06-04
+### Nouveautés
+- Améliorer la capacité d'héritage de Crue10_tools (pour `Etude` et `Scenario`)
+
+
 ## [4.3] - 2024-10-02
 ### Corrections
 - Mise à jour des scripts GéoGAMA-Crue (support g1.3)
