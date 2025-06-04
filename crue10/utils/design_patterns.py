@@ -8,6 +8,7 @@ Ensemble d'utilitaires mettant en œuvre divers design patterns.
 PBa 2025-06 Création
 """
 from future.utils import with_metaclass  # python2 compatibility
+from crue10.utils import ExceptionCrue10
 
 
 class Singleton(type):
@@ -52,8 +53,11 @@ class FactoryClass(with_metaclass(Singleton)):
         :type nom_cls: str
         :return: classe à utiliser
         """
-        # print(f"Utiliser '{nom_cls}' comme {self._dic_nom_cls.get(nom_cls)}")
-        return self._dic_nom_cls.get(nom_cls)
+        if nom_cls in self._dic_nom_cls:
+            # print(f"Utiliser '{nom_cls}' comme {self._dic_nom_cls.get(nom_cls)}")
+            return self._dic_nom_cls[nom_cls]
+        else:
+            raise ExceptionCrue10("Le nom `%s` est inconnu de FactoryClass (pas de @factory_define associé)" % nom_cls)
 
 
 def factory_define(nom_cls):
