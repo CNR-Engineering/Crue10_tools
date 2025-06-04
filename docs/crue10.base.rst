@@ -6,6 +6,6 @@ Module contents
 
 .. automodule:: crue10.base
    :members:
-   :undoc-members:
    :show-inheritance:
    :special-members: __init__
+   :undoc-members:

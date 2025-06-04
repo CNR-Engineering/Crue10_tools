@@ -36,6 +36,7 @@ class FactoryClass(with_metaclass(Singleton)):
 
     def define(self, nom_cls, cls):
         """ Définir une association entre un nom et une classe.
+
         :param nom_cls: nom associé
         :type nom_cls: str
         :param cls: classe à utiliser
@@ -46,6 +47,7 @@ class FactoryClass(with_metaclass(Singleton)):
 
     def make(self, nom_cls):
         """ Fournir la classe à partir du nom qui lui est associé.
+
         :param nom_cls: nom associé
         :type nom_cls: str
         :return: classe à utiliser
@@ -57,11 +59,13 @@ class FactoryClass(with_metaclass(Singleton)):
 def factory_define(nom_cls):
     """ Décorateur qui associe le nom passé en paramètre à la classe décorée; pour ensuite utiliser 'factory'.
     Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make'.
+
     :param nom_cls: nom associé à la classe
     :type nom_cls: str
     """
     def decorator(cls):
         """ Récupérer la classe décorée pour pouvoir l'utiliser via 'factory'.
+
         :param cls: classe décorée
         :return: classe définie
         :rtype: callable
@@ -75,6 +79,7 @@ def factory_make(nom_cls):
     """ Renvoyer la classe associée à un nom; utiliser le décorateur '@factory_define' sur la classe pour l'associer.
     Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make'.
     Exemple d'utilisation: etu = factory_make('Etude')(etu_path=r"path/to/Etu_XX.etu.xml")
+
     :param nom_cls: nom associé à la classe à renvoyer
     :return: classe associée
     :rtype: callable

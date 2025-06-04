@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Crue10_tools'
-copyright = '2024, CNR-Engineering'
+copyright = '2025, CNR-Engineering'
 author = 'CNR-Engineering'
 
 

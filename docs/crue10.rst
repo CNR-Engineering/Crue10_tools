@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    crue10.base
    crue10.emh
@@ -15,39 +16,47 @@ Subpackages
 Submodules
 ----------
 
+crue10.campagne\_otfa module
+----------------------------
+
+.. automodule:: crue10.campagne_otfa
+   :members:
+   :show-inheritance:
+   :special-members: __init__
+   :undoc-members:
+
 crue10.etude module
 -------------------
 
 .. automodule:: crue10.etude
    :members:
-   :undoc-members:
    :show-inheritance:
    :special-members: __init__
+   :undoc-members:
 
 crue10.modele module
 --------------------
 
 .. automodule:: crue10.modele
    :members:
-   :undoc-members:
    :show-inheritance:
    :special-members: __init__
+   :undoc-members:
 
 crue10.sous\_modele module
 --------------------------
 
 .. automodule:: crue10.sous_modele
    :members:
-   :undoc-members:
    :show-inheritance:
    :special-members: __init__
-
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: crue10
    :members:
-   :undoc-members:
    :show-inheritance:
    :special-members: __init__
+   :undoc-members:
