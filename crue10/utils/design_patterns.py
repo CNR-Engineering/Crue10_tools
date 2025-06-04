@@ -7,6 +7,7 @@ Ensemble d'utilitaires mettant en œuvre divers design patterns.
 © CNR
 PBa 2025-06 Création
 """
+from future.utils import with_metaclass  # python2 compatibility
 
 
 class Singleton(type):
@@ -24,7 +25,7 @@ class Singleton(type):
         return cls._dic_nom_obj[cls]            # Renvoyer une instance déjà créée
 
 
-class FactoryClass(metaclass=Singleton):
+class FactoryClass(with_metaclass(Singleton)):
     """ Classe utilitaire mettant en œuvre le design pattern Factory.
     Cela permet de récupérer une classe associée à un nom, pour ensuite l'instancier en late binding. On peut ainsi
     spécialiser une classe de Crue10_tools dans un autre package, sans toucher à Crue10_tools.
@@ -33,43 +34,49 @@ class FactoryClass(metaclass=Singleton):
     # Variable de classe: dictionnaire d'association {nom_cls: cls}
     _dic_nom_cls = {}
 
-    def define(self, nom_cls: str, cls: callable) -> None:
+    def define(self, nom_cls, cls):
         """ Définir une association entre un nom et une classe.
         :param nom_cls: nom associé
+        :type nom_cls: str
         :param cls: classe à utiliser
+        :type cls: callable
         """
         # print(f"Définir '{nom_cls}' comme {cls}")
         self._dic_nom_cls[nom_cls] = cls
 
-    def make(self, nom_cls: str) -> callable:
+    def make(self, nom_cls):
         """ Fournir la classe à partir du nom qui lui est associé.
         :param nom_cls: nom associé
+        :type nom_cls: str
         :return: classe à utiliser
         """
         # print(f"Utiliser '{nom_cls}' comme {self._dic_nom_cls.get(nom_cls)}")
         return self._dic_nom_cls.get(nom_cls)
 
 
-def factory_define(nom_cls: str):
+def factory_define(nom_cls):
     """ Décorateur qui associe le nom passé en paramètre à la classe décorée; pour ensuite utiliser 'factory'.
     Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make'.
     :param nom_cls: nom associé à la classe
+    :type nom_cls: str
     """
-    def decorator(cls: callable):
+    def decorator(cls):
         """ Récupérer la classe décorée pour pouvoir l'utiliser via 'factory'.
         :param cls: classe décorée
         :return: classe définie
+        :rtype: callable
         """
         FactoryClass().define(nom_cls, cls)     # Mémoriser l'association entre nom_cls et cls
         return cls
     return decorator
 
 
-def factory_make(nom_cls: str) -> callable:
+def factory_make(nom_cls):
     """ Renvoyer la classe associée à un nom; utiliser le décorateur '@factory_define' sur la classe pour l'associer.
     Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make'.
     Exemple d'utilisation: etu = factory_make('Etude')(etu_path=r"path/to/Etu_XX.etu.xml")
     :param nom_cls: nom associé à la classe à renvoyer
     :return: classe associée
+    :rtype: callable
     """
     return FactoryClass().make(nom_cls)
