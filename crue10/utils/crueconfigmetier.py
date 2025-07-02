@@ -1,20 +1,594 @@
-import os.path
-import xml.etree.ElementTree as ET
+# coding: utf-8
 
+# Imports
+import os.path
+from datetime import datetime, timedelta
+import xml.etree.ElementTree as ET
+from enum import IntEnum                        # Python >= 3.7
+import math
+# from future.utils import with_metaclass         # Python2 compatibility
+# from crue10.utils.design_patterns import Singleton
 from crue10.utils import DATA_FOLDER_ABSPATH, ExceptionCrue10, PREFIX
 
+"""
+Classe statique, pour exploiter le CrueConfigMetier.
+Si on souhaite forcer son unicité au niveau de l'application, utiliser la métaclasse Singleton. 
+"""
 
-#: Chemin vers le fichier CCM
-CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml'))
+# Variables de module; certaines sont déclarées ici, d'autres plus bas, mais toutes indiquées pour mémoire
+CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml'))  #: Chemin vers le fichier CCM
+# CCM = None                                                                            #: Classe statique CCM
 
 
-DEFAULT_Pm_TolStQ = 0.0
-ENUM_SEVERITE = {}
-try:
-    root = ET.parse(CCM_FILE).getroot()
-    for elt in root.find(PREFIX + 'TypeEnums').find(PREFIX + "ItemTypeEnum[@Nom='Ten_Severite']"):
-        ENUM_SEVERITE[elt.text] = int(elt.attrib['Id'])
-    DEFAULT_Pm_TolStQ = float(root.find(PREFIX + 'Variables').find(PREFIX + "ItemVariable[@Nom='Pm_TolStQ']")
-                              .find(PREFIX + 'ValeurDefaut').text)
-except ET.ParseError as e:
-    raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (CCM_FILE, e))
+class CrueConfigMetierTypeNum:
+    """ Élément de CrueConfigMetier de type TypeNumerique.
+    """
+    # Variables de classe
+    TYPE_NUMERIQUE = {                              #: Association entre types numériques CCM et types Python
+        'Tnu_Entier': int, 'Tnu_Reel': float, 'Tnu_Date': datetime, 'Tnu_Duree': timedelta}
+    FMT_DAT = '%Y-%m-%dT%H:%M:%S.%f'                #: Format par défaut des dates
+    EPOCH_DAT = datetime(1970, 1, 1)                #: Origine des dates, convention Unix (1er janv 1970)
+
+    def __init__(self, nom, src_xml):
+        """ Construire l'instance de classe.
+        :param nom: nom de la nature de variable
+        :type nom: str
+        :param src_xml: sous-arbre XML de CCM pour la description de la nature de variable
+        :type src_xml: ElementTree
+        """
+        self.nom = nom                              # Nom de la nature de variable
+        self.typ = self.TYPE_NUMERIQUE.get(nom)     # Type numérique Python de la variable
+        if self.typ is None:
+            raise ExceptionCrue10("Erreur type numérique `%s` inconnu" % nom)
+        for itm in src_xml:
+            self.infini = self.convert(itm.text)    # Valeur numérique représentant l'infini
+
+    def __repr__(self):
+        """ Renvoyer le type numérique sous-jacent, par appel direct de l'instance.
+        """
+        return self.typ
+
+    def get_fmt(self, pre):
+        """ Renvoyer le format Python de représentation du nombre selon son type et la précision demandée.
+        :param pre: précision demandée TODO voir s'il est nécessaire de gérer les Tnu_Date et Tnu_Duree (pre inutile) ?
+        :type pre: int
+        :return: format Python
+        :rtype: str
+        """
+        fmt = ''
+        if self.typ == int:
+            fmt = "%id" % (pre + 1)
+        elif self.typ == float:
+            fmt = ".%if" % abs(pre) if (pre < 0) else "%i.0f" % (pre + 1)
+        return fmt
+
+    def convert(self, val):
+        """ Convertir (cast) la valeur val dans le type numérique.
+        :param val: valeur textuelle à convertir, incluant les infinis
+        :type val: str
+        :return: valeur convertie
+        :rtype: type numérique visé
+        """
+        if val == '-Infini':
+            return -self.infini
+        elif val == '+Infini':
+            return +self.infini
+        else:
+            if ':' in val:
+                # Cas d'une date
+                dat = datetime.strptime(val, self.FMT_DAT)
+                val = (dat - self.EPOCH_DAT).total_seconds()  # Écart avec l'Epoch de référence
+            return self.typ(float(val)) if (val is not None) else val
+
+    def txt(self, val, fmt):
+        """ Convertir une valeur en chaine formatée selon son type, en gérant les infinis.
+        :param val: valeur numérique à convertir
+        :type val: type numérique de la variable
+        :param fmt: format à appliquer
+        :type fmt: str
+        :return: chaine formatée
+        :rtype: str
+        """
+        if val <= -self.infini:
+            return '-Infini'
+        if val >= self.infini:
+            return '+Infini'
+        str_fmt = "{{val:{fmt}}}".format(fmt=fmt)
+        return str_fmt.format(val=val)
+
+
+class CrueConfigMetierType:
+    """ Élément de CrueConfigMetier, interface pour CrueConfigMetierEnum et CrueConfigMetierNature.
+    """
+    def __init__(self, nom):
+        self._nom = nom                         # Nom de l'instance
+        self._fmt = ''                          # Format Python de représentation
+        self._unt = ''                          # Unité de représentation
+
+    @property
+    def nom(self):
+        return self._nom
+
+    @property
+    def fmt(self):
+        return self._fmt
+
+    @property
+    def unt(self):
+        return self._unt
+
+    def convert(self, val):
+        """ Convertir une valeur en valeur du type sous-jacent. À spécialiser.
+        """
+        raise NotImplementedError
+
+    def txt(self, val, add_unt=False):
+        """ Convertir une valeur en chaine formatée. À spécialiser.
+        """
+        raise NotImplementedError
+
+
+class CrueConfigMetierEnum(CrueConfigMetierType):
+    """ Élément de CrueConfigMetier de type Enum.
+    Cette classe agit comme un wrapper autour de IntEnum (Enum avec des valeurs int), mais ajoute un nom.
+    """
+    def __init__(self, nom, src_xml):
+        """ Construire l'instance de classe.
+        :param nom: nom de l'Enum
+        :type nom: str
+        :param src_xml: sous-arbre XML de CCM pour la description de l'Enum
+        :type src_xml: ElementTree
+        """
+        super().__init__(nom)                   # Instancier la classe mère
+        dic_nom_int = {}                        # Dictionnaire {clé: valeur_int} pour l'Enum
+        for itm in src_xml:
+            dic_nom_int[itm.text] = int(itm.get('Id'))
+        self._enum = IntEnum(nom, dic_nom_int)  # Enum sous-jacente
+
+    def __repr__(self):
+        """ Renvoyer l'Enum sous-jacente, par appel direct de l'instance.
+        """
+        return self._enum
+
+    def __cmp__(self, other):
+        """ Renvoyer l'Enum sous-jacente pour les comparaisons (==, !=, >, >=, <, <=).
+        """
+        return self._enum.__cmp__(other)
+
+    def __getitem__(self, key):
+        """ Renvoyer l'Enum sous-jacente pour les appels 'self[key]'.
+        """
+        return self._enum[key]
+
+    def __getattr__(self, name):
+        """ Renvoyer l'Enum sous-jacente pour les appels 'self.name'.
+        """
+        return self._enum[name]
+
+    def convert(self, val):
+        """ Convertir une valeur en Enum sous-jacente.
+        :param val: valeur textuelle à convertir
+        :type val: str
+        :return: valeur d'Enum associée
+        :rtype: Enum
+        """
+        return self._enum[val]
+
+    def txt(self, val, add_unt=False):
+        """ Convertir une valeur en chaine formatée avec le code de l'Enum et la valeur associée.
+        :param val: valeur textuelle à convertir
+        :type val: str
+        :param add_unt: ajouter l'unité, sans effet pour une Enum
+        :type add_unt: bool
+        :return: chaine formatée
+        :rtype: str
+        """
+        val_enum = self.convert(val)
+        return "{0}({1})".format(val_enum.name, val_enum.value)
+
+
+class CrueConfigMetierNature(CrueConfigMetierType):
+    """ Élément de CrueConfigMetier de type Nature de variable.
+    """
+    def __init__(self, nom, src_xml):
+        """ Construire l'instance de classe.
+        :param nom: nom de la nature
+        :type nom: str
+        :param src_xml: sous-arbre XML de CCM pour la description de la nature
+        :type src_xml: ElementTree
+        """
+        # Déclarer et initialiser les variables membres
+        super().__init__(nom)                   # Instancier la classe mère
+        self.typ = self._load_typ(src_xml)      # Type numérique
+        self.eps = self._load_eps(src_xml)      # Epsilon de comparaison
+        self._fmt = self._load_fmt(src_xml)     # Format de présentation
+        self._unt = self._load_unt(src_xml)     # Unité
+
+    def _load_typ(self, src_xml):
+        """ Extraire le type numérique associé à la nature.
+        :param src_xml: sous-arbre XML de CCM
+        :type src_xml: ElementTree
+        :return: type numérique
+        :rtype: CrueConfigMetierTypeNum
+        """
+        typ = '?'
+        try:
+            typ = src_xml.find(PREFIX + 'TypeNumerique').get('NomRef')
+            return CCM.typ_num[typ]
+        except AttributeError as e:
+            raise ExceptionCrue10("Erreur type numérique `%s` incompatible pour nature `%s`:\n%s" % (typ, self.nom, e))
+
+    def _load_eps(self, src_xml):
+        """ Extraire l'epsilon de comparaison associé à la nature.
+        :param src_xml: sous-arbre XML de CCM
+        :type src_xml: ElementTree
+        :return: valeur de l'epsilon de comparaison
+        :rtype: int|float|datetime|timedelta
+        """
+        eps, str_eps = None, None
+        try:
+            str_eps = src_xml.find(PREFIX + 'EpsilonComparaison').text
+            eps = self.typ.convert(str_eps)
+        except AttributeError:
+            pass
+        return eps if (eps is not None) else 0.0
+
+    def _load_fmt(self, src_xml):
+        """ Extraire le format de présentation associé à la nature.
+        :param src_xml: sous-arbre XML de CCM
+        :type src_xml: ElementTree
+        :return: format de présentation Python
+        :rtype: str
+        """
+        fmt = ''
+        try:
+            eps_pre = float(src_xml.find(PREFIX + 'EpsilonPresentation').text)
+            pre = math.floor(math.log10(eps_pre))  # Précision, pour déduire le nombre de chiffres à afficher
+            fmt = self.typ.get_fmt(pre)
+        except AttributeError:
+            pass
+        return fmt
+
+    def _load_unt(self, src_xml):
+        """ Extraire l'unité associée à la nature.
+        :param src_xml: sous-arbre XML de CCM
+        :type src_xml: ElementTree
+        :return: unité
+        :rtype: str
+        """
+        unt = None
+        try:
+            unt = src_xml.find(PREFIX + 'Unite').text
+        except AttributeError:
+            pass
+        return unt if (unt is not None) else ''
+
+    def __getitem__(self, val):
+        """ Convertir une valeur en valeur du type numérique sous-jacent; appel par 'self[val]'.
+        :param val: valeur textuelle à convertir
+        :type val: str
+        :return: valeur numérique associée
+        :rtype: int|float|datetime|timedelta
+        """
+        return self.typ.convert(val)
+
+    def convert(self, val):
+        """ Convertir une valeur en valeur du type numérique sous-jacent.
+        :param val: valeur textuelle à convertir
+        :type val: str
+        :return: valeur numérique associée
+        :rtype: int|float|datetime|timedelta
+        """
+        return self.typ.convert(val)
+
+    def txt(self, val, add_unt=True):
+        """ Convertir une valeur numérique en chaine formatée.
+        :param val: valeur numérique à convertir
+        :type val: int
+        :param add_unt: ajouter l'unité
+        :type add_unt: bool
+        :return: chaine formatée
+        :rtype: str
+        """
+        txt = self.typ.txt(val, self.fmt)
+        txt += (' ' + self.unt) if (add_unt and self.unt != '') else ''
+        return txt
+
+
+class CrueConfigMetierVariable:
+    """ Classe commune pour les Constantes et les Variables.
+    """
+    def __init__(self, nom, src_xml):
+        """ Construire l'instance de classe.
+        :param nom: nom de la constante ou de la variable
+        :type nom: str
+        :param src_xml: sous-arbre XML de CCM pour la description d'élément
+        :type src_xml: ElementTree
+        """
+        self.nom = nom                              # Nom de la constante ou de la variable
+        self._enum = self._load_typ_enum(src_xml)   # Type de l'Enum si applicable
+        self._nat = self._load_nat(src_xml)         # Nature si applicable
+        self.dft = self._load_dft(src_xml)          # Valeur ou valeur par défaut
+        self.vld_min, self.vld_min_stc = self._load_borne(src_xml, typ='MinValidite')   # Minimum plage de validité
+        self.vld_max, self.vld_max_stc = self._load_borne(src_xml, typ='MaxValidite')   # Maximum plage de validité
+        self.nrm_min, self.nrm_min_stc = self._load_borne(src_xml, typ='MinNormalite')  # Minimum plage de normalité
+        self.nrm_max, self.nrm_max_stc = self._load_borne(src_xml, typ='MaxNormalite')  # Maximum plage de normalité
+
+    def _load_typ_enum(self, src_xml):
+        """ Extraire le type de l'Enum, si applicable.
+        :param src_xml: sous-arbre XML de CCM
+        :type src_xml: ElementTree
+        :return: type de l'Enum
+        :rtype: CrueConfigMetierEnum
+        """
+        enum = None
+        try:
+            enum = src_xml.find(PREFIX + 'TypeEnum').get('NomRef')
+        except AttributeError:
+            pass
+        return CCM.enum[enum] if (enum is not None) else None
+
+    def _load_nat(self, src_xml):
+        """ Extraire la nature, si applicable.
+        :param src_xml: sous-arbre XML de CCM
+        :type src_xml: ElementTree
+        :return: nature
+        :rtype: CrueConfigMetierNature
+        """
+        nat = None
+        try:
+            nat = src_xml.find(PREFIX + 'Nature').get('NomRef')
+        except AttributeError:
+            pass
+        return CCM.nature[nat] if (nat is not None) else None
+
+    def _load_dft(self, src_xml):
+        """ Extraire la valeur par défaut, la valeur, ou le vecteur valeur, selon le cas.
+        :param src_xml: sous-arbre XML de CCM
+        :type src_xml: ElementTree
+        :return: valeur ou vecteur de valeurs
+        :rtype: any
+        """
+        # Définir une inner function utilitaire: analyser un élément XML
+        def get_dft(str_find, nat=None):
+            str_dft = None
+            try:
+                str_dft = src_xml.find(PREFIX + str_find).text  # Texte dans la balise XML
+            except AttributeError:
+                pass
+            try:
+                return nat.convert(str_dft) if (str_dft is not None and nat is not None) else str_dft
+            except KeyError:
+                raise ExceptionCrue10("Erreur valeur par défaut `%s` incompatible pour `%s`" % (str_dft, self.nom))
+
+        # Rechercher à différents emplacements
+        dft = get_dft(str_find='EnumValeurDefaut', nat=self.nat)                        # Variable de type Enum
+        dft = get_dft(str_find='ValeurDefaut', nat=self.nat) if dft is None else dft    # Variable autres types
+        dft = get_dft(str_find='Valeur', nat=self.nat) if dft is None else dft          # Constante simple
+        dft = get_dft(str_find='ValeurVecteur', nat=None) if dft is None else dft       # Constante vecteur
+        return dft
+
+    def _load_borne(self, src_xml, typ):
+        """ Extraire la borne (min/max) de validité/normalité pour la variable.
+        :param src_xml: sous-arbre XML de CCM
+        :type src_xml: ElementTree
+        :param typ: balise XML à analyser
+        :type typ: str
+        :return: valeur de la borne ou None; True si inégalité stricte ou False si la borne est incluse
+        :rtype: (int|float|datetime|timedelta|None, bool)
+        """
+        brn, brn_stc = None, False
+        try:
+            str_brn = src_xml.find(PREFIX + typ).text   # Texte dans la balise XML
+            brn = self.nat.convert(str_brn) if (str_brn is not None and self.nat is not None) else str_brn
+            brn_stc = (src_xml.find(PREFIX + typ).get('Strict') == 'true')
+        except AttributeError:
+            pass
+        return brn, brn_stc
+
+    @property
+    def nat(self):
+        """ Renvoyer la nature de la constante ou de la variable.
+        :return: nature
+        :rtype: CrueConfigMetierNature
+        """
+        return self._nat if (self._enum is None) else self._enum
+
+    def txt(self, val, add_unt=True):
+        """ Formater une valeur selon sa variable ou sa nature et renvoyer une chaîne.
+        :param val: valeur à formater
+        :vartype val: int|float|datetime|timedelta
+        :param add_unt: True pour ajouter son unité ou False sinon
+        :vartype add_unt: bool
+        :return: valeur formatée
+        :rtype: str
+        """
+        return self.nat.txt(val, add_unt)
+
+    def valider(self, val):
+        """ Tester la normalité et la validité de la variable, en fonction de sa valeur.
+        :param val: valeur à analyser
+        :vartype val: int|float|datetime|timedelta
+        :return: tuple (True si valeur normale et valide ou False sinon; chaîne descriptive si False)
+        :rtype: (bool, str)
+        """
+        # Définir une inner function utilitaire: test élémentaire pour une borne min ou max
+        def valider_elem(_val, brn, brn_stc, is_max=True):
+            if is_max:
+                # Tester le max
+                valid = not (_val >= brn if (brn_stc is True) else _val > brn)
+                msg_elem = self.txt(brn, add_unt=False) + ('[' if (brn_stc is True) else ']')
+            else:
+                # Tester le min
+                valid = not (_val <= brn if (brn_stc is True) else _val < brn)
+                msg_elem = (']' if (brn_stc is True) else '[') + self.txt(brn, add_unt=False)
+            return valid, msg_elem
+
+        # Tester la validité
+        str_val = self.txt(val, add_unt=True)
+        vld_min, msg_min = valider_elem(val, self.vld_min, self.vld_min_stc, is_max=False)
+        vld_max, msg_max = valider_elem(val, self.vld_max, self.vld_max_stc, is_max=True)
+        vld = vld_min and vld_max
+        if not vld:
+            msg = "{}={} est invalide: hors de l'intervale {};{}".format(self.nom, str_val, msg_min, msg_max)
+            return vld, msg
+
+        # Tester la normalité
+        nrm_min, msg_min = valider_elem(val, self.nrm_min, self.nrm_min_stc, is_max=False)
+        nrm_max, msg_max = valider_elem(val, self.nrm_max, self.nrm_max_stc, is_max=True)
+        nrm = nrm_min and nrm_max
+        if not nrm:
+            msg = "{}={} est anormale: hors de l'intervale {};{}".format(self.nom, str_val, msg_min, msg_max)
+            return nrm, msg
+
+        # Valeur valide et normale
+        return True, ''
+
+
+class CrueConfigMetier:                 # (with_metaclass(Singleton)) si on exclut d'avoir des CCM sur différents cœurs
+    """ Classe lectrice du fichier CrueConfigMetier.
+    """
+    def __init__(self):
+        """ Construire l'instance de classe.
+        """
+        self.ccm_path = None
+        self.ccm_root = None
+        self.dic_typ_num = {}
+        self.dic_enum = {}
+        self.dic_nature = {}
+        self.dic_constante = {}
+        self.dic_variable = {}
+        self.dic_loi = {}
+
+    def load(self, ccm_path=CCM_FILE):
+        """ Charger à partir du fichier.
+        :param ccm_path: nom long du fichier
+        :type ccm_path: str
+        """
+        try:
+            self.ccm_path = ccm_path
+            self.ccm_root = ET.parse(ccm_path).getroot()
+            self.dic_typ_num = self._read_typ_num()
+            self.dic_enum = self._read_enum()
+            self.dic_nature = self._read_nature()
+            self.dic_constante = self._read_constante()
+            self.dic_variable = self._read_variable()
+        except ET.ParseError as e:
+            raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (self.ccm_path, e))
+
+    def _read_typ_num(self):
+        """ Lire les TypeNumeriques.
+        :return: dictionnaire des types numériques
+        :rtype: {nom: CrueConfigMetierTypeNum}
+        """
+        dic_typ_num = {}
+        for itm in self.ccm_root.find(PREFIX + 'TypeNumeriques'):
+            nom = itm.get('Nom')
+            dic_typ_num[nom] = CrueConfigMetierTypeNum(nom=nom, src_xml=itm)
+        return dic_typ_num
+
+    def _read_enum(self):
+        """ Lire les Enum.
+        :return: dictionnaire des Enum
+        :rtype: {nom: CrueConfigMetierEnum}
+        """
+        dic_enum = {}
+        for itm in self.ccm_root.find(PREFIX + 'TypeEnums'):
+            nom = itm.get('Nom')
+            dic_enum[nom] = CrueConfigMetierEnum(nom=nom, src_xml=itm)
+        return dic_enum
+
+    def _read_nature(self):
+        """ Lire les Natures.
+        :return: dictionnaire des natures
+        :rtype: {nom: CrueConfigMetierNature}
+        """
+        dic_nature = {}
+        for itm in self.ccm_root.find(PREFIX + 'Natures'):
+            nom = itm.get('Nom')
+            dic_nature[nom] = CrueConfigMetierNature(nom=nom, src_xml=itm)
+        return dic_nature
+
+    def _read_constante(self):
+        """ Lire les Constantes.
+        :return: dictionnaire des constantes
+        :rtype: {nom: CrueConfigMetierVariable}
+        """
+        dic_constante = {}
+        for itm in self.ccm_root.find(PREFIX + 'Constantes'):
+            nom = itm.get('Nom')
+            dic_constante[nom] = CrueConfigMetierVariable(nom=nom, src_xml=itm)
+        return dic_constante
+
+    def _read_variable(self):
+        """ Lire les Variables.
+        :return: dictionnaire des variables
+        :rtype: {nom: CrueConfigMetierVariable}
+        """
+        dic_variable = {}
+        for itm in self.ccm_root.find(PREFIX + 'Variables'):
+            nom = itm.get('Nom')
+            dic_variable[nom] = CrueConfigMetierVariable(nom=nom, src_xml=itm)
+        return dic_variable
+
+    @property
+    def typ_num(self):
+        return self.dic_typ_num
+
+    @property
+    def enum(self):
+        return self.dic_enum
+
+    @property
+    def nature(self):
+        return self.dic_nature
+
+    @property
+    def constante(self):
+        return self.dic_constante
+
+    @property
+    def variable(self):
+        return self.dic_variable
+
+
+# Variables de module; certaines sont déclarées ici, d'autres plus haut, mais toutes indiquées pour mémoire
+# CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml'))#: Chemin vers le fichier CCM
+CCM = CrueConfigMetier()                                                                #: Classe statique CCM
+CCM.load(CCM_FILE)
+
+
+def test_unitaires() -> None:
+    """ Tests unitaires de la classe.
+    Attention, les résultats dépendent des valeurs dans le fichier 'CrueConfigMetier.xml'.
+    """
+    assert CCM.typ_num['Tnu_Reel'].typ == float                     # Type numérique
+    assert CCM.typ_num['Tnu_Entier'].infini == 2000000000           # Type numérique
+    assert CCM.enum['Ten_FormulePdc'].BORDA == 1                    # Appel d'Enum en tant que propriété
+    assert CCM.enum['Ten_Etiquette']['Et_Thalweg'] == 2             # Appel d'Enum en tant que clé
+    assert CCM.nature['Nat_Q'].unt == 'm^(3)/s'                     # Nature
+    assert CCM.variable['Pm_TolStQ'].dft == 0.01                    # Variable avec nature, ex-DEFAULT_Pm_TolStQ
+    assert CCM.enum['Ten_Severite']['ERRNBLK'] == 20                # Enum, ex-ENUM_SEVERITE
+    assert CCM.constante['DdPtgEpsilon'].nat.nom == 'Nat_D'         # Constante avec Nature
+    assert CCM.constante['ParamCalcEMHCasierProfil'].nat.nom == 'Nat_ParamCalc'         # Constante vecteur
+    assert CCM.variable['FormulePdc'].nat.nom == 'Ten_FormulePdc'   # Variable Enum
+    assert CCM.variable['Beta'].nat.nom == 'Nat_Beta'               # Variable avec nature
+    assert CCM.constante['DdPtgEpsilon'].dft == 0.001               # Constante avec Nature
+    assert CCM.constante['ParamCalcEMHCasierProfil'].dft == '0.01 0.3 0.25 0.65 0.1'    # Constante vecteur
+    assert CCM.variable['FormulePdc'].dft == 0                      # Variable Enum
+    assert CCM.variable['FormulePdc'].dft.value == 0                # Variable Enum
+    assert CCM.variable['FormulePdc'].dft.name == 'DIVERGENT'       # Variable Enum
+    assert CCM.variable['Beta'].dft == 1.0                          # Variable avec nature
+    assert CCM.variable['Qam'].txt(123., add_unt=True) == '123.0000 m^(3)/s'            # Formatage de variable
+    assert CCM.variable['FormulePdc'].txt('DIVERGENT') == 'DIVERGENT(0)'                # Formatage d'Enum
+    assert CCM.variable['CoefPdc'].valider(-1.) == \
+        (False, "CoefPdc=-1.00000 est invalide: hors de l'intervale [0.00000;+Infini]")
+    assert CCM.variable['CoefPdc'].valider(0.) == \
+        (False, "CoefPdc=0.00000 est anormale: hors de l'intervale [0.20000;1.00000]")
+    assert CCM.variable['CoefPdc'].valider(0.5) == (True, '')
+    assert CCM.variable['CoefPdc'].valider(1.1) == \
+        (False, "CoefPdc=1.10000 est anormale: hors de l'intervale [0.20000;1.00000]")
+
+
+if __name__ == '__main__':
+    test_unitaires()

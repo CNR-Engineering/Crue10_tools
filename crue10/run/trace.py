@@ -1,5 +1,5 @@
 # coding: utf-8
-from crue10.utils.crueconfigmetier import ENUM_SEVERITE
+from crue10.utils.crueconfigmetier import CCM
 from crue10.utils import ExceptionCrue10
 from crue10.utils.message import parse_message
 from crue10.utils.settings import GRAVITE_AVERTISSEMENT, GRAVITE_MIN_ERROR
@@ -48,14 +48,14 @@ class Trace:
         self.date, self.id, self.gravite, self.localisation_methode, self.localisation_fichier, \
             self.localisation_ligne, self.nom_emh = cells[:7]
         self.parametres = cells[7:]
-        self.gravite_int = ENUM_SEVERITE[self.gravite]
+        self.gravite_int = CCM.enum['Ten_Severite'][self.gravite]
 
     def is_erreur(self):
         """
         :return: est une erreur
         :rtype: bool
         """
-        gravite_min_int = ENUM_SEVERITE[GRAVITE_MIN_ERROR]
+        gravite_min_int = CCM.enum['Ten_Severite'][GRAVITE_MIN_ERROR]
         return self.gravite_int <= gravite_min_int
 
     def is_avertissement(self):
