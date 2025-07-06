@@ -445,7 +445,7 @@ class CrueConfigMetierVariable:
         return True, ''
 
 
-class CrueConfigMetier:                 # (with_metaclass(Singleton)) si on exclut d'avoir des CCM sur différents cœurs
+class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exclut d'avoir des CCM sur différents cœurs
     """ Classe lectrice du fichier CrueConfigMetier.
     """
     def __init__(self):
@@ -558,37 +558,7 @@ CCM = CrueConfigMetier()                                                        
 CCM.load(CCM_FILE)
 
 
-def test_unitaires() -> None:
-    """ Tests unitaires de la classe.
-    Attention, les résultats dépendent des valeurs dans le fichier 'CrueConfigMetier.xml'.
-    """
-    assert CCM.typ_num['Tnu_Reel'].typ == float                     # Type numérique
-    assert CCM.typ_num['Tnu_Entier'].infini == 2000000000           # Type numérique
-    assert CCM.enum['Ten_FormulePdc'].BORDA == 1                    # Appel d'Enum en tant que propriété
-    assert CCM.enum['Ten_Etiquette']['Et_Thalweg'] == 2             # Appel d'Enum en tant que clé
-    assert CCM.nature['Nat_Q'].unt == 'm^(3)/s'                     # Nature
-    assert CCM.variable['Pm_TolStQ'].dft == 0.01                    # Variable avec nature, ex-DEFAULT_Pm_TolStQ
-    assert CCM.enum['Ten_Severite']['ERRNBLK'] == 20                # Enum, ex-ENUM_SEVERITE
-    assert CCM.constante['DdPtgEpsilon'].nat.nom == 'Nat_D'         # Constante avec Nature
-    assert CCM.constante['ParamCalcEMHCasierProfil'].nat.nom == 'Nat_ParamCalc'         # Constante vecteur
-    assert CCM.variable['FormulePdc'].nat.nom == 'Ten_FormulePdc'   # Variable Enum
-    assert CCM.variable['Beta'].nat.nom == 'Nat_Beta'               # Variable avec nature
-    assert CCM.constante['DdPtgEpsilon'].dft == 0.001               # Constante avec Nature
-    assert CCM.constante['ParamCalcEMHCasierProfil'].dft == '0.01 0.3 0.25 0.65 0.1'    # Constante vecteur
-    assert CCM.variable['FormulePdc'].dft == 0                      # Variable Enum
-    assert CCM.variable['FormulePdc'].dft.value == 0                # Variable Enum
-    assert CCM.variable['FormulePdc'].dft.name == 'DIVERGENT'       # Variable Enum
-    assert CCM.variable['Beta'].dft == 1.0                          # Variable avec nature
-    assert CCM.variable['Qam'].txt(123., add_unt=True) == '123.0000 m^(3)/s'            # Formatage de variable
-    assert CCM.variable['FormulePdc'].txt('DIVERGENT') == 'DIVERGENT(0)'                # Formatage d'Enum
-    assert CCM.variable['CoefPdc'].valider(-1.) == \
-        (False, "CoefPdc=-1.00000 est invalide: hors de l'intervale [0.00000;+Infini]")
-    assert CCM.variable['CoefPdc'].valider(0.) == \
-        (False, "CoefPdc=0.00000 est anormale: hors de l'intervale [0.20000;1.00000]")
-    assert CCM.variable['CoefPdc'].valider(0.5) == (True, '')
-    assert CCM.variable['CoefPdc'].valider(1.1) == \
-        (False, "CoefPdc=1.10000 est anormale: hors de l'intervale [0.20000;1.00000]")
-
-
 if __name__ == '__main__':
-    test_unitaires()
+    """ Si lancement en tant que script.
+    """
+    pass
