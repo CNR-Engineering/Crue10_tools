@@ -15,7 +15,7 @@ from crue10.emh.section import SectionIdem, SectionProfil, LimiteGeom, LitNumero
 from crue10.utils import check_isinstance, check_preffix, DATA_FOLDER_ABSPATH, duration_iso8601_to_seconds, \
     duration_seconds_to_iso8601, float2str, get_xml_root_from_file, logger, \
     PREFIX, write_default_xml_file, write_xml_from_tree
-from crue10.utils.crueconfigmetier import DEFAULT_Pm_TolStQ
+from crue10.utils.crueconfigmetier import CCM
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
 
@@ -765,7 +765,7 @@ class Modele(EnsembleFichiersXML):
                 elt_Pm_TolNdZ.tail += '  '
                 # Parameter `Pm_TolStQ` is added (it was in CCM before)
                 elt_Pm_TolStQ = etree.SubElement(interpol_st_venant, PREFIX + 'Pm_TolStQ')
-                elt_Pm_TolStQ.text = float2str(DEFAULT_Pm_TolStQ)
+                elt_Pm_TolStQ.text = float2str(CCM.variable['Pm_TolStQ'].dft)
                 elt_Pm_TolStQ.tail = '\n    '
 
             if 'dreg' not in self.xml_trees:
