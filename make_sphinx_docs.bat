@@ -1,6 +1,6 @@
 @echo off
 
-REM pip install sphinx_rtd_theme
+REM pip install docs\requirements.txt
 
 REM Build docs folder with conf.py
 REM sphinx-quickstart

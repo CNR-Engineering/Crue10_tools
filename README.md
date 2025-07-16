@@ -4,7 +4,7 @@ Crue10 tools
 [![Python package](https://github.com/CNR-Engineering/Crue10_tools/workflows/Python%20package/badge.svg)](https://github.com/CNR-Engineering/Crue10_tools/actions)
 [![Documentation Status](https://readthedocs.org/projects/crue10-tools/badge/?version=latest)](https://crue10-tools.readthedocs.io/fr/latest/)
 
-Versions Python compatibles : 3.10, 3.11 et 3.12.
+Versions Python compatibles : 3.10, 3.11 3.12 et 3.13.
 
 > Outil pour manipuler des modèles 1D au format `Crue10` (code de calcul, propriétée de CNR).
 
