@@ -2,6 +2,11 @@ Journal des modifications
 =========================
 
 
+## En cours
+### Nouveautés
+- Compléter l'implémentation de CrueConfigMetier
+
+
 ## [4.4] - 2025-06-04
 ### Nouveautés
 - Améliorer la capacité d'héritage de Crue10_tools (pour `Etude` et `Scenario`)
