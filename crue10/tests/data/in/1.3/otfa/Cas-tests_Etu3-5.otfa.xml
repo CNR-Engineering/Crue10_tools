@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<OTFA xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/otfa-1.3.xsd">
+  <Commentaire>Campagne simple</Commentaire>
+  <AuteurCreation>DURON</AuteurCreation>
+  <DateCreation>2023-07-12T11:18:13.000</DateCreation>
+  <AuteurDerniereModif>DURON</AuteurDerniereModif>
+  <DateDerniereModif>2023-07-12T11:18:13.000</DateDerniereModif>
+  <Reference-Options>
+    <EffacerRunAvant>true</EffacerRunAvant>
+    <EffacerRunApres>false</EffacerRunApres>
+  </Reference-Options>
+  <Cible-Options>
+    <EffacerRunAvant>true</EffacerRunAvant>
+    <EffacerRunApres>false</EffacerRunApres>
+  </Cible-Options>
+  <LignesCampagne>
+    <LigneCampagne Numero="1">
+      <Commentaire></Commentaire>
+      <LancerComparaison>true</LancerComparaison>
+      <Reference>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_c10</Scenario>
+        <Coeur>old_c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Reference>
+      <Cible>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_c10</Scenario>
+        <Coeur>c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Cible>
+    </LigneCampagne>
+    <LigneCampagne Numero="2">
+      <Commentaire></Commentaire>
+      <LancerComparaison>true</LancerComparaison>
+      <Reference>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_c10_2Sm</Scenario>
+        <Coeur>old_c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Reference>
+      <Cible>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_c10_2Sm</Scenario>
+        <Coeur>c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Cible>
+    </LigneCampagne>
+    <LigneCampagne Numero="3">
+      <Commentaire>Erreur attendue</Commentaire>
+      <LancerComparaison>true</LancerComparaison>
+      <Reference>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_e1c10_2Sm</Scenario>
+        <Coeur>old_c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Reference>
+      <Cible>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_e1c10_2Sm</Scenario>
+        <Coeur>c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Cible>
+    </LigneCampagne>
+    <LigneCampagne Numero="4">
+      <Commentaire>Erreur attendue</Commentaire>
+      <LancerComparaison>true</LancerComparaison>
+      <Reference>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_e2c10_2Sm</Scenario>
+        <Coeur>old_c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Reference>
+      <Cible>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_e2c10_2Sm</Scenario>
+        <Coeur>c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Cible>
+    </LigneCampagne>
+    <LigneCampagne Numero="5">
+      <Commentaire></Commentaire>
+      <LancerComparaison>true</LancerComparaison>
+      <Reference>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_v1c10_2Sm</Scenario>
+        <Coeur>old_c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Reference>
+      <Cible>
+        <Etude>Etu3-5\Etu3-5.etu.xml</Etude>
+        <Scenario>Sc_M3-5_v1c10_2Sm</Scenario>
+        <Coeur>c10m10</Coeur>
+        <LancerCalcul>true</LancerCalcul>
+        <Transitoire>false</Transitoire>
+      </Cible>
+    </LigneCampagne>
+  </LignesCampagne>
+</OTFA>

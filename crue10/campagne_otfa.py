@@ -1,10 +1,11 @@
 # coding: utf-8
+from collections import OrderedDict
 from glob import glob
 import os
 
 from crue10.base import EnsembleFichiersXML
 from crue10.etude import Etude
-from crue10.utils import check_isinstance, get_optional_commentaire, PREFIX
+from crue10.utils import check_isinstance, ExceptionCrue10, get_optional_commentaire, logger, PREFIX
 
 
 DOSSIER_REF = os.path.join('..', '..', 'SHY_C10_Crue10_Cas-tests_gprec', 'Conc')
@@ -79,6 +80,43 @@ class FichierOtfa(EnsembleFichiersXML):
             campagne.chemin_etude_cible = os.path.join(folder, os.sep.join(folder_end))
             campagne.nom_scenario_cible = campagne.nom_scenario_ref
 
+    def prepare_external_runs_from_otfa(self, output_folder, environments, force=False):
+        """
+        Préparer les dossiers de calculs à partir des scénarios présents dans le fichier OTFA
+
+        :param output_folder: dossier de sortie
+        :param environments: liste des environnements
+        :param force: écraser le Run s'il existe déjà
+        :type force: bool
+        """
+        dossier_otfa = os.path.dirname(self.files['otfa'])
+
+        etude = None
+        last_etude_path = ''
+
+        for campagne in self.campagnes:
+            # Get Etude
+            etude_path = os.path.normpath(os.path.join(dossier_otfa, campagne.chemin_etude_ref))
+            if last_etude_path != etude_path:
+                etude = Etude(etude_path)
+                etude_folder = os.path.basename(os.path.dirname(etude.etu_path))
+                etude.move(os.path.join(output_folder, etude_folder))  # Write in output folder
+            last_etude_path = etude_path
+
+            try:
+                # Read Scenario
+                scenario = etude.get_scenario(campagne.nom_scenario_ref)
+                scenario.read_all(ignore_shp=True)
+
+                # Create Run folder
+                for env in environments:
+                    scenario.runs = OrderedDict()
+                    scenario.create_new_run(etude, run_id=scenario.id + '_' + env, force=force)
+
+            except ExceptionCrue10 as e:
+                logger.critical("ERREUR pour %s" % scenario)
+                logger.critical(e)
+
     def write_otfa(self, folder):
         """
         Ecrire le fichier otfa.xml
@@ -102,10 +140,9 @@ if __name__ == "__main__":
     for campagne in otfa.campagnes:
         campagne.nom_scenario_cible = campagne.nom_scenario_ref
         campagne.chemin_etude_cible = campagne.chemin_etude_ref
-        campagne.chemin_etude_ref = campagne.chemin_etude_cible.replace('..\Cas-tests',
-                                                                        '..\..\SHY_C10_Crue10_Cas-tests_gprec\Cas-tests')
+        campagne.chemin_etude_ref = campagne.chemin_etude_cible.replace('..\\Cas-tests',
+                                                                        '..\\..\\SHY_C10_Crue10_Cas-tests_gprec\\Cas-tests')
     otfa.write_otfa('../../../SHY_C10_Crue10_Cas-tests/OTFA')
-
 
     # Conc.otfa.xml
     otfa = FichierOtfa('Conc', mode='w', files={'otfa': '../../../SHY_C10_Crue10_Cas-tests/Conc_avec_gprec.otfa.xml'},

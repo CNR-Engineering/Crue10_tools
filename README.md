@@ -33,7 +33,8 @@ Voir [les pages wiki](https://github.com/CNR-Engineering/Crue10_tools/wiki) pour
 Le lancement des tests unitaires (présents dans `crue10/tests`) se fait avec la commande :
 
 ```
-python -m unittest
+python -m unittest  # Tout lancer
+python -m unittest crue10.tests.test_otfa  # Lancer sur un seul fichier
 ````
 
 Liste des tests unitaires par classes principales :
@@ -48,6 +49,7 @@ Liste des tests unitaires par classes principales :
     * sections => `test_emh_section.py`
 * Run => `test_run.py`
 * ResultatsCalcul => `test_resultats_calcul_gprec.py`, `test_resultats_calcul_gcour.py`
+* FichierOtfa => `test_otfa.py`
 
 Les tests unitaires sont vérifiés à chaque push grâce à un workflow Github et peuvent être déclenchés manuellement si
 besoin. La coche verte ou la croix rouge à côté du commit permet de savoir rapidement s'ils se sont bien passés.
