@@ -1,4 +1,5 @@
 # coding: utf-8
+import os.path
 import unittest
 
 from crue10.utils.traceback import trace_except, cur_file, cur_func, cur_class, cur_meth
@@ -36,7 +37,10 @@ class TracebackTestCase(unittest.TestCase):
         self.assertEqual(cm.exception.args[0], 'Exception sur une méthode')
 
     def test_cur_file(self):
-        self.assertEqual(cur_file(), 'C:\\PROJETS\\Crue10_tools\\crue10\\tests\\test_traceback.py')
+        '/home/runner/work/Crue10_tools/Crue10_tools/crue10/tests/test_traceback.py'
+        tst_path = os.sep.join(os.path.normpath(cur_file()).split(os.sep)[-4:])
+        ref_path = os.sep.join(os.path.normpath('Crue10_tools/crue10/tests/test_traceback.py').split(os.sep)[-4:])
+        self.assertEqual(tst_path, ref_path)
 
     def test_cur_func(self):
         self.assertEqual(cur_func(), 'test_traceback.py\\test_cur_func')
