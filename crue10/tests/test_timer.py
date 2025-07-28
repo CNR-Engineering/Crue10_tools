@@ -19,9 +19,9 @@ class TimerTestCase(unittest.TestCase):
 
     def test_activ_period(self):
         activ_period(reinit=True)
-        self.assertEqual(activ_period(period=3), False)
-        self.assertEqual(activ_period(period=3), False)
-        self.assertEqual(activ_period(period=3), True)
-        self.assertEqual(activ_period(period=3), False)
-        self.assertEqual(activ_period(period=3), False)
-        self.assertEqual(activ_period(period=3), True)
+        self.assertFalse(activ_period(period=3))
+        self.assertFalse(activ_period(period=3))
+        self.assertTrue(activ_period(period=3))
+        self.assertFalse(activ_period(period=3))
+        self.assertFalse(activ_period(period=3))
+        self.assertTrue(activ_period(period=3))

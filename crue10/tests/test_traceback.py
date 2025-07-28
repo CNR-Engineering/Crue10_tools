@@ -19,7 +19,7 @@ class TracebackTestCase(unittest.TestCase):
         # Conduire le test
         with self.assertRaises(ValueError) as cm:
             test_exception()
-        self.assertEqual(isinstance(cm.exception, ValueError), True)
+        self.assertIsInstance(cm.exception, ValueError)
         self.assertEqual(cm.exception.args[0], 'Exception sur une fonction')
 
     def test_trace_except_method(self):
@@ -32,7 +32,7 @@ class TracebackTestCase(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             te = TestException()
             te.crash()
-        self.assertEqual(isinstance(cm.exception, ValueError), True)
+        self.assertIsInstance(cm.exception, ValueError)
         self.assertEqual(cm.exception.args[0], 'Exception sur une méthode')
 
     def test_cur_file(self):
