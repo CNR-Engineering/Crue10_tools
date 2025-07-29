@@ -112,13 +112,14 @@ def crue10_model_for_maps(args):
     with fiona.open(os.path.join(args.out_folder, 'sections.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for sous_modele in modele.liste_sous_modeles:
             for section in sous_modele.get_liste_sections(section_type=SectionProfil, ignore_inactive=True):
+                branche = sous_modele.get_connected_branche(section.id)
                 layer = {
                     'geometry': mapping(section.geom_trace),
                     'properties': {
                         'NOM': section.id,
                         'modele': model_name,
                         'sousmodele': sous_modele.id,
-                        'id_branche': branche.id,
+                        'id_branche': branche.id if branche is not None else "",
                         'xp': section.xp,
                     }
                 }

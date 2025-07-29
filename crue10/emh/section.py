@@ -725,7 +725,10 @@ class SectionProfil(Section):
         xt_max = self.get_xt_limite_lit(nom_limite2)
         xz = self.xz[np.logical_and(xt_min <= self.xz[:, 0], self.xz[:, 0] <= xt_max), :]
         assert len(xz) >= 2
-        return np.trapz(xz[:, 1], x=xz[:, 0]) / (xt_max - xt_min)
+        if np.version.version.startswith('1.'):  # python2 compatibility
+            return np.trapz(xz[:, 1], x=xz[:, 0]) / (xt_max - xt_min)
+        else:
+            return np.trapezoid(xz[:, 1], x=xz[:, 0]) / (xt_max - xt_min)
 
     def get_fond_moyen_lit_actif(self):
         """
