@@ -553,12 +553,6 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
 
 
 # Variables de module; certaines sont déclarées ici, d'autres plus haut, mais toutes indiquées pour mémoire
-# CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml'))#: Chemin vers le fichier CCM
-CCM = CrueConfigMetier()                                                                #: Classe statique CCM
+# CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml')) #: Chemin vers le fichier CCM
+CCM = CrueConfigMetier()                                                                 #: Classe statique CCM
 CCM.load(CCM_FILE)
-
-
-if __name__ == '__main__':
-    """ Si lancement en tant que script.
-    """
-    pass
