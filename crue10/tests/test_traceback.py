@@ -2,7 +2,7 @@
 import os.path
 import unittest
 
-from crue10.utils.traceback import trace_except, cur_file, cur_func, cur_class, cur_meth
+from crue10.utils.traceback import trace_except, trace_except_log, cur_file, cur_func, cur_class, cur_meth
 
 
 class TracebackTestCase(unittest.TestCase):
@@ -23,9 +23,37 @@ class TracebackTestCase(unittest.TestCase):
         self.assertIsInstance(cm.exception, ValueError)
         self.assertEqual(cm.exception.args[0], 'Exception sur une fonction')
 
+    def test_trace_except_log_function(self):
+        # Définir une inner-function de test
+        @trace_except_log(print)
+        def test_exception():
+            raise ValueError('Exception sur une fonction')
+
+        # Conduire le test
+        with self.assertRaises(ValueError) as cm:
+            test_exception()
+        self.assertIsInstance(cm.exception, ValueError)
+        self.assertEqual(cm.exception.args[0], 'Exception sur une fonction')
+
     def test_trace_except_method(self):
         # Définir une inner-class de test
         class TestException():
+            @trace_except
+            def crash(self):
+                raise ValueError('Exception sur une méthode')
+
+        # Conduire le test
+        with self.assertRaises(Exception) as cm:
+            te = TestException()
+            te.crash()
+        self.assertIsInstance(cm.exception, ValueError)
+        self.assertEqual(cm.exception.args[0], 'Exception sur une méthode')
+
+
+    def test_trace_except_log_method(self):
+        # Définir une inner-class de test
+        class TestException():
+            @trace_except_log(print)
             def crash(self):
                 raise ValueError('Exception sur une méthode')
 
@@ -41,9 +69,13 @@ class TracebackTestCase(unittest.TestCase):
         tst_path = os.sep.join(os.path.normpath(cur_file()).split(os.sep)[-4:])
         ref_path = os.sep.join(os.path.normpath('Crue10_tools/crue10/tests/test_traceback.py').split(os.sep)[-4:])
         self.assertEqual(tst_path, ref_path)
+        tst_path = os.sep.join(os.path.normpath(cur_file(0)).split(os.sep)[-4:])
+        ref_path = os.sep.join(os.path.normpath('Crue10_tools/crue10/utils/traceback.py').split(os.sep)[-4:])
+        self.assertEqual(tst_path, ref_path)
 
     def test_cur_func(self):
         self.assertEqual(cur_func(), 'test_traceback.py\\test_cur_func')
+        self.assertEqual(cur_func(0), 'traceback.py\\cur_func')
 
     def test_cur_class(self):
         self.assertEqual(cur_class(), 'TracebackTestCase')
