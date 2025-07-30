@@ -4,7 +4,7 @@ Crue10 tools
 [![Python package](https://github.com/CNR-Engineering/Crue10_tools/workflows/Python%20package/badge.svg)](https://github.com/CNR-Engineering/Crue10_tools/actions)
 [![Documentation Status](https://readthedocs.org/projects/crue10-tools/badge/?version=latest)](https://crue10-tools.readthedocs.io/fr/latest/)
 
-Versions Python compatibles : 2.7 (plus testé), 3.10, 3.11 et 3.12.
+Versions Python compatibles : 3.10, 3.11 3.12 et 3.13.
 
 > Outil pour manipuler des modèles 1D au format `Crue10` (code de calcul, propriétée de CNR).
 
@@ -48,9 +48,10 @@ Liste des tests unitaires par classes principales :
     * sections => `test_emh_section.py`
 * Run => `test_run.py`
 * ResultatsCalcul => `test_resultats_calcul_gprec.py`, `test_resultats_calcul_gcour.py`
+* utils :
+    * CrueConfigMetier => `test_crueconfigmetier.py`
+    * timer => `test_timer.py`
+    * traceback => `test_traceback.py`
 
 Les tests unitaires sont vérifiés à chaque push grâce à un workflow Github et peuvent être déclenchés manuellement si
 besoin. La coche verte ou la croix rouge à côté du commit permet de savoir rapidement s'ils se sont bien passés.
-
-Remarque : les tests unitaires sont débranchés pour la version Python 2.7. Pour les lancer, il faut utiliser la
-commande `python -m unittest discover`.
