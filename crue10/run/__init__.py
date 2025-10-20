@@ -11,7 +11,8 @@ import subprocess
 from crue10.run.resultats_calcul import ResultatsCalcul
 from crue10.utils.settings import CRUE10_EXE_PATH
 from crue10.run.trace import Trace
-from crue10.utils import add_default_missing_metadata, check_xml_file, DATA_FOLDER_ABSPATH, ExceptionCrue10, logger
+from crue10.utils import add_default_missing_metadata, check_xml_file, DATA_FOLDER_ABSPATH, \
+    ExceptionCrue10, logger, pluralize
 from crue10.utils.crueconfigmetier import CCM
 from crue10.utils.settings import GRAVITE_AVERTISSEMENT, GRAVITE_MAX, GRAVITE_MIN, \
     GRAVITE_MIN_ERROR, GRAVITE_MIN_ERROR_BLK, XML_ENCODING
@@ -390,12 +391,12 @@ class Run:
     def __repr__(self):
         text = "Run %s" % self.id
         if self.traces[Run.SERVICES[0]]:
-            text += ' (%i avertissement(s) + %i erreur(s) au total, '\
-                    % (self.nb_avertissements(), self.nb_erreurs())
+            text += f" ({pluralize(self.nb_avertissements(), 'avertissement')} + " \
+                    f"{pluralize(self.nb_erreurs(), 'erreur')} au total, "
             if not self.traces['c']:
                 text += 'pas de calcul'
             else:
-                text += '%i avertissement(s) + %i erreur(s) de calculs'\
-                        % (self.nb_avertissements_calcul(), self.nb_erreurs_calcul())
+                text += f"{pluralize(self.nb_avertissements_calcul(), 'avertissement')} + " \
+                        f"{pluralize(self.nb_erreurs_calcul(), 'erreur')} de calcul"
             text += ')'
         return text

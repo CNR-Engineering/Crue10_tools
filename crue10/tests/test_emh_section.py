@@ -1,4 +1,3 @@
-# coding: utf-8
 import numpy as np
 from shapely.geometry import Point, LineString, LinearRing
 import unittest
@@ -16,6 +15,9 @@ class SectionTestCase(unittest.TestCase):
         self.point = Point(0, 0)
         self.linestring = LineString([(0, 0), (1, 1)])
         self.linearring = LinearRing([(0, 0), (1, 1), (1, 0)])
+
+    def test_summary(self):
+        self.assertEqual(self.section.summary(), "SectionProfil #St_1: 4 points")
 
     def test_loi_frottement(self):
         loi_frottement = LoiFrottement('Fk_1', 'Fk')

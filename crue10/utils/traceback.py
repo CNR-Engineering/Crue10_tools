@@ -1,13 +1,9 @@
-# coding: utf-8
-
-# Imports généraux WinPython
-import os
-import inspect
-
 """
 Utilitaires généraux pour l'inspection des fonctions et méthodes (utile pour les traces d'exécution et les exceptions).
 PBa 2025
 """
+import inspect
+import os
 
 
 #: Gestion des exceptions

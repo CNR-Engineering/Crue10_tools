@@ -1,4 +1,3 @@
-# coding: utf-8
 import unittest
 
 from crue10.utils.crueconfigmetier import CCM

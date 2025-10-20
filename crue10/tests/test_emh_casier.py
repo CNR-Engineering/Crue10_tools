@@ -1,4 +1,3 @@
-# coding: utf-8
 import numpy as np
 from shapely.geometry import Point, LineString, LinearRing
 import unittest
@@ -21,6 +20,8 @@ class CasierTestCase(unittest.TestCase):
         self.profil_casier.set_xz(np.array([(0, 0), (10, 1), (20, -0.6), (30, -1)]))
         self.profil_casier.xt_min = 10
         self.profil_casier.xt_max = 20
+
+        self.casier = Casier('Ca_1', self.noeud)
 
     # ProfilCasier
     def test_nom_profil_casier(self):
@@ -51,21 +52,19 @@ class CasierTestCase(unittest.TestCase):
         self.assertEqual(self.profil_casier.compute_volume(2.0), 1800.0)
 
     # Casier
-    def test_nom_casier(self):
+    def test_nom_casier_validate(self):
         with self.assertRaises(ExceptionCrue10):
             Casier('A', self.noeud)
         self.assertEqual(len(Casier('Ca_' + 'A', self.noeud).validate()), 1)
         self.assertEqual(len(Casier('Ca_' + 'A' * 30, self.noeud).validate()), 2)
 
     def test_casier(self):
-        Casier('Ca_1', self.noeud)
         with self.assertRaises(ExceptionCrue10):
             Casier('Ca_1', self.noeud.id)
 
     def test_casier_set_geom(self):
-        casier = Casier('Ca_1', self.noeud)
-        casier.set_geom(self.linearring)
+        self.casier.set_geom(self.linearring)
         with self.assertRaises(ExceptionCrue10):
-            casier.set_geom(self.point)
+            self.casier.set_geom(self.point)
         with self.assertRaises(ExceptionCrue10):
-            casier.set_geom(self.linestring)
+            self.casier.set_geom(self.linestring)

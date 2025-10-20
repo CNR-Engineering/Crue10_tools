@@ -1,4 +1,3 @@
-# coding: utf-8
 from shapely.geometry import Point, LineString, LinearRing
 import unittest
 

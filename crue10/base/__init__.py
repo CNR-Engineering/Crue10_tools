@@ -1,12 +1,12 @@
-# coding: utf-8
 import abc
 from copy import deepcopy
 from io import open  # Python2 fix
 import os.path
 import xml.etree.ElementTree as ET
 
-from crue10.utils import add_default_missing_metadata, check_xml_file, DATA_FOLDER_ABSPATH, ExceptionCrue10, \
-    ExceptionCrue10Grammar, JINJA_ENV, get_xml_root_from_file, logger, PREFIX, XSI_SCHEMA_LOCATION
+from crue10.utils import add_default_missing_metadata, check_xml_file, ExceptionCrue10, \
+    ExceptionCrue10Grammar, JINJA_ENV, get_xml_root_from_file, logger, \
+    pluralize, PREFIX, XSI_SCHEMA_LOCATION
 from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE, VERSION_GRAMMAIRE_PRECEDENTE, XML_ENCODING
 
 
@@ -233,11 +233,11 @@ class EnsembleFichiersXML(ABC):
         nb_errors = 0
         for xml_file, liste_errors in errors.items():
             if liste_errors:
-                logger.error("~> %i erreur(s) dans %s:" % (len(liste_errors), os.path.basename(xml_file)))
+                logger.error(f"~> {pluralize(len(liste_errors), 'erreur')} dans {os.path.basename(xml_file)}:")
                 for i, error in enumerate(liste_errors):
                     logger.error("    #%i: %s" % (i + 1, error))
                 nb_errors += len(liste_errors)
         if nb_errors == 0:
             logger.info("=> Aucune erreur dans les fichiers XML (pour %s)" % self)
         else:
-            logger.error("=> %i erreur(s) dans les fichiers XML" % nb_errors)
+            logger.error(f"=> {pluralize(nb_errors, 'erreur')} dans les fichiers XML")

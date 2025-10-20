@@ -1,4 +1,3 @@
-# coding: utf-8
 from collections import OrderedDict
 from difflib import unified_diff
 from filecmp import cmp

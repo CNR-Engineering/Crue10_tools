@@ -1,4 +1,3 @@
-# coding: utf-8
 from filecmp import cmp
 import numpy as np
 import os.path
@@ -17,10 +16,13 @@ FOLDER_OUT = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_CO
 class ModeleTestCase(unittest.TestCase):
 
     def setUp(self):
-        etude = Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.2', 'Etu3-6', 'Etu3-6.etu.xml'))
+        etude = Etude(os.path.join(FOLDER_IN, 'Etu3-6', 'Etu3-6.etu.xml'))
         self.modele = etude.get_modele('Mo_M3-6_c10')
         self.modele.read_all()
         self.branches = self.modele.get_liste_branches_entre_deux_noeuds('Nd_N1', 'Nd_N5')
+
+    def test_summary(self):
+        self.assertEqual(self.modele.summary(), "Modèle Mo_M3-6_c10: 1 sous-modèle")
 
     def test_get(self):
         # SousModele

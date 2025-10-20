@@ -1,10 +1,9 @@
-# coding: utf-8
 from filecmp import dircmp
 import os.path
 import unittest
 
 from crue10.etude import Etude
-from crue10.tests import DATA_TESTS_FOLDER_ABSPATH, DEFAULT_METADATA
+from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
 from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE, VERSION_GRAMMAIRE_PRECEDENTE
 
 

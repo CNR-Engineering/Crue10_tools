@@ -1,4 +1,3 @@
-# coding: utf-8
 """
 Remark: validation of a whole scenario is done in `test_scenario.py`.
 """
@@ -8,6 +7,7 @@ from sys import version_info
 import unittest
 
 from crue10.etude import Etude
+from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
 from crue10.utils import ExceptionCrue10, logger
 
 
@@ -17,10 +17,10 @@ logger.setLevel(INFO)
 class ScenarioTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.etude_etu3_6 = Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.3', 'Etu3-6', 'Etu3-6.etu.xml'))
-        self.etude_etu3_6_xml_errors = Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.3',
+        self.etude_etu3_6 = Etude(os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.3', 'Etu3-6', 'Etu3-6.etu.xml'))
+        self.etude_etu3_6_xml_errors = Etude(os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.3',
                                                           'Etu3-6_XML-errors', 'Etu3-6.etu.xml'))
-        self.etude_from_scratch = Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.3', 'Etu_from_scratch',
+        self.etude_from_scratch = Etude(os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.3', 'Etu_from_scratch',
                                                      'Etu_from_scratch.etu.xml'))
 
     def test_etu_ok(self):
@@ -46,7 +46,7 @@ class ScenarioTestCase(unittest.TestCase):
 
     def test_etu_ko(self):
         with self.assertRaises(ExceptionCrue10):
-            Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.3', 'Etu3-6_XML-errors', 'Etu3-6_KO.etu.xml'))
+            Etude(os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.3', 'Etu3-6_XML-errors', 'Etu3-6_KO.etu.xml'))
 
     def test_etu_validation(self):
         errors = self.etude_etu3_6_xml_errors.check_xml_files(self.etude_etu3_6_xml_errors.folder)

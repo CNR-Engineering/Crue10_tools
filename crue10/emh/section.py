@@ -1,4 +1,3 @@
-# coding: utf-8
 """
 Classes pour les sections :
 
@@ -20,7 +19,7 @@ import numpy as np
 from shapely.geometry import LineString, Point
 
 from crue10.utils import check_strictly_increasing, check_2d_array_shape, check_isinstance, check_preffix, \
-    ExceptionCrue10, logger
+    ExceptionCrue10, logger, pluralize
 
 
 # ABC below is compatible with Python 2 and 3
@@ -742,7 +741,7 @@ class SectionProfil(Section):
     def summary(self):
         text = '%s:' % self
         if self.has_xz():
-            text += ' %i points' % len(self.xz)
+            text += ' ' + pluralize(len(self.xz), 'point')
         if self.has_trace():
             text += ' (%0.2f m)' % self.geom_trace.length
         return text

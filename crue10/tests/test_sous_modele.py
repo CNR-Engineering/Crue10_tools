@@ -1,18 +1,21 @@
-# coding: utf-8
 import numpy as np
 import os.path
 import unittest
 
 from crue10.etude import Etude
+from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
 from crue10.utils import ExceptionCrue10
 
 
 class SousModeleTestCase(unittest.TestCase):
 
     def setUp(self):
-        etude = Etude(os.path.join('crue10', 'tests', 'data', 'in', '1.2', 'Etu3-6', 'Etu3-6.etu.xml'))
+        etude = Etude(os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.2', 'Etu3-6', 'Etu3-6.etu.xml'))
         self.sous_modele = etude.get_sous_modele('Sm_M3-6_c10')
         self.sous_modele.read_all(ignore_shp=True)
+
+    def test_summary(self):
+        self.assertEqual(self.sous_modele.summary(), "Sous-modèle Sm_M3-6_c10: 7 noeuds, 7 branches, 26 sections (14 profils, 2 idems, 6 interpolées, 4 sans géométrie), 2 casiers (3 profils casier)")
 
     def test_get(self):
         # Noeud
