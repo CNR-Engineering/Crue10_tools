@@ -1095,11 +1095,14 @@ class Scenario(EnsembleFichiersXML):
             logger.error(f"=> {pluralize(nb_errors, 'erreur')} dans le scénario {self}")
 
     def summary(self):
+        nb_pseudo_perm = len(self.liste_ord_calc_pseudoperm)
+        nb_transitoires = len(self.liste_ord_calc_trans)
         return (
             f"{self}: "
             f"{pluralize(len(self.calculs), 'calcul')}, "
-            f"dont {pluralize(len(self.liste_ord_calc_pseudoperm), 'pseudo-permanent')} "
-            f"et {pluralize(len(self.liste_ord_calc_trans), 'transitoire')} actifs"
+            f"dont {pluralize(nb_pseudo_perm, 'pseudo-permanent')} "
+            f"et {pluralize(nb_transitoires, 'transitoire')} "
+            f"{pluralize(nb_pseudo_perm + nb_transitoires, 'actif', ignore_counter=True)}"
         )
 
     def __repr__(self):

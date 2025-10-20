@@ -1,5 +1,7 @@
 """
-Ecrire une étude complète à partir d'objets Crue10_tools uniquement
+Écrire une étude fictive complète à partir d'objets Crue10_tools uniquement
+
+Pour plus de détails, voir également le graphe topologique (fichier `graphe_Mo_mono_sm.svg`)
 """
 import logging
 import os.path
@@ -14,13 +16,13 @@ def validate_and_write_etude_from_scratch(etu_path, version_grammaire):
     # Prepare an empty Etude
     etude_out = Etude(etu_path, metadata=DEFAULT_METADATA, version_grammaire=version_grammaire,
                       comment="Etude fictive from scratch", mode='w')
-    etude_out.create_empty_scenario('Sc_from_scratch', 'Mo_from_scratch', 'Sm_from_scratch',
+    etude_out.create_empty_scenario('Sc_mono_sm', 'Mo_mono_sm', 'Sm_mono_sm',
                                     metadata=DEFAULT_METADATA)
-    scenario_out = etude_out.get_scenario('Sc_from_scratch')
+    scenario_out = etude_out.get_scenario('Sc_mono_sm')
     scenario_out.metadata['Commentaire'] = scenario_out.summary()
-    modele_out = etude_out.get_modele('Mo_from_scratch')
+    modele_out = etude_out.get_modele('Mo_mono_sm')
     modele_out.metadata['Commentaire'] = modele_out.summary()
-    sous_modele_out = etude_out.get_sous_modele('Sm_from_scratch')
+    sous_modele_out = etude_out.get_sous_modele('Sm_mono_sm')
 
     if True:
         # Add some EMHs in sous_modele_out
@@ -31,14 +33,16 @@ def validate_and_write_etude_from_scratch(etu_path, version_grammaire):
         sous_modele_out.metadata['Commentaire'] = sous_modele.metadata['Commentaire']
         sous_modele_out.ajouter_emh_depuis_sous_modele(sous_modele)
 
+    etude_out.metadata['Commentaire'] = etude_out.summary()
+
     logger.debug(etude_out.summary())
-    logger.debug(etude_out.get_sous_modele('Sm_from_scratch').summary())
+    logger.debug(etude_out.get_sous_modele('Sm_mono_sm').summary())
 
     modele_out.reset_initial_conditions()
-    # modele_out.write_topological_graph([os.path.join('out', 'Etu_from_scratch', 'graphe_Mo_from_scratch.svg')])
+    # modele_out.write_topological_graph([os.path.join('out', 'Etu_mono_sm', 'graphe_Mo_mono_sm.svg')])
 
     logger.debug('-' * 32 + '\nValidation sous-modèle:')
-    sous_modele.log_validation()
+    sous_modele_out.log_validation()
     etude_out.write_all()
     return etude_out
 
@@ -60,5 +64,5 @@ if __name__ == "__main__":
 
         logger.debug('-' * 32 + '\nVérification ré-ouverture étude:')
         logger.debug(etude_in.summary())
-        logger.debug(etude_in.get_sous_modele('Sm_from_scratch').summary())
+        logger.debug(etude_in.get_sous_modele('Sm_mono_sm').summary())
         etude_in.log_check_xml()

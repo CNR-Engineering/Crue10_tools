@@ -1,4 +1,4 @@
-# coding: utf-8
+import ast
 from builtins import super  # Python2 fix
 from datetime import datetime
 from io import open  # Python2 fix
@@ -130,11 +130,24 @@ def parse_loi(elt, group='EvolutionFF', line='PointFF'):
     return np.array(values)
 
 
-def pluralize(count, singular, plural=None):
-    """Retourne le compteur suivi du mot au singulier ou pluriel selon le cas"""
+def pluralize(count, singular, plural=None, ignore_counter=False):
+    """Retourne le compteur (sauf si ignoré) suivi du mot au singulier ou pluriel selon le cas"""
     if plural is None:
         plural = singular + "s"
-    return f"{count} {singular if count <= 1 else plural}"
+    if count <= 1:
+        word = singular
+    else:
+        word = plural
+    if ignore_counter:
+        return word
+    else:
+        return f"{count} {word}"
+
+
+def get_file_docstring(filepath):
+    with open(filepath, "r", encoding="utf-8") as f:
+        module = ast.parse(f.read())
+        return ast.get_docstring(module)
 
 
 def write_default_xml_file(xml_type, version_grammaire, file_path):

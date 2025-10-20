@@ -13,10 +13,7 @@ Sous-modèle unique avec les 8 zones distinctes (sans compter BGE)
 | AVB  | 200 m    |  106.000 | 106.200 |
 | CAA  | 5 km     |  105.000 | 110.000 |
 | AFF  | 6 km     |        - | 100.500 |
-
-Pour plus de détails, voir également le graphe topologique (fichier `graphe_Mo_from_scratch.svg`)
 """
-import ast
 import logging
 from math import ceil, floor
 import numpy as np
@@ -32,7 +29,7 @@ from crue10.emh.casier import Casier, ProfilCasier
 from crue10.emh.noeud import Noeud
 from crue10.emh.section import LimiteGeom, SectionIdem, SectionProfil, SectionSansGeometrie
 from crue10.sous_modele import SousModele
-from crue10.utils import ExceptionCrue10, logger
+from crue10.utils import ExceptionCrue10, get_file_docstring, logger
 
 
 TRIGRAMME_AFFLUENT = 'AFF'
@@ -63,12 +60,6 @@ LETTERS_FOR_SECTIONIDEM = ['a', 'b', 'c']
 
 
 # Define helpers
-def get_current_file_docstring():
-    with open(__file__, "r", encoding="utf-8") as f:
-        module = ast.parse(f.read())
-        return ast.get_docstring(module)
-
-
 def pk_km_to_pkm(pk_km):
     return 1000 * float(pk_km)
 
@@ -93,7 +84,7 @@ def get_trigramme_and_pk_km(nom_emh):
 
 
 # Build a SousModele
-sous_modele = SousModele('Sm_from_scratch', mode='w')
+sous_modele = SousModele('Sm_mono_sm', mode='w')
 sous_modele.ajouter_lois_frottement_par_defaut()
 
 
@@ -506,13 +497,13 @@ ajouter_casier(nd_cas_4)
 ajouter_casier(nd_cas_5)
 
 
-sous_modele.metadata['Commentaire'] = sous_modele.summary() + '\n\n' + get_current_file_docstring()
+sous_modele.metadata['Commentaire'] = sous_modele.summary() + '\n\n' + get_file_docstring(__file__)
 
 
 if __name__ == "__main__":
     # logger.setLevel(logging.DEBUG)
 
-    folder = os.path.join('out', 'Sm_from_scratch')
+    folder = os.path.join('out', 'Sm_single_sm')
 
     # Write all SousModele files
     sous_modele.write_all(folder, 'Config')

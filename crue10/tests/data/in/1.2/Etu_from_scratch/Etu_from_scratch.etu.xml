@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ETU xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/etu-1.2.xsd">
-  <Commentaire>Etude fictive from scratch</Commentaire>
+  <Commentaire>Étude Etu_from_scratch: 1 scénario, 1 modèle, 1 sous-modèle</Commentaire>
   <AuteurCreation>USERNAME</AuteurCreation>
   <DateCreation>2000-01-01T00:00:00.000</DateCreation>
   <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
   <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
-  <ScenarioCourant NomRef="Sc_from_scratch"/>
+  <ScenarioCourant NomRef="Sc_mono_sm"/>
   <Repertoires>
     <Repertoire Nom="CONFIG">
       <path>Config</path>
@@ -21,26 +21,26 @@
     </Repertoire>
   </Repertoires>
   <FichEtudes>
-    <FichEtude Nom="from_scratch.dclm.xml" Chemin=".\" Type="DCLM"/>
-    <FichEtude Nom="from_scratch.dcsp.xml" Chemin=".\" Type="DCSP"/>
-    <FichEtude Nom="from_scratch.dfrt.xml" Chemin=".\" Type="DFRT"/>
-    <FichEtude Nom="from_scratch.dlhy.xml" Chemin=".\" Type="DLHY"/>
-    <FichEtude Nom="from_scratch.dptg.xml" Chemin=".\" Type="DPTG"/>
-    <FichEtude Nom="from_scratch.dpti.xml" Chemin=".\" Type="DPTI"/>
-    <FichEtude Nom="from_scratch.drso.xml" Chemin=".\" Type="DRSO"/>
-    <FichEtude Nom="from_scratch.ocal.xml" Chemin=".\" Type="OCAL"/>
-    <FichEtude Nom="from_scratch.optg.xml" Chemin=".\" Type="OPTG"/>
-    <FichEtude Nom="from_scratch.opti.xml" Chemin=".\" Type="OPTI"/>
-    <FichEtude Nom="from_scratch.optr.xml" Chemin=".\" Type="OPTR"/>
-    <FichEtude Nom="from_scratch.ores.xml" Chemin=".\" Type="ORES"/>
-    <FichEtude Nom="from_scratch.pcal.xml" Chemin=".\" Type="PCAL"/>
-    <FichEtude Nom="from_scratch.pnum.xml" Chemin=".\" Type="PNUM"/>
+    <FichEtude Nom="mono_sm.dclm.xml" Chemin=".\" Type="DCLM"/>
+    <FichEtude Nom="mono_sm.dcsp.xml" Chemin=".\" Type="DCSP"/>
+    <FichEtude Nom="mono_sm.dfrt.xml" Chemin=".\" Type="DFRT"/>
+    <FichEtude Nom="mono_sm.dlhy.xml" Chemin=".\" Type="DLHY"/>
+    <FichEtude Nom="mono_sm.dptg.xml" Chemin=".\" Type="DPTG"/>
+    <FichEtude Nom="mono_sm.dpti.xml" Chemin=".\" Type="DPTI"/>
+    <FichEtude Nom="mono_sm.drso.xml" Chemin=".\" Type="DRSO"/>
+    <FichEtude Nom="mono_sm.ocal.xml" Chemin=".\" Type="OCAL"/>
+    <FichEtude Nom="mono_sm.optg.xml" Chemin=".\" Type="OPTG"/>
+    <FichEtude Nom="mono_sm.opti.xml" Chemin=".\" Type="OPTI"/>
+    <FichEtude Nom="mono_sm.optr.xml" Chemin=".\" Type="OPTR"/>
+    <FichEtude Nom="mono_sm.ores.xml" Chemin=".\" Type="ORES"/>
+    <FichEtude Nom="mono_sm.pcal.xml" Chemin=".\" Type="PCAL"/>
+    <FichEtude Nom="mono_sm.pnum.xml" Chemin=".\" Type="PNUM"/>
   </FichEtudes>
   <SousModeles>
-    <SousModele Nom="Sm_from_scratch">
+    <SousModele Nom="Sm_mono_sm">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_from_scratch: 24 noeuds, 26 branches, 202 sections (141 profils, 15 idems, 30 interpolées, 16 sans géométrie), 5 casiers (5 profils casier)
+      <Commentaire>Sous-modèle Sm_mono_sm: 24 noeuds, 26 branches, 202 sections (141 profils, 15 idems, 30 interpolées, 16 sans géométrie), 5 casiers (5 profils casier)
 
 Sous-modèle unique avec les 8 zones distinctes (sans compter BGE)
 
@@ -55,60 +55,58 @@ Sous-modèle unique avec les 8 zones distinctes (sans compter BGE)
 | BAR  | 500 m    |  105.500 | 106.000 |
 | AVB  | 200 m    |  106.000 | 106.200 |
 | CAA  | 5 km     |  105.000 | 110.000 |
-| AFF  | 6 km     |        - | 100.500 |
-
-Pour plus de détails, voir également le graphe topologique (fichier `graphe_Mo_from_scratch.svg`)</Commentaire>
+| AFF  | 6 km     |        - | 100.500 |</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <SousModele-FichEtudes>
-        <DRSO NomRef="from_scratch.drso.xml"/>
-        <DCSP NomRef="from_scratch.dcsp.xml"/>
-        <DPTG NomRef="from_scratch.dptg.xml"/>
-        <DFRT NomRef="from_scratch.dfrt.xml"/>
+        <DRSO NomRef="mono_sm.drso.xml"/>
+        <DCSP NomRef="mono_sm.dcsp.xml"/>
+        <DPTG NomRef="mono_sm.dptg.xml"/>
+        <DFRT NomRef="mono_sm.dfrt.xml"/>
       </SousModele-FichEtudes>
     </SousModele>
   </SousModeles>
   <Modeles>
-    <Modele Nom="Mo_from_scratch">
+    <Modele Nom="Mo_mono_sm">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Modèle Mo_from_scratch: 1 sous-modèle</Commentaire>
+      <Commentaire>Modèle Mo_mono_sm: 1 sous-modèle</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Modele-FichEtudes>
-        <OPTR NomRef="from_scratch.optr.xml"/>
-        <OPTG NomRef="from_scratch.optg.xml"/>
-        <OPTI NomRef="from_scratch.opti.xml"/>
-        <PNUM NomRef="from_scratch.pnum.xml"/>
-        <DPTI NomRef="from_scratch.dpti.xml"/>
+        <OPTR NomRef="mono_sm.optr.xml"/>
+        <OPTG NomRef="mono_sm.optg.xml"/>
+        <OPTI NomRef="mono_sm.opti.xml"/>
+        <PNUM NomRef="mono_sm.pnum.xml"/>
+        <DPTI NomRef="mono_sm.dpti.xml"/>
       </Modele-FichEtudes>
       <Modele-SousModeles>
-        <Modele-SousModele NomRef="Sm_from_scratch"/>
+        <Modele-SousModele NomRef="Sm_mono_sm"/>
       </Modele-SousModeles>
     </Modele>
   </Modeles>
   <Scenarios>
-    <Scenario Nom="Sc_from_scratch">
+    <Scenario Nom="Sc_mono_sm">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Scénario Sc_from_scratch: 0 calcul, dont 0 pseudo-permanent et 0 transitoire actifs</Commentaire>
+      <Commentaire>Scénario Sc_mono_sm: 0 calcul, dont 0 pseudo-permanent et 0 transitoire actif</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Scenario-FichEtudes>
-        <OCAL NomRef="from_scratch.ocal.xml"/>
-        <ORES NomRef="from_scratch.ores.xml"/>
-        <PCAL NomRef="from_scratch.pcal.xml"/>
-        <DCLM NomRef="from_scratch.dclm.xml"/>
-        <DLHY NomRef="from_scratch.dlhy.xml"/>
+        <OCAL NomRef="mono_sm.ocal.xml"/>
+        <ORES NomRef="mono_sm.ores.xml"/>
+        <PCAL NomRef="mono_sm.pcal.xml"/>
+        <DCLM NomRef="mono_sm.dclm.xml"/>
+        <DLHY NomRef="mono_sm.dlhy.xml"/>
       </Scenario-FichEtudes>
       <Scenario-Modeles>
-        <Scenario-Modele NomRef="Mo_from_scratch"/>
+        <Scenario-Modele NomRef="Mo_mono_sm"/>
       </Scenario-Modeles>
     </Scenario>
   </Scenarios>
