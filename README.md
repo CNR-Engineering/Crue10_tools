@@ -30,11 +30,17 @@ Voir [les pages wiki](https://github.com/CNR-Engineering/Crue10_tools/wiki) pour
 
 ## Tests unitaires
 
-Le lancement des tests unitaires (présents dans `crue10/tests`) se fait avec la commande :
+Le lancement de tous les tests unitaires (présents dans `crue10/tests`) se fait avec la commande :
 
 ```
 python -m unittest
 ````
+
+Un test spécifique peut être lancé avec une commande du type :
+
+```
+python -m unittest crue10.tests.test_end_to_end.EndToEndTestCase.test_write_gcour_from_scratch
+```
 
 Liste des tests unitaires par classes principales :
 * Etude => `test_end_to_end.py`, `test_file_xsd_validation.py`

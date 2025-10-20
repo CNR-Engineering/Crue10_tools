@@ -15,7 +15,7 @@ from crue10.run import get_run_identifier, Run
 from crue10.utils import check_isinstance, check_preffix, check_xml_content, \
     duration_iso8601_to_seconds, duration_seconds_to_iso8601, \
     ExceptionCrue10, extract_pdt_from_elt, get_optional_commentaire, get_xml_root_from_file, \
-    JINJA_ENV, logger, parse_loi, PREFIX, write_default_xml_file, write_xml_from_tree, DATA_FOLDER_ABSPATH
+    JINJA_ENV, logger, parse_loi, pluralize, PREFIX, write_default_xml_file, write_xml_from_tree, DATA_FOLDER_ABSPATH
 from crue10.utils.design_patterns import factory_define, factory_make
 from crue10.utils.crueconfigmetier import CCM_FILE
 from crue10.utils.settings import CRUE10_EXE_PATH
@@ -1088,15 +1088,19 @@ class Scenario(EnsembleFichiersXML):
         errors = self.check_xml_scenario(folder)
         nb_errors = len(errors)
         for i, error in enumerate(errors):
-            logger.error("    #%i: %s" % (i + 1, error))
+            logger.error(f"    #{i + 1}: {error}")
         if nb_errors == 0:
-            logger.info("=> Aucune erreur dans le scénario %s" % self)
+            logger.info(f"=> Aucune erreur dans le scénario {self}")
         else:
-            logger.error("=> %i erreur(s) dans le scénario %s" % (nb_errors, self))
+            logger.error(f"=> {pluralize(nb_errors, 'erreur')} dans le scénario {self}")
 
     def summary(self):
-        return "%s: %i calculs(s) dont %i pseudo-permanent(s) et %i transitoires(s) actifs" \
-               % (self, len(self.calculs), len(self.liste_ord_calc_pseudoperm), len(self.liste_ord_calc_trans))
+        return (
+            f"{self}: "
+            f"{pluralize(len(self.calculs), 'calcul')}, "
+            f"dont {pluralize(len(self.liste_ord_calc_pseudoperm), 'pseudo-permanent')} "
+            f"et {pluralize(len(self.liste_ord_calc_trans), 'transitoire')} actifs"
+        )
 
     def __repr__(self):
         return "Scénario %s" % self.id

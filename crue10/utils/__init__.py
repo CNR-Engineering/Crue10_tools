@@ -130,6 +130,13 @@ def parse_loi(elt, group='EvolutionFF', line='PointFF'):
     return np.array(values)
 
 
+def pluralize(count, singular, plural=None):
+    """Retourne le compteur suivi du mot au singulier ou pluriel selon le cas"""
+    if plural is None:
+        plural = singular + "s"
+    return f"{count} {singular if count <= 1 else plural}"
+
+
 def write_default_xml_file(xml_type, version_grammaire, file_path):
     shutil.copyfile(os.path.join(DATA_FOLDER_ABSPATH, version_grammaire, 'fichiers_vierges',
                                  'default.%s.xml' % xml_type), file_path)

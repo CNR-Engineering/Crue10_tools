@@ -16,7 +16,7 @@ from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAJ, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, \
-    ExceptionCrue10Grammar, get_optional_commentaire, logger, parse_loi, PREFIX
+    ExceptionCrue10Grammar, get_optional_commentaire, logger, parse_loi, pluralize, PREFIX
 
 
 def parse_elem_seuil(elt, nom_elem, coef_list):
@@ -1375,14 +1375,18 @@ class SousModele(EnsembleFichiersXML):
             logger.info("=> Pas de problème de validation (pour %s)" % self)
 
     def summary(self):
-        return "%s: %i noeud(s), %i branche(s), %i section(s) (%i profil + %i idem + %i interpolee +" \
-               " %i sans géométrie), %i casier(s) (%i profil(s) casier)" % (
-                   self, len(self.noeuds), len(self.branches), len(self.sections),
-                   len(list(self.get_liste_sections_profil())), len(list(self.get_liste_sections_idem())),
-                   len(list(self.get_liste_sections_interpolees())),
-                   len(list(self.get_liste_sections_sans_geometrie())),
-                   len(self.casiers), len(self.profils_casier)
-               )
+        return (
+            f"{self}: "
+            f"{pluralize(len(self.noeuds), 'noeud')}, "
+            f"{pluralize(len(self.branches), 'branche')}, "
+            f"{pluralize(len(self.sections), 'section')} "
+            f"({pluralize(len(self.get_liste_sections_profil()), 'profil')}, "
+            f"{pluralize(len(self.get_liste_sections_idem()), 'idem')}, "
+            f"{pluralize(len(self.get_liste_sections_interpolees()), 'interpolée')}, "
+            f"{len(self.get_liste_sections_sans_geometrie())} sans géométrie), "
+            f"{pluralize(len(self.casiers), 'casier')} "
+            f"({pluralize(len(self.profils_casier), 'profil casier', 'profils casier')})"
+        )
 
     def __repr__(self):
         return "Sous-modèle %s" % self.id

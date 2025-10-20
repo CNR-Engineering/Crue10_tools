@@ -14,7 +14,7 @@ from crue10.emh.branche import Branche, BrancheOrifice, BrancheBarrageFilEau, Br
 from crue10.emh.section import SectionIdem, SectionProfil, LimiteGeom, LitNumerote
 from crue10.utils import check_isinstance, check_preffix, DATA_FOLDER_ABSPATH, duration_iso8601_to_seconds, \
     duration_seconds_to_iso8601, float2str, get_xml_root_from_file, logger, \
-    PREFIX, write_default_xml_file, write_xml_from_tree
+    pluralize, PREFIX, write_default_xml_file, write_xml_from_tree
 from crue10.utils.crueconfigmetier import CCM
 from crue10.utils.graph_1d_model import *
 from crue10.sous_modele import SousModele
@@ -954,7 +954,7 @@ class Modele(EnsembleFichiersXML):
             logger.warning("Branches dupliquées: %s" % duplicated_branches)
 
     def summary(self):
-        return "%s: %i sous-modèle(s)" % (self, len(self.liste_sous_modeles))
+        return f"{self}: {pluralize(len(self.liste_sous_modeles), 'sous-modèle')}"
 
     def __repr__(self):
         return "Modèle %s" % self.id

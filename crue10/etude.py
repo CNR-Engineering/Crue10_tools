@@ -11,7 +11,7 @@ from crue10.modele import Modele
 from crue10.run import Run
 from crue10.scenario import Scenario
 from crue10.sous_modele import SousModele
-from crue10.utils import check_isinstance, ExceptionCrue10, logger, PREFIX
+from crue10.utils import check_isinstance, ExceptionCrue10, logger, pluralize, PREFIX
 from crue10.utils.design_patterns import factory_define, factory_make
 
 
@@ -70,7 +70,7 @@ class Etude(EnsembleFichiersXML):
         self.files['etu'] = etu_path  # FIXME: hack to overwrite the special key 'etu'
         self.mode = mode
         if folders is None:
-            self.folders = Etude.FOLDERS
+            self.folders = deepcopy(Etude.FOLDERS)
         else:
             if set(folders.keys()) != set(Etude.FOLDERS.keys()):
                 raise RuntimeError
@@ -747,8 +747,12 @@ class Etude(EnsembleFichiersXML):
         return errors
 
     def summary(self):
-        return "%s: %i scénario(s), %i modèle(s), %i sous-modèle(s)" % (self, len(self.scenarios),
-                                                                        len(self.modeles), len(self.sous_modeles))
+        return (
+            f"{self}: "
+            f"{pluralize(len(self.scenarios), 'scénario')}, "
+            f"{pluralize(len(self.modeles), 'modèle')}, "
+            f"{pluralize(len(self.sous_modeles), 'sous-modèle')}"
+        )
 
     def __repr__(self):
         return "Étude %s" % os.path.basename(self.etu_path[:-8])

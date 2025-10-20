@@ -4,18 +4,11 @@ import os.path
 import unittest
 
 from crue10.etude import Etude
-from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
+from crue10.tests import DATA_TESTS_FOLDER_ABSPATH, DEFAULT_METADATA
 from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE, VERSION_GRAMMAIRE_PRECEDENTE
 
 
 NB_XML_FILES = 4 + 6 + 5 + 1
-
-DEFAULT_METADATA = {
-    'AuteurCreation': 'USERNAME',
-    'DateCreation': '2000-01-01T00:00:00.000',
-    'AuteurDerniereModif': 'USERNAME',
-    'DateDerniereModif': '2000-01-01T00:00:00.000',
-}
 
 
 class EndToEndTestCase(unittest.TestCase):
@@ -45,18 +38,15 @@ class EndToEndTestCase(unittest.TestCase):
         self.assertFalse(has_error)
 
     def _test_write_from_scratch(self, version_grammaire):
-        folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', version_grammaire, 'Etu_from_scratch')
-        etu_path = os.path.join(folder_out, 'Etu_from_scratch.etu.xml')
-        etude = Etude(etu_path, mode='w', metadata=DEFAULT_METADATA, version_grammaire=version_grammaire)
-        etude.create_empty_scenario('Sc_from_scratch', 'Mo_from_scratch', 'Sm_from_scratch',
-                                    metadata=DEFAULT_METADATA)
-        from snippets.construire_et_ecrire_sous_modele import sous_modele
-        sous_modele.changer_version_grammaire(version_grammaire)
-        sous_modele_out = etude.get_sous_modele('Sm_from_scratch')
-        sous_modele_out.ajouter_emh_depuis_sous_modele(sous_modele)
-        etude.write_all(ignore_shp=True)
-
         folder_in = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', version_grammaire, 'Etu_from_scratch')
+        folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', version_grammaire, 'Etu_from_scratch')
+
+        # WRITE_REFERENCES is not used, but the complete study can be regenerated in running `snippets/ecrire_etude.py`
+
+        from snippets.ecrire_etude import validate_and_write_etude_from_scratch
+        etu_path = os.path.join(folder_out, 'Etu_from_scratch.etu.xml')
+        validate_and_write_etude_from_scratch(etu_path, version_grammaire)
+
         self._same_folders(folder_in, folder_out, version_grammaire, etu_changed=False)
 
     def test_write_gcour_from_scratch(self):

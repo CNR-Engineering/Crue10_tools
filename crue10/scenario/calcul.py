@@ -11,7 +11,7 @@ import abc
 from builtins import super  # python2 compatibility, requires module `future`
 from collections import OrderedDict
 
-from crue10.utils import check_isinstance
+from crue10.utils import check_isinstance, pluralize
 
 
 # ABC below is compatible with Python 2 and 3
@@ -144,7 +144,7 @@ class CalcPseudoPerm(Calcul):
         return sum
 
     def __repr__(self):
-        return "Calcul pseudo-permanent #%s (%i valeur(s) aux noeuds)" % (self.id, len(self.values))
+        return f"Calcul pseudo-permanent #{self.id} ({pluralize(len(self.values), 'valeur')} aux noeuds)"
 
 
 class CalcTrans(Calcul):

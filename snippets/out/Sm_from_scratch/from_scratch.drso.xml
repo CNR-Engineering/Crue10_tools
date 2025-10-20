@@ -116,6 +116,10 @@
       <Commentaire>SectionProfil #St_VRH84.800</Commentaire>
       <ProfilSection NomRef="Ps_VRH84.800"/>
     </SectionProfil>
+    <SectionIdem Nom="St_VRH84.800a">
+      <Commentaire>SectionIdem #St_VRH84.800a</Commentaire>
+      <Section NomRef="St_VRH84.800"/>
+    </SectionIdem>
     <SectionProfil Nom="St_VRH80.400">
       <Commentaire>SectionProfil #St_VRH80.400</Commentaire>
       <ProfilSection NomRef="Ps_VRH80.400"/>
@@ -160,14 +164,30 @@
       <Commentaire>SectionProfil #St_VRH84.400</Commentaire>
       <ProfilSection NomRef="Ps_VRH84.400"/>
     </SectionProfil>
+    <SectionIdem Nom="St_VRH84.800b">
+      <Commentaire>SectionIdem #St_VRH84.800b</Commentaire>
+      <Section NomRef="St_VRH84.800"/>
+    </SectionIdem>
     <SectionProfil Nom="St_VRH85.200">
       <Commentaire>SectionProfil #St_VRH85.200</Commentaire>
       <ProfilSection NomRef="Ps_VRH85.200"/>
     </SectionProfil>
+    <SectionIdem Nom="St_VRH85.200a">
+      <Commentaire>SectionIdem #St_VRH85.200a</Commentaire>
+      <Section NomRef="St_VRH85.200"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_VRH85.200b">
+      <Commentaire>SectionIdem #St_VRH85.200b</Commentaire>
+      <Section NomRef="St_VRH85.200"/>
+    </SectionIdem>
     <SectionProfil Nom="St_RET90.000">
       <Commentaire>SectionProfil #St_RET90.000</Commentaire>
       <ProfilSection NomRef="Ps_RET90.000"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET90.000a">
+      <Commentaire>SectionIdem #St_RET90.000a</Commentaire>
+      <Section NomRef="St_RET90.000"/>
+    </SectionIdem>
     <SectionProfil Nom="St_VRH85.600">
       <Commentaire>SectionProfil #St_VRH85.600</Commentaire>
       <ProfilSection NomRef="Ps_VRH85.600"/>
@@ -216,6 +236,10 @@
       <Commentaire>SectionProfil #St_CAF87.000</Commentaire>
       <ProfilSection NomRef="Ps_CAF87.000"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET90.000b">
+      <Commentaire>SectionIdem #St_RET90.000b</Commentaire>
+      <Section NomRef="St_RET90.000"/>
+    </SectionIdem>
     <SectionProfil Nom="St_CAF87.500">
       <Commentaire>SectionProfil #St_CAF87.500</Commentaire>
       <ProfilSection NomRef="Ps_CAF87.500"/>
@@ -356,6 +380,10 @@
       <Commentaire>SectionProfil #St_RET95.800</Commentaire>
       <ProfilSection NomRef="Ps_RET95.800"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET96.000a">
+      <Commentaire>SectionIdem #St_RET96.000a</Commentaire>
+      <Section NomRef="St_RET96.000"/>
+    </SectionIdem>
     <SectionProfil Nom="St_RET98.000">
       <Commentaire>SectionProfil #St_RET98.000</Commentaire>
       <ProfilSection NomRef="Ps_RET98.000"/>
@@ -396,10 +424,18 @@
       <Commentaire>SectionProfil #St_RET97.800</Commentaire>
       <ProfilSection NomRef="Ps_RET97.800"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET98.000a">
+      <Commentaire>SectionIdem #St_RET98.000a</Commentaire>
+      <Section NomRef="St_RET98.000"/>
+    </SectionIdem>
     <SectionProfil Nom="St_RET100.400">
       <Commentaire>SectionProfil #St_RET100.400</Commentaire>
       <ProfilSection NomRef="Ps_RET100.400"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET100.400a">
+      <Commentaire>SectionIdem #St_RET100.400a</Commentaire>
+      <Section NomRef="St_RET100.400"/>
+    </SectionIdem>
     <SectionProfil Nom="St_RET98.200">
       <Commentaire>SectionProfil #St_RET98.200</Commentaire>
       <ProfilSection NomRef="Ps_RET98.200"/>
@@ -444,10 +480,18 @@
       <Commentaire>SectionProfil #St_RET100.200</Commentaire>
       <ProfilSection NomRef="Ps_RET100.200"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET100.400b">
+      <Commentaire>SectionIdem #St_RET100.400b</Commentaire>
+      <Section NomRef="St_RET100.400"/>
+    </SectionIdem>
     <SectionProfil Nom="St_RET102.800">
       <Commentaire>SectionProfil #St_RET102.800</Commentaire>
       <ProfilSection NomRef="Ps_RET102.800"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET102.800a">
+      <Commentaire>SectionIdem #St_RET102.800a</Commentaire>
+      <Section NomRef="St_RET102.800"/>
+    </SectionIdem>
     <SectionProfil Nom="St_RET100.600">
       <Commentaire>SectionProfil #St_RET100.600</Commentaire>
       <ProfilSection NomRef="Ps_RET100.600"/>
@@ -488,6 +532,12 @@
       <Commentaire>SectionProfil #St_RET102.400</Commentaire>
       <ProfilSection NomRef="Ps_RET102.400"/>
     </SectionProfil>
+    <SectionSansGeometrie Nom="St_RET102.700_Pont_Am">
+      <Commentaire>SectionSansGeometrie #St_RET102.700_Pont_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_RET102.700_Pont_Av">
+      <Commentaire>SectionSansGeometrie #St_RET102.700_Pont_Av</Commentaire>
+    </SectionSansGeometrie>
     <SectionProfil Nom="St_RET103.000">
       <Commentaire>SectionProfil #St_RET103.000</Commentaire>
       <ProfilSection NomRef="Ps_RET103.000"/>
@@ -532,6 +582,10 @@
       <Commentaire>SectionProfil #St_RET104.800</Commentaire>
       <ProfilSection NomRef="Ps_RET104.800"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET105.000a">
+      <Commentaire>SectionIdem #St_RET105.000a</Commentaire>
+      <Section NomRef="St_RET105.000"/>
+    </SectionIdem>
     <SectionProfil Nom="St_AMB105.500">
       <Commentaire>SectionProfil #St_AMB105.500</Commentaire>
       <ProfilSection NomRef="Ps_AMB105.500"/>
@@ -552,6 +606,10 @@
       <Commentaire>SectionProfil #St_AVB106.200</Commentaire>
       <ProfilSection NomRef="Ps_AVB106.200"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET105.000b">
+      <Commentaire>SectionIdem #St_RET105.000b</Commentaire>
+      <Section NomRef="St_RET105.000"/>
+    </SectionIdem>
     <SectionProfil Nom="St_CAA107.500">
       <Commentaire>SectionProfil #St_CAA107.500</Commentaire>
       <ProfilSection NomRef="Ps_CAA107.500"/>
@@ -592,6 +650,10 @@
       <Commentaire>SectionProfil #St_CAA107.250</Commentaire>
       <ProfilSection NomRef="Ps_CAA107.250"/>
     </SectionProfil>
+    <SectionIdem Nom="St_CAA107.500a">
+      <Commentaire>SectionIdem #St_CAA107.500a</Commentaire>
+      <Section NomRef="St_CAA107.500"/>
+    </SectionIdem>
     <SectionProfil Nom="St_CAA110.000">
       <Commentaire>SectionProfil #St_CAA110.000</Commentaire>
       <ProfilSection NomRef="Ps_CAA110.000"/>
@@ -644,6 +706,10 @@
       <Commentaire>SectionProfil #St_AFF4</Commentaire>
       <ProfilSection NomRef="Ps_AFF4"/>
     </SectionProfil>
+    <SectionIdem Nom="St_AFF3a">
+      <Commentaire>SectionIdem #St_AFF3a</Commentaire>
+      <Section NomRef="St_AFF3"/>
+    </SectionIdem>
     <SectionProfil Nom="St_AFF0">
       <Commentaire>SectionProfil #St_AFF0</Commentaire>
       <ProfilSection NomRef="Ps_AFF0"/>
@@ -656,88 +722,6 @@
       <Commentaire>SectionProfil #St_AFF2</Commentaire>
       <ProfilSection NomRef="Ps_AFF2"/>
     </SectionProfil>
-    <SectionProfil Nom="St_CAS1">
-      <Commentaire>SectionProfil #St_CAS1</Commentaire>
-      <ProfilSection NomRef="Ps_CAS1"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_CAS2">
-      <Commentaire>SectionProfil #St_CAS2</Commentaire>
-      <ProfilSection NomRef="Ps_CAS2"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_CAS4">
-      <Commentaire>SectionProfil #St_CAS4</Commentaire>
-      <ProfilSection NomRef="Ps_CAS4"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_CAS5">
-      <Commentaire>SectionProfil #St_CAS5</Commentaire>
-      <ProfilSection NomRef="Ps_CAS5"/>
-    </SectionProfil>
-    <SectionIdem Nom="St_VRH84.800a">
-      <Commentaire>SectionIdem #St_VRH84.800a</Commentaire>
-      <Section NomRef="St_VRH84.800"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_VRH84.800b">
-      <Commentaire>SectionIdem #St_VRH84.800b</Commentaire>
-      <Section NomRef="St_VRH84.800"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_VRH85.200a">
-      <Commentaire>SectionIdem #St_VRH85.200a</Commentaire>
-      <Section NomRef="St_VRH85.200"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_VRH85.200b">
-      <Commentaire>SectionIdem #St_VRH85.200b</Commentaire>
-      <Section NomRef="St_VRH85.200"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET90.000a">
-      <Commentaire>SectionIdem #St_RET90.000a</Commentaire>
-      <Section NomRef="St_RET90.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET90.000b">
-      <Commentaire>SectionIdem #St_RET90.000b</Commentaire>
-      <Section NomRef="St_RET90.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET96.000a">
-      <Commentaire>SectionIdem #St_RET96.000a</Commentaire>
-      <Section NomRef="St_RET96.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET98.000a">
-      <Commentaire>SectionIdem #St_RET98.000a</Commentaire>
-      <Section NomRef="St_RET98.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET100.400a">
-      <Commentaire>SectionIdem #St_RET100.400a</Commentaire>
-      <Section NomRef="St_RET100.400"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET100.400b">
-      <Commentaire>SectionIdem #St_RET100.400b</Commentaire>
-      <Section NomRef="St_RET100.400"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET102.800a">
-      <Commentaire>SectionIdem #St_RET102.800a</Commentaire>
-      <Section NomRef="St_RET102.800"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET105.000a">
-      <Commentaire>SectionIdem #St_RET105.000a</Commentaire>
-      <Section NomRef="St_RET105.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET105.000b">
-      <Commentaire>SectionIdem #St_RET105.000b</Commentaire>
-      <Section NomRef="St_RET105.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_CAA107.500a">
-      <Commentaire>SectionIdem #St_CAA107.500a</Commentaire>
-      <Section NomRef="St_CAA107.500"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_AFF3a">
-      <Commentaire>SectionIdem #St_AFF3a</Commentaire>
-      <Section NomRef="St_AFF3"/>
-    </SectionIdem>
-    <SectionSansGeometrie Nom="St_RET102.700_Pont_Am">
-      <Commentaire>SectionSansGeometrie #St_RET102.700_Pont_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_RET102.700_Pont_Av">
-      <Commentaire>SectionSansGeometrie #St_RET102.700_Pont_Av</Commentaire>
-    </SectionSansGeometrie>
     <SectionSansGeometrie Nom="St_CAS1_RET_Am">
       <Commentaire>SectionSansGeometrie #St_CAS1_RET_Am</Commentaire>
     </SectionSansGeometrie>
@@ -768,6 +752,14 @@
     <SectionSansGeometrie Nom="St_CAS4_RET_Av">
       <Commentaire>SectionSansGeometrie #St_CAS4_RET_Av</Commentaire>
     </SectionSansGeometrie>
+    <SectionProfil Nom="St_CAS1">
+      <Commentaire>SectionProfil #St_CAS1</Commentaire>
+      <ProfilSection NomRef="Ps_CAS1"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_CAS2">
+      <Commentaire>SectionProfil #St_CAS2</Commentaire>
+      <ProfilSection NomRef="Ps_CAS2"/>
+    </SectionProfil>
     <SectionSansGeometrie Nom="St_CAS2-3_Am">
       <Commentaire>SectionSansGeometrie #St_CAS2-3_Am</Commentaire>
     </SectionSansGeometrie>
@@ -780,6 +772,14 @@
     <SectionSansGeometrie Nom="St_CAS3-4_Av">
       <Commentaire>SectionSansGeometrie #St_CAS3-4_Av</Commentaire>
     </SectionSansGeometrie>
+    <SectionProfil Nom="St_CAS4">
+      <Commentaire>SectionProfil #St_CAS4</Commentaire>
+      <ProfilSection NomRef="Ps_CAS4"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_CAS5">
+      <Commentaire>SectionProfil #St_CAS5</Commentaire>
+      <ProfilSection NomRef="Ps_CAS5"/>
+    </SectionProfil>
     <SectionInterpolee Nom="St_CAA107.500_001">
       <Commentaire></Commentaire>
     </SectionInterpolee>

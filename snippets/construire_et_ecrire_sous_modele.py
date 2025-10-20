@@ -35,9 +35,6 @@ from crue10.sous_modele import SousModele
 from crue10.utils import ExceptionCrue10, logger
 
 
-# logger.setLevel(logging.DEBUG)
-
-
 TRIGRAMME_AFFLUENT = 'AFF'
 TRIGRAMME_PLAINE = 'CAS'
 TRIGRAMME_RETENUE = 'RET'
@@ -96,7 +93,7 @@ def get_trigramme_and_pk_km(nom_emh):
 
 
 # Build a SousModele
-sous_modele = SousModele('Sm_fromscratch', mode='w')
+sous_modele = SousModele('Sm_from_scratch', mode='w')
 sous_modele.ajouter_lois_frottement_par_defaut()
 
 
@@ -513,6 +510,8 @@ sous_modele.metadata['Commentaire'] = sous_modele.summary() + '\n\n' + get_curre
 
 
 if __name__ == "__main__":
+    # logger.setLevel(logging.DEBUG)
+
     folder = os.path.join('out', 'Sm_from_scratch')
 
     # Write all SousModele files

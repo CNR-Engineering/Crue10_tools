@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ETU xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/etu-1.2.xsd">
-  <Commentaire></Commentaire>
+  <Commentaire>Etude fictive from scratch</Commentaire>
   <AuteurCreation>USERNAME</AuteurCreation>
   <DateCreation>2000-01-01T00:00:00.000</DateCreation>
   <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -8,16 +8,16 @@
   <ScenarioCourant NomRef="Sc_from_scratch"/>
   <Repertoires>
     <Repertoire Nom="CONFIG">
-      <path>CONFIG</path>
+      <path>Config</path>
     </Repertoire>
     <Repertoire Nom="FICHETUDES">
       <path>.</path>
     </Repertoire>
     <Repertoire Nom="RAPPORTS">
-      <path>RAPPORTS</path>
+      <path>Rapports</path>
     </Repertoire>
     <Repertoire Nom="RUNS">
-      <path>RUNS</path>
+      <path>Runs</path>
     </Repertoire>
   </Repertoires>
   <FichEtudes>
@@ -40,7 +40,24 @@
     <SousModele Nom="Sm_from_scratch">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire></Commentaire>
+      <Commentaire>Sous-modèle Sm_from_scratch: 24 noeuds, 26 branches, 202 sections (141 profils, 15 idems, 30 interpolées, 16 sans géométrie), 5 casiers (5 profils casier)
+
+Sous-modèle unique avec les 8 zones distinctes (sans compter BGE)
+
+30 km fictif de Rhône (par VRH&gt;RET&gt;CAA) répartis comme suit :
+
+| Zone | Longueur | Début PK |  Fin PK |
+|------|----------|----------|---------|
+| VRH  | 10 km    |   80.000 |  90.000 |
+| CAF  | 3 km     |   87.000 |  90.000 |
+| RET  | 15 km    |   90.000 | 105.000 |
+| AMB  | 500 m    |  105.000 | 105.500 |
+| BAR  | 500 m    |  105.500 | 106.000 |
+| AVB  | 200 m    |  106.000 | 106.200 |
+| CAA  | 5 km     |  105.000 | 110.000 |
+| AFF  | 6 km     |        - | 100.500 |
+
+Pour plus de détails, voir également le graphe topologique (fichier `graphe_Mo_from_scratch.svg`)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -57,7 +74,7 @@
     <Modele Nom="Mo_from_scratch">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire></Commentaire>
+      <Commentaire>Modèle Mo_from_scratch: 1 sous-modèle</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -78,7 +95,7 @@
     <Scenario Nom="Sc_from_scratch">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire></Commentaire>
+      <Commentaire>Scénario Sc_from_scratch: 0 calcul, dont 0 pseudo-permanent et 0 transitoire actifs</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
