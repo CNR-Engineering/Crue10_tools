@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<PNUM xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/pnum-1.2.xsd">
+<PNUM xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/pnum-1.3.xsd">
   <Commentaire></Commentaire>
   <ParamNumCommuns>
     <FrLinInf>1.0E30</FrLinInf>
@@ -17,7 +17,7 @@
       <PdtCst>P0Y0M0DT1H0M0S</PdtCst>
     </Pdt>
     <TolMaxQ>0.01</TolMaxQ>
-    <TolMaxZ>0.0010</TolMaxZ>
+    <TolMaxZ>0.001</TolMaxZ>
   </ParamNumCalcPseudoPerm>
   <ParamNumCalcTrans>
     <CrMaxFlu>1.0E30</CrMaxFlu>

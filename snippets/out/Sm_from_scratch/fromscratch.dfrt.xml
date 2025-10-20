@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<DFRT xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dfrt-1.2.xsd">
+<DFRT xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dfrt-1.3.xsd">
   <Commentaire></Commentaire>
   <LoiFFs>
     <LoiFF Nom="FkSto_K0_0001" Type="FkSto">

@@ -2,6 +2,7 @@
 from builtins import super  # Python2 fix (requires module `future`)
 from collections import OrderedDict
 import fiona
+from math import ceil
 import numpy as np
 import os.path
 from shapely.geometry import LinearRing, LineString, mapping, Point
@@ -1262,6 +1263,29 @@ class SousModele(EnsembleFichiersXML):
             in_branche.liste_sections_dans_branche.remove(section)
 
         return section_pos_ratio
+
+    def peupler_branche_fluviale_avec_sectioninterpolees(self, nom_branche, diff_xp_max):
+        """
+        Peupler la branche avec une série de SectionInterpolee pour respecter une distance maximale entre sections
+        """
+        branche = self.get_branche(nom_branche)
+        check_isinstance(branche, BrancheSaintVenant)
+
+        idx_section = 1
+        for section1, section2 in zip(branche.liste_sections_dans_branche, branche.liste_sections_dans_branche[1:]):
+            diff_xp = section2.xp - section1.xp
+
+            if diff_xp > diff_xp_max:
+                nb_sections_int = ceil(diff_xp / diff_xp_max)
+                xp_sequence = np.linspace(start=section1.xp, stop=section2.xp, num=nb_sections_int + 2)[1:-1]
+
+                for xp in xp_sequence:
+                    section_int = SectionInterpolee("St_" + branche.id[3:] + "_" + str(idx_section).zfill(3))
+                    self.ajouter_section(section_int)
+                    branche.ajouter_section_dans_branche(section_int, xp)
+                    idx_section += 1
+
+        branche.ordonner_liste_sections_dans_branche()
 
     def convert_sectionidem_to_sectionprofil(self):
         """

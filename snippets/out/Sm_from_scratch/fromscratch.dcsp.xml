@@ -1,105 +1,48 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<DCSP xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dcsp-1.2.xsd">
+<DCSP xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dcsp-1.3.xsd">
   <Commentaire></Commentaire>
   <DonCalcSansPrtBranches>
-    <DonCalcSansPrtBranchePdc NomRef="Br_1-PdC">
-      <Pdc Nom="LoiQPdc_1-PdC" Type="LoiQPdc">
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_VRH80.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBranchePdc NomRef="Br_VRH84.900">
+      <Pdc Nom="LoiQPdc_VRH84.900" Type="LoiQPdc">
         <Commentaire></Commentaire>
         <EvolutionFF>
           <PointFF>-15000.0 0.0</PointFF>
         </EvolutionFF>
       </Pdc>
     </DonCalcSansPrtBranchePdc>
-    <DonCalcSansPrtBrancheSeuilTransversal NomRef="Br_2-SeuilTransversal">
-      <FormulePdc>Borda</FormulePdc>
-      <ElemSeuilAvecPdc>
-        <Largeur>10.0</Largeur>
-        <Zseuil>-2.0</Zseuil>
-        <CoefD>1.0</CoefD>
-        <CoefPdc>1.0</CoefPdc>
-      </ElemSeuilAvecPdc>
-      <ElemSeuilAvecPdc>
-        <Largeur>5.0</Largeur>
-        <Zseuil>-1.75</Zseuil>
-        <CoefD>1.0</CoefD>
-        <CoefPdc>1.0</CoefPdc>
-      </ElemSeuilAvecPdc>
-      <ElemSeuilAvecPdc>
-        <Largeur>6.8</Largeur>
-        <Zseuil>0.2</Zseuil>
-        <CoefD>1.0</CoefD>
-        <CoefPdc>1.0</CoefPdc>
-      </ElemSeuilAvecPdc>
-    </DonCalcSansPrtBrancheSeuilTransversal>
-    <DonCalcSansPrtBrancheSeuilLateral NomRef="Br_4-SeuilLateral">
-      <FormulePdc>Borda</FormulePdc>
-      <ElemSeuilAvecPdc>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <CoefD>1.0</CoefD>
-        <CoefPdc>1.0</CoefPdc>
-      </ElemSeuilAvecPdc>
-    </DonCalcSansPrtBrancheSeuilLateral>
-    <DonCalcSansPrtBrancheOrifice NomRef="Br_5-Orifice">
-      <ElemOrifice>
-        <CoefCtrLim>0.65</CoefCtrLim>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <Haut>1.0</Haut>
-        <CoefD>1.0</CoefD>
-        <SensOrifice>Bidirect</SensOrifice>
-      </ElemOrifice>
-    </DonCalcSansPrtBrancheOrifice>
-    <DonCalcSansPrtBrancheNiveauxAssocies NomRef="Br_12-NiveauxAssocies">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
-      <Zasso Nom="LoiZavZam_12-NiveauxAssocies" Type="LoiZavZam">
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_VRH85.100">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_CAF79.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_RET95.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBranchePdc NomRef="Br_RET100.000">
+      <Pdc Nom="LoiQPdc_RET100.000" Type="LoiQPdc">
         <Commentaire></Commentaire>
         <EvolutionFF>
-          <PointFF>-15.0 -15.0</PointFF>
+          <PointFF>-15000.0 0.0</PointFF>
         </EvolutionFF>
-      </Zasso>
-    </DonCalcSansPrtBrancheNiveauxAssocies>
-    <DonCalcSansPrtBrancheBarrageGenerique NomRef="Br_14-BarrageGenerique">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
-      <RegimeNoye Nom="LoiQDz_14-BarrageGenerique" Type="LoiQDz">
-        <Commentaire></Commentaire>
-        <EvolutionFF>
-          <PointFF>-15000.0 -1e+30</PointFF>
-        </EvolutionFF>
-      </RegimeNoye>
-      <RegimeDenoye Nom="LoiQpilZam_14-BarrageGenerique" Type="LoiQpilZam">
-        <Commentaire></Commentaire>
-        <EvolutionFF>
-          <PointFF>0.0 -15.0</PointFF>
-        </EvolutionFF>
-      </RegimeDenoye>
-    </DonCalcSansPrtBrancheBarrageGenerique>
-    <DonCalcSansPrtBrancheBarrageFilEau NomRef="Br_15-BarrageFilEau">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
-      <ElemSeuil>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <CoefD>1.0</CoefD>
-      </ElemSeuil>
-      <RegimeDenoye Nom="LoiQpilZam_15-BarrageFilEau" Type="LoiQpilZam">
-        <Commentaire></Commentaire>
-        <EvolutionFF>
-          <PointFF>0.0 -15.0</PointFF>
-        </EvolutionFF>
-      </RegimeDenoye>
-    </DonCalcSansPrtBrancheBarrageFilEau>
-    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_20-SaintVenant">
+      </Pdc>
+    </DonCalcSansPrtBranchePdc>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_RET105.000">
       <CoefBeta>1.0</CoefBeta>
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
   </DonCalcSansPrtBranches>
-  <DonCalcSansPrtCasiers>
-    <DonCalcSansPrtCasierProfil NomRef="Ca_1">
-      <CoefRuis>0.0</CoefRuis>
-    </DonCalcSansPrtCasierProfil>
-  </DonCalcSansPrtCasiers>
+  <DonCalcSansPrtCasiers/>
 </DCSP>

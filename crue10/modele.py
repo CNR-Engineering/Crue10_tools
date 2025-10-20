@@ -817,15 +817,15 @@ class Modele(EnsembleFichiersXML):
                                      style=key_from_constant(sous_modele.is_active, SM_STYLE))
 
             # Add nodes
-            for _, noeud in sous_modele.noeuds.items():
-                name = noeud.id
+            for noeud in sous_modele.get_liste_noeuds():
+                nom_noeud = noeud.id
                 connected_casier = sous_modele.get_connected_casier(noeud)
                 has_casier = connected_casier is not None
                 is_active = True
                 if has_casier:
                     is_active = connected_casier.is_active
-                    name += '\n(%s)' % connected_casier.id
-                node = pydot.Node(noeud.id, label=name, fontsize=EMH_FONTSIZE, style="filled",
+                    nom_noeud += '\n(%s)' % connected_casier.id
+                node = pydot.Node(noeud.id, label=nom_noeud, fontsize=EMH_FONTSIZE, style="filled",
                                   fillcolor=key_from_constant(is_active, NODE_COLOR),
                                   shape=key_from_constant(has_casier, CASIER_SHAPE))
                 subgraph.add_node(node)
@@ -847,9 +847,10 @@ class Modele(EnsembleFichiersXML):
                     color=key_from_constant(branche.type, BRANCHE_COLORS),
                     fontcolor=key_from_constant(branche.type, BRANCHE_COLORS),
                     penwidth=key_from_constant(branche.type, BRANCHE_SIZE),
-                    # shape="dot"
+                    #shape="dot",
                 )
                 subgraph.add_edge(edge)
+
             graph.add_subgraph(subgraph)
 
         # Export(s) to png, svg, dot...

@@ -605,7 +605,7 @@ class SectionProfil(Section):
 
     def build_orthogonal_trace(self, branche_geom):
         """
-        Construire une trace orthogonale (ligne droite entre les rives gauche et droite) à la trace de la branche
+        Construire une trace orthogonale (ligne droite entre les rives droite et gauche) à la trace de la branche
 
         Attention: le `xp` de la section est supposé avoir été normalisé
         (ie. xp est cohérent avec la longueur de axe_geom)

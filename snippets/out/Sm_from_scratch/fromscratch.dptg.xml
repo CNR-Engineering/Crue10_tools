@@ -1,84 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<DPTG xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dptg-1.2.xsd">
+<DPTG xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dptg-1.3.xsd">
   <Commentaire></Commentaire>
-  <DonPrtGeoProfilCasiers>
-    <ProfilCasier Nom="Pc_1_001">
-      <Commentaire></Commentaire>
-      <Longueur>10.0</Longueur>
-      <EvolutionFF>
-        <PointFF>0.0 0.0</PointFF>
-        <PointFF>10.0 1.5</PointFF>
-        <PointFF>30.0 3.0</PointFF>
-      </EvolutionFF>
-      <LitUtile>
-        <LimDeb>0.0 0.0</LimDeb>
-        <LimFin>30.0 3.0</LimFin>
-      </LitUtile>
-    </ProfilCasier>
-  </DonPrtGeoProfilCasiers>
+  <DonPrtGeoProfilCasiers/>
   <DonPrtGeoProfilSections>
-    <ProfilSection Nom="Ps_20_middle">
-      <Commentaire></Commentaire>
-      <Fente>
-        <LargeurFente>0.15</LargeurFente>
-        <ProfondeurFente>15</ProfondeurFente>
-      </Fente>
-      <EvolutionFF>
-        <PointFF>0.0 3.0</PointFF>
-        <PointFF>1.0 0.5</PointFF>
-        <PointFF>5.0 0.0</PointFF>
-        <PointFF>9.0 0.5</PointFF>
-        <PointFF>10.0 3.0</PointFF>
-      </EvolutionFF>
-      <LitNumerotes>
-        <LitNumerote>
-          <LimDeb>0.0 3.0</LimDeb>
-          <LimFin>0.0 3.0</LimFin>
-          <LitNomme>Lt_StoD</LitNomme>
-          <IsLitActif>false</IsLitActif>
-          <IsLitMineur>false</IsLitMineur>
-          <Frot NomRef="FkSto_K0_0001"/>
-        </LitNumerote>
-        <LitNumerote>
-          <LimDeb>0.0 3.0</LimDeb>
-          <LimFin>1.0 0.5</LimFin>
-          <LitNomme>Lt_MajD</LitNomme>
-          <IsLitActif>true</IsLitActif>
-          <IsLitMineur>false</IsLitMineur>
-          <Frot NomRef="Fk_DefautMaj"/>
-        </LitNumerote>
-        <LitNumerote>
-          <LimDeb>1.0 0.5</LimDeb>
-          <LimFin>9.0 0.5</LimFin>
-          <LitNomme>Lt_Mineur</LitNomme>
-          <IsLitActif>true</IsLitActif>
-          <IsLitMineur>true</IsLitMineur>
-          <Frot NomRef="Fk_DefautMin"/>
-        </LitNumerote>
-        <LitNumerote>
-          <LimDeb>9.0 0.5</LimDeb>
-          <LimFin>10.0 3.0</LimFin>
-          <LitNomme>Lt_MajG</LitNomme>
-          <IsLitActif>true</IsLitActif>
-          <IsLitMineur>false</IsLitMineur>
-          <Frot NomRef="Fk_DefautMaj"/>
-        </LitNumerote>
-        <LitNumerote>
-          <LimDeb>10.0 3.0</LimDeb>
-          <LimFin>10.0 3.0</LimFin>
-          <LitNomme>Lt_StoG</LitNomme>
-          <IsLitActif>false</IsLitActif>
-          <IsLitMineur>false</IsLitMineur>
-          <Frot NomRef="FkSto_K0_0001"/>
-        </LitNumerote>
-      </LitNumerotes>
-      <Etiquettes>
-        <Etiquette Nom="Et_AxeHyd">
-          <PointFF>5.0 0.0</PointFF>
-        </Etiquette>
-      </Etiquettes>
-    </ProfilSection>
-    <ProfilSection Nom="Ps_2_Am">
+    <ProfilSection Nom="Ps_XXX_reference">
       <Commentaire></Commentaire>
       <EvolutionFF>
         <PointFF>0.0 3.0</PointFF>
@@ -141,30 +66,51 @@
   </DonPrtGeoProfilSections>
   <DonPrtGeoCasiers/>
   <DonPrtGeoSections>
-    <DonPrtGeoSectionIdem NomRef="St_15_Am">
+    <DonPrtGeoSectionIdem NomRef="St_CAF87.000_Am">
       <Dz>0.0</Dz>
     </DonPrtGeoSectionIdem>
-    <DonPrtGeoSectionIdem NomRef="St_15_Av">
+    <DonPrtGeoSectionIdem NomRef="St_CAF87.000_Av">
       <Dz>0.0</Dz>
     </DonPrtGeoSectionIdem>
-    <DonPrtGeoSectionIdem NomRef="St_20_Am">
+    <DonPrtGeoSectionIdem NomRef="St_RET110.500_PR1_Am">
       <Dz>0.0</Dz>
     </DonPrtGeoSectionIdem>
-    <DonPrtGeoSectionIdem NomRef="St_20_Av">
-      <Dz>-1.0</Dz>
-    </DonPrtGeoSectionIdem>
-    <DonPrtGeoSectionIdem NomRef="St_2_Av">
+    <DonPrtGeoSectionIdem NomRef="St_RET110.500_PR1_Av">
       <Dz>0.0</Dz>
     </DonPrtGeoSectionIdem>
-    <DonPrtGeoSectionIdem NomRef="St_6_Am">
+    <DonPrtGeoSectionIdem NomRef="St_RET90.000_Am">
       <Dz>0.0</Dz>
     </DonPrtGeoSectionIdem>
-    <DonPrtGeoSectionIdem NomRef="St_6_Av">
+    <DonPrtGeoSectionIdem NomRef="St_RET90.000_Av">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_VRH80.000_Am">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_VRH80.000_Av">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_VRH85.100_Am">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+    <DonPrtGeoSectionIdem NomRef="St_VRH85.100_Av">
       <Dz>0.0</Dz>
     </DonPrtGeoSectionIdem>
   </DonPrtGeoSections>
   <DonPrtGeoBranches>
-    <DonPrtGeoBrancheSaintVenant NomRef="Br_20-SaintVenant">
+    <DonPrtGeoBrancheSaintVenant NomRef="Br_CAF79.000">
+      <CoefSinuo>1.0</CoefSinuo>
+    </DonPrtGeoBrancheSaintVenant>
+    <DonPrtGeoBrancheSaintVenant NomRef="Br_RET105.000">
+      <CoefSinuo>1.0</CoefSinuo>
+    </DonPrtGeoBrancheSaintVenant>
+    <DonPrtGeoBrancheSaintVenant NomRef="Br_RET95.000">
+      <CoefSinuo>1.0</CoefSinuo>
+    </DonPrtGeoBrancheSaintVenant>
+    <DonPrtGeoBrancheSaintVenant NomRef="Br_VRH80.000">
+      <CoefSinuo>1.0</CoefSinuo>
+    </DonPrtGeoBrancheSaintVenant>
+    <DonPrtGeoBrancheSaintVenant NomRef="Br_VRH85.100">
       <CoefSinuo>1.0</CoefSinuo>
     </DonPrtGeoBrancheSaintVenant>
   </DonPrtGeoBranches>

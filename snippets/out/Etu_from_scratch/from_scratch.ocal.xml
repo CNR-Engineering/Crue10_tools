@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<OCAL xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/ocal-1.2.xsd">
-	<!-- Le fichier OCAL rassemble les ordres de calcul d'un scénario CrueX. Son périmètre est le scénario -->
-	<!-- La bibliothèque des calculs est définie dans le DCLM. Ici on précise ceux qu'on veut lancer -->
+<OCAL xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/ocal-1.3.xsd">
   <Commentaire></Commentaire>
-	<!-- Section commune à tous les fichiers O* en v1.2 pour commander la sortie des traces, de l'avancement et des résultats -->
   <Sorties>
     <Avancement>
       <SortieFichier>true</SortieFichier>

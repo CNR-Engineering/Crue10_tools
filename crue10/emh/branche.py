@@ -453,7 +453,7 @@ class BrancheNiveauxAssocies(Branche):
 
     :ivar comment: commentaire
     :vartype comment: str
-    :ivar QLimInf: "Débit  minimum admis dans la branche"
+    :ivar QLimInf: "Débit minimum admis dans la branche"
     :vartype QLimInf: float
     :ivar QLimSup: "Débit maximum admis dans la branche"
     :vartype QLimSup: float
@@ -597,6 +597,10 @@ class BrancheSaintVenant(Branche):
         self.CoefBeta = 1.0
         self.CoefRuis = 0.0
         self.CoefRuisQdm = 0.0
+
+    def ordonner_liste_sections_dans_branche(self):
+        """Ré-ordonner la liste des sections de la branche par xp croissant"""
+        self.liste_sections_dans_branche = sorted(self.liste_sections_dans_branche, key=lambda st: st.xp)
 
     def validate(self):
         errors = super().validate()
