@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 """
 Exporter les EMHs dans des fichiers shp pour CNR Maps
 Les fichiers suivants sont créés :
@@ -48,7 +47,7 @@ def crue10_model_for_maps(args):
     }
     with fiona.open(os.path.join(args.out_folder, 'noeuds.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for sous_modele in modele.liste_sous_modeles:
-            for _, noeud in sous_modele.noeuds.items():
+            for noeud in sous_modele.get_liste_noeuds():
                 layer = {
                     'geometry': mapping(noeud.geom),
                     'properties': {
@@ -67,7 +66,7 @@ def crue10_model_for_maps(args):
     }
     with fiona.open(os.path.join(args.out_folder, 'casiers.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for sous_modele in modele.liste_sous_modeles:
-            for _, casier in sous_modele.casiers.items():
+            for casier in sous_modele.get_liste_casiers():
                 layer = {
                     'geometry': mapping(Polygon(casier.geom)),
                     'properties': {
@@ -88,7 +87,7 @@ def crue10_model_for_maps(args):
     }
     with fiona.open(os.path.join(args.out_folder, 'branches.shp'), 'w', 'ESRI Shapefile', schema) as out_shp:
         for sous_modele in modele.liste_sous_modeles:
-            for _, branche in sous_modele.branches.items():
+            for branche in sous_modele.get_liste_branches():
                 layer = {
                     'geometry': mapping(branche.geom),
                     'properties': {
@@ -137,7 +136,7 @@ def crue10_model_for_maps(args):
             sous_modele.normalize_geometry()  # replace SectionIdem by SectionProfil
 
             sm_geom_list = []
-            for _, casier in sous_modele.casiers.items():
+            for casier in sous_modele.get_liste_casiers():
                 sm_geom_list.append(Polygon(casier.geom).buffer(args.sm_buffer))
 
             for branche in sous_modele.get_liste_branches():
@@ -160,7 +159,7 @@ def crue10_model_for_maps(args):
                 # Add geometry of the branch (necessary for branches without geometry)
                 sm_geom_list.append(branche.geom.buffer(args.sm_buffer))
 
-            for _, noeud in sous_modele.noeuds.items():
+            for noeud in sous_modele.get_liste_noeuds():
                 sm_geom_list.append(noeud.geom.buffer(args.sm_buffer))
 
             mo_geom_list += sm_geom_list

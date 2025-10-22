@@ -33,7 +33,7 @@ for folder in glob(os.path.join('..', '..', 'Crue10_examples', 'sharepoint_model
             etude.write_all(out_folder)
 
             # Write topographical graph for each modele
-            # for _, modele in etude.modeles.items():
+            # for modele in etude.get_liste_modeles():
             #     modele.write_topological_graph([os.path.join(out_folder, modele.id + '.png')])
 
         except ExceptionCrue10 as e:

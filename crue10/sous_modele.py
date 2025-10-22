@@ -712,7 +712,7 @@ class SousModele(EnsembleFichiersXML):
                 nom_noeud = obj['properties'][emh_field]
                 coord = obj['geometry']['coordinates'][:2]  # Ignore Z
                 geoms[nom_noeud] = Point(coord)
-        for _, noeud in self.noeuds.items():
+        for noeud in self.get_liste_noeuds():
             try:
                 noeud.set_geom(geoms[noeud.id])
             except KeyError:
@@ -863,7 +863,7 @@ class SousModele(EnsembleFichiersXML):
         self._write_xml_file(
             'dcsp', folder,
             branche_list=self.get_liste_branches(),
-            casier_list=[ca for _, ca in self.casiers.items()],
+            casier_list=self.get_liste_casiers(),
         )
 
     def _write_shp_noeuds(self, folder):

@@ -121,7 +121,7 @@ class Etude(EnsembleFichiersXML):
     def get_liste_run_names(self):
         """Liste des noms de Runs"""
         run_names = []
-        for _, scenario in self.scenarios.items():
+        for scenario in self.get_liste_scenarios():
             run_names += scenario.runs.keys()
         return run_names
 
@@ -310,9 +310,9 @@ class Etude(EnsembleFichiersXML):
             metadata=self.metadata,
             current_scenario_id=self.nom_scenario_courant,
             files=[(os.path.basename(file), file[-8:-4].upper()) for file in sorted(self.filename_list)],
-            modeles=[mo for _, mo in self.modeles.items()],
-            sous_modeles=[sm for _, sm in self.sous_modeles.items()],
-            scenarios=[sc for _, sc in self.scenarios.items()],
+            sous_modeles=self.get_liste_sous_modeles(),
+            modeles=self.get_liste_modeles(),
+            scenarios=self.get_liste_scenarios(),
         )
 
     def write_all(self, folder=None, ignore_shp=False):
@@ -330,7 +330,7 @@ class Etude(EnsembleFichiersXML):
             folder_config = None
         else:
             folder_config = self.folders['CONFIG']
-        for _, scenario in self.scenarios.items():
+        for scenario in self.get_liste_scenarios():
             scenario.write_all(folder, folder_config)
 
     def changer_version_grammaire(self, version_grammaire, shallow=False):

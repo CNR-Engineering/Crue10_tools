@@ -306,6 +306,12 @@ class Scenario(EnsembleFichiersXML):
                     calculs.append(calcul)
         return calculs
 
+    def get_liste_lois_hydrauliques(self):
+        """
+        Obtenir la liste des lois hydrauliques
+        """
+        return [loi for _, loi in self.lois_hydrauliques.items()]
+
     def get_run(self, run_id):
         """
         Obtenir un run à patir de son nom
@@ -806,7 +812,7 @@ class Scenario(EnsembleFichiersXML):
         """
         self._write_xml_file(
             'dlhy', folder,
-            loi_hydraulique_liste=[loi for _, loi in self.lois_hydrauliques.items()],
+            loi_hydraulique_liste=self.get_liste_lois_hydrauliques(),
         )
 
     def _write_ocal(self, folder):

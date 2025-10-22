@@ -337,7 +337,7 @@ class SectionProfil(Section):
         :return: Abscisse curviligne de l'axe hydraulique
         :rtype: float
         """
-        for _, limite in self.limites_geom.items():
+        for limite in self.get_liste_limites_geom():
             if limite.id == 'Et_AxeHyd':
                 return limite.xt
         raise ExceptionCrue10("La limite 'Et_AxeHyd' n'existe pas pour %s" % self)
