@@ -8,6 +8,6 @@ numpy~=2.1.1
 # openturns~=1.12  # only for snippets.probabilistic_study
 pandas~=2.2.2
 psutil~=6.0.0  # optional (to define NCSIZE)
-pydot~=3.0.1  # only required for crue10.modele.Modele.write_topological_graph
+pydot~=4.0.1  # only required for crue10.modele.Modele.write_topological_graph
 seaborn~=0.13.2  # only required for some snippets
 shapely~=2.0.6

@@ -109,6 +109,15 @@ if __name__ == "__main__":
         except ExceptionCrue10 as e:
             logger.critical("Exception à l'ouverture de l'étude:\n%s" % e)
 
+        # Write topographical graphs
+        def write_topographical_graph(modele):
+            etu_folder = etude_in.folder
+            path_svg = os.path.join(etu_folder, f"graphe_{modele.id}.svg")
+            modele.write_topological_graph([path_svg])
+        if version_grammaire == VERSION_GRAMMAIRE_COURANTE:
+            for modele in etude_in.get_liste_modeles():
+                write_topographical_graph(modele)
+
         logger.info('-' * 32 + '\nVérification ré-ouverture étude:')
         logger.info(etude_in.summary())
         etude_in.log_check_xml()
