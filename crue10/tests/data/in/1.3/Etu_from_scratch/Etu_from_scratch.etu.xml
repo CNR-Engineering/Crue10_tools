@@ -3,53 +3,60 @@
   <Commentaire>Étude Etu_from_scratch: 3 scénarios, 3 modèles, 6 sous-modèles
 
 # Liste des scénarios
-- Sc_multi_avec_bgefileau
-- Sc_multi_avec_bgegenerique
+- Sc_multi_sm_avec_bgefileau
+- Sc_multi_sm_avec_bgegen
 - Sc_mono_sm
 
 # Liste des modèles
-- Mo_multi_avec_bgefileau
-- Mo_multi_avec_bgegenerique
+- Mo_multi_sm_avec_bgefileau
+- Mo_multi_sm_avec_bgegen
 - Mo_mono_sm
 
 # Liste des sous-modèles
-- Sm_amont
-- Sm_CAS
-- Sm_CAA
+- Sm_amont_min
+- Sm_plaine
+- Sm_canal_amenee
 - Sm_bgefileau
-- Sm_bgegenerique
+- Sm_bgegen
 - Sm_mono_sm
 
 # Arborescence des Sc/Mo/Sm
 Etu_from_scratch
-├── Sc_multi_avec_bgefileau
-│   └── Mo_multi_avec_bgefileau
-│       ├── Sm_amont
-│       ├── Sm_CAS
-│       ├── Sm_CAA
+├── Sc_multi_sm_avec_bgefileau
+│   └── Mo_multi_sm_avec_bgefileau
+│       ├── Sm_amont_min
+│       ├── Sm_plaine
+│       ├── Sm_canal_amenee
 │       └── Sm_bgefileau
-├── Sc_multi_avec_bgegenerique
-│   └── Mo_multi_avec_bgegenerique
-│       ├── Sm_amont
-│       ├── Sm_CAS
-│       ├── Sm_CAA
-│       └── Sm_bgegenerique
+├── Sc_multi_sm_avec_bgegen
+│   └── Mo_multi_sm_avec_bgegen
+│       ├── Sm_amont_min
+│       ├── Sm_plaine
+│       ├── Sm_canal_amenee
+│       └── Sm_bgegen
 └── Sc_mono_sm
     └── Mo_mono_sm
         └── Sm_mono_sm
 
-Étude fictive représentant l&apos;équivalent de 30 km de Rhône (par VRH&gt;RET&gt;CAA) répartis comme suit :
+Étude fictive d&apos;un bief nommé XX représentant l&apos;équivalent de 30 km de Rhône (par VRH&gt;RET&gt;CAA) répartis comme suit :
 
-| Zone | Longueur | Début PK |  Fin PK |
-|------|----------|----------|---------|
-| VRH  | 10 km    |   80.000 |  90.000 |
-| CAF  | 3 km     |   87.000 |  90.000 |
-| RET  | 15 km    |   90.000 | 105.000 |
-| AMB  | 500 m    |  105.000 | 105.500 |
-| BAR  | 500 m    |  105.500 | 106.000 |
-| AVB  | 200 m    |  106.000 | 106.200 |
-| CAA  | 5 km     |  105.000 | 110.000 |
-| AFF  | 6 km     |        - | 100.500 |</Commentaire>
+| Zone | Longueur | Début PK Rhône |  Fin PK Rhône |
+|------|----------|----------------|---------------|
+| VRH  | 10 km    |         80.000 |        90.000 |
+| CAF  | 3 km     |         87.000 |        90.000 |
+| RET  | 15 km    |         90.000 |       105.000 |
+| AMB  | 600 m    |        105.000 |       105.600 |
+| BAR  | 400 m    |        105.600 |       106.000 |
+| AVB  | 20 m     |        106.000 |       106.020 |
+| CAA  | 5 km     |        105.000 |       110.000 |
+| AFF  | 6 km     |              - |       100.500 |
+
+Les scénarios Sc_mono_sm et Sc_multi_sm_avec_bgefileau comportent les mêmes EMHs mais réparties
+soit dans un unique sous-modèle (Sm_mono_sm), soit dans 4 sous-modèles différents (pour ce second scénario).
+
+Quelques remarques :
+- La branche barrage fait 400m (couvre 100m en amont + 300m en aval)
+- La plaine est découpée en 2 zones : CCA et CCB</Commentaire>
   <AuteurCreation>USERNAME</AuteurCreation>
   <DateCreation>2000-01-01T00:00:00.000</DateCreation>
   <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -70,26 +77,22 @@ Etu_from_scratch
     </Repertoire>
   </Repertoires>
   <FichEtudes>
-    <FichEtude Nom="CAA.dcsp.xml" Chemin=".\" Type="DCSP"/>
-    <FichEtude Nom="CAA.dfrt.xml" Chemin=".\" Type="DFRT"/>
-    <FichEtude Nom="CAA.dptg.xml" Chemin=".\" Type="DPTG"/>
-    <FichEtude Nom="CAA.drso.xml" Chemin=".\" Type="DRSO"/>
-    <FichEtude Nom="CAS.dcsp.xml" Chemin=".\" Type="DCSP"/>
-    <FichEtude Nom="CAS.dfrt.xml" Chemin=".\" Type="DFRT"/>
-    <FichEtude Nom="CAS.dptg.xml" Chemin=".\" Type="DPTG"/>
-    <FichEtude Nom="CAS.drso.xml" Chemin=".\" Type="DRSO"/>
-    <FichEtude Nom="amont.dcsp.xml" Chemin=".\" Type="DCSP"/>
-    <FichEtude Nom="amont.dfrt.xml" Chemin=".\" Type="DFRT"/>
-    <FichEtude Nom="amont.dptg.xml" Chemin=".\" Type="DPTG"/>
-    <FichEtude Nom="amont.drso.xml" Chemin=".\" Type="DRSO"/>
+    <FichEtude Nom="amont_min.dcsp.xml" Chemin=".\" Type="DCSP"/>
+    <FichEtude Nom="amont_min.dfrt.xml" Chemin=".\" Type="DFRT"/>
+    <FichEtude Nom="amont_min.dptg.xml" Chemin=".\" Type="DPTG"/>
+    <FichEtude Nom="amont_min.drso.xml" Chemin=".\" Type="DRSO"/>
     <FichEtude Nom="bgefileau.dcsp.xml" Chemin=".\" Type="DCSP"/>
     <FichEtude Nom="bgefileau.dfrt.xml" Chemin=".\" Type="DFRT"/>
     <FichEtude Nom="bgefileau.dptg.xml" Chemin=".\" Type="DPTG"/>
     <FichEtude Nom="bgefileau.drso.xml" Chemin=".\" Type="DRSO"/>
-    <FichEtude Nom="bgegenerique.dcsp.xml" Chemin=".\" Type="DCSP"/>
-    <FichEtude Nom="bgegenerique.dfrt.xml" Chemin=".\" Type="DFRT"/>
-    <FichEtude Nom="bgegenerique.dptg.xml" Chemin=".\" Type="DPTG"/>
-    <FichEtude Nom="bgegenerique.drso.xml" Chemin=".\" Type="DRSO"/>
+    <FichEtude Nom="bgegen.dcsp.xml" Chemin=".\" Type="DCSP"/>
+    <FichEtude Nom="bgegen.dfrt.xml" Chemin=".\" Type="DFRT"/>
+    <FichEtude Nom="bgegen.dptg.xml" Chemin=".\" Type="DPTG"/>
+    <FichEtude Nom="bgegen.drso.xml" Chemin=".\" Type="DRSO"/>
+    <FichEtude Nom="canal_amenee.dcsp.xml" Chemin=".\" Type="DCSP"/>
+    <FichEtude Nom="canal_amenee.dfrt.xml" Chemin=".\" Type="DFRT"/>
+    <FichEtude Nom="canal_amenee.dptg.xml" Chemin=".\" Type="DPTG"/>
+    <FichEtude Nom="canal_amenee.drso.xml" Chemin=".\" Type="DRSO"/>
     <FichEtude Nom="mono_sm.dclm.xml" Chemin=".\" Type="DCLM"/>
     <FichEtude Nom="mono_sm.dcsp.xml" Chemin=".\" Type="DCSP"/>
     <FichEtude Nom="mono_sm.dfrt.xml" Chemin=".\" Type="DFRT"/>
@@ -105,79 +108,83 @@ Etu_from_scratch
     <FichEtude Nom="mono_sm.ores.xml" Chemin=".\" Type="ORES"/>
     <FichEtude Nom="mono_sm.pcal.xml" Chemin=".\" Type="PCAL"/>
     <FichEtude Nom="mono_sm.pnum.xml" Chemin=".\" Type="PNUM"/>
-    <FichEtude Nom="multi_avec_bgefileau.dclm.xml" Chemin=".\" Type="DCLM"/>
-    <FichEtude Nom="multi_avec_bgefileau.dlhy.xml" Chemin=".\" Type="DLHY"/>
-    <FichEtude Nom="multi_avec_bgefileau.dpti.xml" Chemin=".\" Type="DPTI"/>
-    <FichEtude Nom="multi_avec_bgefileau.dreg.xml" Chemin=".\" Type="DREG"/>
-    <FichEtude Nom="multi_avec_bgefileau.ocal.xml" Chemin=".\" Type="OCAL"/>
-    <FichEtude Nom="multi_avec_bgefileau.optg.xml" Chemin=".\" Type="OPTG"/>
-    <FichEtude Nom="multi_avec_bgefileau.opti.xml" Chemin=".\" Type="OPTI"/>
-    <FichEtude Nom="multi_avec_bgefileau.optr.xml" Chemin=".\" Type="OPTR"/>
-    <FichEtude Nom="multi_avec_bgefileau.ores.xml" Chemin=".\" Type="ORES"/>
-    <FichEtude Nom="multi_avec_bgefileau.pcal.xml" Chemin=".\" Type="PCAL"/>
-    <FichEtude Nom="multi_avec_bgefileau.pnum.xml" Chemin=".\" Type="PNUM"/>
-    <FichEtude Nom="multi_avec_bgegenerique.dclm.xml" Chemin=".\" Type="DCLM"/>
-    <FichEtude Nom="multi_avec_bgegenerique.dlhy.xml" Chemin=".\" Type="DLHY"/>
-    <FichEtude Nom="multi_avec_bgegenerique.dpti.xml" Chemin=".\" Type="DPTI"/>
-    <FichEtude Nom="multi_avec_bgegenerique.dreg.xml" Chemin=".\" Type="DREG"/>
-    <FichEtude Nom="multi_avec_bgegenerique.ocal.xml" Chemin=".\" Type="OCAL"/>
-    <FichEtude Nom="multi_avec_bgegenerique.optg.xml" Chemin=".\" Type="OPTG"/>
-    <FichEtude Nom="multi_avec_bgegenerique.opti.xml" Chemin=".\" Type="OPTI"/>
-    <FichEtude Nom="multi_avec_bgegenerique.optr.xml" Chemin=".\" Type="OPTR"/>
-    <FichEtude Nom="multi_avec_bgegenerique.ores.xml" Chemin=".\" Type="ORES"/>
-    <FichEtude Nom="multi_avec_bgegenerique.pcal.xml" Chemin=".\" Type="PCAL"/>
-    <FichEtude Nom="multi_avec_bgegenerique.pnum.xml" Chemin=".\" Type="PNUM"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.dclm.xml" Chemin=".\" Type="DCLM"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.dlhy.xml" Chemin=".\" Type="DLHY"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.dpti.xml" Chemin=".\" Type="DPTI"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.dreg.xml" Chemin=".\" Type="DREG"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.ocal.xml" Chemin=".\" Type="OCAL"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.optg.xml" Chemin=".\" Type="OPTG"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.opti.xml" Chemin=".\" Type="OPTI"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.optr.xml" Chemin=".\" Type="OPTR"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.ores.xml" Chemin=".\" Type="ORES"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.pcal.xml" Chemin=".\" Type="PCAL"/>
+    <FichEtude Nom="multi_sm_avec_bgefileau.pnum.xml" Chemin=".\" Type="PNUM"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.dclm.xml" Chemin=".\" Type="DCLM"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.dlhy.xml" Chemin=".\" Type="DLHY"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.dpti.xml" Chemin=".\" Type="DPTI"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.dreg.xml" Chemin=".\" Type="DREG"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.ocal.xml" Chemin=".\" Type="OCAL"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.optg.xml" Chemin=".\" Type="OPTG"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.opti.xml" Chemin=".\" Type="OPTI"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.optr.xml" Chemin=".\" Type="OPTR"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.ores.xml" Chemin=".\" Type="ORES"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.pcal.xml" Chemin=".\" Type="PCAL"/>
+    <FichEtude Nom="multi_sm_avec_bgegen.pnum.xml" Chemin=".\" Type="PNUM"/>
+    <FichEtude Nom="plaine.dcsp.xml" Chemin=".\" Type="DCSP"/>
+    <FichEtude Nom="plaine.dfrt.xml" Chemin=".\" Type="DFRT"/>
+    <FichEtude Nom="plaine.dptg.xml" Chemin=".\" Type="DPTG"/>
+    <FichEtude Nom="plaine.drso.xml" Chemin=".\" Type="DRSO"/>
   </FichEtudes>
   <SousModeles>
-    <SousModele Nom="Sm_amont">
+    <SousModele Nom="Sm_amont_min">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_amont: 14 noeuds, 12 branches, 126 sections (112 profils, 12 idems, 0 interpolée, 2 sans géométrie), 0 casier (0 profil casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_amont_min: 16 noeuds, 14 branches, 123 sections (107 profils, 14 idems, 0 interpolée, 2 sans géométrie), 0 casier (0 profil casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <SousModele-FichEtudes>
-        <DRSO NomRef="amont.drso.xml"/>
-        <DCSP NomRef="amont.dcsp.xml"/>
-        <DPTG NomRef="amont.dptg.xml"/>
-        <DFRT NomRef="amont.dfrt.xml"/>
+        <DRSO NomRef="amont_min.drso.xml"/>
+        <DCSP NomRef="amont_min.dcsp.xml"/>
+        <DPTG NomRef="amont_min.dptg.xml"/>
+        <DFRT NomRef="amont_min.dfrt.xml"/>
       </SousModele-FichEtudes>
     </SousModele>
-    <SousModele Nom="Sm_CAS">
+    <SousModele Nom="Sm_plaine">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_CAS: 10 noeuds, 9 branches, 18 sections (4 profils, 0 idem, 0 interpolée, 14 sans géométrie), 5 casiers (5 profils casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_plaine: 10 noeuds, 9 branches, 18 sections (5 profils, 1 idem, 0 interpolée, 12 sans géométrie), 5 casiers (5 profils casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <SousModele-FichEtudes>
-        <DRSO NomRef="CAS.drso.xml"/>
-        <DCSP NomRef="CAS.dcsp.xml"/>
-        <DPTG NomRef="CAS.dptg.xml"/>
-        <DFRT NomRef="CAS.dfrt.xml"/>
+        <DRSO NomRef="plaine.drso.xml"/>
+        <DCSP NomRef="plaine.dcsp.xml"/>
+        <DPTG NomRef="plaine.dptg.xml"/>
+        <DFRT NomRef="plaine.dfrt.xml"/>
       </SousModele-FichEtudes>
     </SousModele>
-    <SousModele Nom="Sm_CAA">
+    <SousModele Nom="Sm_canal_amenee">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_CAA: 3 noeuds, 2 branches, 52 sections (21 profils, 1 idem, 30 interpolées, 0 sans géométrie), 0 casier (0 profil casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_canal_amenee: 3 noeuds, 2 branches, 52 sections (21 profils, 1 idem, 30 interpolées, 0 sans géométrie), 0 casier (0 profil casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <SousModele-FichEtudes>
-        <DRSO NomRef="CAA.drso.xml"/>
-        <DCSP NomRef="CAA.dcsp.xml"/>
-        <DPTG NomRef="CAA.dptg.xml"/>
-        <DFRT NomRef="CAA.dfrt.xml"/>
+        <DRSO NomRef="canal_amenee.drso.xml"/>
+        <DCSP NomRef="canal_amenee.dcsp.xml"/>
+        <DPTG NomRef="canal_amenee.dptg.xml"/>
+        <DFRT NomRef="canal_amenee.dfrt.xml"/>
       </SousModele-FichEtudes>
     </SousModele>
     <SousModele Nom="Sm_bgefileau">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_bgefileau: 4 noeuds, 3 branches, 6 sections (6 profils, 0 idem, 0 interpolée, 0 sans géométrie), 0 casier (0 profil casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_bgefileau: 5 noeuds, 4 branches, 12 sections (10 profils, 2 idems, 0 interpolée, 0 sans géométrie), 0 casier (0 profil casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -189,25 +196,25 @@ Etu_from_scratch
         <DFRT NomRef="bgefileau.dfrt.xml"/>
       </SousModele-FichEtudes>
     </SousModele>
-    <SousModele Nom="Sm_bgegenerique">
+    <SousModele Nom="Sm_bgegen">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_bgegenerique: 4 noeuds, 3 branches, 6 sections (4 profils, 0 idem, 0 interpolée, 2 sans géométrie), 0 casier (0 profil casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_bgegen: 5 noeuds, 4 branches, 12 sections (10 profils, 0 idem, 0 interpolée, 2 sans géométrie), 0 casier (0 profil casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <SousModele-FichEtudes>
-        <DRSO NomRef="bgegenerique.drso.xml"/>
-        <DCSP NomRef="bgegenerique.dcsp.xml"/>
-        <DPTG NomRef="bgegenerique.dptg.xml"/>
-        <DFRT NomRef="bgegenerique.dfrt.xml"/>
+        <DRSO NomRef="bgegen.drso.xml"/>
+        <DCSP NomRef="bgegen.dcsp.xml"/>
+        <DPTG NomRef="bgegen.dptg.xml"/>
+        <DFRT NomRef="bgegen.dfrt.xml"/>
       </SousModele-FichEtudes>
     </SousModele>
     <SousModele Nom="Sm_mono_sm">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_mono_sm: 24 noeuds, 26 branches, 202 sections (143 profils, 13 idems, 30 interpolées, 16 sans géométrie), 5 casiers (5 profils casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_mono_sm: 27 noeuds, 29 branches, 205 sections (143 profils, 18 idems, 30 interpolées, 14 sans géométrie), 5 casiers (5 profils casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -221,56 +228,56 @@ Etu_from_scratch
     </SousModele>
   </SousModeles>
   <Modeles>
-    <Modele Nom="Mo_multi_avec_bgefileau">
+    <Modele Nom="Mo_multi_sm_avec_bgefileau">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Modèle Mo_multi_avec_bgefileau: Sm_amont + Sm_CAS + Sm_CAA + Sm_bgefileau (24 CIni aux noeuds, 5 aux casiers, 26 aux branches)</Commentaire>
+      <Commentaire>Modèle Mo_multi_sm_avec_bgefileau: Sm_amont_min + Sm_plaine + Sm_canal_amenee + Sm_bgefileau (27 CIni aux noeuds, 5 aux casiers, 29 aux branches)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Modele-FichEtudes>
-        <OPTR NomRef="multi_avec_bgefileau.optr.xml"/>
-        <OPTG NomRef="multi_avec_bgefileau.optg.xml"/>
-        <OPTI NomRef="multi_avec_bgefileau.opti.xml"/>
-        <PNUM NomRef="multi_avec_bgefileau.pnum.xml"/>
-        <DPTI NomRef="multi_avec_bgefileau.dpti.xml"/>
-        <DREG NomRef="multi_avec_bgefileau.dreg.xml"/>
+        <OPTR NomRef="multi_sm_avec_bgefileau.optr.xml"/>
+        <OPTG NomRef="multi_sm_avec_bgefileau.optg.xml"/>
+        <OPTI NomRef="multi_sm_avec_bgefileau.opti.xml"/>
+        <PNUM NomRef="multi_sm_avec_bgefileau.pnum.xml"/>
+        <DPTI NomRef="multi_sm_avec_bgefileau.dpti.xml"/>
+        <DREG NomRef="multi_sm_avec_bgefileau.dreg.xml"/>
       </Modele-FichEtudes>
       <Modele-SousModeles>
-        <Modele-SousModele NomRef="Sm_amont"/>
-        <Modele-SousModele NomRef="Sm_CAS"/>
-        <Modele-SousModele NomRef="Sm_CAA"/>
+        <Modele-SousModele NomRef="Sm_amont_min"/>
+        <Modele-SousModele NomRef="Sm_plaine"/>
+        <Modele-SousModele NomRef="Sm_canal_amenee"/>
         <Modele-SousModele NomRef="Sm_bgefileau"/>
       </Modele-SousModeles>
     </Modele>
-    <Modele Nom="Mo_multi_avec_bgegenerique">
+    <Modele Nom="Mo_multi_sm_avec_bgegen">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Modèle Mo_multi_avec_bgegenerique: Sm_amont + Sm_CAS + Sm_CAA + Sm_bgegenerique (24 CIni aux noeuds, 5 aux casiers, 26 aux branches)</Commentaire>
+      <Commentaire>Modèle Mo_multi_sm_avec_bgegen: Sm_amont_min + Sm_plaine + Sm_canal_amenee + Sm_bgegen (27 CIni aux noeuds, 5 aux casiers, 29 aux branches)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Modele-FichEtudes>
-        <OPTR NomRef="multi_avec_bgegenerique.optr.xml"/>
-        <OPTG NomRef="multi_avec_bgegenerique.optg.xml"/>
-        <OPTI NomRef="multi_avec_bgegenerique.opti.xml"/>
-        <PNUM NomRef="multi_avec_bgegenerique.pnum.xml"/>
-        <DPTI NomRef="multi_avec_bgegenerique.dpti.xml"/>
-        <DREG NomRef="multi_avec_bgegenerique.dreg.xml"/>
+        <OPTR NomRef="multi_sm_avec_bgegen.optr.xml"/>
+        <OPTG NomRef="multi_sm_avec_bgegen.optg.xml"/>
+        <OPTI NomRef="multi_sm_avec_bgegen.opti.xml"/>
+        <PNUM NomRef="multi_sm_avec_bgegen.pnum.xml"/>
+        <DPTI NomRef="multi_sm_avec_bgegen.dpti.xml"/>
+        <DREG NomRef="multi_sm_avec_bgegen.dreg.xml"/>
       </Modele-FichEtudes>
       <Modele-SousModeles>
-        <Modele-SousModele NomRef="Sm_amont"/>
-        <Modele-SousModele NomRef="Sm_CAS"/>
-        <Modele-SousModele NomRef="Sm_CAA"/>
-        <Modele-SousModele NomRef="Sm_bgegenerique"/>
+        <Modele-SousModele NomRef="Sm_amont_min"/>
+        <Modele-SousModele NomRef="Sm_plaine"/>
+        <Modele-SousModele NomRef="Sm_canal_amenee"/>
+        <Modele-SousModele NomRef="Sm_bgegen"/>
       </Modele-SousModeles>
     </Modele>
     <Modele Nom="Mo_mono_sm">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Modèle Mo_mono_sm: Sm_mono_sm (24 CIni aux noeuds, 5 aux casiers, 26 aux branches)</Commentaire>
+      <Commentaire>Modèle Mo_mono_sm: Sm_mono_sm (27 CIni aux noeuds, 5 aux casiers, 29 aux branches)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -289,42 +296,42 @@ Etu_from_scratch
     </Modele>
   </Modeles>
   <Scenarios>
-    <Scenario Nom="Sc_multi_avec_bgefileau">
+    <Scenario Nom="Sc_multi_sm_avec_bgefileau">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Scénario Sc_multi_avec_bgefileau: Mo_multi_avec_bgefileau (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)</Commentaire>
+      <Commentaire>Scénario Sc_multi_sm_avec_bgefileau: Mo_multi_sm_avec_bgefileau (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Scenario-FichEtudes>
-        <OCAL NomRef="multi_avec_bgefileau.ocal.xml"/>
-        <ORES NomRef="multi_avec_bgefileau.ores.xml"/>
-        <PCAL NomRef="multi_avec_bgefileau.pcal.xml"/>
-        <DCLM NomRef="multi_avec_bgefileau.dclm.xml"/>
-        <DLHY NomRef="multi_avec_bgefileau.dlhy.xml"/>
+        <OCAL NomRef="multi_sm_avec_bgefileau.ocal.xml"/>
+        <ORES NomRef="multi_sm_avec_bgefileau.ores.xml"/>
+        <PCAL NomRef="multi_sm_avec_bgefileau.pcal.xml"/>
+        <DCLM NomRef="multi_sm_avec_bgefileau.dclm.xml"/>
+        <DLHY NomRef="multi_sm_avec_bgefileau.dlhy.xml"/>
       </Scenario-FichEtudes>
       <Scenario-Modeles>
-        <Scenario-Modele NomRef="Mo_multi_avec_bgefileau"/>
+        <Scenario-Modele NomRef="Mo_multi_sm_avec_bgefileau"/>
       </Scenario-Modeles>
     </Scenario>
-    <Scenario Nom="Sc_multi_avec_bgegenerique">
+    <Scenario Nom="Sc_multi_sm_avec_bgegen">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Scénario Sc_multi_avec_bgefileau: Mo_multi_avec_bgefileau (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)</Commentaire>
+      <Commentaire>Scénario Sc_multi_sm_avec_bgefileau: Mo_multi_sm_avec_bgefileau (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Scenario-FichEtudes>
-        <OCAL NomRef="multi_avec_bgegenerique.ocal.xml"/>
-        <ORES NomRef="multi_avec_bgegenerique.ores.xml"/>
-        <PCAL NomRef="multi_avec_bgegenerique.pcal.xml"/>
-        <DCLM NomRef="multi_avec_bgegenerique.dclm.xml"/>
-        <DLHY NomRef="multi_avec_bgegenerique.dlhy.xml"/>
+        <OCAL NomRef="multi_sm_avec_bgegen.ocal.xml"/>
+        <ORES NomRef="multi_sm_avec_bgegen.ores.xml"/>
+        <PCAL NomRef="multi_sm_avec_bgegen.pcal.xml"/>
+        <DCLM NomRef="multi_sm_avec_bgegen.dclm.xml"/>
+        <DLHY NomRef="multi_sm_avec_bgegen.dlhy.xml"/>
       </Scenario-FichEtudes>
       <Scenario-Modeles>
-        <Scenario-Modele NomRef="Mo_multi_avec_bgegenerique"/>
+        <Scenario-Modele NomRef="Mo_multi_sm_avec_bgegen"/>
       </Scenario-Modeles>
     </Scenario>
     <Scenario Nom="Sc_mono_sm">

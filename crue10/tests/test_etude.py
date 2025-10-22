@@ -30,37 +30,37 @@ Etu3-6
         └── Sm_M3-6_c10""")
 
         self.assertEqual(self.etude_from_scratch.details(), """# Liste des scénarios
-- Sc_multi_avec_bgefileau
-- Sc_multi_avec_bgegenerique
+- Sc_multi_sm_avec_bgefileau
+- Sc_multi_sm_avec_bgegen
 - Sc_mono_sm
 
 # Liste des modèles
-- Mo_multi_avec_bgefileau
-- Mo_multi_avec_bgegenerique
+- Mo_multi_sm_avec_bgefileau
+- Mo_multi_sm_avec_bgegen
 - Mo_mono_sm
 
 # Liste des sous-modèles
-- Sm_amont
-- Sm_CAS
-- Sm_CAA
+- Sm_amont_min
+- Sm_plaine
+- Sm_canal_amenee
 - Sm_bgefileau
-- Sm_bgegenerique
+- Sm_bgegen
 - Sm_mono_sm
 
 # Arborescence des Sc/Mo/Sm
 Etu_from_scratch
-├── Sc_multi_avec_bgefileau
-│   └── Mo_multi_avec_bgefileau
-│       ├── Sm_amont
-│       ├── Sm_CAS
-│       ├── Sm_CAA
+├── Sc_multi_sm_avec_bgefileau
+│   └── Mo_multi_sm_avec_bgefileau
+│       ├── Sm_amont_min
+│       ├── Sm_plaine
+│       ├── Sm_canal_amenee
 │       └── Sm_bgefileau
-├── Sc_multi_avec_bgegenerique
-│   └── Mo_multi_avec_bgegenerique
-│       ├── Sm_amont
-│       ├── Sm_CAS
-│       ├── Sm_CAA
-│       └── Sm_bgegenerique
+├── Sc_multi_sm_avec_bgegen
+│   └── Mo_multi_sm_avec_bgegen
+│       ├── Sm_amont_min
+│       ├── Sm_plaine
+│       ├── Sm_canal_amenee
+│       └── Sm_bgegen
 └── Sc_mono_sm
     └── Mo_mono_sm
         └── Sm_mono_sm""")

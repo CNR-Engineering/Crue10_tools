@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.3.xsd">
+  <Commentaire></Commentaire>
+  <Noeuds>
+    <NoeudNiveauContinu Nom="Nd_VRH_Seuil_Av">
+      <Commentaire>Noeud #Nd_VRH_Seuil_Av localisé à la position (799020.0, 6314900.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_CCA01">
+      <Commentaire>Noeud #Nd_CCA01 localisé à la position (797500.0, 6314000.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_VRH87.600">
+      <Commentaire>Noeud #Nd_VRH87.600 localisé à la position (799520.0, 6312400.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_CCA02">
+      <Commentaire>Noeud #Nd_CCA02 localisé à la position (797500.0, 6312000.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_RET90.000">
+      <Commentaire>Noeud #Nd_RET90.000 localisé à la position (800000.0, 6310000.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_CCB01">
+      <Commentaire>Noeud #Nd_CCB01 localisé à la position (798500.0, 6309500.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_RET92.000">
+      <Commentaire>Noeud #Nd_RET92.000 localisé à la position (800000.0, 6308000.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_CCB02">
+      <Commentaire>Noeud #Nd_CCB02 localisé à la position (798500.0, 6307500.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_RET96.000">
+      <Commentaire>Noeud #Nd_RET96.000 localisé à la position (800000.0, 6304000.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_CCB03">
+      <Commentaire>Noeud #Nd_CCB03 localisé à la position (798500.0, 6305500.0)</Commentaire>
+    </NoeudNiveauContinu>
+  </Noeuds>
+  <Casiers>
+    <CasierProfil Nom="Ca_CCA01">
+      <Commentaire>Casier #Ca_CCA01</Commentaire>
+      <IsActive>true</IsActive>
+      <Noeud NomRef="Nd_CCA01"/>
+      <ProfilCasier NomRef="Pc_CCA01_001"/>
+    </CasierProfil>
+    <CasierProfil Nom="Ca_CCA02">
+      <Commentaire>Casier #Ca_CCA02</Commentaire>
+      <IsActive>true</IsActive>
+      <Noeud NomRef="Nd_CCA02"/>
+      <ProfilCasier NomRef="Pc_CCA02_001"/>
+    </CasierProfil>
+    <CasierProfil Nom="Ca_CCB01">
+      <Commentaire>Casier #Ca_CCB01</Commentaire>
+      <IsActive>true</IsActive>
+      <Noeud NomRef="Nd_CCB01"/>
+      <ProfilCasier NomRef="Pc_CCB01_001"/>
+    </CasierProfil>
+    <CasierProfil Nom="Ca_CCB02">
+      <Commentaire>Casier #Ca_CCB02</Commentaire>
+      <IsActive>true</IsActive>
+      <Noeud NomRef="Nd_CCB02"/>
+      <ProfilCasier NomRef="Pc_CCB02_001"/>
+    </CasierProfil>
+    <CasierProfil Nom="Ca_CCB03">
+      <Commentaire>Casier #Ca_CCB03</Commentaire>
+      <IsActive>true</IsActive>
+      <Noeud NomRef="Nd_CCB03"/>
+      <ProfilCasier NomRef="Pc_CCB03_001"/>
+    </CasierProfil>
+  </Casiers>
+  <Sections>
+    <SectionSansGeometrie Nom="St_VRH_Seuil-CCA01_Am">
+      <Commentaire>SectionSansGeometrie #St_VRH_Seuil-CCA01_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_VRH_Seuil-CCA01_Av">
+      <Commentaire>SectionSansGeometrie #St_VRH_Seuil-CCA01_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_VRH87.600-CCA02_Am">
+      <Commentaire>SectionSansGeometrie #St_VRH87.600-CCA02_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_VRH87.600-CCA02_Av">
+      <Commentaire>SectionSansGeometrie #St_VRH87.600-CCA02_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_RET90.000-CCB01_Am">
+      <Commentaire>SectionSansGeometrie #St_RET90.000-CCB01_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_RET90.000-CCB01_Av">
+      <Commentaire>SectionSansGeometrie #St_RET90.000-CCB01_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_RET92.000-CCB02_Am">
+      <Commentaire>SectionSansGeometrie #St_RET92.000-CCB02_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_RET92.000-CCB02_Av">
+      <Commentaire>SectionSansGeometrie #St_RET92.000-CCB02_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_RET96.000-CCB03_Am">
+      <Commentaire>SectionSansGeometrie #St_RET96.000-CCB03_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_RET96.000-CCB03_Av">
+      <Commentaire>SectionSansGeometrie #St_RET96.000-CCB03_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionProfil Nom="St_CCA01">
+      <Commentaire>SectionProfil #St_CCA01</Commentaire>
+      <ProfilSection NomRef="Ps_CCA01"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_CCA02">
+      <Commentaire>SectionProfil #St_CCA02</Commentaire>
+      <ProfilSection NomRef="Ps_CCA02"/>
+    </SectionProfil>
+    <SectionSansGeometrie Nom="St_CCA02-CCB01_Am">
+      <Commentaire>SectionSansGeometrie #St_CCA02-CCB01_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CCA02-CCB01_Av">
+      <Commentaire>SectionSansGeometrie #St_CCA02-CCB01_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionProfil Nom="St_CCB01">
+      <Commentaire>SectionProfil #St_CCB01</Commentaire>
+      <ProfilSection NomRef="Ps_CCB01"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_CCB02">
+      <Commentaire>SectionProfil #St_CCB02</Commentaire>
+      <ProfilSection NomRef="Ps_CCB02"/>
+    </SectionProfil>
+    <SectionIdem Nom="St_CCB02a">
+      <Commentaire>SectionIdem #St_CCB02a</Commentaire>
+      <Section NomRef="St_CCB02"/>
+    </SectionIdem>
+    <SectionProfil Nom="St_CCB03">
+      <Commentaire>SectionProfil #St_CCB03</Commentaire>
+      <ProfilSection NomRef="Ps_CCB03"/>
+    </SectionProfil>
+  </Sections>
+  <Branches>
+    <BrancheSeuilLateral Nom="Br_VRH_Seuil-CCA01">
+      <Commentaire>Branche [4] #Br_VRH_Seuil-CCA01: Noeud #Nd_VRH_Seuil_Av -&gt; Noeud #Nd_CCA01 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_VRH_Seuil_Av"/>
+      <NdAv NomRef="Nd_CCA01"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_VRH_Seuil-CCA01_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_VRH_Seuil-CCA01_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheSeuilLateral>
+    <BrancheOrifice Nom="Br_VRH87.600-CCA02">
+      <Commentaire>Branche [5] #Br_VRH87.600-CCA02: Noeud #Nd_VRH87.600 -&gt; Noeud #Nd_CCA02 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_VRH87.600"/>
+      <NdAv NomRef="Nd_CCA02"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_VRH87.600-CCA02_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_VRH87.600-CCA02_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheOrifice>
+    <BrancheOrifice Nom="Br_RET90.000-CCB01">
+      <Commentaire>Branche [5] #Br_RET90.000-CCB01: Noeud #Nd_RET90.000 -&gt; Noeud #Nd_CCB01 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_RET90.000"/>
+      <NdAv NomRef="Nd_CCB01"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_RET90.000-CCB01_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_RET90.000-CCB01_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheOrifice>
+    <BrancheSeuilLateral Nom="Br_RET92.000-CCB02">
+      <Commentaire>Branche [4] #Br_RET92.000-CCB02: Noeud #Nd_RET92.000 -&gt; Noeud #Nd_CCB02 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_RET92.000"/>
+      <NdAv NomRef="Nd_CCB02"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_RET92.000-CCB02_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_RET92.000-CCB02_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheSeuilLateral>
+    <BrancheOrifice Nom="Br_RET96.000-CCB03">
+      <Commentaire>Branche [5] #Br_RET96.000-CCB03: Noeud #Nd_RET96.000 -&gt; Noeud #Nd_CCB03 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_RET96.000"/>
+      <NdAv NomRef="Nd_CCB03"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_RET96.000-CCB03_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_RET96.000-CCB03_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheOrifice>
+    <BrancheStrickler Nom="Br_CCA01_02">
+      <Commentaire>Branche [6] #Br_CCA01_02: Noeud #Nd_CCA01 -&gt; Noeud #Nd_CCA02 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_CCA01"/>
+      <NdAv NomRef="Nd_CCA02"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CCA01">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CCA02">
+          <Pos>Aval</Pos>
+          <Xp>2000.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheStrickler>
+    <BrancheNiveauxAssocies Nom="Br_CCA02-CCB01">
+      <Commentaire>Branche [12] #Br_CCA02-CCB01: Noeud #Nd_CCA02 -&gt; Noeud #Nd_CCB01 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_CCA02"/>
+      <NdAv NomRef="Nd_CCB01"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CCA02-CCB01_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CCA02-CCB01_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheNiveauxAssocies>
+    <BrancheStrickler Nom="Br_CCB01_02">
+      <Commentaire>Branche [6] #Br_CCB01_02: Noeud #Nd_CCB01 -&gt; Noeud #Nd_CCB02 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_CCB01"/>
+      <NdAv NomRef="Nd_CCB02"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CCB01">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CCB02">
+          <Pos>Aval</Pos>
+          <Xp>2000.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheStrickler>
+    <BrancheStrickler Nom="Br_CCB02_03">
+      <Commentaire>Branche [6] #Br_CCB02_03: Noeud #Nd_CCB02 -&gt; Noeud #Nd_CCB03 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_CCB02"/>
+      <NdAv NomRef="Nd_CCB03"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CCB02a">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CCB03">
+          <Pos>Aval</Pos>
+          <Xp>2000.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheStrickler>
+  </Branches>
+</DRSO>

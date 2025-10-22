@@ -7,7 +7,7 @@
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
-    <DonCalcSansPrtBrancheSeuilTransversal NomRef="Br_VRH84.900_Seuil">
+    <DonCalcSansPrtBrancheSeuilTransversal NomRef="Br_VRH_Seuil">
       <FormulePdc>Borda</FormulePdc>
       <ElemSeuilAvecPdc>
         <Largeur>1.0</Largeur>
@@ -21,12 +21,22 @@
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_VRH87.600">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
     <DonCalcSansPrtBrancheSaintVenant NomRef="Br_CAF87.000">
       <CoefBeta>1.0</CoefBeta>
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
     <DonCalcSansPrtBrancheSaintVenant NomRef="Br_RET90.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_RET92.000">
       <CoefBeta>1.0</CoefBeta>
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
@@ -46,8 +56,8 @@
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
-    <DonCalcSansPrtBranchePdc NomRef="Br_RET102.700_Pont">
-      <Pdc Nom="LoiQPdc_RET102.700_Pont" Type="LoiQPdc">
+    <DonCalcSansPrtBranchePdc NomRef="Br_RET_Pont">
+      <Pdc Nom="LoiQPdc_RET_Pont" Type="LoiQPdc">
         <Commentaire></Commentaire>
         <EvolutionFF>
           <PointFF>-15000.0 0.0</PointFF>
@@ -69,7 +79,7 @@
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
-    <DonCalcSansPrtBrancheSeuilLateral NomRef="Br_CAS1_RET">
+    <DonCalcSansPrtBrancheSeuilLateral NomRef="Br_VRH_Seuil-CCA01">
       <FormulePdc>Borda</FormulePdc>
       <ElemSeuilAvecPdc>
         <Largeur>1.0</Largeur>
@@ -78,7 +88,7 @@
         <CoefPdc>1.0</CoefPdc>
       </ElemSeuilAvecPdc>
     </DonCalcSansPrtBrancheSeuilLateral>
-    <DonCalcSansPrtBrancheOrifice NomRef="Br_CAS5_RET">
+    <DonCalcSansPrtBrancheOrifice NomRef="Br_VRH87.600-CCA02">
       <ElemOrifice>
         <CoefCtrLim>0.65</CoefCtrLim>
         <Largeur>1.0</Largeur>
@@ -88,7 +98,7 @@
         <SensOrifice>Bidirect</SensOrifice>
       </ElemOrifice>
     </DonCalcSansPrtBrancheOrifice>
-    <DonCalcSansPrtBrancheOrifice NomRef="Br_CAS2_RET">
+    <DonCalcSansPrtBrancheOrifice NomRef="Br_RET90.000-CCB01">
       <ElemOrifice>
         <CoefCtrLim>0.65</CoefCtrLim>
         <Largeur>1.0</Largeur>
@@ -98,17 +108,7 @@
         <SensOrifice>Bidirect</SensOrifice>
       </ElemOrifice>
     </DonCalcSansPrtBrancheOrifice>
-    <DonCalcSansPrtBrancheOrifice NomRef="Br_CAS3_RET">
-      <ElemOrifice>
-        <CoefCtrLim>0.65</CoefCtrLim>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <Haut>1.0</Haut>
-        <CoefD>1.0</CoefD>
-        <SensOrifice>Bidirect</SensOrifice>
-      </ElemOrifice>
-    </DonCalcSansPrtBrancheOrifice>
-    <DonCalcSansPrtBrancheSeuilLateral NomRef="Br_CAS4_RET">
+    <DonCalcSansPrtBrancheSeuilLateral NomRef="Br_RET92.000-CCB02">
       <FormulePdc>Divergent</FormulePdc>
       <ElemSeuilAvecPdc>
         <Largeur>50.0</Largeur>
@@ -129,17 +129,7 @@
         <CoefPdc>0.9</CoefPdc>
       </ElemSeuilAvecPdc>
     </DonCalcSansPrtBrancheSeuilLateral>
-    <DonCalcSansPrtBrancheNiveauxAssocies NomRef="Br_CAS2-3">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
-      <Zasso Nom="LoiZavZam_CAS2-3" Type="LoiZavZam">
-        <Commentaire></Commentaire>
-        <EvolutionFF>
-          <PointFF>-15.0 -15.0</PointFF>
-        </EvolutionFF>
-      </Zasso>
-    </DonCalcSansPrtBrancheNiveauxAssocies>
-    <DonCalcSansPrtBrancheOrifice NomRef="Br_CAS3-4">
+    <DonCalcSansPrtBrancheOrifice NomRef="Br_RET96.000-CCB03">
       <ElemOrifice>
         <CoefCtrLim>0.65</CoefCtrLim>
         <Largeur>1.0</Largeur>
@@ -149,6 +139,16 @@
         <SensOrifice>Bidirect</SensOrifice>
       </ElemOrifice>
     </DonCalcSansPrtBrancheOrifice>
+    <DonCalcSansPrtBrancheNiveauxAssocies NomRef="Br_CCA02-CCB01">
+      <QLimInf>-1.0E30</QLimInf>
+      <QLimSup>1.0E30</QLimSup>
+      <Zasso Nom="LoiZavZam_CCA02-CCB01" Type="LoiZavZam">
+        <Commentaire></Commentaire>
+        <EvolutionFF>
+          <PointFF>-15.0 -15.0</PointFF>
+        </EvolutionFF>
+      </Zasso>
+    </DonCalcSansPrtBrancheNiveauxAssocies>
     <DonCalcSansPrtBrancheSaintVenant NomRef="Br_CAA105.000">
       <CoefBeta>1.0</CoefBeta>
       <CoefRuisQdm>0.0</CoefRuisQdm>
@@ -159,12 +159,17 @@
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_RET104.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
     <DonCalcSansPrtBrancheSaintVenant NomRef="Br_AMB105.000">
       <CoefBeta>1.0</CoefBeta>
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
-    <DonCalcSansPrtBrancheBarrageFilEau NomRef="Br_BGE105.500">
+    <DonCalcSansPrtBrancheBarrageFilEau NomRef="Br_BGE_XX">
       <QLimInf>-1.0E30</QLimInf>
       <QLimSup>1.0E30</QLimSup>
       <ElemBarrage>
@@ -173,7 +178,7 @@
         <CoefNoy>1.0</CoefNoy>
         <CoefDen>1.0</CoefDen>
       </ElemBarrage>
-      <RegimeManoeuvrant Nom="LoiQpilZam_BGE105.500" Type="LoiQpilZam">
+      <RegimeManoeuvrant Nom="LoiQpilZam_BGE_XX" Type="LoiQpilZam">
         <Commentaire></Commentaire>
         <EvolutionFF>
           <PointFF>0.0 -15.0</PointFF>
@@ -187,19 +192,19 @@
     </DonCalcSansPrtBrancheSaintVenant>
   </DonCalcSansPrtBranches>
   <DonCalcSansPrtCasiers>
-    <DonCalcSansPrtCasierProfil NomRef="Ca_CAS1">
+    <DonCalcSansPrtCasierProfil NomRef="Ca_CCA01">
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtCasierProfil>
-    <DonCalcSansPrtCasierProfil NomRef="Ca_CAS2">
+    <DonCalcSansPrtCasierProfil NomRef="Ca_CCA02">
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtCasierProfil>
-    <DonCalcSansPrtCasierProfil NomRef="Ca_CAS3">
+    <DonCalcSansPrtCasierProfil NomRef="Ca_CCB01">
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtCasierProfil>
-    <DonCalcSansPrtCasierProfil NomRef="Ca_CAS4">
+    <DonCalcSansPrtCasierProfil NomRef="Ca_CCB02">
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtCasierProfil>
-    <DonCalcSansPrtCasierProfil NomRef="Ca_CAS5">
+    <DonCalcSansPrtCasierProfil NomRef="Ca_CCB03">
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtCasierProfil>
   </DonCalcSansPrtCasiers>

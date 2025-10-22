@@ -1,0 +1,580 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DPTG xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dptg-1.2.xsd">
+  <Commentaire></Commentaire>
+  <DonPrtGeoProfilCasiers>
+    <ProfilCasier Nom="Pc_CCA01_001">
+      <Commentaire>ProfilCasier #Pc_CCA01_001: longueur = 1800.000000 m, Z dans [118.240000, 129.640000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800.0</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 118.24</PointFF>
+        <PointFF>1.714 118.54</PointFF>
+        <PointFF>1.926 118.84</PointFF>
+        <PointFF>2.091 119.14</PointFF>
+        <PointFF>2.391 119.44</PointFF>
+        <PointFF>5.1878 119.694613</PointFF>
+        <PointFF>6.314 119.74</PointFF>
+        <PointFF>8.3368 119.756987</PointFF>
+        <PointFF>60.745 120.04</PointFF>
+        <PointFF>184.213 120.34</PointFF>
+        <PointFF>236.537 120.64</PointFF>
+        <PointFF>263.117 120.94</PointFF>
+        <PointFF>290.491 121.24</PointFF>
+        <PointFF>321.114 121.54</PointFF>
+        <PointFF>337.802 121.84</PointFF>
+        <PointFF>354.29 122.14</PointFF>
+        <PointFF>366.314 122.44</PointFF>
+        <PointFF>375.528 122.74</PointFF>
+        <PointFF>381.639 123.04</PointFF>
+        <PointFF>390.046 123.34</PointFF>
+        <PointFF>397.175 123.64</PointFF>
+        <PointFF>402.742 123.94</PointFF>
+        <PointFF>407.087 124.24</PointFF>
+        <PointFF>410.578 124.54</PointFF>
+        <PointFF>414.414 124.84</PointFF>
+        <PointFF>418.234 125.14</PointFF>
+        <PointFF>422.327 125.44</PointFF>
+        <PointFF>425.579 125.74</PointFF>
+        <PointFF>428.33 126.04</PointFF>
+        <PointFF>430.495 126.34</PointFF>
+        <PointFF>432.362 126.64</PointFF>
+        <PointFF>434.375 126.94</PointFF>
+        <PointFF>437.042 127.24</PointFF>
+        <PointFF>439.264 127.54</PointFF>
+        <PointFF>441.482 127.84</PointFF>
+        <PointFF>442.609 128.14</PointFF>
+        <PointFF>443.334 128.44</PointFF>
+        <PointFF>444.173 128.74</PointFF>
+        <PointFF>444.959 129.04</PointFF>
+        <PointFF>445.754 129.34</PointFF>
+        <PointFF>446.096 129.64</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 118.24</LimDeb>
+        <LimFin>446.096 129.64</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    <ProfilCasier Nom="Pc_CCA02_001">
+      <Commentaire>ProfilCasier #Pc_CCA02_001: longueur = 1800.000000 m, Z dans [118.240000, 129.640000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800.0</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 118.24</PointFF>
+        <PointFF>1.714 118.54</PointFF>
+        <PointFF>1.926 118.84</PointFF>
+        <PointFF>2.091 119.14</PointFF>
+        <PointFF>2.391 119.44</PointFF>
+        <PointFF>5.1878 119.694613</PointFF>
+        <PointFF>6.314 119.74</PointFF>
+        <PointFF>8.3368 119.756987</PointFF>
+        <PointFF>60.745 120.04</PointFF>
+        <PointFF>184.213 120.34</PointFF>
+        <PointFF>236.537 120.64</PointFF>
+        <PointFF>263.117 120.94</PointFF>
+        <PointFF>290.491 121.24</PointFF>
+        <PointFF>321.114 121.54</PointFF>
+        <PointFF>337.802 121.84</PointFF>
+        <PointFF>354.29 122.14</PointFF>
+        <PointFF>366.314 122.44</PointFF>
+        <PointFF>375.528 122.74</PointFF>
+        <PointFF>381.639 123.04</PointFF>
+        <PointFF>390.046 123.34</PointFF>
+        <PointFF>397.175 123.64</PointFF>
+        <PointFF>402.742 123.94</PointFF>
+        <PointFF>407.087 124.24</PointFF>
+        <PointFF>410.578 124.54</PointFF>
+        <PointFF>414.414 124.84</PointFF>
+        <PointFF>418.234 125.14</PointFF>
+        <PointFF>422.327 125.44</PointFF>
+        <PointFF>425.579 125.74</PointFF>
+        <PointFF>428.33 126.04</PointFF>
+        <PointFF>430.495 126.34</PointFF>
+        <PointFF>432.362 126.64</PointFF>
+        <PointFF>434.375 126.94</PointFF>
+        <PointFF>437.042 127.24</PointFF>
+        <PointFF>439.264 127.54</PointFF>
+        <PointFF>441.482 127.84</PointFF>
+        <PointFF>442.609 128.14</PointFF>
+        <PointFF>443.334 128.44</PointFF>
+        <PointFF>444.173 128.74</PointFF>
+        <PointFF>444.959 129.04</PointFF>
+        <PointFF>445.754 129.34</PointFF>
+        <PointFF>446.096 129.64</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 118.24</LimDeb>
+        <LimFin>446.096 129.64</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    <ProfilCasier Nom="Pc_CCB01_001">
+      <Commentaire>ProfilCasier #Pc_CCB01_001: longueur = 1800.000000 m, Z dans [118.240000, 129.640000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800.0</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 118.24</PointFF>
+        <PointFF>1.714 118.54</PointFF>
+        <PointFF>1.926 118.84</PointFF>
+        <PointFF>2.091 119.14</PointFF>
+        <PointFF>2.391 119.44</PointFF>
+        <PointFF>5.1878 119.694613</PointFF>
+        <PointFF>6.314 119.74</PointFF>
+        <PointFF>8.3368 119.756987</PointFF>
+        <PointFF>60.745 120.04</PointFF>
+        <PointFF>184.213 120.34</PointFF>
+        <PointFF>236.537 120.64</PointFF>
+        <PointFF>263.117 120.94</PointFF>
+        <PointFF>290.491 121.24</PointFF>
+        <PointFF>321.114 121.54</PointFF>
+        <PointFF>337.802 121.84</PointFF>
+        <PointFF>354.29 122.14</PointFF>
+        <PointFF>366.314 122.44</PointFF>
+        <PointFF>375.528 122.74</PointFF>
+        <PointFF>381.639 123.04</PointFF>
+        <PointFF>390.046 123.34</PointFF>
+        <PointFF>397.175 123.64</PointFF>
+        <PointFF>402.742 123.94</PointFF>
+        <PointFF>407.087 124.24</PointFF>
+        <PointFF>410.578 124.54</PointFF>
+        <PointFF>414.414 124.84</PointFF>
+        <PointFF>418.234 125.14</PointFF>
+        <PointFF>422.327 125.44</PointFF>
+        <PointFF>425.579 125.74</PointFF>
+        <PointFF>428.33 126.04</PointFF>
+        <PointFF>430.495 126.34</PointFF>
+        <PointFF>432.362 126.64</PointFF>
+        <PointFF>434.375 126.94</PointFF>
+        <PointFF>437.042 127.24</PointFF>
+        <PointFF>439.264 127.54</PointFF>
+        <PointFF>441.482 127.84</PointFF>
+        <PointFF>442.609 128.14</PointFF>
+        <PointFF>443.334 128.44</PointFF>
+        <PointFF>444.173 128.74</PointFF>
+        <PointFF>444.959 129.04</PointFF>
+        <PointFF>445.754 129.34</PointFF>
+        <PointFF>446.096 129.64</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 118.24</LimDeb>
+        <LimFin>446.096 129.64</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    <ProfilCasier Nom="Pc_CCB02_001">
+      <Commentaire>ProfilCasier #Pc_CCB02_001: longueur = 1800.000000 m, Z dans [118.240000, 129.640000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800.0</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 118.24</PointFF>
+        <PointFF>1.714 118.54</PointFF>
+        <PointFF>1.926 118.84</PointFF>
+        <PointFF>2.091 119.14</PointFF>
+        <PointFF>2.391 119.44</PointFF>
+        <PointFF>5.1878 119.694613</PointFF>
+        <PointFF>6.314 119.74</PointFF>
+        <PointFF>8.3368 119.756987</PointFF>
+        <PointFF>60.745 120.04</PointFF>
+        <PointFF>184.213 120.34</PointFF>
+        <PointFF>236.537 120.64</PointFF>
+        <PointFF>263.117 120.94</PointFF>
+        <PointFF>290.491 121.24</PointFF>
+        <PointFF>321.114 121.54</PointFF>
+        <PointFF>337.802 121.84</PointFF>
+        <PointFF>354.29 122.14</PointFF>
+        <PointFF>366.314 122.44</PointFF>
+        <PointFF>375.528 122.74</PointFF>
+        <PointFF>381.639 123.04</PointFF>
+        <PointFF>390.046 123.34</PointFF>
+        <PointFF>397.175 123.64</PointFF>
+        <PointFF>402.742 123.94</PointFF>
+        <PointFF>407.087 124.24</PointFF>
+        <PointFF>410.578 124.54</PointFF>
+        <PointFF>414.414 124.84</PointFF>
+        <PointFF>418.234 125.14</PointFF>
+        <PointFF>422.327 125.44</PointFF>
+        <PointFF>425.579 125.74</PointFF>
+        <PointFF>428.33 126.04</PointFF>
+        <PointFF>430.495 126.34</PointFF>
+        <PointFF>432.362 126.64</PointFF>
+        <PointFF>434.375 126.94</PointFF>
+        <PointFF>437.042 127.24</PointFF>
+        <PointFF>439.264 127.54</PointFF>
+        <PointFF>441.482 127.84</PointFF>
+        <PointFF>442.609 128.14</PointFF>
+        <PointFF>443.334 128.44</PointFF>
+        <PointFF>444.173 128.74</PointFF>
+        <PointFF>444.959 129.04</PointFF>
+        <PointFF>445.754 129.34</PointFF>
+        <PointFF>446.096 129.64</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 118.24</LimDeb>
+        <LimFin>446.096 129.64</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    <ProfilCasier Nom="Pc_CCB03_001">
+      <Commentaire>ProfilCasier #Pc_CCB03_001: longueur = 1800.000000 m, Z dans [118.240000, 129.640000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800.0</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 118.24</PointFF>
+        <PointFF>1.714 118.54</PointFF>
+        <PointFF>1.926 118.84</PointFF>
+        <PointFF>2.091 119.14</PointFF>
+        <PointFF>2.391 119.44</PointFF>
+        <PointFF>5.1878 119.694613</PointFF>
+        <PointFF>6.314 119.74</PointFF>
+        <PointFF>8.3368 119.756987</PointFF>
+        <PointFF>60.745 120.04</PointFF>
+        <PointFF>184.213 120.34</PointFF>
+        <PointFF>236.537 120.64</PointFF>
+        <PointFF>263.117 120.94</PointFF>
+        <PointFF>290.491 121.24</PointFF>
+        <PointFF>321.114 121.54</PointFF>
+        <PointFF>337.802 121.84</PointFF>
+        <PointFF>354.29 122.14</PointFF>
+        <PointFF>366.314 122.44</PointFF>
+        <PointFF>375.528 122.74</PointFF>
+        <PointFF>381.639 123.04</PointFF>
+        <PointFF>390.046 123.34</PointFF>
+        <PointFF>397.175 123.64</PointFF>
+        <PointFF>402.742 123.94</PointFF>
+        <PointFF>407.087 124.24</PointFF>
+        <PointFF>410.578 124.54</PointFF>
+        <PointFF>414.414 124.84</PointFF>
+        <PointFF>418.234 125.14</PointFF>
+        <PointFF>422.327 125.44</PointFF>
+        <PointFF>425.579 125.74</PointFF>
+        <PointFF>428.33 126.04</PointFF>
+        <PointFF>430.495 126.34</PointFF>
+        <PointFF>432.362 126.64</PointFF>
+        <PointFF>434.375 126.94</PointFF>
+        <PointFF>437.042 127.24</PointFF>
+        <PointFF>439.264 127.54</PointFF>
+        <PointFF>441.482 127.84</PointFF>
+        <PointFF>442.609 128.14</PointFF>
+        <PointFF>443.334 128.44</PointFF>
+        <PointFF>444.173 128.74</PointFF>
+        <PointFF>444.959 129.04</PointFF>
+        <PointFF>445.754 129.34</PointFF>
+        <PointFF>446.096 129.64</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 118.24</LimDeb>
+        <LimFin>446.096 129.64</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+  </DonPrtGeoProfilCasiers>
+  <DonPrtGeoProfilSections>
+    <ProfilSection Nom="Ps_CCA01">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+    <ProfilSection Nom="Ps_CCA02">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+    <ProfilSection Nom="Ps_CCB01">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+    <ProfilSection Nom="Ps_CCB02">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+    <ProfilSection Nom="Ps_CCB03">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_plaine"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_plaine"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+  </DonPrtGeoProfilSections>
+  <DonPrtGeoCasiers/>
+  <DonPrtGeoSections>
+    <DonPrtGeoSectionIdem NomRef="St_CCB02a">
+      <Dz>0.0</Dz>
+    </DonPrtGeoSectionIdem>
+  </DonPrtGeoSections>
+  <DonPrtGeoBranches/>
+</DPTG>

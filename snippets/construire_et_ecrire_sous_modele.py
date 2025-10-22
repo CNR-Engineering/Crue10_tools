@@ -18,14 +18,24 @@ from crue10.utils import logger
 
 
 TRIGRAMME_AFFLUENT = 'AFF'
-TRIGRAMME_PLAINE = 'CAS'
+TRIGRAMME_PLAINE_A = 'CCA'
+TRIGRAMME_PLAINE_B = 'CCB'
 TRIGRAMME_RETENUE = 'RET'
 TRIGRAMME_VIEUX_RHONE = 'VRH'
 
+DISTANCE_CASIER = 2000
+TAILLE_CASIER = 1800
+
+
+PKM_VRH_SEUIL = (84900, 85100)
 PKM_RESTITUTION = 90000
-PKM_DEBUT_PLAINE = 96000
+PKM_DEBUT_PLAINE_A = 86000
+PKM_DEBUT_PLAINE_B = PKM_DEBUT_PLAINE_A + 2 * DISTANCE_CASIER + 500
 PKM_CONFLUENCE_AFFLUENT = 100500
+PKM_RET_PONT = (102700, 103000)
+PKM_PR2 = 104000
 PKM_DIFFLUENCE = 105000
+PKM_BGE = (105600, 106000)
 
 DELTA_XP_BATHY = {  # Distances entre 2 profils Bathy en mètres
     TRIGRAMME_AFFLUENT: 1000,
@@ -37,9 +47,6 @@ DELTA_XP_BATHY = {  # Distances entre 2 profils Bathy en mètres
 
 X_CENTERED_VALUE = 800000  # Pour que ça ressemble à une abscisse en Lambert 93 sur le Rhône
 Y_OFFSET = 6400000  # Pour que ça ressemble à une ordonnées en Lambert 93 sur le Rhône
-
-DISTANCE_CASIER = 2000
-TAILLE_CASIER = 1800
 
 LETTERS_FOR_SECTIONIDEM = ['a', 'b', 'c']
 
@@ -130,16 +137,20 @@ class SousModeleFromScratch:
         # section.ajouter_fente(0.15, 15)
         return section
 
-    def ajouter_sectionidem(self, section_reference):
+    def determiner_nom_section_disponible(self, nom_section_candidat):
         idx = 0
-        nom_section_candidat = section_reference.id
-        while nom_section_candidat in self.sous_modele.sections:
+        nom_section_final = nom_section_candidat
+        while nom_section_final in self.sous_modele.sections:
             assert idx < len(LETTERS_FOR_SECTIONIDEM)
             if idx == 0:
-                nom_section_candidat += LETTERS_FOR_SECTIONIDEM[idx]
+                nom_section_final += LETTERS_FOR_SECTIONIDEM[idx]
             else:
-                nom_section_candidat = nom_section_candidat[:-1] + LETTERS_FOR_SECTIONIDEM[idx]
+                nom_section_final = nom_section_final[:-1] + LETTERS_FOR_SECTIONIDEM[idx]
             idx += 1
+        return nom_section_final
+
+    def ajouter_sectionidem(self, section_reference):
+        nom_section_candidat = self.determiner_nom_section_disponible(section_reference.id)
         return self.ajouter_section(SectionIdem(nom_section_candidat, section_reference, dz_section_reference=0.0))
 
     def ajouter_section_from_position(self, trigramme, pk_km):
@@ -150,6 +161,14 @@ class SousModeleFromScratch:
         except KeyError:
             delta_xp = 1
 
+        if trigramme == 'BGE':  # On corriger le nom autour du barrage
+            if pkm == PKM_BGE[0]:
+                trigramme = 'AMB'
+            elif pkm == PKM_BGE[1]:
+                trigramme = 'AVB'
+            else:
+                raise NotImplementedError
+
         if trigramme != TRIGRAMME_RETENUE and pkm in (PKM_RESTITUTION,):  # PKM_DIFFLUENCE can not be added because of multiple Sm at this PKM
             nom_section_reference = f"St_{TRIGRAMME_RETENUE}{pk_km}"
             if nom_section_reference in self.sous_modele.sections:
@@ -157,6 +176,13 @@ class SousModeleFromScratch:
             else:
                 section_reference = self.ajouter_section(self.creer_sectionprofil_depuis_position(TRIGRAMME_RETENUE, pk_km))
             return self.ajouter_sectionidem(section_reference)  # SectionIdem
+
+        elif trigramme == TRIGRAMME_RETENUE and pkm == PKM_PR2:
+            section = self.creer_sectionprofil_depuis_position(trigramme, pk_km)
+            if self.sous_modele.id.endswith('amont_min'):
+                section.id = section.id + 'bis'
+                section.set_profilsection_name()
+            return self.ajouter_section(section)
 
         elif pkm % delta_xp == 0:
             nom_section = f"St_{trigramme}{pk_km}"
@@ -170,6 +196,8 @@ class SousModeleFromScratch:
                 return self.ajouter_section(self.creer_sectionprofil_depuis_position(trigramme, pk_km))  # SectionProfil
 
         else:
+            assert trigramme not in (TRIGRAMME_PLAINE_A, TRIGRAMME_PLAINE_B)
+
             pkm_nearest_bathy = round(pkm / delta_xp) * delta_xp
             pk_km_nearest_bathy = pkm_to_pk_km(pkm_nearest_bathy)
 
@@ -220,7 +248,7 @@ class SousModeleFromScratch:
         sections_at_xp = [
             (section_am, 0),
         ]
-        if trigramme_br == TRIGRAMME_PLAINE:
+        if trigramme_br in (TRIGRAMME_PLAINE_A, TRIGRAMME_PLAINE_B):
             xp_aval = DISTANCE_CASIER
         else:
             xp_aval = round(abs(pk_km_to_pkm(pk_km_av) - pk_km_to_pkm(pk_km_am)))  # branche.geom.length can differ!
@@ -264,7 +292,49 @@ class SousModeleFromScratch:
         casier.comment = f"{casier}"
         profil_casier = ProfilCasier('Pc_' + casier.id[3:] + '_001')
         profil_casier.set_longueur(TAILLE_CASIER)
-        profil_casier.set_xz(np.array([(0, 90.0), (TAILLE_CASIER/5, 100.0), (4*TAILLE_CASIER/5, 102.0), (TAILLE_CASIER, 110.0)]))
+        profil_casier.set_xz(np.array([
+            (0, 118.24),
+            (1.714, 118.54),
+            (1.926, 118.84),
+            (2.091, 119.14),
+            (2.391, 119.44),
+            (5.1878, 119.694613),
+            (6.314, 119.74),
+            (8.3368, 119.756987),
+            (60.745, 120.04),
+            (184.213, 120.34),
+            (236.537, 120.64),
+            (263.117, 120.94),
+            (290.491, 121.24),
+            (321.114, 121.54),
+            (337.802, 121.84),
+            (354.29, 122.14),
+            (366.314, 122.44),
+            (375.528, 122.74),
+            (381.639, 123.04),
+            (390.046, 123.34),
+            (397.175, 123.64),
+            (402.742, 123.94),
+            (407.087, 124.24),
+            (410.578, 124.54),
+            (414.414, 124.84),
+            (418.234, 125.14),
+            (422.327, 125.44),
+            (425.579, 125.74),
+            (428.33, 126.04),
+            (430.495, 126.34),
+            (432.362, 126.64),
+            (434.375, 126.94),
+            (437.042, 127.24),
+            (439.264, 127.54),
+            (441.482, 127.84),
+            (442.609, 128.14),
+            (443.334, 128.44),
+            (444.173, 128.74),
+            (444.959, 129.04),
+            (445.754, 129.34),
+            (446.096, 129.64),
+        ]))
         profil_casier.comment = f"{profil_casier} calculé avec un MNTerrain"
         casier.ajouter_profil_casier(profil_casier)
         polygon = LinearRing([
@@ -297,13 +367,31 @@ def pkm_to_y_position(pk):
 
 def get_trigramme_and_pk_km(nom_emh):
     """Retourne le trigramme et le PK à partir du nom de l'EMH"""
-    if f'_{TRIGRAMME_RETENUE}' in nom_emh[3:]:
-        match = re.match(r'^(Br|Nd|St)_(?P<trigramme>[A-Z]{3})(?P<pk_km>[0-9.]+)_(?P<trigramme_av>[A-Z]{3})(?P<complement>[\w]*?)$', nom_emh)
-    elif '-' in nom_emh:
-        match = re.match(r'^(Br|Nd|St)_(?P<trigramme>[A-Z]{3})(?P<pk_km>[0-9.]+)-(?P<pk_km_av>[0-9.]+)(?P<complement>[\w]*?)$', nom_emh)
+    if '-' in nom_emh:
+        match = re.match(r'^(Br|Nd|St)_(?P<trigramme_am>[A-Z]{3})(?P<complement_am>[\w]*?)(?P<pk_km>[0-9.]+)?-(?P<trigramme>[A-Z]{3})(?P<pk_km_av>[0-9.]+)(?P<complement_av>[\w]*?)$', nom_emh)
     else:
-        match = re.match(r'^(Br|Nd|St)_(?P<trigramme>[A-Z]{3})(?P<pk_km>[0-9.]+)(?P<complement>[\w]*?)$', nom_emh)
-    return match.group('trigramme'), match.group('pk_km')
+        match = re.match(r'^(Br|Nd|St)_(?P<trigramme>[A-Z]{3})(?P<pk_km>[0-9.]+)?(?P<complement>[\w]*?)$', nom_emh)
+
+    pk_km = match.group('pk_km')
+    if pk_km is None:
+        # Hardcoded determination of PK for specific locations
+        if 'Seuil_Av' in nom_emh:
+            pkm = PKM_VRH_SEUIL[1]
+        elif 'Seuil' in nom_emh:
+            pkm = PKM_VRH_SEUIL[0]
+        elif 'Pont_Av' in nom_emh:
+            pkm = PKM_RET_PONT[1]
+        elif 'Pont' in nom_emh:
+            pkm = PKM_RET_PONT[0]
+        elif 'BGE_XX_Av' in nom_emh:
+            pkm = PKM_BGE[1]
+        elif 'BGE_XX' in nom_emh:
+            pkm = PKM_BGE[0]
+        else:
+            raise NotImplementedError
+        pk_km = pkm_to_pk_km(pkm)
+
+    return match.group('trigramme'), pk_km
 
 
 def creer_noeud(nom_noeud):
@@ -323,13 +411,18 @@ def creer_noeud(nom_noeud):
         x_position += (pkm - PKM_DIFFLUENCE) / 5
     elif trigramme == TRIGRAMME_AFFLUENT:
         x_position += pkm
-    elif trigramme == TRIGRAMME_PLAINE:
+    elif trigramme == TRIGRAMME_PLAINE_A:
+        x_position -= 2500
+    elif trigramme == TRIGRAMME_PLAINE_B:
         x_position -= 1500
 
     if trigramme == TRIGRAMME_AFFLUENT:
         y_position = pkm_to_y_position(PKM_CONFLUENCE_AFFLUENT)
-    elif trigramme == TRIGRAMME_PLAINE:  # CAS1 sera à PKM_DEBUT_PLAINE, puis un noeud tous les 2000m
-        pkm = PKM_DEBUT_PLAINE + DISTANCE_CASIER * (pkm / 1000 - 1)
+    elif trigramme == TRIGRAMME_PLAINE_A:  # CCA01 sera à PKM_DEBUT_PLAINE_A, puis un noeud tous les 2000m
+        pkm = PKM_DEBUT_PLAINE_A + DISTANCE_CASIER * (pkm / 1000 - 1)
+        y_position = pkm_to_y_position(pkm)
+    elif trigramme == TRIGRAMME_PLAINE_B:  # CCB01 sera à PKM_DEBUT_PLAINE_B, puis un noeud tous les 2000m
+        pkm = PKM_DEBUT_PLAINE_B + DISTANCE_CASIER * (pkm / 1000 - 1)
         y_position = pkm_to_y_position(pkm)
     else:
         y_position = pkm_to_y_position(pkm)
@@ -341,23 +434,24 @@ def creer_noeud(nom_noeud):
     return noeud
 
 
-smfs_amont = SousModeleFromScratch('Sm_amont')  # VRH + CAF + RET + AFF
-smfs_cas = SousModeleFromScratch('Sm_CAS')
-smfs_caa = SousModeleFromScratch('Sm_CAA')
-smfs_bgefileau = SousModeleFromScratch('Sm_bgefileau')  # AMB + BGE + AVB
-smfs_bgegenerique = SousModeleFromScratch('Sm_bgegenerique')  # AMB + BGE + AVB
+smfs_amont_min = SousModeleFromScratch('Sm_amont_min')  # VRH + CAF + RET (jusqu'au PR2) + AFF
+smfs_plaine = SousModeleFromScratch('Sm_plaine')  # CCA + CCB
+smfs_canal_amenee = SousModeleFromScratch('Sm_canal_amenee')  # CAA
+smfs_bgefileau = SousModeleFromScratch('Sm_bgefileau')  # RET (depuis PR2) + AMB + BGE + AVB
+smfs_bgegen = SousModeleFromScratch('Sm_bgegen')  # RET (depuis PR2) + AMB + BGE + AVB
 
 
 mo_mono_sm = []
-mo_multi_avec_bgefileau = []
-mo_multi_avec_bgegenerique = []
+mo_multi_sm_avec_bgefileau = []
+mo_multi_sm_avec_bgegen = []
 
 
 # Ajout des Noeuds
 ## VRH
-nd_vrh_80_000 = creer_noeud('Nd_VRH80.000')
-nd_vrh_84_900 = creer_noeud('Nd_VRH84.900')
-nd_vrh_85_100 = creer_noeud('Nd_VRH85.100')
+nd_vrh_1 = creer_noeud('Nd_VRH80.000')
+nd_vrh_2 = creer_noeud('Nd_VRH_Seuil_Am')
+nd_vrh_3 = creer_noeud('Nd_VRH_Seuil_Av')
+nd_vrh_4 = creer_noeud('Nd_VRH87.600')
 
 ## CAF
 nd_caf_orphelin = creer_noeud('Nd_CAF85.000_orphelin')
@@ -365,73 +459,84 @@ nd_caf_87_000 = creer_noeud('Nd_CAF87.000')
 
 ## RET
 nd_ret_90_000 = creer_noeud('Nd_RET90.000')
-nd_ret_96_000 = creer_noeud('Nd_RET96.000_PR1')
-nd_ret_98_000 = creer_noeud('Nd_RET98.000')
+nd_ret_92_000 = creer_noeud('Nd_RET92.000')
+nd_ret_96_000 = creer_noeud('Nd_RET96.000')
+nd_ret_98_000 = creer_noeud('Nd_RET98.000_PR1')
 nd_ret_100_500 = creer_noeud('Nd_RET100.500')
-nd_ret_102_700 = creer_noeud('Nd_RET102.700')
-nd_ret_103_000 = creer_noeud('Nd_RET103.000_PR2')
+nd_ret_102_700 = creer_noeud('Nd_RET_Pont_Am')
+nd_ret_103_000 = creer_noeud('Nd_RET103.000')
+nd_ret_104_000_pr2 = creer_noeud('Nd_RET104.000_PR2')
 nd_ret_105_000 = creer_noeud('Nd_RET105.000')
 
 ## AMB (+ BGE) + AVB
-nd_amb = creer_noeud('Nd_AMB105.500')
+nd_amb = creer_noeud('Nd_AMB105.600')
 nd_avb_1 = creer_noeud('Nd_AVB106.000')
-nd_avb_2 = creer_noeud('Nd_AVB106.200')
+nd_avb_2 = creer_noeud('Nd_AVB106.020')
 
 ## CAA
 nd_caa_1 = creer_noeud('Nd_CAA107.500')
 nd_caa_2 = creer_noeud('Nd_CAA110.000')
 
-## CAS
-nd_cas_1 = creer_noeud('Nd_CAS1')
-nd_cas_2 = creer_noeud('Nd_CAS2')
-nd_cas_3 = creer_noeud('Nd_CAS3')
-nd_cas_4 = creer_noeud('Nd_CAS4')
-nd_cas_5 = creer_noeud('Nd_CAS5')
+## CCA
+nd_cca_1 = creer_noeud('Nd_CCA01')
+nd_cca_2 = creer_noeud('Nd_CCA02')
+nd_ccb_1 = creer_noeud('Nd_CCB01')
+nd_ccb_2 = creer_noeud('Nd_CCB02')
+nd_ccb_3 = creer_noeud('Nd_CCB03')
 
 ## AFF
 nd_aff_amont = creer_noeud('Nd_AFF5')
 nd_aff_milieu = creer_noeud('Nd_AFF3')
 
-## Ajout des noeuds de jonctions
-nd_ret_105_000 = creer_noeud('Nd_RET105.000')
-nd_ret_105_000 = creer_noeud('Nd_RET105.000')
-
 
 # Ajout des Branches
 ## VRH
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
-    BrancheSaintVenant('Br_VRH80.000', nd_vrh_80_000, nd_vrh_84_900)
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSaintVenant('Br_VRH80.000', nd_vrh_1, nd_vrh_2)
 )
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
-    BrancheSeuilTransversal('Br_VRH84.900_Seuil', nd_vrh_84_900, nd_vrh_85_100)
+br_vrh_seuil = smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSeuilTransversal('Br_VRH_Seuil', nd_vrh_2, nd_vrh_3)
 )
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
-    BrancheSaintVenant('Br_VRH85.100', nd_vrh_85_100, nd_ret_90_000)
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSaintVenant('Br_VRH85.100', nd_vrh_3, nd_vrh_4)
+)
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSaintVenant('Br_VRH87.600', nd_vrh_4, nd_ret_90_000)
 )
 
 ## CAF
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_CAF87.000', nd_caf_87_000, nd_ret_90_000)
 )
 
 ## RET
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
-    BrancheSaintVenant('Br_RET90.000', nd_ret_90_000, nd_ret_96_000)
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSaintVenant('Br_RET90.000', nd_ret_90_000, nd_ret_92_000)
 )
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSaintVenant('Br_RET92.000', nd_ret_92_000, nd_ret_96_000)
+)
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_RET96.000', nd_ret_96_000, nd_ret_98_000)
 )
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_RET98.000', nd_ret_98_000, nd_ret_100_500)
 )
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_RET100.500', nd_ret_100_500, nd_ret_102_700)
 )
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
-    BranchePdC('Br_RET102.700_Pont', nd_ret_102_700, nd_ret_103_000)
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
+    BranchePdC('Br_RET_Pont', nd_ret_102_700, nd_ret_103_000)
 )
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
-    BrancheSaintVenant('Br_RET103.000', nd_ret_103_000, nd_ret_105_000)
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSaintVenant('Br_RET103.000', nd_ret_103_000, nd_ret_104_000_pr2)
+)
+
+br_bgefileau_aval_pr2 = smfs_bgefileau.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSaintVenant('Br_RET104.000', nd_ret_104_000_pr2, nd_ret_105_000)
+)
+br_bgegen_aval_pr2 = smfs_bgegen.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSaintVenant('Br_RET104.000', nd_ret_104_000_pr2, nd_ret_105_000)
 )
 
 ## AMB + BGE (avec BrancheBarrageFilEau) + AVB
@@ -439,54 +544,51 @@ br_amb_fileau = smfs_bgefileau.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_AMB105.000', nd_ret_105_000, nd_amb)
 )
 br_bgefileau = smfs_bgefileau.ajouter_branche_avec_sections_aux_extremites(
-    BrancheBarrageFilEau('Br_BGE105.500', nd_amb, nd_avb_1)
+    BrancheBarrageFilEau('Br_BGE_XX', nd_amb, nd_avb_1)
 )
 smfs_bgefileau.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_AVB106.000', nd_avb_1, nd_avb_2)
 )
 
 ## AMB + BGE (avec BrancheBarrageGenerique) + AVB
-br_amb_generique = smfs_bgegenerique.ajouter_branche_avec_sections_aux_extremites(
+br_amb_generique = smfs_bgegen.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_AMB105.000', nd_ret_105_000, nd_amb)
 )
-br_bgegenerique = smfs_bgegenerique.ajouter_branche_avec_sections_aux_extremites(
-    BrancheBarrageGenerique('Br_BGE105.500', nd_amb, nd_avb_1)
+br_bgegen = smfs_bgegen.ajouter_branche_avec_sections_aux_extremites(
+    BrancheBarrageGenerique('Br_BGE_XX', nd_amb, nd_avb_1)
 )
-smfs_bgegenerique.ajouter_branche_avec_sections_aux_extremites(
+smfs_bgegen.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_AVB106.000', nd_avb_1, nd_avb_2)
 )
 
 ## CAA
-smfs_caa.ajouter_branche_avec_sections_aux_extremites(
+smfs_canal_amenee.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_CAA105.000', nd_ret_105_000, nd_caa_1)
 )
-br_caa_2 = smfs_caa.ajouter_branche_avec_sections_aux_extremites(
+br_caa_2 = smfs_canal_amenee.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_CAA107.500', nd_caa_1, nd_caa_2)
 )
 
 ## AFF
-br_aff_amont = smfs_amont.ajouter_branche_avec_sections_aux_extremites(
+br_aff_amont = smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_AFF5', nd_aff_amont, nd_aff_milieu)
 )
-smfs_amont.ajouter_branche_avec_sections_aux_extremites(
+smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_AFF3', nd_aff_milieu, nd_ret_100_500)
 )
 
-## RET vers CAS (mais la branche appartient à la zone CAS)
-smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheSeuilLateral('Br_CAS1_RET', nd_ret_96_000, nd_cas_1)
+## RET vers CCA et CCB (mais la branche appartient toujours à la zone CCA ou CCB)
+smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSeuilLateral('Br_VRH_Seuil-CCA01', nd_vrh_3, nd_cca_1)
 )
-smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheOrifice('Br_CAS5_RET', nd_cas_5, nd_ret_105_000)
+smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheOrifice('Br_VRH87.600-CCA02', nd_vrh_4, nd_cca_2)
 )
-smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheOrifice('Br_CAS2_RET', nd_ret_98_000, nd_cas_2)
+smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheOrifice('Br_RET90.000-CCB01', nd_ret_90_000, nd_ccb_1)
 )
-smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheOrifice('Br_CAS3_RET', nd_ret_100_500, nd_cas_3)
-)
-br_cas4_ret = smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheSeuilLateral('Br_CAS4_RET', nd_ret_102_700, nd_cas_4)
+br_cas4_ret = smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheSeuilLateral('Br_RET92.000-CCB02', nd_ret_92_000, nd_ccb_2)
 )
 br_cas4_ret.formule_pertes_de_charge = 'Divergent'  # 'Borda' par défaut
 br_cas4_ret.set_liste_elements_seuil(np.array([
@@ -494,49 +596,52 @@ br_cas4_ret.set_liste_elements_seuil(np.array([
     (40.0, 102.0, 0.9, 0.9),
     (60.0, 103.0, 0.9, 0.9),
 ]))
+smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheOrifice('Br_RET96.000-CCB03', nd_ret_96_000, nd_ccb_3)
+)
 
 ## CAS
-smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheStrickler('Br_CAS1-2', nd_cas_1, nd_cas_2)
+smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheStrickler('Br_CCA01_02', nd_cca_1, nd_cca_2)
 )
-smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheNiveauxAssocies('Br_CAS2-3', nd_cas_2, nd_cas_3)
+smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheNiveauxAssocies('Br_CCA02-CCB01', nd_cca_2, nd_ccb_1)
 )
-smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheOrifice('Br_CAS3-4', nd_cas_3, nd_cas_4)
+smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheStrickler('Br_CCB01_02', nd_ccb_1, nd_ccb_2)
 )
-smfs_cas.ajouter_branche_avec_sections_aux_extremites(
-    BrancheStrickler('Br_CAS4-5', nd_cas_4, nd_cas_5)
+smfs_plaine.ajouter_branche_avec_sections_aux_extremites(
+    BrancheStrickler('Br_CCB02_03', nd_ccb_2, nd_ccb_3)
 )
 
 
-smfs_amont.ajouter_noeud(nd_caf_orphelin)  # Ajout noeud orphelin
+smfs_amont_min.ajouter_noeud(nd_caf_orphelin)  # Ajout noeud orphelin
 
 # Peupler une branche pour avoir des SectionInterpolee
-smfs_caa.sous_modele.peupler_branche_fluviale_avec_sectioninterpolees(br_caa_2.id, 100.0)
+smfs_canal_amenee.sous_modele.peupler_branche_fluviale_avec_sectioninterpolees(br_caa_2.id, 100.0)
 
 br_aff_amont.is_active = False  # Désactiver une branche
 
-br_bgefileau.section_pilote = br_amb_fileau.get_section_amont()  # Remplace le None par défaut
-br_bgegenerique.section_pilote = br_amb_generique.get_section_amont()  # Remplace le None par défaut
+br_bgefileau.section_pilote = br_bgefileau_aval_pr2.get_section_amont()  # Remplace le None par défaut
+br_bgegen.section_pilote = br_bgegen_aval_pr2.get_section_amont()  # Remplace le None par défaut
 
 
 # Ajout des casiers
-smfs_cas.ajouter_casier(nd_cas_1)
-smfs_cas.ajouter_casier(nd_cas_2)
-smfs_cas.ajouter_casier(nd_cas_3)
-smfs_cas.ajouter_casier(nd_cas_4)
-smfs_cas.ajouter_casier(nd_cas_5)
+smfs_plaine.ajouter_casier(nd_cca_1)
+smfs_plaine.ajouter_casier(nd_cca_2)
+smfs_plaine.ajouter_casier(nd_ccb_1)
+smfs_plaine.ajouter_casier(nd_ccb_2)
+smfs_plaine.ajouter_casier(nd_ccb_3)
 
 
-for smfs in [smfs_amont, smfs_cas, smfs_caa, smfs_bgefileau, smfs_bgegenerique]:
+for smfs in [smfs_amont_min, smfs_plaine, smfs_canal_amenee, smfs_bgefileau, smfs_bgegen]:
     smfs.preparer()
 
 
 if __name__ == "__main__":
     # logger.setLevel(logging.DEBUG)
 
-    for sm in [smfs_amont, smfs_cas, smfs_caa, smfs_bgefileau, smfs_bgegenerique]:
+    for sm in [smfs_amont_min, smfs_plaine, smfs_canal_amenee, smfs_bgefileau, smfs_bgegen]:
         folder = os.path.join('..', 'tmp', 'Sm_from_scratch', sm.sous_modele.id)
 
         # Write all SousModele files
