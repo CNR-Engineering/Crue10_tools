@@ -32,12 +32,12 @@ Etu3-6
         self.assertEqual(self.etude_from_scratch.details(), """# Liste des scénarios
 - Sc_multi_sm_avec_bgefileau
 - Sc_multi_sm_avec_bgegen
-- Sc_mono_sm
+- Sc_mono_sm_avec_bgefileau
 
 # Liste des modèles
 - Mo_multi_sm_avec_bgefileau
 - Mo_multi_sm_avec_bgegen
-- Mo_mono_sm
+- Mo_mono_sm_avec_bgefileau
 
 # Liste des sous-modèles
 - Sm_amont_min
@@ -45,7 +45,7 @@ Etu3-6
 - Sm_canal_amenee
 - Sm_bgefileau
 - Sm_bgegen
-- Sm_mono_sm
+- Sm_mono_sm_avec_bgefileau
 
 # Arborescence des Sc/Mo/Sm
 Etu_from_scratch
@@ -61,6 +61,6 @@ Etu_from_scratch
 │       ├── Sm_plaine
 │       ├── Sm_canal_amenee
 │       └── Sm_bgegen
-└── Sc_mono_sm
-    └── Mo_mono_sm
-        └── Sm_mono_sm""")
+└── Sc_mono_sm_avec_bgefileau
+    └── Mo_mono_sm_avec_bgefileau
+        └── Sm_mono_sm_avec_bgefileau""")

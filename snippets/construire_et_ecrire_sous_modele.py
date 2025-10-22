@@ -83,25 +83,53 @@ class SousModeleFromScratch:
             date_campagne = '01/01/2025'
         section.comment_profilsection = f"Profil importé de Bathy (campagne du {date_campagne})"
 
-        largeur_sto_d = 60.0
-        largeur_maj_d = 40.0
-        largeur_min = 500.0
-        largeur_maj_g = 40.0
-        largeur_sto_g = 60.0
+        if trigramme == TRIGRAMME_VIEUX_RHONE:
+            xt_initial = -100.0  # Borne RD Bathy à xt=0
+
+            largeur_sto_d = 150.0
+            largeur_maj_d = 40.0
+            largeur_min = 800.0
+            largeur_maj_g = 40.0
+            largeur_sto_g = 20.0
+
+            xt_axe_hydraulique = xt_initial + largeur_sto_d + largeur_maj_d + largeur_min / 4  # plus à droite
+
+        elif trigramme == TRIGRAMME_RETENUE:
+            xt_initial = -100.0  # Borne RD Bathy à xt=0
+
+            largeur_sto_d = 60.0
+            largeur_maj_d = 40.0
+            largeur_min = 650.0
+            largeur_maj_g = 40.0
+            largeur_sto_g = 60.0
+
+            xt_axe_hydraulique = xt_initial + largeur_sto_d + largeur_maj_d + largeur_min / 2  # milieu
+
+        else:
+            xt_initial = 0.0  # Borne RD Bathy à xt=0
+
+            largeur_sto_d = 60.0
+            largeur_maj_d = 40.0
+            largeur_min = 500.0
+            largeur_maj_g = 40.0
+            largeur_sto_g = 60.0
+
+            xt_axe_hydraulique = xt_initial + largeur_sto_d + largeur_maj_d + largeur_min / 2  # milieu
 
         z_rive = 10.0
         z_sto_maj = 8.0
         z_maj_min = 4.0
+        z_min = 0.1
         z_thalweg = 0.0
-
-        xt_initial = -10.0  # Borne RD Bathy à xt=0
 
         xz = np.array([
             (xt_initial, z_rive),
             (largeur_sto_d, z_sto_maj),
             (largeur_maj_d, z_maj_min),
-            (largeur_min / 2, z_thalweg),  # Centered thalweg
-            (largeur_min / 2, z_maj_min),
+            (largeur_min / 4, z_min),
+            (largeur_min / 4, z_thalweg),  # thalweg au centre du lit mineur
+            (largeur_min / 4, z_min),
+            (largeur_min / 4, z_maj_min),
             (largeur_maj_g, z_sto_maj),
             (largeur_sto_g, z_rive)
         ])
@@ -118,9 +146,9 @@ class SousModeleFromScratch:
         xt_limites = xt_limites.cumsum()
 
         section.set_xz(xz)
-        xt_thalweg = xt_initial + largeur_sto_d + largeur_maj_d + largeur_min / 2
+
+        xt_thalweg = xt_initial + largeur_sto_d + largeur_maj_d + largeur_min / 2  # thalweg au centre du lit mineur
         section.ajouter_limite_geom(LimiteGeom(LimiteGeom.THALWEG, xt_thalweg))
-        xt_axe_hydraulique = xt_initial + largeur_sto_d + largeur_maj_d + largeur_min / 2
         section.ajouter_limite_geom(LimiteGeom(LimiteGeom.AXE_HYDRAULIQUE, xt_axe_hydraulique))
 
         loi_sto = self.sous_modele.get_loi_frottement(DEFAULT_FK_STO_ID)
@@ -149,9 +177,13 @@ class SousModeleFromScratch:
             idx += 1
         return nom_section_final
 
-    def ajouter_sectionidem(self, section_reference):
+    def ajouter_sectionidem(self, section_reference, diff_pkm):
+        pkm_reference = pk_km_to_pkm(get_trigramme_and_pk_km(section_reference.id)[1])
         nom_section_candidat = self.determiner_nom_section_disponible(section_reference.id)
-        return self.ajouter_section(SectionIdem(nom_section_candidat, section_reference, dz_section_reference=0.0))
+        pkm_idem = pk_km_to_pkm(get_trigramme_and_pk_km(nom_section_candidat)[1])
+        dz_section_reference = diff_pkm / 1000   # pente à 1/1000
+        section_idem = SectionIdem(nom_section_candidat, section_reference, dz_section_reference=dz_section_reference)
+        return self.ajouter_section(section_idem)
 
     def ajouter_section_from_position(self, trigramme, pk_km):
         pkm = pk_km_to_pkm(pk_km)
@@ -169,13 +201,13 @@ class SousModeleFromScratch:
             else:
                 raise NotImplementedError
 
-        if trigramme != TRIGRAMME_RETENUE and pkm in (PKM_RESTITUTION,):  # PKM_DIFFLUENCE can not be added because of multiple Sm at this PKM
+        if trigramme not in (TRIGRAMME_RETENUE, 'CAA') and pkm in (PKM_RESTITUTION, PKM_DIFFLUENCE):
             nom_section_reference = f"St_{TRIGRAMME_RETENUE}{pk_km}"
             if nom_section_reference in self.sous_modele.sections:
                 section_reference = self.sous_modele.get_section(nom_section_reference)
             else:
                 section_reference = self.ajouter_section(self.creer_sectionprofil_depuis_position(TRIGRAMME_RETENUE, pk_km))
-            return self.ajouter_sectionidem(section_reference)  # SectionIdem
+            return self.ajouter_sectionidem(section_reference, 0)  # SectionIdem
 
         elif trigramme == TRIGRAMME_RETENUE and pkm == PKM_PR2:
             section = self.creer_sectionprofil_depuis_position(trigramme, pk_km)
@@ -191,7 +223,7 @@ class SousModeleFromScratch:
                 if section_reference.xp == -1:
                     return section_reference  # SectionProfil
                 else:
-                    return self.ajouter_sectionidem(section_reference)  # SectionIdem
+                    return self.ajouter_sectionidem(section_reference, 0)  # SectionIdem
             else:
                 return self.ajouter_section(self.creer_sectionprofil_depuis_position(trigramme, pk_km))  # SectionProfil
 
@@ -206,7 +238,8 @@ class SousModeleFromScratch:
                 section_reference = self.sous_modele.get_section(nom_section_reference)
             else:
                 section_reference = self.ajouter_section(self.creer_sectionprofil_depuis_position(trigramme, pk_km_nearest_bathy))
-            return self.ajouter_sectionidem(section_reference)  # SectionIdem
+            diff_pkm = pkm_nearest_bathy - pkm
+            return self.ajouter_sectionidem(section_reference, diff_pkm)  # SectionIdem
 
     def ajouter_branche(self, branche, sections_at_xp):
         trigramme_br, pk_km_br = get_trigramme_and_pk_km(branche.id)
@@ -348,7 +381,8 @@ class SousModeleFromScratch:
         self.sous_modele.ajouter_casier(casier)
 
     def preparer(self):
-        self.sous_modele.rename_emhs(self.sous_modele.id[2:].replace('bge', ''), emh_list=['Fk'])
+        suffixe = self.sous_modele.id[2:].replace('bge', '').replace('amont_min', 'amont')
+        self.sous_modele.rename_emhs(suffixe, emh_list=['Fk'])
         self.sous_modele.set_comment(self.sous_modele.summary())
 
 
@@ -464,7 +498,7 @@ nd_ret_96_000 = creer_noeud('Nd_RET96.000')
 nd_ret_98_000 = creer_noeud('Nd_RET98.000_PR1')
 nd_ret_100_500 = creer_noeud('Nd_RET100.500')
 nd_ret_102_700 = creer_noeud('Nd_RET_Pont_Am')
-nd_ret_103_000 = creer_noeud('Nd_RET103.000')
+nd_ret_102_900 = creer_noeud('Nd_RET102.900')
 nd_ret_104_000_pr2 = creer_noeud('Nd_RET104.000_PR2')
 nd_ret_105_000 = creer_noeud('Nd_RET105.000')
 
@@ -497,6 +531,10 @@ smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
 br_vrh_seuil = smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSeuilTransversal('Br_VRH_Seuil', nd_vrh_2, nd_vrh_3)
 )
+br_vrh_seuil.set_liste_elements_seuil_avec_coef_par_defaut(np.array([
+    (1000.0, 100.0),
+]))
+br_vrh_seuil.decouper_seuil_elem(50, 5.0)
 smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_VRH85.100', nd_vrh_3, nd_vrh_4)
 )
@@ -526,10 +564,10 @@ smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
     BrancheSaintVenant('Br_RET100.500', nd_ret_100_500, nd_ret_102_700)
 )
 smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
-    BranchePdC('Br_RET_Pont', nd_ret_102_700, nd_ret_103_000)
+    BranchePdC('Br_RET_Pont', nd_ret_102_700, nd_ret_102_900)
 )
 smfs_amont_min.ajouter_branche_avec_sections_aux_extremites(
-    BrancheSaintVenant('Br_RET103.000', nd_ret_103_000, nd_ret_104_000_pr2)
+    BrancheSaintVenant('Br_RET102.900', nd_ret_102_900, nd_ret_104_000_pr2)
 )
 
 br_bgefileau_aval_pr2 = smfs_bgefileau.ajouter_branche_avec_sections_aux_extremites(

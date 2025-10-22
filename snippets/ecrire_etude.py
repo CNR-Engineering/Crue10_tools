@@ -1,19 +1,21 @@
 """
-Étude fictive d'un bief nommé XX représentant l'équivalent de 30 km de Rhône (par VRH>RET>CAA) répartis comme suit :
+Étude fictive d'un bief nommé XX représentant l'équivalent de 30 km sur le Bas-Rhône (par VRH>RET>CAA) répartis comme suit :
 
-| Zone | Longueur | Début PK Rhône |  Fin PK Rhône |
-|------|----------|----------------|---------------|
-| VRH  | 10 km    |         80.000 |        90.000 |
-| CAF  | 3 km     |         87.000 |        90.000 |
-| RET  | 15 km    |         90.000 |       105.000 |
-| AMB  | 600 m    |        105.000 |       105.600 |
-| BAR  | 400 m    |        105.600 |       106.000 |
-| AVB  | 20 m     |        106.000 |       106.020 |
-| CAA  | 5 km     |        105.000 |       110.000 |
-| AFF  | 6 km     |              - |       100.500 |
+| Zone | Longueur | Début PK Rhône |  Fin PK Rhône | Sous-modèle unitaire    |
+|------|----------|----------------|---------------|-------------------------|
+| VRH  | 10 km    |         80.000 |        90.000 | Sm_amont_min            |
+| CAF  | 3 km     |         87.000 |        90.000 | Sm_amont_min            |
+| RET  | 15 km    |         90.000 |       105.000 | Sm_amont_min / Sm_bge*  |
+| AMB  | 600 m    |        105.000 |       105.600 | Sm_bge*                 |
+| BAR  | 400 m    |        105.600 |       106.000 | Sm_bge*                 |
+| AVB  | 20 m     |        106.000 |       106.020 | Sm_bge*                 |
+| CAA  | 5 km     |        105.000 |       110.000 | Sm_canal_amenee         |
+| AFF  | 6 km     |              - |       100.500 | Sm_amont_min            |
+| CCA  | -        |              - |             - | Sm_plaine               |
+| CCB  | -        |              - |             - | Sm_plaine               |
 
-Les scénarios Sc_mono_sm et Sc_multi_sm_avec_bgefileau comportent les mêmes EMHs mais réparties
-soit dans un unique sous-modèle (Sm_mono_sm), soit dans 4 sous-modèles différents (pour ce second scénario).
+Les scénarios Sc_mono_sm_avec_bgefileau et Sc_multi_sm_avec_bgefileau comportent les mêmes EMHs mais réparties
+soit dans un unique sous-modèle (Sm_mono_sm_avec_bgefileau), soit dans 4 sous-modèles différents (pour ce second scénario).
 
 Quelques remarques :
 - La branche barrage fait 400m (couvre 100m en amont + 300m en aval)
@@ -64,34 +66,34 @@ def creer_etude_from_scratch(etu_path):
     etude_out.ajouter_scenario(sc_multi_sm_avec_bgegen)
 
     # Sc_mono_sm
-    sm_mono_sm = SousModele('Sm_mono_sm', metadata=DEFAULT_METADATA, mode='w')
-    sm_mono_sm.ajouter_emh_depuis_sous_modele(smfs_amont_min.sous_modele)
-    sm_mono_sm.ajouter_emh_depuis_sous_modele(smfs_plaine.sous_modele)
-    sm_mono_sm.ajouter_emh_depuis_sous_modele(smfs_canal_amenee.sous_modele)
-    sm_mono_sm.ajouter_emh_depuis_sous_modele(smfs_bgefileau.sous_modele)
-    sm_mono_sm.set_comment(sm_mono_sm.summary())
+    sm_mono_sm_avec_bgefileau = SousModele('Sm_mono_sm_avec_bgefileau', metadata=DEFAULT_METADATA, mode='w')
+    sm_mono_sm_avec_bgefileau.ajouter_emh_depuis_sous_modele(smfs_amont_min.sous_modele)
+    sm_mono_sm_avec_bgefileau.ajouter_emh_depuis_sous_modele(smfs_plaine.sous_modele)
+    sm_mono_sm_avec_bgefileau.ajouter_emh_depuis_sous_modele(smfs_canal_amenee.sous_modele)
+    sm_mono_sm_avec_bgefileau.ajouter_emh_depuis_sous_modele(smfs_bgefileau.sous_modele)
+    sm_mono_sm_avec_bgefileau.set_comment(sm_mono_sm_avec_bgefileau.summary())
 
-    mo_mono_sm = Modele('Mo_mono_sm', metadata=DEFAULT_METADATA, mode='w')
-    mo_mono_sm.ajouter_sous_modele(sm_mono_sm)
+    mo_mono_sm_avec_bgefileau = Modele('Mo_mono_sm_avec_bgefileau', metadata=DEFAULT_METADATA, mode='w')
+    mo_mono_sm_avec_bgefileau.ajouter_sous_modele(sm_mono_sm_avec_bgefileau)
 
-    sc_mono_sm = Scenario('Sc_mono_sm', mo_mono_sm, metadata=DEFAULT_METADATA, mode='w')
-    etude_out.ajouter_scenario(sc_mono_sm)
+    sc_mono_sm_avec_bgefileau = Scenario('Sc_mono_sm_avec_bgefileau', mo_mono_sm_avec_bgefileau, metadata=DEFAULT_METADATA, mode='w')
+    etude_out.ajouter_scenario(sc_mono_sm_avec_bgefileau)
 
     # Reset initial conditions
     mo_multi_sm_avec_bgefileau.reset_initial_conditions()
     mo_multi_sm_avec_bgegen.reset_initial_conditions()
-    mo_mono_sm.reset_initial_conditions()
+    mo_mono_sm_avec_bgefileau.reset_initial_conditions()
 
     # Set comments
     mo_multi_sm_avec_bgefileau.set_comment(mo_multi_sm_avec_bgefileau.summary())
     mo_multi_sm_avec_bgegen.set_comment(mo_multi_sm_avec_bgegen.summary())
-    mo_mono_sm.set_comment(mo_mono_sm.summary())
+    mo_mono_sm_avec_bgefileau.set_comment(mo_mono_sm_avec_bgefileau.summary())
 
     sc_multi_sm_avec_bgefileau.set_comment(sc_multi_sm_avec_bgefileau.summary())
     sc_multi_sm_avec_bgegen.set_comment(sc_multi_sm_avec_bgefileau.summary())
-    sc_mono_sm.set_comment(sc_mono_sm.summary())
+    sc_mono_sm_avec_bgefileau.set_comment(sc_mono_sm_avec_bgefileau.summary())
 
-    etude_out.nom_scenario_courant = sc_mono_sm.id
+    etude_out.nom_scenario_courant = sc_mono_sm_avec_bgefileau.id
     etude_out.set_comment(etude_out.summary() + "\n\n" + etude_out.details() + "\n\n" + get_file_docstring(__file__))
 
     return etude_out

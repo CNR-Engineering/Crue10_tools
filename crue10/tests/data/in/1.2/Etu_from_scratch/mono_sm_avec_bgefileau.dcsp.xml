@@ -10,8 +10,122 @@
     <DonCalcSansPrtBrancheSeuilTransversal NomRef="Br_VRH_Seuil">
       <FormulePdc>Borda</FormulePdc>
       <ElemSeuilAvecPdc>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
+        <Largeur>50.0</Largeur>
+        <Zseuil>97.73809523809524</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>97.97619047619048</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>98.21428571428571</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>98.45238095238095</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>98.69047619047619</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>98.92857142857143</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>99.16666666666667</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>99.4047619047619</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>99.64285714285714</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>99.88095238095238</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>100.11904761904762</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>100.35714285714286</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>100.5952380952381</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>100.83333333333333</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>101.07142857142857</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>101.30952380952381</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>101.54761904761905</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>101.78571428571429</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>102.02380952380952</Zseuil>
+        <CoefD>1.0</CoefD>
+        <CoefPdc>1.0</CoefPdc>
+      </ElemSeuilAvecPdc>
+      <ElemSeuilAvecPdc>
+        <Largeur>50.0</Largeur>
+        <Zseuil>102.26190476190476</Zseuil>
         <CoefD>1.0</CoefD>
         <CoefPdc>1.0</CoefPdc>
       </ElemSeuilAvecPdc>
@@ -64,7 +178,7 @@
         </EvolutionFF>
       </Pdc>
     </DonCalcSansPrtBranchePdc>
-    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_RET103.000">
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_RET102.900">
       <CoefBeta>1.0</CoefBeta>
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>

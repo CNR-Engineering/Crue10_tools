@@ -194,6 +194,8 @@ class Modele(EnsembleFichiersXML):
 
     def get_liste_noeuds(self):
         """
+        Attention cette liste comporte des "doublons" si les noeuds sont partagés entre sous-modèles
+
         :return: liste des noeuds
         :rtype: list(Noeud)
         """

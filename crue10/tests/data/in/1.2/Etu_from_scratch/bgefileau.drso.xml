@@ -44,10 +44,10 @@
       <Commentaire>SectionProfil #St_RET104.800</Commentaire>
       <ProfilSection NomRef="Ps_RET104.800"/>
     </SectionProfil>
-    <SectionProfil Nom="St_AMB105.000">
-      <Commentaire>SectionProfil #St_AMB105.000</Commentaire>
-      <ProfilSection NomRef="Ps_AMB105.000"/>
-    </SectionProfil>
+    <SectionIdem Nom="St_RET105.000a">
+      <Commentaire>SectionIdem #St_RET105.000a</Commentaire>
+      <Section NomRef="St_RET105.000"/>
+    </SectionIdem>
     <SectionProfil Nom="St_AMB105.600">
       <Commentaire>SectionProfil #St_AMB105.600</Commentaire>
       <ProfilSection NomRef="Ps_AMB105.600"/>
@@ -126,7 +126,7 @@
       <NdAm NomRef="Nd_RET105.000"/>
       <NdAv NomRef="Nd_AMB105.600"/>
       <BrancheSaintVenant-Sections>
-        <BrancheSaintVenant-Section NomRef="St_AMB105.000">
+        <BrancheSaintVenant-Section NomRef="St_RET105.000a">
           <Pos>Amont</Pos>
           <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.3.xsd">
+<DRSO xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/drso-1.2.xsd">
   <Commentaire></Commentaire>
   <Noeuds>
     <NoeudNiveauContinu Nom="Nd_VRH80.000">
@@ -35,8 +35,8 @@
     <NoeudNiveauContinu Nom="Nd_RET_Pont_Am">
       <Commentaire>Noeud #Nd_RET_Pont_Am localisé à la position (800000.0, 6297300.0)</Commentaire>
     </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_RET103.000">
-      <Commentaire>Noeud #Nd_RET103.000 localisé à la position (800000.0, 6297000.0)</Commentaire>
+    <NoeudNiveauContinu Nom="Nd_RET102.900">
+      <Commentaire>Noeud #Nd_RET102.900 localisé à la position (800000.0, 6297100.0)</Commentaire>
     </NoeudNiveauContinu>
     <NoeudNiveauContinu Nom="Nd_RET104.000_PR2">
       <Commentaire>Noeud #Nd_RET104.000_PR2 localisé à la position (800000.0, 6296000.0)</Commentaire>
@@ -497,13 +497,13 @@
       <Commentaire>SectionProfil #St_RET102.400</Commentaire>
       <ProfilSection NomRef="Ps_RET102.400"/>
     </SectionProfil>
-    <SectionProfil Nom="St_RET103.000">
-      <Commentaire>SectionProfil #St_RET103.000</Commentaire>
-      <ProfilSection NomRef="Ps_RET103.000"/>
-    </SectionProfil>
     <SectionProfil Nom="St_RET104.000bis">
       <Commentaire>SectionProfil #St_RET104.000bis</Commentaire>
       <ProfilSection NomRef="Ps_RET104.000bis"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_RET103.000">
+      <Commentaire>SectionProfil #St_RET103.000</Commentaire>
+      <ProfilSection NomRef="Ps_RET103.000"/>
     </SectionProfil>
     <SectionProfil Nom="St_RET103.200">
       <Commentaire>SectionProfil #St_RET103.200</Commentaire>
@@ -595,6 +595,10 @@
     </SectionIdem>
     <SectionIdem Nom="St_RET102.800a">
       <Commentaire>SectionIdem #St_RET102.800a</Commentaire>
+      <Section NomRef="St_RET102.800"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_RET102.800b">
+      <Commentaire>SectionIdem #St_RET102.800b</Commentaire>
       <Section NomRef="St_RET102.800"/>
     </SectionIdem>
     <SectionIdem Nom="St_AFF3a">
@@ -869,10 +873,6 @@
       <Commentaire>SectionProfil #St_RET104.800</Commentaire>
       <ProfilSection NomRef="Ps_RET104.800"/>
     </SectionProfil>
-    <SectionProfil Nom="St_AMB105.000">
-      <Commentaire>SectionProfil #St_AMB105.000</Commentaire>
-      <ProfilSection NomRef="Ps_AMB105.000"/>
-    </SectionProfil>
     <SectionProfil Nom="St_AMB105.600">
       <Commentaire>SectionProfil #St_AMB105.600</Commentaire>
       <ProfilSection NomRef="Ps_AMB105.600"/>
@@ -885,6 +885,10 @@
       <Commentaire>SectionProfil #St_AVB106.020</Commentaire>
       <ProfilSection NomRef="Ps_AVB106.020"/>
     </SectionProfil>
+    <SectionIdem Nom="St_RET105.000a">
+      <Commentaire>SectionIdem #St_RET105.000a</Commentaire>
+      <Section NomRef="St_RET105.000"/>
+    </SectionIdem>
     <SectionIdem Nom="St_AMB105.600a">
       <Commentaire>SectionIdem #St_AMB105.600a</Commentaire>
       <Section NomRef="St_AMB105.600"/>
@@ -1705,10 +1709,10 @@
       </BrancheSaintVenant-Sections>
     </BrancheSaintVenant>
     <BranchePdc Nom="Br_RET_Pont">
-      <Commentaire>Branche [1] #Br_RET_Pont: Noeud #Nd_RET_Pont_Am -&gt; Noeud #Nd_RET103.000 (2 sections)</Commentaire>
+      <Commentaire>Branche [1] #Br_RET_Pont: Noeud #Nd_RET_Pont_Am -&gt; Noeud #Nd_RET102.900 (2 sections)</Commentaire>
       <IsActive>true</IsActive>
       <NdAm NomRef="Nd_RET_Pont_Am"/>
-      <NdAv NomRef="Nd_RET103.000"/>
+      <NdAv NomRef="Nd_RET102.900"/>
       <Branche-Sections>
         <Branche-Section NomRef="St_RET_Pont_Am">
           <Pos>Amont</Pos>
@@ -1720,50 +1724,57 @@
         </Branche-Section>
       </Branche-Sections>
     </BranchePdc>
-    <BrancheSaintVenant Nom="Br_RET103.000">
-      <Commentaire>Branche [20] #Br_RET103.000: Noeud #Nd_RET103.000 -&gt; Noeud #Nd_RET104.000_PR2 (6 sections)</Commentaire>
+    <BrancheSaintVenant Nom="Br_RET102.900">
+      <Commentaire>Branche [20] #Br_RET102.900: Noeud #Nd_RET102.900 -&gt; Noeud #Nd_RET104.000_PR2 (7 sections)</Commentaire>
       <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_RET103.000"/>
+      <NdAm NomRef="Nd_RET102.900"/>
       <NdAv NomRef="Nd_RET104.000_PR2"/>
       <BrancheSaintVenant-Sections>
-        <BrancheSaintVenant-Section NomRef="St_RET103.000">
+        <BrancheSaintVenant-Section NomRef="St_RET102.800b">
           <Pos>Amont</Pos>
           <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_RET103.000">
+          <Pos>Interne</Pos>
+          <Xp>100.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET103.200">
           <Pos>Interne</Pos>
-          <Xp>200.0</Xp>
+          <Xp>300.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET103.400">
           <Pos>Interne</Pos>
-          <Xp>400.0</Xp>
+          <Xp>500.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET103.600">
           <Pos>Interne</Pos>
-          <Xp>600.0</Xp>
+          <Xp>700.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET103.800">
           <Pos>Interne</Pos>
-          <Xp>800.0</Xp>
+          <Xp>900.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET104.000bis">
           <Pos>Aval</Pos>
-          <Xp>1000.0</Xp>
+          <Xp>1100.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -2415,7 +2426,7 @@
       <NdAm NomRef="Nd_RET105.000"/>
       <NdAv NomRef="Nd_AMB105.600"/>
       <BrancheSaintVenant-Sections>
-        <BrancheSaintVenant-Section NomRef="St_AMB105.000">
+        <BrancheSaintVenant-Section NomRef="St_RET105.000a">
           <Pos>Amont</Pos>
           <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>

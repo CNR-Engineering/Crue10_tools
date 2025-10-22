@@ -262,50 +262,52 @@
     <ProfilSection Nom="Ps_CCA01">
       <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
       <EvolutionFF>
-        <PointFF>-10.0 10.0</PointFF>
-        <PointFF>50.0 8.0</PointFF>
-        <PointFF>90.0 4.0</PointFF>
-        <PointFF>340.0 0.0</PointFF>
-        <PointFF>590.0 4.0</PointFF>
-        <PointFF>630.0 8.0</PointFF>
-        <PointFF>690.0 10.0</PointFF>
+        <PointFF>0.0 10.0</PointFF>
+        <PointFF>60.0 8.0</PointFF>
+        <PointFF>100.0 4.0</PointFF>
+        <PointFF>225.0 0.1</PointFF>
+        <PointFF>350.0 0.0</PointFF>
+        <PointFF>475.0 0.1</PointFF>
+        <PointFF>600.0 4.0</PointFF>
+        <PointFF>640.0 8.0</PointFF>
+        <PointFF>700.0 10.0</PointFF>
       </EvolutionFF>
       <LitNumerotes>
         <LitNumerote>
-          <LimDeb>-10.0 10.0</LimDeb>
-          <LimFin>50.0 8.0</LimFin>
+          <LimDeb>0.0 10.0</LimDeb>
+          <LimFin>60.0 8.0</LimFin>
           <LitNomme>Lt_StoD</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="FkSto_K0_0001_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>50.0 8.0</LimDeb>
-          <LimFin>90.0 4.0</LimFin>
+          <LimDeb>60.0 8.0</LimDeb>
+          <LimFin>100.0 4.0</LimFin>
           <LitNomme>Lt_MajD</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>90.0 4.0</LimDeb>
-          <LimFin>590.0 4.0</LimFin>
+          <LimDeb>100.0 4.0</LimDeb>
+          <LimFin>600.0 4.0</LimFin>
           <LitNomme>Lt_Mineur</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>true</IsLitMineur>
           <Frot NomRef="Fk_DefautMin_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>590.0 4.0</LimDeb>
-          <LimFin>630.0 8.0</LimFin>
+          <LimDeb>600.0 4.0</LimDeb>
+          <LimFin>640.0 8.0</LimFin>
           <LitNomme>Lt_MajG</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>630.0 8.0</LimDeb>
-          <LimFin>690.0 10.0</LimFin>
+          <LimDeb>640.0 8.0</LimDeb>
+          <LimFin>700.0 10.0</LimFin>
           <LitNomme>Lt_StoG</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
@@ -314,60 +316,62 @@
       </LitNumerotes>
       <Etiquettes>
         <Etiquette Nom="Et_Thalweg">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
         <Etiquette Nom="Et_AxeHyd">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
       </Etiquettes>
     </ProfilSection>
     <ProfilSection Nom="Ps_CCA02">
       <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
       <EvolutionFF>
-        <PointFF>-10.0 10.0</PointFF>
-        <PointFF>50.0 8.0</PointFF>
-        <PointFF>90.0 4.0</PointFF>
-        <PointFF>340.0 0.0</PointFF>
-        <PointFF>590.0 4.0</PointFF>
-        <PointFF>630.0 8.0</PointFF>
-        <PointFF>690.0 10.0</PointFF>
+        <PointFF>0.0 10.0</PointFF>
+        <PointFF>60.0 8.0</PointFF>
+        <PointFF>100.0 4.0</PointFF>
+        <PointFF>225.0 0.1</PointFF>
+        <PointFF>350.0 0.0</PointFF>
+        <PointFF>475.0 0.1</PointFF>
+        <PointFF>600.0 4.0</PointFF>
+        <PointFF>640.0 8.0</PointFF>
+        <PointFF>700.0 10.0</PointFF>
       </EvolutionFF>
       <LitNumerotes>
         <LitNumerote>
-          <LimDeb>-10.0 10.0</LimDeb>
-          <LimFin>50.0 8.0</LimFin>
+          <LimDeb>0.0 10.0</LimDeb>
+          <LimFin>60.0 8.0</LimFin>
           <LitNomme>Lt_StoD</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="FkSto_K0_0001_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>50.0 8.0</LimDeb>
-          <LimFin>90.0 4.0</LimFin>
+          <LimDeb>60.0 8.0</LimDeb>
+          <LimFin>100.0 4.0</LimFin>
           <LitNomme>Lt_MajD</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>90.0 4.0</LimDeb>
-          <LimFin>590.0 4.0</LimFin>
+          <LimDeb>100.0 4.0</LimDeb>
+          <LimFin>600.0 4.0</LimFin>
           <LitNomme>Lt_Mineur</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>true</IsLitMineur>
           <Frot NomRef="Fk_DefautMin_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>590.0 4.0</LimDeb>
-          <LimFin>630.0 8.0</LimFin>
+          <LimDeb>600.0 4.0</LimDeb>
+          <LimFin>640.0 8.0</LimFin>
           <LitNomme>Lt_MajG</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>630.0 8.0</LimDeb>
-          <LimFin>690.0 10.0</LimFin>
+          <LimDeb>640.0 8.0</LimDeb>
+          <LimFin>700.0 10.0</LimFin>
           <LitNomme>Lt_StoG</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
@@ -376,60 +380,62 @@
       </LitNumerotes>
       <Etiquettes>
         <Etiquette Nom="Et_Thalweg">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
         <Etiquette Nom="Et_AxeHyd">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
       </Etiquettes>
     </ProfilSection>
     <ProfilSection Nom="Ps_CCB01">
       <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
       <EvolutionFF>
-        <PointFF>-10.0 10.0</PointFF>
-        <PointFF>50.0 8.0</PointFF>
-        <PointFF>90.0 4.0</PointFF>
-        <PointFF>340.0 0.0</PointFF>
-        <PointFF>590.0 4.0</PointFF>
-        <PointFF>630.0 8.0</PointFF>
-        <PointFF>690.0 10.0</PointFF>
+        <PointFF>0.0 10.0</PointFF>
+        <PointFF>60.0 8.0</PointFF>
+        <PointFF>100.0 4.0</PointFF>
+        <PointFF>225.0 0.1</PointFF>
+        <PointFF>350.0 0.0</PointFF>
+        <PointFF>475.0 0.1</PointFF>
+        <PointFF>600.0 4.0</PointFF>
+        <PointFF>640.0 8.0</PointFF>
+        <PointFF>700.0 10.0</PointFF>
       </EvolutionFF>
       <LitNumerotes>
         <LitNumerote>
-          <LimDeb>-10.0 10.0</LimDeb>
-          <LimFin>50.0 8.0</LimFin>
+          <LimDeb>0.0 10.0</LimDeb>
+          <LimFin>60.0 8.0</LimFin>
           <LitNomme>Lt_StoD</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="FkSto_K0_0001_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>50.0 8.0</LimDeb>
-          <LimFin>90.0 4.0</LimFin>
+          <LimDeb>60.0 8.0</LimDeb>
+          <LimFin>100.0 4.0</LimFin>
           <LitNomme>Lt_MajD</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>90.0 4.0</LimDeb>
-          <LimFin>590.0 4.0</LimFin>
+          <LimDeb>100.0 4.0</LimDeb>
+          <LimFin>600.0 4.0</LimFin>
           <LitNomme>Lt_Mineur</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>true</IsLitMineur>
           <Frot NomRef="Fk_DefautMin_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>590.0 4.0</LimDeb>
-          <LimFin>630.0 8.0</LimFin>
+          <LimDeb>600.0 4.0</LimDeb>
+          <LimFin>640.0 8.0</LimFin>
           <LitNomme>Lt_MajG</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>630.0 8.0</LimDeb>
-          <LimFin>690.0 10.0</LimFin>
+          <LimDeb>640.0 8.0</LimDeb>
+          <LimFin>700.0 10.0</LimFin>
           <LitNomme>Lt_StoG</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
@@ -438,60 +444,62 @@
       </LitNumerotes>
       <Etiquettes>
         <Etiquette Nom="Et_Thalweg">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
         <Etiquette Nom="Et_AxeHyd">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
       </Etiquettes>
     </ProfilSection>
     <ProfilSection Nom="Ps_CCB02">
       <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
       <EvolutionFF>
-        <PointFF>-10.0 10.0</PointFF>
-        <PointFF>50.0 8.0</PointFF>
-        <PointFF>90.0 4.0</PointFF>
-        <PointFF>340.0 0.0</PointFF>
-        <PointFF>590.0 4.0</PointFF>
-        <PointFF>630.0 8.0</PointFF>
-        <PointFF>690.0 10.0</PointFF>
+        <PointFF>0.0 10.0</PointFF>
+        <PointFF>60.0 8.0</PointFF>
+        <PointFF>100.0 4.0</PointFF>
+        <PointFF>225.0 0.1</PointFF>
+        <PointFF>350.0 0.0</PointFF>
+        <PointFF>475.0 0.1</PointFF>
+        <PointFF>600.0 4.0</PointFF>
+        <PointFF>640.0 8.0</PointFF>
+        <PointFF>700.0 10.0</PointFF>
       </EvolutionFF>
       <LitNumerotes>
         <LitNumerote>
-          <LimDeb>-10.0 10.0</LimDeb>
-          <LimFin>50.0 8.0</LimFin>
+          <LimDeb>0.0 10.0</LimDeb>
+          <LimFin>60.0 8.0</LimFin>
           <LitNomme>Lt_StoD</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="FkSto_K0_0001_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>50.0 8.0</LimDeb>
-          <LimFin>90.0 4.0</LimFin>
+          <LimDeb>60.0 8.0</LimDeb>
+          <LimFin>100.0 4.0</LimFin>
           <LitNomme>Lt_MajD</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>90.0 4.0</LimDeb>
-          <LimFin>590.0 4.0</LimFin>
+          <LimDeb>100.0 4.0</LimDeb>
+          <LimFin>600.0 4.0</LimFin>
           <LitNomme>Lt_Mineur</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>true</IsLitMineur>
           <Frot NomRef="Fk_DefautMin_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>590.0 4.0</LimDeb>
-          <LimFin>630.0 8.0</LimFin>
+          <LimDeb>600.0 4.0</LimDeb>
+          <LimFin>640.0 8.0</LimFin>
           <LitNomme>Lt_MajG</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>630.0 8.0</LimDeb>
-          <LimFin>690.0 10.0</LimFin>
+          <LimDeb>640.0 8.0</LimDeb>
+          <LimFin>700.0 10.0</LimFin>
           <LitNomme>Lt_StoG</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
@@ -500,60 +508,62 @@
       </LitNumerotes>
       <Etiquettes>
         <Etiquette Nom="Et_Thalweg">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
         <Etiquette Nom="Et_AxeHyd">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
       </Etiquettes>
     </ProfilSection>
     <ProfilSection Nom="Ps_CCB03">
       <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
       <EvolutionFF>
-        <PointFF>-10.0 10.0</PointFF>
-        <PointFF>50.0 8.0</PointFF>
-        <PointFF>90.0 4.0</PointFF>
-        <PointFF>340.0 0.0</PointFF>
-        <PointFF>590.0 4.0</PointFF>
-        <PointFF>630.0 8.0</PointFF>
-        <PointFF>690.0 10.0</PointFF>
+        <PointFF>0.0 10.0</PointFF>
+        <PointFF>60.0 8.0</PointFF>
+        <PointFF>100.0 4.0</PointFF>
+        <PointFF>225.0 0.1</PointFF>
+        <PointFF>350.0 0.0</PointFF>
+        <PointFF>475.0 0.1</PointFF>
+        <PointFF>600.0 4.0</PointFF>
+        <PointFF>640.0 8.0</PointFF>
+        <PointFF>700.0 10.0</PointFF>
       </EvolutionFF>
       <LitNumerotes>
         <LitNumerote>
-          <LimDeb>-10.0 10.0</LimDeb>
-          <LimFin>50.0 8.0</LimFin>
+          <LimDeb>0.0 10.0</LimDeb>
+          <LimFin>60.0 8.0</LimFin>
           <LitNomme>Lt_StoD</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="FkSto_K0_0001_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>50.0 8.0</LimDeb>
-          <LimFin>90.0 4.0</LimFin>
+          <LimDeb>60.0 8.0</LimDeb>
+          <LimFin>100.0 4.0</LimFin>
           <LitNomme>Lt_MajD</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>90.0 4.0</LimDeb>
-          <LimFin>590.0 4.0</LimFin>
+          <LimDeb>100.0 4.0</LimDeb>
+          <LimFin>600.0 4.0</LimFin>
           <LitNomme>Lt_Mineur</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>true</IsLitMineur>
           <Frot NomRef="Fk_DefautMin_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>590.0 4.0</LimDeb>
-          <LimFin>630.0 8.0</LimFin>
+          <LimDeb>600.0 4.0</LimDeb>
+          <LimFin>640.0 8.0</LimFin>
           <LitNomme>Lt_MajG</LitNomme>
           <IsLitActif>true</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
           <Frot NomRef="Fk_DefautMaj_plaine"/>
         </LitNumerote>
         <LitNumerote>
-          <LimDeb>630.0 8.0</LimDeb>
-          <LimFin>690.0 10.0</LimFin>
+          <LimDeb>640.0 8.0</LimDeb>
+          <LimFin>700.0 10.0</LimFin>
           <LitNomme>Lt_StoG</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
@@ -562,10 +572,10 @@
       </LitNumerotes>
       <Etiquettes>
         <Etiquette Nom="Et_Thalweg">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
         <Etiquette Nom="Et_AxeHyd">
-          <PointFF>340.0 0.0</PointFF>
+          <PointFF>350.0 0.0</PointFF>
         </Etiquette>
       </Etiquettes>
     </ProfilSection>

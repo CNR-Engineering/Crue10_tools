@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<DPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dpti-1.2.xsd">
+<DPTI xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dpti-1.3.xsd">
   <Commentaire></Commentaire>
   <DonPrtCIniNoeuds>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_VRH80.000">
@@ -35,7 +35,7 @@
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_RET_Pont_Am">
       <Zini>1.0E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
-    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_RET103.000">
+    <DonPrtCIniNoeudNiveauContinu NomRef="Nd_RET102.900">
       <Zini>1.0E30</Zini>
     </DonPrtCIniNoeudNiveauContinu>
     <DonPrtCIniNoeudNiveauContinu NomRef="Nd_RET104.000_PR2">
@@ -145,7 +145,7 @@
     <DonPrtCIniBranche NomRef="Br_RET_Pont">
       <Qini>0.0</Qini>
     </DonPrtCIniBranche>
-    <DonPrtCIniBrancheSaintVenant NomRef="Br_RET103.000">
+    <DonPrtCIniBrancheSaintVenant NomRef="Br_RET102.900">
       <Qini>0.0</Qini>
       <Qruis>0.0</Qruis>
     </DonPrtCIniBrancheSaintVenant>

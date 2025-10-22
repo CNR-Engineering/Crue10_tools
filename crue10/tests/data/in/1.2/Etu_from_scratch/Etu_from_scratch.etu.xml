@@ -5,12 +5,12 @@
 # Liste des scénarios
 - Sc_multi_sm_avec_bgefileau
 - Sc_multi_sm_avec_bgegen
-- Sc_mono_sm
+- Sc_mono_sm_avec_bgefileau
 
 # Liste des modèles
 - Mo_multi_sm_avec_bgefileau
 - Mo_multi_sm_avec_bgegen
-- Mo_mono_sm
+- Mo_mono_sm_avec_bgefileau
 
 # Liste des sous-modèles
 - Sm_amont_min
@@ -18,7 +18,7 @@
 - Sm_canal_amenee
 - Sm_bgefileau
 - Sm_bgegen
-- Sm_mono_sm
+- Sm_mono_sm_avec_bgefileau
 
 # Arborescence des Sc/Mo/Sm
 Etu_from_scratch
@@ -34,25 +34,27 @@ Etu_from_scratch
 │       ├── Sm_plaine
 │       ├── Sm_canal_amenee
 │       └── Sm_bgegen
-└── Sc_mono_sm
-    └── Mo_mono_sm
-        └── Sm_mono_sm
+└── Sc_mono_sm_avec_bgefileau
+    └── Mo_mono_sm_avec_bgefileau
+        └── Sm_mono_sm_avec_bgefileau
 
-Étude fictive d&apos;un bief nommé XX représentant l&apos;équivalent de 30 km de Rhône (par VRH&gt;RET&gt;CAA) répartis comme suit :
+Étude fictive d&apos;un bief nommé XX représentant l&apos;équivalent de 30 km sur le Bas-Rhône (par VRH&gt;RET&gt;CAA) répartis comme suit :
 
-| Zone | Longueur | Début PK Rhône |  Fin PK Rhône |
-|------|----------|----------------|---------------|
-| VRH  | 10 km    |         80.000 |        90.000 |
-| CAF  | 3 km     |         87.000 |        90.000 |
-| RET  | 15 km    |         90.000 |       105.000 |
-| AMB  | 600 m    |        105.000 |       105.600 |
-| BAR  | 400 m    |        105.600 |       106.000 |
-| AVB  | 20 m     |        106.000 |       106.020 |
-| CAA  | 5 km     |        105.000 |       110.000 |
-| AFF  | 6 km     |              - |       100.500 |
+| Zone | Longueur | Début PK Rhône |  Fin PK Rhône | Sous-modèle unitaire    |
+|------|----------|----------------|---------------|-------------------------|
+| VRH  | 10 km    |         80.000 |        90.000 | Sm_amont_min            |
+| CAF  | 3 km     |         87.000 |        90.000 | Sm_amont_min            |
+| RET  | 15 km    |         90.000 |       105.000 | Sm_amont_min / Sm_bge*  |
+| AMB  | 600 m    |        105.000 |       105.600 | Sm_bge*                 |
+| BAR  | 400 m    |        105.600 |       106.000 | Sm_bge*                 |
+| AVB  | 20 m     |        106.000 |       106.020 | Sm_bge*                 |
+| CAA  | 5 km     |        105.000 |       110.000 | Sm_canal_amenee         |
+| AFF  | 6 km     |              - |       100.500 | Sm_amont_min            |
+| CCA  | -        |              - |             - | Sm_plaine               |
+| CCB  | -        |              - |             - | Sm_plaine               |
 
-Les scénarios Sc_mono_sm et Sc_multi_sm_avec_bgefileau comportent les mêmes EMHs mais réparties
-soit dans un unique sous-modèle (Sm_mono_sm), soit dans 4 sous-modèles différents (pour ce second scénario).
+Les scénarios Sc_mono_sm_avec_bgefileau et Sc_multi_sm_avec_bgefileau comportent les mêmes EMHs mais réparties
+soit dans un unique sous-modèle (Sm_mono_sm_avec_bgefileau), soit dans 4 sous-modèles différents (pour ce second scénario).
 
 Quelques remarques :
 - La branche barrage fait 400m (couvre 100m en amont + 300m en aval)
@@ -61,7 +63,7 @@ Quelques remarques :
   <DateCreation>2000-01-01T00:00:00.000</DateCreation>
   <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
   <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
-  <ScenarioCourant NomRef="Sc_mono_sm"/>
+  <ScenarioCourant NomRef="Sc_mono_sm_avec_bgefileau"/>
   <Repertoires>
     <Repertoire Nom="CONFIG">
       <path>Config</path>
@@ -93,20 +95,20 @@ Quelques remarques :
     <FichEtude Nom="canal_amenee.dfrt.xml" Chemin=".\" Type="DFRT"/>
     <FichEtude Nom="canal_amenee.dptg.xml" Chemin=".\" Type="DPTG"/>
     <FichEtude Nom="canal_amenee.drso.xml" Chemin=".\" Type="DRSO"/>
-    <FichEtude Nom="mono_sm.dclm.xml" Chemin=".\" Type="DCLM"/>
-    <FichEtude Nom="mono_sm.dcsp.xml" Chemin=".\" Type="DCSP"/>
-    <FichEtude Nom="mono_sm.dfrt.xml" Chemin=".\" Type="DFRT"/>
-    <FichEtude Nom="mono_sm.dlhy.xml" Chemin=".\" Type="DLHY"/>
-    <FichEtude Nom="mono_sm.dptg.xml" Chemin=".\" Type="DPTG"/>
-    <FichEtude Nom="mono_sm.dpti.xml" Chemin=".\" Type="DPTI"/>
-    <FichEtude Nom="mono_sm.drso.xml" Chemin=".\" Type="DRSO"/>
-    <FichEtude Nom="mono_sm.ocal.xml" Chemin=".\" Type="OCAL"/>
-    <FichEtude Nom="mono_sm.optg.xml" Chemin=".\" Type="OPTG"/>
-    <FichEtude Nom="mono_sm.opti.xml" Chemin=".\" Type="OPTI"/>
-    <FichEtude Nom="mono_sm.optr.xml" Chemin=".\" Type="OPTR"/>
-    <FichEtude Nom="mono_sm.ores.xml" Chemin=".\" Type="ORES"/>
-    <FichEtude Nom="mono_sm.pcal.xml" Chemin=".\" Type="PCAL"/>
-    <FichEtude Nom="mono_sm.pnum.xml" Chemin=".\" Type="PNUM"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.dclm.xml" Chemin=".\" Type="DCLM"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.dcsp.xml" Chemin=".\" Type="DCSP"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.dfrt.xml" Chemin=".\" Type="DFRT"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.dlhy.xml" Chemin=".\" Type="DLHY"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.dptg.xml" Chemin=".\" Type="DPTG"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.dpti.xml" Chemin=".\" Type="DPTI"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.drso.xml" Chemin=".\" Type="DRSO"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.ocal.xml" Chemin=".\" Type="OCAL"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.optg.xml" Chemin=".\" Type="OPTG"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.opti.xml" Chemin=".\" Type="OPTI"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.optr.xml" Chemin=".\" Type="OPTR"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.ores.xml" Chemin=".\" Type="ORES"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.pcal.xml" Chemin=".\" Type="PCAL"/>
+    <FichEtude Nom="mono_sm_avec_bgefileau.pnum.xml" Chemin=".\" Type="PNUM"/>
     <FichEtude Nom="multi_sm_avec_bgefileau.dclm.xml" Chemin=".\" Type="DCLM"/>
     <FichEtude Nom="multi_sm_avec_bgefileau.dlhy.xml" Chemin=".\" Type="DLHY"/>
     <FichEtude Nom="multi_sm_avec_bgefileau.dpti.xml" Chemin=".\" Type="DPTI"/>
@@ -136,7 +138,7 @@ Quelques remarques :
     <SousModele Nom="Sm_amont_min">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_amont_min: 16 noeuds, 14 branches, 123 sections (107 profils, 14 idems, 0 interpolée, 2 sans géométrie), 0 casier (0 profil casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_amont_min: 16 noeuds, 14 branches, 124 sections (107 profils, 15 idems, 0 interpolée, 2 sans géométrie), 0 casier (0 profil casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -181,7 +183,7 @@ Quelques remarques :
     <SousModele Nom="Sm_bgefileau">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_bgefileau: 5 noeuds, 4 branches, 12 sections (10 profils, 2 idems, 0 interpolée, 0 sans géométrie), 0 casier (0 profil casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_bgefileau: 5 noeuds, 4 branches, 12 sections (9 profils, 3 idems, 0 interpolée, 0 sans géométrie), 0 casier (0 profil casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -196,7 +198,7 @@ Quelques remarques :
     <SousModele Nom="Sm_bgegen">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_bgegen: 5 noeuds, 4 branches, 12 sections (10 profils, 0 idem, 0 interpolée, 2 sans géométrie), 0 casier (0 profil casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_bgegen: 5 noeuds, 4 branches, 12 sections (9 profils, 1 idem, 0 interpolée, 2 sans géométrie), 0 casier (0 profil casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
@@ -208,19 +210,19 @@ Quelques remarques :
         <DFRT NomRef="bgegen.dfrt.xml"/>
       </SousModele-FichEtudes>
     </SousModele>
-    <SousModele Nom="Sm_mono_sm">
+    <SousModele Nom="Sm_mono_sm_avec_bgefileau">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Sous-modèle Sm_mono_sm: 27 noeuds, 29 branches, 205 sections (143 profils, 18 idems, 30 interpolées, 14 sans géométrie), 5 casiers (5 profils casier)</Commentaire>
+      <Commentaire>Sous-modèle Sm_mono_sm_avec_bgefileau: 27 noeuds, 29 branches, 206 sections (142 profils, 20 idems, 30 interpolées, 14 sans géométrie), 5 casiers (5 profils casier)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <SousModele-FichEtudes>
-        <DRSO NomRef="mono_sm.drso.xml"/>
-        <DCSP NomRef="mono_sm.dcsp.xml"/>
-        <DPTG NomRef="mono_sm.dptg.xml"/>
-        <DFRT NomRef="mono_sm.dfrt.xml"/>
+        <DRSO NomRef="mono_sm_avec_bgefileau.drso.xml"/>
+        <DCSP NomRef="mono_sm_avec_bgefileau.dcsp.xml"/>
+        <DPTG NomRef="mono_sm_avec_bgefileau.dptg.xml"/>
+        <DFRT NomRef="mono_sm_avec_bgefileau.dfrt.xml"/>
       </SousModele-FichEtudes>
     </SousModele>
   </SousModeles>
@@ -269,23 +271,23 @@ Quelques remarques :
         <Modele-SousModele NomRef="Sm_bgegen"/>
       </Modele-SousModeles>
     </Modele>
-    <Modele Nom="Mo_mono_sm">
+    <Modele Nom="Mo_mono_sm_avec_bgefileau">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Modèle Mo_mono_sm: Sm_mono_sm (27 CIni aux noeuds, 5 aux casiers, 29 aux branches)</Commentaire>
+      <Commentaire>Modèle Mo_mono_sm_avec_bgefileau: Sm_mono_sm_avec_bgefileau (27 CIni aux noeuds, 5 aux casiers, 29 aux branches)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Modele-FichEtudes>
-        <OPTR NomRef="mono_sm.optr.xml"/>
-        <OPTG NomRef="mono_sm.optg.xml"/>
-        <OPTI NomRef="mono_sm.opti.xml"/>
-        <PNUM NomRef="mono_sm.pnum.xml"/>
-        <DPTI NomRef="mono_sm.dpti.xml"/>
+        <OPTR NomRef="mono_sm_avec_bgefileau.optr.xml"/>
+        <OPTG NomRef="mono_sm_avec_bgefileau.optg.xml"/>
+        <OPTI NomRef="mono_sm_avec_bgefileau.opti.xml"/>
+        <PNUM NomRef="mono_sm_avec_bgefileau.pnum.xml"/>
+        <DPTI NomRef="mono_sm_avec_bgefileau.dpti.xml"/>
       </Modele-FichEtudes>
       <Modele-SousModeles>
-        <Modele-SousModele NomRef="Sm_mono_sm"/>
+        <Modele-SousModele NomRef="Sm_mono_sm_avec_bgefileau"/>
       </Modele-SousModeles>
     </Modele>
   </Modeles>
@@ -328,23 +330,23 @@ Quelques remarques :
         <Scenario-Modele NomRef="Mo_multi_sm_avec_bgegen"/>
       </Scenario-Modeles>
     </Scenario>
-    <Scenario Nom="Sc_mono_sm">
+    <Scenario Nom="Sc_mono_sm_avec_bgefileau">
       <Type>Crue10</Type>
       <IsActive>true</IsActive>
-      <Commentaire>Scénario Sc_mono_sm: Mo_mono_sm (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)</Commentaire>
+      <Commentaire>Scénario Sc_mono_sm_avec_bgefileau: Mo_mono_sm_avec_bgefileau (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)</Commentaire>
       <AuteurCreation>USERNAME</AuteurCreation>
       <DateCreation>2000-01-01T00:00:00.000</DateCreation>
       <AuteurDerniereModif>USERNAME</AuteurDerniereModif>
       <DateDerniereModif>2000-01-01T00:00:00.000</DateDerniereModif>
       <Scenario-FichEtudes>
-        <OCAL NomRef="mono_sm.ocal.xml"/>
-        <ORES NomRef="mono_sm.ores.xml"/>
-        <PCAL NomRef="mono_sm.pcal.xml"/>
-        <DCLM NomRef="mono_sm.dclm.xml"/>
-        <DLHY NomRef="mono_sm.dlhy.xml"/>
+        <OCAL NomRef="mono_sm_avec_bgefileau.ocal.xml"/>
+        <ORES NomRef="mono_sm_avec_bgefileau.ores.xml"/>
+        <PCAL NomRef="mono_sm_avec_bgefileau.pcal.xml"/>
+        <DCLM NomRef="mono_sm_avec_bgefileau.dclm.xml"/>
+        <DLHY NomRef="mono_sm_avec_bgefileau.dlhy.xml"/>
       </Scenario-FichEtudes>
       <Scenario-Modeles>
-        <Scenario-Modele NomRef="Mo_mono_sm"/>
+        <Scenario-Modele NomRef="Mo_mono_sm_avec_bgefileau"/>
       </Scenario-Modeles>
     </Scenario>
   </Scenarios>
