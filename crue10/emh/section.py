@@ -131,11 +131,16 @@ class LoiFrottement:
         return 'LoiFrottement %s' % self.id
 
 
-DEFAULT_FK_STO = LoiFrottement('FkSto_K0_0001', 'FkSto')
+DEFAULT_FK_STO_ID = 'FkSto_K0_0001'
+DEFAULT_FK_STO = LoiFrottement(DEFAULT_FK_STO_ID, 'FkSto')
 DEFAULT_FK_STO.set_loi_Fk_values(np.array([(0.0, 0.0)]))
-DEFAULT_FK_MAJ = LoiFrottement('Fk_DefautMaj', 'Fk')
+
+DEFAULT_FK_MAJ_ID = 'Fk_DefautMaj'
+DEFAULT_FK_MAJ = LoiFrottement(DEFAULT_FK_MAJ_ID, 'Fk')
 DEFAULT_FK_MAJ.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
-DEFAULT_FK_MIN = LoiFrottement('Fk_DefautMin', 'Fk')
+
+DEFAULT_FK_MIN_ID = 'Fk_DefautMin'
+DEFAULT_FK_MIN = LoiFrottement(DEFAULT_FK_MIN_ID, 'Fk')
 DEFAULT_FK_MIN.set_loi_Fk_values(np.array([(-15.0, 8.0)]))
 
 
@@ -408,19 +413,27 @@ class SectionProfil(Section):
         self.largeur_fente = largeur
         self.profondeur_fente = profondeur
 
-    def set_lits_numerotes(self, xt_list):
+    def set_lits_numerotes(self, xt_list, lois_frottement=None):
         """
         Affecter les 5 lits numérotés à partir de la liste ordonnée des 6 abscisses curvilignes
 
         :param xt_list: liste ordonnée des 6 abscisses curvilignes
         :type xt_list: list(float)
+        :param lois_frottement: liste ordonnée des 5 lois de frottement
+        :type lois_frottement: list(LoiFrottement)
         """
         if len(xt_list) != 6:
             raise ExceptionCrue10("Il faut exactement 6 xt pour affecter les 5 lits numérotés")
+        if lois_frottement is not None:
+            if len(lois_frottement) != 5:
+                raise ExceptionCrue10("Il faut exactement 5 lois_frottements pour affecter les 5 lits numérotés")
         check_strictly_increasing(xt_list, 'xt')
         self.lits_numerotes = []
-        for bed_name, xt_min, xt_max in zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:]):
-            lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
+        for i, (bed_name, xt_min, xt_max) in enumerate(zip(LitNumerote.BED_NAMES, xt_list, xt_list[1:])):
+            if lois_frottement is not None:
+                lit_numerote = LitNumerote(bed_name, xt_min, xt_max, loi_frottement=lois_frottement[i])
+            else:
+                lit_numerote = LitNumerote(bed_name, xt_min, xt_max)
             self.lits_numerotes.append(lit_numerote)
 
     def ajouter_lit(self, lit_numerote):

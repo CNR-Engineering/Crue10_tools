@@ -11,14 +11,11 @@
     <NoeudNiveauContinu Nom="Nd_VRH85.100">
       <Commentaire>Noeud #Nd_VRH85.100 localisé à la position (799020.0, 6314900.0)</Commentaire>
     </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_CAF85.000_orphelin">
-      <Commentaire>Noeud #Nd_CAF85.000_orphelin localisé à la position (803000.0, 6315000.0)</Commentaire>
+    <NoeudNiveauContinu Nom="Nd_RET90.000">
+      <Commentaire>Noeud #Nd_RET90.000 localisé à la position (800000.0, 6310000.0)</Commentaire>
     </NoeudNiveauContinu>
     <NoeudNiveauContinu Nom="Nd_CAF87.000">
       <Commentaire>Noeud #Nd_CAF87.000 localisé à la position (803000.0, 6313000.0)</Commentaire>
-    </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_RET90.000">
-      <Commentaire>Noeud #Nd_RET90.000 localisé à la position (800000.0, 6310000.0)</Commentaire>
     </NoeudNiveauContinu>
     <NoeudNiveauContinu Nom="Nd_RET96.000_PR1">
       <Commentaire>Noeud #Nd_RET96.000_PR1 localisé à la position (800000.0, 6304000.0)</Commentaire>
@@ -38,23 +35,20 @@
     <NoeudNiveauContinu Nom="Nd_RET105.000">
       <Commentaire>Noeud #Nd_RET105.000 localisé à la position (800000.0, 6295000.0)</Commentaire>
     </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_AMB105.500">
-      <Commentaire>Noeud #Nd_AMB105.500 localisé à la position (799750.0, 6294500.0)</Commentaire>
+    <NoeudNiveauContinu Nom="Nd_AFF5">
+      <Commentaire>Noeud #Nd_AFF5 localisé à la position (805000.0, 6299500.0)</Commentaire>
     </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_AVB106.000">
-      <Commentaire>Noeud #Nd_AVB106.000 localisé à la position (799500.0, 6294000.0)</Commentaire>
+    <NoeudNiveauContinu Nom="Nd_AFF3">
+      <Commentaire>Noeud #Nd_AFF3 localisé à la position (803000.0, 6299500.0)</Commentaire>
     </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_AVB106.200">
-      <Commentaire>Noeud #Nd_AVB106.200 localisé à la position (799400.0, 6293800.0)</Commentaire>
-    </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_CAA107.500">
-      <Commentaire>Noeud #Nd_CAA107.500 localisé à la position (800500.0, 6292500.0)</Commentaire>
-    </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_CAA110.000">
-      <Commentaire>Noeud #Nd_CAA110.000 localisé à la position (801000.0, 6290000.0)</Commentaire>
+    <NoeudNiveauContinu Nom="Nd_CAF85.000_orphelin">
+      <Commentaire>Noeud #Nd_CAF85.000_orphelin localisé à la position (803000.0, 6315000.0)</Commentaire>
     </NoeudNiveauContinu>
     <NoeudNiveauContinu Nom="Nd_CAS1">
       <Commentaire>Noeud #Nd_CAS1 localisé à la position (798500.0, 6304000.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_CAS5">
+      <Commentaire>Noeud #Nd_CAS5 localisé à la position (798500.0, 6296000.0)</Commentaire>
     </NoeudNiveauContinu>
     <NoeudNiveauContinu Nom="Nd_CAS2">
       <Commentaire>Noeud #Nd_CAS2 localisé à la position (798500.0, 6302000.0)</Commentaire>
@@ -65,14 +59,20 @@
     <NoeudNiveauContinu Nom="Nd_CAS4">
       <Commentaire>Noeud #Nd_CAS4 localisé à la position (798500.0, 6298000.0)</Commentaire>
     </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_CAS5">
-      <Commentaire>Noeud #Nd_CAS5 localisé à la position (798500.0, 6296000.0)</Commentaire>
+    <NoeudNiveauContinu Nom="Nd_CAA107.500">
+      <Commentaire>Noeud #Nd_CAA107.500 localisé à la position (800500.0, 6292500.0)</Commentaire>
     </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_AFF5">
-      <Commentaire>Noeud #Nd_AFF5 localisé à la position (805000.0, 6299500.0)</Commentaire>
+    <NoeudNiveauContinu Nom="Nd_CAA110.000">
+      <Commentaire>Noeud #Nd_CAA110.000 localisé à la position (801000.0, 6290000.0)</Commentaire>
     </NoeudNiveauContinu>
-    <NoeudNiveauContinu Nom="Nd_AFF3">
-      <Commentaire>Noeud #Nd_AFF3 localisé à la position (803000.0, 6299500.0)</Commentaire>
+    <NoeudNiveauContinu Nom="Nd_AMB105.500">
+      <Commentaire>Noeud #Nd_AMB105.500 localisé à la position (799750.0, 6294500.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_AVB106.000">
+      <Commentaire>Noeud #Nd_AVB106.000 localisé à la position (799500.0, 6294000.0)</Commentaire>
+    </NoeudNiveauContinu>
+    <NoeudNiveauContinu Nom="Nd_AVB106.200">
+      <Commentaire>Noeud #Nd_AVB106.200 localisé à la position (799400.0, 6293800.0)</Commentaire>
     </NoeudNiveauContinu>
   </Noeuds>
   <Casiers>
@@ -532,25 +532,145 @@
       <Commentaire>SectionProfil #St_RET104.800</Commentaire>
       <ProfilSection NomRef="Ps_RET104.800"/>
     </SectionProfil>
-    <SectionProfil Nom="St_AMB105.500">
-      <Commentaire>SectionProfil #St_AMB105.500</Commentaire>
-      <ProfilSection NomRef="Ps_AMB105.500"/>
+    <SectionProfil Nom="St_AFF5">
+      <Commentaire>SectionProfil #St_AFF5</Commentaire>
+      <ProfilSection NomRef="Ps_AFF5"/>
     </SectionProfil>
-    <SectionProfil Nom="St_BGE105.500">
-      <Commentaire>SectionProfil #St_BGE105.500</Commentaire>
-      <ProfilSection NomRef="Ps_BGE105.500"/>
+    <SectionProfil Nom="St_AFF3">
+      <Commentaire>SectionProfil #St_AFF3</Commentaire>
+      <ProfilSection NomRef="Ps_AFF3"/>
     </SectionProfil>
-    <SectionProfil Nom="St_BGE106.000">
-      <Commentaire>SectionProfil #St_BGE106.000</Commentaire>
-      <ProfilSection NomRef="Ps_BGE106.000"/>
+    <SectionProfil Nom="St_AFF4">
+      <Commentaire>SectionProfil #St_AFF4</Commentaire>
+      <ProfilSection NomRef="Ps_AFF4"/>
     </SectionProfil>
-    <SectionProfil Nom="St_AVB106.000">
-      <Commentaire>SectionProfil #St_AVB106.000</Commentaire>
-      <ProfilSection NomRef="Ps_AVB106.000"/>
+    <SectionProfil Nom="St_AFF0">
+      <Commentaire>SectionProfil #St_AFF0</Commentaire>
+      <ProfilSection NomRef="Ps_AFF0"/>
     </SectionProfil>
-    <SectionProfil Nom="St_AVB106.200">
-      <Commentaire>SectionProfil #St_AVB106.200</Commentaire>
-      <ProfilSection NomRef="Ps_AVB106.200"/>
+    <SectionProfil Nom="St_AFF1">
+      <Commentaire>SectionProfil #St_AFF1</Commentaire>
+      <ProfilSection NomRef="Ps_AFF1"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_AFF2">
+      <Commentaire>SectionProfil #St_AFF2</Commentaire>
+      <ProfilSection NomRef="Ps_AFF2"/>
+    </SectionProfil>
+    <SectionIdem Nom="St_VRH84.800a">
+      <Commentaire>SectionIdem #St_VRH84.800a</Commentaire>
+      <Section NomRef="St_VRH84.800"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_VRH84.800b">
+      <Commentaire>SectionIdem #St_VRH84.800b</Commentaire>
+      <Section NomRef="St_VRH84.800"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_VRH85.200a">
+      <Commentaire>SectionIdem #St_VRH85.200a</Commentaire>
+      <Section NomRef="St_VRH85.200"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_VRH85.200b">
+      <Commentaire>SectionIdem #St_VRH85.200b</Commentaire>
+      <Section NomRef="St_VRH85.200"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_RET90.000a">
+      <Commentaire>SectionIdem #St_RET90.000a</Commentaire>
+      <Section NomRef="St_RET90.000"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_RET90.000b">
+      <Commentaire>SectionIdem #St_RET90.000b</Commentaire>
+      <Section NomRef="St_RET90.000"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_RET96.000a">
+      <Commentaire>SectionIdem #St_RET96.000a</Commentaire>
+      <Section NomRef="St_RET96.000"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_RET98.000a">
+      <Commentaire>SectionIdem #St_RET98.000a</Commentaire>
+      <Section NomRef="St_RET98.000"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_RET100.400a">
+      <Commentaire>SectionIdem #St_RET100.400a</Commentaire>
+      <Section NomRef="St_RET100.400"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_RET100.400b">
+      <Commentaire>SectionIdem #St_RET100.400b</Commentaire>
+      <Section NomRef="St_RET100.400"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_RET102.800a">
+      <Commentaire>SectionIdem #St_RET102.800a</Commentaire>
+      <Section NomRef="St_RET102.800"/>
+    </SectionIdem>
+    <SectionIdem Nom="St_AFF3a">
+      <Commentaire>SectionIdem #St_AFF3a</Commentaire>
+      <Section NomRef="St_AFF3"/>
+    </SectionIdem>
+    <SectionSansGeometrie Nom="St_RET102.700_Pont_Am">
+      <Commentaire>SectionSansGeometrie #St_RET102.700_Pont_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_RET102.700_Pont_Av">
+      <Commentaire>SectionSansGeometrie #St_RET102.700_Pont_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionProfil Nom="St_CAS1">
+      <Commentaire>SectionProfil #St_CAS1</Commentaire>
+      <ProfilSection NomRef="Ps_CAS1"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_CAS2">
+      <Commentaire>SectionProfil #St_CAS2</Commentaire>
+      <ProfilSection NomRef="Ps_CAS2"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_CAS4">
+      <Commentaire>SectionProfil #St_CAS4</Commentaire>
+      <ProfilSection NomRef="Ps_CAS4"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_CAS5">
+      <Commentaire>SectionProfil #St_CAS5</Commentaire>
+      <ProfilSection NomRef="Ps_CAS5"/>
+    </SectionProfil>
+    <SectionSansGeometrie Nom="St_CAS1_RET_Am">
+      <Commentaire>SectionSansGeometrie #St_CAS1_RET_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS1_RET_Av">
+      <Commentaire>SectionSansGeometrie #St_CAS1_RET_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS5_RET_Am">
+      <Commentaire>SectionSansGeometrie #St_CAS5_RET_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS5_RET_Av">
+      <Commentaire>SectionSansGeometrie #St_CAS5_RET_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS2_RET_Am">
+      <Commentaire>SectionSansGeometrie #St_CAS2_RET_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS2_RET_Av">
+      <Commentaire>SectionSansGeometrie #St_CAS2_RET_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS3_RET_Am">
+      <Commentaire>SectionSansGeometrie #St_CAS3_RET_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS3_RET_Av">
+      <Commentaire>SectionSansGeometrie #St_CAS3_RET_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS4_RET_Am">
+      <Commentaire>SectionSansGeometrie #St_CAS4_RET_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS4_RET_Av">
+      <Commentaire>SectionSansGeometrie #St_CAS4_RET_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS2-3_Am">
+      <Commentaire>SectionSansGeometrie #St_CAS2-3_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS2-3_Av">
+      <Commentaire>SectionSansGeometrie #St_CAS2-3_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS3-4_Am">
+      <Commentaire>SectionSansGeometrie #St_CAS3-4_Am</Commentaire>
+    </SectionSansGeometrie>
+    <SectionSansGeometrie Nom="St_CAS3-4_Av">
+      <Commentaire>SectionSansGeometrie #St_CAS3-4_Av</Commentaire>
+    </SectionSansGeometrie>
+    <SectionProfil Nom="St_CAA105.000">
+      <Commentaire>SectionProfil #St_CAA105.000</Commentaire>
+      <ProfilSection NomRef="Ps_CAA105.000"/>
     </SectionProfil>
     <SectionProfil Nom="St_CAA107.500">
       <Commentaire>SectionProfil #St_CAA107.500</Commentaire>
@@ -632,154 +752,10 @@
       <Commentaire>SectionProfil #St_CAA109.750</Commentaire>
       <ProfilSection NomRef="Ps_CAA109.750"/>
     </SectionProfil>
-    <SectionProfil Nom="St_AFF5">
-      <Commentaire>SectionProfil #St_AFF5</Commentaire>
-      <ProfilSection NomRef="Ps_AFF5"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_AFF3">
-      <Commentaire>SectionProfil #St_AFF3</Commentaire>
-      <ProfilSection NomRef="Ps_AFF3"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_AFF4">
-      <Commentaire>SectionProfil #St_AFF4</Commentaire>
-      <ProfilSection NomRef="Ps_AFF4"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_AFF0">
-      <Commentaire>SectionProfil #St_AFF0</Commentaire>
-      <ProfilSection NomRef="Ps_AFF0"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_AFF1">
-      <Commentaire>SectionProfil #St_AFF1</Commentaire>
-      <ProfilSection NomRef="Ps_AFF1"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_AFF2">
-      <Commentaire>SectionProfil #St_AFF2</Commentaire>
-      <ProfilSection NomRef="Ps_AFF2"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_CAS1">
-      <Commentaire>SectionProfil #St_CAS1</Commentaire>
-      <ProfilSection NomRef="Ps_CAS1"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_CAS2">
-      <Commentaire>SectionProfil #St_CAS2</Commentaire>
-      <ProfilSection NomRef="Ps_CAS2"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_CAS4">
-      <Commentaire>SectionProfil #St_CAS4</Commentaire>
-      <ProfilSection NomRef="Ps_CAS4"/>
-    </SectionProfil>
-    <SectionProfil Nom="St_CAS5">
-      <Commentaire>SectionProfil #St_CAS5</Commentaire>
-      <ProfilSection NomRef="Ps_CAS5"/>
-    </SectionProfil>
-    <SectionIdem Nom="St_VRH84.800a">
-      <Commentaire>SectionIdem #St_VRH84.800a</Commentaire>
-      <Section NomRef="St_VRH84.800"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_VRH84.800b">
-      <Commentaire>SectionIdem #St_VRH84.800b</Commentaire>
-      <Section NomRef="St_VRH84.800"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_VRH85.200a">
-      <Commentaire>SectionIdem #St_VRH85.200a</Commentaire>
-      <Section NomRef="St_VRH85.200"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_VRH85.200b">
-      <Commentaire>SectionIdem #St_VRH85.200b</Commentaire>
-      <Section NomRef="St_VRH85.200"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET90.000a">
-      <Commentaire>SectionIdem #St_RET90.000a</Commentaire>
-      <Section NomRef="St_RET90.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET90.000b">
-      <Commentaire>SectionIdem #St_RET90.000b</Commentaire>
-      <Section NomRef="St_RET90.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET96.000a">
-      <Commentaire>SectionIdem #St_RET96.000a</Commentaire>
-      <Section NomRef="St_RET96.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET98.000a">
-      <Commentaire>SectionIdem #St_RET98.000a</Commentaire>
-      <Section NomRef="St_RET98.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET100.400a">
-      <Commentaire>SectionIdem #St_RET100.400a</Commentaire>
-      <Section NomRef="St_RET100.400"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET100.400b">
-      <Commentaire>SectionIdem #St_RET100.400b</Commentaire>
-      <Section NomRef="St_RET100.400"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET102.800a">
-      <Commentaire>SectionIdem #St_RET102.800a</Commentaire>
-      <Section NomRef="St_RET102.800"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET105.000a">
-      <Commentaire>SectionIdem #St_RET105.000a</Commentaire>
-      <Section NomRef="St_RET105.000"/>
-    </SectionIdem>
-    <SectionIdem Nom="St_RET105.000b">
-      <Commentaire>SectionIdem #St_RET105.000b</Commentaire>
-      <Section NomRef="St_RET105.000"/>
-    </SectionIdem>
     <SectionIdem Nom="St_CAA107.500a">
       <Commentaire>SectionIdem #St_CAA107.500a</Commentaire>
       <Section NomRef="St_CAA107.500"/>
     </SectionIdem>
-    <SectionIdem Nom="St_AFF3a">
-      <Commentaire>SectionIdem #St_AFF3a</Commentaire>
-      <Section NomRef="St_AFF3"/>
-    </SectionIdem>
-    <SectionSansGeometrie Nom="St_RET102.700_Pont_Am">
-      <Commentaire>SectionSansGeometrie #St_RET102.700_Pont_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_RET102.700_Pont_Av">
-      <Commentaire>SectionSansGeometrie #St_RET102.700_Pont_Av</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS1_RET_Am">
-      <Commentaire>SectionSansGeometrie #St_CAS1_RET_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS1_RET_Av">
-      <Commentaire>SectionSansGeometrie #St_CAS1_RET_Av</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS5_RET_Am">
-      <Commentaire>SectionSansGeometrie #St_CAS5_RET_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS5_RET_Av">
-      <Commentaire>SectionSansGeometrie #St_CAS5_RET_Av</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS2_RET_Am">
-      <Commentaire>SectionSansGeometrie #St_CAS2_RET_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS2_RET_Av">
-      <Commentaire>SectionSansGeometrie #St_CAS2_RET_Av</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS3_RET_Am">
-      <Commentaire>SectionSansGeometrie #St_CAS3_RET_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS3_RET_Av">
-      <Commentaire>SectionSansGeometrie #St_CAS3_RET_Av</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS4_RET_Am">
-      <Commentaire>SectionSansGeometrie #St_CAS4_RET_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS4_RET_Av">
-      <Commentaire>SectionSansGeometrie #St_CAS4_RET_Av</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS2-3_Am">
-      <Commentaire>SectionSansGeometrie #St_CAS2-3_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS2-3_Av">
-      <Commentaire>SectionSansGeometrie #St_CAS2-3_Av</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS3-4_Am">
-      <Commentaire>SectionSansGeometrie #St_CAS3-4_Am</Commentaire>
-    </SectionSansGeometrie>
-    <SectionSansGeometrie Nom="St_CAS3-4_Av">
-      <Commentaire>SectionSansGeometrie #St_CAS3-4_Av</Commentaire>
-    </SectionSansGeometrie>
     <SectionInterpolee Nom="St_CAA107.500_001">
       <Commentaire></Commentaire>
     </SectionInterpolee>
@@ -870,6 +846,30 @@
     <SectionInterpolee Nom="St_CAA107.500_030">
       <Commentaire></Commentaire>
     </SectionInterpolee>
+    <SectionProfil Nom="St_AMB105.000">
+      <Commentaire>SectionProfil #St_AMB105.000</Commentaire>
+      <ProfilSection NomRef="Ps_AMB105.000"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_AMB105.500">
+      <Commentaire>SectionProfil #St_AMB105.500</Commentaire>
+      <ProfilSection NomRef="Ps_AMB105.500"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_BGE105.500">
+      <Commentaire>SectionProfil #St_BGE105.500</Commentaire>
+      <ProfilSection NomRef="Ps_BGE105.500"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_BGE106.000">
+      <Commentaire>SectionProfil #St_BGE106.000</Commentaire>
+      <ProfilSection NomRef="Ps_BGE106.000"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_AVB106.000">
+      <Commentaire>SectionProfil #St_AVB106.000</Commentaire>
+      <ProfilSection NomRef="Ps_AVB106.000"/>
+    </SectionProfil>
+    <SectionProfil Nom="St_AVB106.200">
+      <Commentaire>SectionProfil #St_AVB106.200</Commentaire>
+      <ProfilSection NomRef="Ps_AVB106.200"/>
+    </SectionProfil>
   </Sections>
   <Branches>
     <BrancheSaintVenant Nom="Br_VRH80.000">
@@ -1752,74 +1752,222 @@
         </BrancheSaintVenant-Section>
       </BrancheSaintVenant-Sections>
     </BrancheSaintVenant>
-    <BrancheSaintVenant Nom="Br_AMB105.000">
-      <Commentaire>Branche [20] #Br_AMB105.000: Noeud #Nd_RET105.000 -&gt; Noeud #Nd_AMB105.500 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_RET105.000"/>
-      <NdAv NomRef="Nd_AMB105.500"/>
+    <BrancheSaintVenant Nom="Br_AFF5">
+      <Commentaire>Branche [20] #Br_AFF5: Noeud #Nd_AFF5 -&gt; Noeud #Nd_AFF3 (3 sections)</Commentaire>
+      <IsActive>false</IsActive>
+      <NdAm NomRef="Nd_AFF5"/>
+      <NdAv NomRef="Nd_AFF3"/>
       <BrancheSaintVenant-Sections>
-        <BrancheSaintVenant-Section NomRef="St_RET105.000a">
+        <BrancheSaintVenant-Section NomRef="St_AFF5">
           <Pos>Amont</Pos>
           <Xp>0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
-        <BrancheSaintVenant-Section NomRef="St_AMB105.500">
+        <BrancheSaintVenant-Section NomRef="St_AFF4">
+          <Pos>Interne</Pos>
+          <Xp>1000.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_AFF3">
           <Pos>Aval</Pos>
-          <Xp>500</Xp>
+          <Xp>2000</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
       </BrancheSaintVenant-Sections>
     </BrancheSaintVenant>
-    <BrancheBarrageFilEau Nom="Br_BGE105.500">
-      <Commentaire>Branche [15] #Br_BGE105.500: Noeud #Nd_AMB105.500 -&gt; Noeud #Nd_AVB106.000 (2 sections)</Commentaire>
+    <BrancheSaintVenant Nom="Br_AFF3">
+      <Commentaire>Branche [20] #Br_AFF3: Noeud #Nd_AFF3 -&gt; Noeud #Nd_RET100.500 (4 sections)</Commentaire>
       <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_AMB105.500"/>
-      <NdAv NomRef="Nd_AVB106.000"/>
-      <SectionPilote NomRef="St_RET98.000a"/>
+      <NdAm NomRef="Nd_AFF3"/>
+      <NdAv NomRef="Nd_RET100.500"/>
+      <BrancheSaintVenant-Sections>
+        <BrancheSaintVenant-Section NomRef="St_AFF3a">
+          <Pos>Amont</Pos>
+          <Xp>0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_AFF1">
+          <Pos>Interne</Pos>
+          <Xp>1000.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_AFF2">
+          <Pos>Interne</Pos>
+          <Xp>2000.0</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+        <BrancheSaintVenant-Section NomRef="St_AFF0">
+          <Pos>Aval</Pos>
+          <Xp>3000</Xp>
+          <CoefPond>0.5</CoefPond>
+          <CoefConv>0.0</CoefConv>
+          <CoefDiv>0.0</CoefDiv>
+        </BrancheSaintVenant-Section>
+      </BrancheSaintVenant-Sections>
+    </BrancheSaintVenant>
+    <BrancheSeuilLateral Nom="Br_CAS1_RET">
+      <Commentaire>Branche [4] #Br_CAS1_RET: Noeud #Nd_RET96.000_PR1 -&gt; Noeud #Nd_CAS1 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_RET96.000_PR1"/>
+      <NdAv NomRef="Nd_CAS1"/>
       <Branche-Sections>
-        <Branche-Section NomRef="St_BGE105.500">
+        <Branche-Section NomRef="St_CAS1_RET_Am">
           <Pos>Amont</Pos>
           <Xp>0.0</Xp>
         </Branche-Section>
-        <Branche-Section NomRef="St_BGE106.000">
+        <Branche-Section NomRef="St_CAS1_RET_Av">
           <Pos>Aval</Pos>
           <Xp>0.0</Xp>
         </Branche-Section>
       </Branche-Sections>
-    </BrancheBarrageFilEau>
-    <BrancheSaintVenant Nom="Br_AVB106.000">
-      <Commentaire>Branche [20] #Br_AVB106.000: Noeud #Nd_AVB106.000 -&gt; Noeud #Nd_AVB106.200 (2 sections)</Commentaire>
+    </BrancheSeuilLateral>
+    <BrancheOrifice Nom="Br_CAS5_RET">
+      <Commentaire>Branche [5] #Br_CAS5_RET: Noeud #Nd_CAS5 -&gt; Noeud #Nd_RET105.000 (2 sections)</Commentaire>
       <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_AVB106.000"/>
-      <NdAv NomRef="Nd_AVB106.200"/>
-      <BrancheSaintVenant-Sections>
-        <BrancheSaintVenant-Section NomRef="St_AVB106.000">
+      <NdAm NomRef="Nd_CAS5"/>
+      <NdAv NomRef="Nd_RET105.000"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CAS5_RET_Am">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
-          <CoefPond>0.5</CoefPond>
-          <CoefConv>0.0</CoefConv>
-          <CoefDiv>0.0</CoefDiv>
-        </BrancheSaintVenant-Section>
-        <BrancheSaintVenant-Section NomRef="St_AVB106.200">
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CAS5_RET_Av">
           <Pos>Aval</Pos>
-          <Xp>200</Xp>
-          <CoefPond>0.5</CoefPond>
-          <CoefConv>0.0</CoefConv>
-          <CoefDiv>0.0</CoefDiv>
-        </BrancheSaintVenant-Section>
-      </BrancheSaintVenant-Sections>
-    </BrancheSaintVenant>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheOrifice>
+    <BrancheOrifice Nom="Br_CAS2_RET">
+      <Commentaire>Branche [5] #Br_CAS2_RET: Noeud #Nd_RET98.000 -&gt; Noeud #Nd_CAS2 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_RET98.000"/>
+      <NdAv NomRef="Nd_CAS2"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CAS2_RET_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CAS2_RET_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheOrifice>
+    <BrancheOrifice Nom="Br_CAS3_RET">
+      <Commentaire>Branche [5] #Br_CAS3_RET: Noeud #Nd_RET100.500 -&gt; Noeud #Nd_CAS3 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_RET100.500"/>
+      <NdAv NomRef="Nd_CAS3"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CAS3_RET_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CAS3_RET_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheOrifice>
+    <BrancheSeuilLateral Nom="Br_CAS4_RET">
+      <Commentaire>Branche [4] #Br_CAS4_RET: Noeud #Nd_RET102.700 -&gt; Noeud #Nd_CAS4 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_RET102.700"/>
+      <NdAv NomRef="Nd_CAS4"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CAS4_RET_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CAS4_RET_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheSeuilLateral>
+    <BrancheStrickler Nom="Br_CAS1-2">
+      <Commentaire>Branche [6] #Br_CAS1-2: Noeud #Nd_CAS1 -&gt; Noeud #Nd_CAS2 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_CAS1"/>
+      <NdAv NomRef="Nd_CAS2"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CAS1">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CAS2">
+          <Pos>Aval</Pos>
+          <Xp>2000</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheStrickler>
+    <BrancheNiveauxAssocies Nom="Br_CAS2-3">
+      <Commentaire>Branche [12] #Br_CAS2-3: Noeud #Nd_CAS2 -&gt; Noeud #Nd_CAS3 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_CAS2"/>
+      <NdAv NomRef="Nd_CAS3"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CAS2-3_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CAS2-3_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheNiveauxAssocies>
+    <BrancheOrifice Nom="Br_CAS3-4">
+      <Commentaire>Branche [5] #Br_CAS3-4: Noeud #Nd_CAS3 -&gt; Noeud #Nd_CAS4 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_CAS3"/>
+      <NdAv NomRef="Nd_CAS4"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CAS3-4_Am">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CAS3-4_Av">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheOrifice>
+    <BrancheStrickler Nom="Br_CAS4-5">
+      <Commentaire>Branche [6] #Br_CAS4-5: Noeud #Nd_CAS4 -&gt; Noeud #Nd_CAS5 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_CAS4"/>
+      <NdAv NomRef="Nd_CAS5"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_CAS4">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_CAS5">
+          <Pos>Aval</Pos>
+          <Xp>2000</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheStrickler>
     <BrancheSaintVenant Nom="Br_CAA105.000">
       <Commentaire>Branche [20] #Br_CAA105.000: Noeud #Nd_RET105.000 -&gt; Noeud #Nd_CAA107.500 (11 sections)</Commentaire>
       <IsActive>true</IsActive>
       <NdAm NomRef="Nd_RET105.000"/>
       <NdAv NomRef="Nd_CAA107.500"/>
       <BrancheSaintVenant-Sections>
-        <BrancheSaintVenant-Section NomRef="St_RET105.000b">
+        <BrancheSaintVenant-Section NomRef="St_CAA105.000">
           <Pos>Amont</Pos>
           <Xp>0</Xp>
           <CoefPond>0.5</CoefPond>
@@ -2193,214 +2341,66 @@
         </BrancheSaintVenant-Section>
       </BrancheSaintVenant-Sections>
     </BrancheSaintVenant>
-    <BrancheSaintVenant Nom="Br_AFF5">
-      <Commentaire>Branche [20] #Br_AFF5: Noeud #Nd_AFF5 -&gt; Noeud #Nd_AFF3 (3 sections)</Commentaire>
-      <IsActive>false</IsActive>
-      <NdAm NomRef="Nd_AFF5"/>
-      <NdAv NomRef="Nd_AFF3"/>
+    <BrancheSaintVenant Nom="Br_AMB105.000">
+      <Commentaire>Branche [20] #Br_AMB105.000: Noeud #Nd_RET105.000 -&gt; Noeud #Nd_AMB105.500 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_RET105.000"/>
+      <NdAv NomRef="Nd_AMB105.500"/>
       <BrancheSaintVenant-Sections>
-        <BrancheSaintVenant-Section NomRef="St_AFF5">
+        <BrancheSaintVenant-Section NomRef="St_AMB105.000">
           <Pos>Amont</Pos>
           <Xp>0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
-        <BrancheSaintVenant-Section NomRef="St_AFF4">
-          <Pos>Interne</Pos>
-          <Xp>1000.0</Xp>
-          <CoefPond>0.5</CoefPond>
-          <CoefConv>0.0</CoefConv>
-          <CoefDiv>0.0</CoefDiv>
-        </BrancheSaintVenant-Section>
-        <BrancheSaintVenant-Section NomRef="St_AFF3">
+        <BrancheSaintVenant-Section NomRef="St_AMB105.500">
           <Pos>Aval</Pos>
-          <Xp>2000</Xp>
+          <Xp>500</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
       </BrancheSaintVenant-Sections>
     </BrancheSaintVenant>
-    <BrancheSaintVenant Nom="Br_AFF3">
-      <Commentaire>Branche [20] #Br_AFF3: Noeud #Nd_AFF3 -&gt; Noeud #Nd_RET100.500 (4 sections)</Commentaire>
+    <BrancheBarrageFilEau Nom="Br_BGE105.500">
+      <Commentaire>Branche [15] #Br_BGE105.500: Noeud #Nd_AMB105.500 -&gt; Noeud #Nd_AVB106.000 (2 sections)</Commentaire>
       <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_AFF3"/>
-      <NdAv NomRef="Nd_RET100.500"/>
+      <NdAm NomRef="Nd_AMB105.500"/>
+      <NdAv NomRef="Nd_AVB106.000"/>
+      <SectionPilote NomRef="St_AMB105.000"/>
+      <Branche-Sections>
+        <Branche-Section NomRef="St_BGE105.500">
+          <Pos>Amont</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+        <Branche-Section NomRef="St_BGE106.000">
+          <Pos>Aval</Pos>
+          <Xp>0.0</Xp>
+        </Branche-Section>
+      </Branche-Sections>
+    </BrancheBarrageFilEau>
+    <BrancheSaintVenant Nom="Br_AVB106.000">
+      <Commentaire>Branche [20] #Br_AVB106.000: Noeud #Nd_AVB106.000 -&gt; Noeud #Nd_AVB106.200 (2 sections)</Commentaire>
+      <IsActive>true</IsActive>
+      <NdAm NomRef="Nd_AVB106.000"/>
+      <NdAv NomRef="Nd_AVB106.200"/>
       <BrancheSaintVenant-Sections>
-        <BrancheSaintVenant-Section NomRef="St_AFF3a">
+        <BrancheSaintVenant-Section NomRef="St_AVB106.000">
           <Pos>Amont</Pos>
           <Xp>0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
-        <BrancheSaintVenant-Section NomRef="St_AFF1">
-          <Pos>Interne</Pos>
-          <Xp>1000.0</Xp>
-          <CoefPond>0.5</CoefPond>
-          <CoefConv>0.0</CoefConv>
-          <CoefDiv>0.0</CoefDiv>
-        </BrancheSaintVenant-Section>
-        <BrancheSaintVenant-Section NomRef="St_AFF2">
-          <Pos>Interne</Pos>
-          <Xp>2000.0</Xp>
-          <CoefPond>0.5</CoefPond>
-          <CoefConv>0.0</CoefConv>
-          <CoefDiv>0.0</CoefDiv>
-        </BrancheSaintVenant-Section>
-        <BrancheSaintVenant-Section NomRef="St_AFF0">
+        <BrancheSaintVenant-Section NomRef="St_AVB106.200">
           <Pos>Aval</Pos>
-          <Xp>3000</Xp>
+          <Xp>200</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
       </BrancheSaintVenant-Sections>
     </BrancheSaintVenant>
-    <BrancheSeuilLateral Nom="Br_CAS1_RET">
-      <Commentaire>Branche [4] #Br_CAS1_RET: Noeud #Nd_RET96.000_PR1 -&gt; Noeud #Nd_CAS1 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_RET96.000_PR1"/>
-      <NdAv NomRef="Nd_CAS1"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS1_RET_Am">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS1_RET_Av">
-          <Pos>Aval</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheSeuilLateral>
-    <BrancheOrifice Nom="Br_CAS5_RET">
-      <Commentaire>Branche [5] #Br_CAS5_RET: Noeud #Nd_CAS5 -&gt; Noeud #Nd_RET105.000 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_CAS5"/>
-      <NdAv NomRef="Nd_RET105.000"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS5_RET_Am">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS5_RET_Av">
-          <Pos>Aval</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheOrifice>
-    <BrancheOrifice Nom="Br_CAS2_RET">
-      <Commentaire>Branche [5] #Br_CAS2_RET: Noeud #Nd_RET98.000 -&gt; Noeud #Nd_CAS2 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_RET98.000"/>
-      <NdAv NomRef="Nd_CAS2"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS2_RET_Am">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS2_RET_Av">
-          <Pos>Aval</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheOrifice>
-    <BrancheOrifice Nom="Br_CAS3_RET">
-      <Commentaire>Branche [5] #Br_CAS3_RET: Noeud #Nd_RET100.500 -&gt; Noeud #Nd_CAS3 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_RET100.500"/>
-      <NdAv NomRef="Nd_CAS3"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS3_RET_Am">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS3_RET_Av">
-          <Pos>Aval</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheOrifice>
-    <BrancheSeuilLateral Nom="Br_CAS4_RET">
-      <Commentaire>Branche [4] #Br_CAS4_RET: Noeud #Nd_RET102.700 -&gt; Noeud #Nd_CAS4 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_RET102.700"/>
-      <NdAv NomRef="Nd_CAS4"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS4_RET_Am">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS4_RET_Av">
-          <Pos>Aval</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheSeuilLateral>
-    <BrancheStrickler Nom="Br_CAS1-2">
-      <Commentaire>Branche [6] #Br_CAS1-2: Noeud #Nd_CAS1 -&gt; Noeud #Nd_CAS2 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_CAS1"/>
-      <NdAv NomRef="Nd_CAS2"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS1">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS2">
-          <Pos>Aval</Pos>
-          <Xp>2000</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheStrickler>
-    <BrancheNiveauxAssocies Nom="Br_CAS2-3">
-      <Commentaire>Branche [12] #Br_CAS2-3: Noeud #Nd_CAS2 -&gt; Noeud #Nd_CAS3 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_CAS2"/>
-      <NdAv NomRef="Nd_CAS3"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS2-3_Am">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS2-3_Av">
-          <Pos>Aval</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheNiveauxAssocies>
-    <BrancheOrifice Nom="Br_CAS3-4">
-      <Commentaire>Branche [5] #Br_CAS3-4: Noeud #Nd_CAS3 -&gt; Noeud #Nd_CAS4 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_CAS3"/>
-      <NdAv NomRef="Nd_CAS4"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS3-4_Am">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS3-4_Av">
-          <Pos>Aval</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheOrifice>
-    <BrancheStrickler Nom="Br_CAS4-5">
-      <Commentaire>Branche [6] #Br_CAS4-5: Noeud #Nd_CAS4 -&gt; Noeud #Nd_CAS5 (2 sections)</Commentaire>
-      <IsActive>true</IsActive>
-      <NdAm NomRef="Nd_CAS4"/>
-      <NdAv NomRef="Nd_CAS5"/>
-      <Branche-Sections>
-        <Branche-Section NomRef="St_CAS4">
-          <Pos>Amont</Pos>
-          <Xp>0.0</Xp>
-        </Branche-Section>
-        <Branche-Section NomRef="St_CAS5">
-          <Pos>Aval</Pos>
-          <Xp>2000</Xp>
-        </Branche-Section>
-      </Branche-Sections>
-    </BrancheStrickler>
   </Branches>
 </DRSO>

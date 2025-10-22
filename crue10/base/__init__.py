@@ -108,6 +108,25 @@ class EnsembleFichiersXML(ABC):
         """Retourne la liste des fichiers par type"""
         return {xml_type: os.path.basename(path) for xml_type, path in self.files.items()}
 
+    @staticmethod
+    def _rename_emh(dictionary, old_id, new_id, replace_obj=True):
+        """Renommer une EMH (changer son attribut id) dans un dictionnaire"""
+        dictionary[new_id] = dictionary.pop(old_id)
+        if replace_obj:
+            dictionary[new_id].id = new_id
+
+    @staticmethod
+    def _rename_key_and_obj(dictionary, suffix, replace_obj=True, insert_before=False, emhs_to_preserve=[]):
+        """Add suffix to all keys of dictionary and `id` attribute of objects"""
+        for old_id in deepcopy(list(dictionary.keys())):
+            if old_id not in emhs_to_preserve:
+                if insert_before or old_id.endswith('_Am') or old_id.endswith('_Av'):
+                    new_left_id, new_right_id = old_id.rsplit('_', 1)
+                    new_id = new_left_id + suffix + '_' + new_right_id
+                else:
+                    new_id = old_id + suffix
+                EnsembleFichiersXML._rename_emh(dictionary, old_id, new_id, replace_obj)
+
     def set_version_grammaire(self, version_grammaire):
         """
         Définir la version de la grammaire

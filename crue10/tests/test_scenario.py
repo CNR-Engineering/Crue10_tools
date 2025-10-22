@@ -32,11 +32,11 @@ class ScenarioTestCase(unittest.TestCase):
         self.scenario_etu3_6i_run.read_all()
 
     def test_summary(self):
-        self.assertEqual(self.scenario_etu3_6.summary(), "Scénario Sc_M3-6_c10: 2 calculs, dont 2 pseudo-permanents et 0 transitoire actifs")
-        self.assertEqual(self.scenario_etu3_6_xml_errors.summary(), "Scénario Sc_M3-6_c10: 0 calcul, dont 0 pseudo-permanent et 0 transitoire actif")
-        self.assertEqual(self.scenario_ko_etu3_6_xml_errors.summary(), "Scénario Sc_M3-6_c10_ko: 0 calcul, dont 0 pseudo-permanent et 0 transitoire actif")
-        self.assertEqual(self.scenario_from_scratch.summary(), "Scénario Sc_from_scratch: 0 calcul, dont 0 pseudo-permanent et 0 transitoire actif")
-        self.assertEqual(self.scenario_etu3_6i_run.summary(), "Scénario Sc_M3-6I_c10: 3 calculs, dont 2 pseudo-permanents et 1 transitoire actifs")
+        self.assertEqual(self.scenario_etu3_6.summary(), "Scénario Sc_M3-6_c10: Mo_M3-6_c10 (2 calculs, dont 2 pseudo-permanents et 0 transitoire actifs)")
+        self.assertEqual(self.scenario_etu3_6_xml_errors.summary(), "Scénario Sc_M3-6_c10: Mo_M3-6_c10 (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)")
+        self.assertEqual(self.scenario_ko_etu3_6_xml_errors.summary(), "Scénario Sc_M3-6_c10_ko: Mo_M3-6_c10 (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)")
+        self.assertEqual(self.scenario_from_scratch.summary(), "Scénario Sc_mono_sm: Mo_mono_sm (0 calcul, dont 0 pseudo-permanent et 0 transitoire actif)")
+        self.assertEqual(self.scenario_etu3_6i_run.summary(), "Scénario Sc_M3-6I_c10: Mo_M3-6I_c10 (3 calculs, dont 2 pseudo-permanents et 1 transitoire actifs)")
 
     def test_check_xml_scenario_etu3_6(self):
         errors_list = self.scenario_etu3_6.check_xml_scenario(self.etude_etu3_6.folder)
@@ -92,5 +92,5 @@ class ScenarioTestCase(unittest.TestCase):
         with self.assertLogs(logger=logger, level=logging.INFO) as log:
             self.scenario_from_scratch.log_check_xml_scenario(self.etude_from_scratch.folder)
             self.assertEqual(log.output, [
-                'INFO:crue10.utils:=> Aucune erreur dans le scénario Scénario Sc_from_scratch',
+                'INFO:crue10.utils:=> Aucune erreur dans le scénario Scénario Sc_mono_sm',
             ])

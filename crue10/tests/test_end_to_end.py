@@ -7,17 +7,14 @@ from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
 from crue10.utils.settings import VERSION_GRAMMAIRE_COURANTE, VERSION_GRAMMAIRE_PRECEDENTE
 
 
-NB_XML_FILES = 4 + 6 + 5 + 1
-
-
 class EndToEndTestCase(unittest.TestCase):
 
-    def _same_folders(self, folder_in, folder_out, version_grammaire, etu_changed=True):
+    def _same_folders(self, folder_in, folder_out, version_grammaire, nb_sc=1, nb_mo=1, nb_sm=1, etu_changed=True):
         comparison = dircmp(folder_in, folder_out, ignore=['Config', 'CONFIG'])
 
-        nb_common_xml = NB_XML_FILES
+        nb_common_xml = nb_sm * 4 + nb_mo * 6 + nb_sc * 5 + 1
         if version_grammaire == VERSION_GRAMMAIRE_PRECEDENTE:
-            nb_common_xml -= 1  # dreg
+            nb_common_xml -= nb_mo  # dreg
 
         has_error = False
         if len(comparison.common) != nb_common_xml:
@@ -40,13 +37,17 @@ class EndToEndTestCase(unittest.TestCase):
         folder_in = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', version_grammaire, 'Etu_from_scratch')
         folder_out = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', version_grammaire, 'Etu_from_scratch')
 
-        # WRITE_REFERENCES is not used, but the complete study can be regenerated in running `snippets/ecrire_etude.py`
+        # WRITE_REFERENCES is not used, but the complete studies in folder `in` can be regenerated in running `snippets/ecrire_etude.py`
 
-        from snippets.ecrire_etude import validate_and_write_etude_from_scratch
+        from snippets.ecrire_etude import creer_etude_from_scratch
         etu_path = os.path.join(folder_out, 'Etu_from_scratch.etu.xml')
-        validate_and_write_etude_from_scratch(etu_path, version_grammaire)
-
-        self._same_folders(folder_in, folder_out, version_grammaire, etu_changed=False)
+        etude_out = creer_etude_from_scratch(etu_path)
+        if version_grammaire != etude_out.version_grammaire:
+            etude_out.changer_version_grammaire(version_grammaire=version_grammaire)
+        etude_out.write_all()
+        self._same_folders(folder_in, folder_out, version_grammaire,
+                           nb_sc=len(etude_out.scenarios), nb_mo=len(etude_out.modeles),
+                           nb_sm=len(etude_out.sous_modeles), etu_changed=False)
 
     def test_write_gcour_from_scratch(self):
         self._test_write_from_scratch(VERSION_GRAMMAIRE_COURANTE)

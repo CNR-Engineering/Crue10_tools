@@ -1,0 +1,329 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DPTG xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dptg-1.2.xsd">
+  <Commentaire></Commentaire>
+  <DonPrtGeoProfilCasiers>
+    <ProfilCasier Nom="Pc_CAS1_001">
+      <Commentaire>ProfilCasier #Pc_CAS1_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 90.0</PointFF>
+        <PointFF>360.0 100.0</PointFF>
+        <PointFF>1440.0 102.0</PointFF>
+        <PointFF>1800.0 110.0</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 90.0</LimDeb>
+        <LimFin>1800.0 110.0</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    <ProfilCasier Nom="Pc_CAS2_001">
+      <Commentaire>ProfilCasier #Pc_CAS2_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 90.0</PointFF>
+        <PointFF>360.0 100.0</PointFF>
+        <PointFF>1440.0 102.0</PointFF>
+        <PointFF>1800.0 110.0</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 90.0</LimDeb>
+        <LimFin>1800.0 110.0</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    <ProfilCasier Nom="Pc_CAS3_001">
+      <Commentaire>ProfilCasier #Pc_CAS3_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 90.0</PointFF>
+        <PointFF>360.0 100.0</PointFF>
+        <PointFF>1440.0 102.0</PointFF>
+        <PointFF>1800.0 110.0</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 90.0</LimDeb>
+        <LimFin>1800.0 110.0</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    <ProfilCasier Nom="Pc_CAS4_001">
+      <Commentaire>ProfilCasier #Pc_CAS4_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 90.0</PointFF>
+        <PointFF>360.0 100.0</PointFF>
+        <PointFF>1440.0 102.0</PointFF>
+        <PointFF>1800.0 110.0</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 90.0</LimDeb>
+        <LimFin>1800.0 110.0</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+    <ProfilCasier Nom="Pc_CAS5_001">
+      <Commentaire>ProfilCasier #Pc_CAS5_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
+      <Longueur>1800</Longueur>
+      <EvolutionFF>
+        <PointFF>0.0 90.0</PointFF>
+        <PointFF>360.0 100.0</PointFF>
+        <PointFF>1440.0 102.0</PointFF>
+        <PointFF>1800.0 110.0</PointFF>
+      </EvolutionFF>
+      <LitUtile>
+        <LimDeb>0.0 90.0</LimDeb>
+        <LimFin>1800.0 110.0</LimFin>
+      </LitUtile>
+    </ProfilCasier>
+  </DonPrtGeoProfilCasiers>
+  <DonPrtGeoProfilSections>
+    <ProfilSection Nom="Ps_CAS1">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_CAS"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+    <ProfilSection Nom="Ps_CAS2">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_CAS"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+    <ProfilSection Nom="Ps_CAS4">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_CAS"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+    <ProfilSection Nom="Ps_CAS5">
+      <Commentaire>Profil importé de Bathy (campagne du 01/01/2025)</Commentaire>
+      <EvolutionFF>
+        <PointFF>-10.0 10.0</PointFF>
+        <PointFF>50.0 8.0</PointFF>
+        <PointFF>90.0 4.0</PointFF>
+        <PointFF>340.0 0.0</PointFF>
+        <PointFF>590.0 4.0</PointFF>
+        <PointFF>630.0 8.0</PointFF>
+        <PointFF>690.0 10.0</PointFF>
+      </EvolutionFF>
+      <LitNumerotes>
+        <LitNumerote>
+          <LimDeb>-10.0 10.0</LimDeb>
+          <LimFin>50.0 8.0</LimFin>
+          <LitNomme>Lt_StoD</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>50.0 8.0</LimDeb>
+          <LimFin>90.0 4.0</LimFin>
+          <LitNomme>Lt_MajD</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>90.0 4.0</LimDeb>
+          <LimFin>590.0 4.0</LimFin>
+          <LitNomme>Lt_Mineur</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>true</IsLitMineur>
+          <Frot NomRef="Fk_DefautMin_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>590.0 4.0</LimDeb>
+          <LimFin>630.0 8.0</LimFin>
+          <LitNomme>Lt_MajG</LitNomme>
+          <IsLitActif>true</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="Fk_DefautMaj_CAS"/>
+        </LitNumerote>
+        <LitNumerote>
+          <LimDeb>630.0 8.0</LimDeb>
+          <LimFin>690.0 10.0</LimFin>
+          <LitNomme>Lt_StoG</LitNomme>
+          <IsLitActif>false</IsLitActif>
+          <IsLitMineur>false</IsLitMineur>
+          <Frot NomRef="FkSto_K0_0001_CAS"/>
+        </LitNumerote>
+      </LitNumerotes>
+      <Etiquettes>
+        <Etiquette Nom="Et_Thalweg">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+        <Etiquette Nom="Et_AxeHyd">
+          <PointFF>340.0 0.0</PointFF>
+        </Etiquette>
+      </Etiquettes>
+    </ProfilSection>
+  </DonPrtGeoProfilSections>
+  <DonPrtGeoCasiers/>
+  <DonPrtGeoSections/>
+  <DonPrtGeoBranches/>
+</DPTG>

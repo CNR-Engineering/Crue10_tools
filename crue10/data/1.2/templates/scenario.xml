@@ -16,13 +16,13 @@
 <xi:include href="file:/{{ folder }}/{{ modele.file_basenames.pnum }}" />
 <xi:include href="file:/{{ folder }}/{{ modele.file_basenames.dpti }}" />
 </ModeleFichiers>
-<SousModeleFichiers>
 {%- for sous_modele in sous_modele_liste %}
+<SousModeleFichiers>
 <xi:include href="file:/{{ folder }}/{{ sous_modele.file_basenames.drso }}" />
 <xi:include href="file:/{{ folder }}/{{ sous_modele.file_basenames.dcsp }}" />
 <xi:include href="file:/{{ folder }}/{{ sous_modele.file_basenames.dptg }}" />
 <xi:include href="file:/{{ folder }}/{{ sous_modele.file_basenames.dfrt }}" />
-{%- endfor %}
 </SousModeleFichiers>
+{%- endfor %}
 </ValidationModele>
 </ValidationScenario>

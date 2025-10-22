@@ -59,42 +59,6 @@
       <CoefRuisQdm>0.0</CoefRuisQdm>
       <CoefRuis>0.0</CoefRuis>
     </DonCalcSansPrtBrancheSaintVenant>
-    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_AMB105.000">
-      <CoefBeta>1.0</CoefBeta>
-      <CoefRuisQdm>0.0</CoefRuisQdm>
-      <CoefRuis>0.0</CoefRuis>
-    </DonCalcSansPrtBrancheSaintVenant>
-    <DonCalcSansPrtBrancheBarrageFilEau NomRef="Br_BGE105.500">
-      <QLimInf>-1.0E30</QLimInf>
-      <QLimSup>1.0E30</QLimSup>
-      <ElemBarrage>
-        <Largeur>1.0</Largeur>
-        <Zseuil>0.0</Zseuil>
-        <CoefNoy>1.0</CoefNoy>
-        <CoefDen>1.0</CoefDen>
-      </ElemBarrage>
-      <RegimeManoeuvrant Nom="LoiQpilZam_BGE105.500" Type="LoiQpilZam">
-        <Commentaire></Commentaire>
-        <EvolutionFF>
-          <PointFF>0.0 -15.0</PointFF>
-        </EvolutionFF>
-      </RegimeManoeuvrant>
-    </DonCalcSansPrtBrancheBarrageFilEau>
-    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_AVB106.000">
-      <CoefBeta>1.0</CoefBeta>
-      <CoefRuisQdm>0.0</CoefRuisQdm>
-      <CoefRuis>0.0</CoefRuis>
-    </DonCalcSansPrtBrancheSaintVenant>
-    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_CAA105.000">
-      <CoefBeta>1.0</CoefBeta>
-      <CoefRuisQdm>0.0</CoefRuisQdm>
-      <CoefRuis>0.0</CoefRuis>
-    </DonCalcSansPrtBrancheSaintVenant>
-    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_CAA107.500">
-      <CoefBeta>1.0</CoefBeta>
-      <CoefRuisQdm>0.0</CoefRuisQdm>
-      <CoefRuis>0.0</CoefRuis>
-    </DonCalcSansPrtBrancheSaintVenant>
     <DonCalcSansPrtBrancheSaintVenant NomRef="Br_AFF5">
       <CoefBeta>1.0</CoefBeta>
       <CoefRuisQdm>0.0</CoefRuisQdm>
@@ -185,6 +149,42 @@
         <SensOrifice>Bidirect</SensOrifice>
       </ElemOrifice>
     </DonCalcSansPrtBrancheOrifice>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_CAA105.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_CAA107.500">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_AMB105.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheBarrageFilEau NomRef="Br_BGE105.500">
+      <QLimInf>-1.0E30</QLimInf>
+      <QLimSup>1.0E30</QLimSup>
+      <ElemBarrage>
+        <Largeur>1.0</Largeur>
+        <Zseuil>0.0</Zseuil>
+        <CoefNoy>1.0</CoefNoy>
+        <CoefDen>1.0</CoefDen>
+      </ElemBarrage>
+      <RegimeManoeuvrant Nom="LoiQpilZam_BGE105.500" Type="LoiQpilZam">
+        <Commentaire></Commentaire>
+        <EvolutionFF>
+          <PointFF>0.0 -15.0</PointFF>
+        </EvolutionFF>
+      </RegimeManoeuvrant>
+    </DonCalcSansPrtBrancheBarrageFilEau>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_AVB106.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
   </DonCalcSansPrtBranches>
   <DonCalcSansPrtCasiers>
     <DonCalcSansPrtCasierProfil NomRef="Ca_CAS1">

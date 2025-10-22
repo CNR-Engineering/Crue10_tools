@@ -1,8 +1,12 @@
+import copy
 import numpy as np
 import os.path
 import unittest
 
 from crue10.etude import Etude
+from crue10.emh.section import DEFAULT_FK_STO_ID, DEFAULT_FK_MAJ_ID, DEFAULT_FK_MIN_ID, \
+    LimiteGeom, SectionProfil
+from crue10.sous_modele import SousModele
 from crue10.tests import DATA_TESTS_FOLDER_ABSPATH
 from crue10.utils import ExceptionCrue10
 
@@ -13,6 +17,26 @@ class SousModeleTestCase(unittest.TestCase):
         etude = Etude(os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', '1.2', 'Etu3-6', 'Etu3-6.etu.xml'))
         self.sous_modele = etude.get_sous_modele('Sm_M3-6_c10')
         self.sous_modele.read_all(ignore_shp=True)
+
+    def _test_rename_emhs(self, sous_modele):
+        SUFFIXE = '_new'
+
+        def iter_on_lois_frottement_in_sectionprofils():
+            for section in sous_modele.get_liste_sections_profil():
+                for lit in section.lits_numerotes:
+                    yield lit.loi_frottement.id
+
+        lois_frottement_ids = copy.deepcopy(list(sous_modele.lois_frottement.keys()))
+        lois_frottement_in_sections_ori = list(iter_on_lois_frottement_in_sectionprofils())
+
+        sous_modele.rename_emhs(SUFFIXE, emh_list=['Fk'])
+
+        lois_frottement_in_sections_new = list(iter_on_lois_frottement_in_sectionprofils())
+
+        self.assertEqual([nom_loi + SUFFIXE for nom_loi in lois_frottement_ids],
+                         list(sous_modele.lois_frottement.keys()))
+        self.assertEqual([nom_loi + SUFFIXE for nom_loi in lois_frottement_in_sections_ori],
+                         lois_frottement_in_sections_new)
 
     def test_summary(self):
         self.assertEqual(self.sous_modele.summary(), "Sous-modèle Sm_M3-6_c10: 7 noeuds, 7 branches, 26 sections (14 profils, 2 idems, 6 interpolées, 4 sans géométrie), 2 casiers (3 profils casier)")
@@ -94,3 +118,67 @@ class SousModeleTestCase(unittest.TestCase):
     def test_remove_sectioninterpolee(self):
         self.sous_modele.remove_sectioninterpolee()
         self.assertEqual(len(self.sous_modele.get_liste_sections_interpolees()), 0)
+
+    def test_rename_emhs(self):
+        self._test_rename_emhs(self.sous_modele)
+
+    def test_rename_emhs_from_scratch(self):
+        sous_modele = SousModele("Sm_from_sratch", mode='w')
+        sous_modele.ajouter_lois_frottement_par_defaut()
+
+        section = SectionProfil("St_from_scratch")
+
+        largeur_sto_d = 60.0
+        largeur_maj_d = 40.0
+        largeur_min = 500.0
+        largeur_maj_g = 40.0
+        largeur_sto_g = 60.0
+
+        z_rive = 10.0
+        z_sto_maj = 8.0
+        z_maj_min = 4.0
+        z_thalweg = 0.0
+
+        xt_initial = -10.0  # Borne RD Bathy à xt=0
+
+        xz = np.array([
+            (xt_initial, z_rive),
+            (largeur_sto_d, z_sto_maj),
+            (largeur_maj_d, z_maj_min),
+            (largeur_min / 2, z_thalweg),  # Centered thalweg
+            (largeur_min / 2, z_maj_min),
+            (largeur_maj_g, z_sto_maj),
+            (largeur_sto_g, z_rive)
+        ])
+        xz[:, 0] = xz[:, 0].cumsum()
+
+        xt_limites = np.array([
+            xt_initial,
+            largeur_sto_d,
+            largeur_maj_d,
+            largeur_min,
+            largeur_maj_g,
+            largeur_sto_g,
+        ])
+        xt_limites = xt_limites.cumsum()
+
+        section.set_xz(xz)
+        xt_axe_hydraulique = xt_initial + largeur_sto_d + largeur_maj_d + largeur_min / 2
+        section.ajouter_limite_geom(LimiteGeom(LimiteGeom.AXE_HYDRAULIQUE, xt_axe_hydraulique))
+        xt_thalweg = xt_initial + largeur_sto_d + largeur_maj_d + largeur_min / 2
+        section.ajouter_limite_geom(LimiteGeom(LimiteGeom.THALWEG, xt_thalweg))
+
+        loi_sto = sous_modele.get_loi_frottement(DEFAULT_FK_STO_ID)
+        loi_maj = sous_modele.get_loi_frottement(DEFAULT_FK_MAJ_ID)
+        loi_min = sous_modele.get_loi_frottement(DEFAULT_FK_MIN_ID)
+        section.set_lits_numerotes(xt_limites, [
+            loi_sto,
+            loi_maj,
+            loi_min,
+            loi_maj,
+            loi_sto,
+        ])
+
+        sous_modele.ajouter_section(section)
+
+        self._test_rename_emhs(sous_modele)

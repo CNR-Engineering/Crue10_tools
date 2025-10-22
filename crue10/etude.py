@@ -93,6 +93,10 @@ class Etude(EnsembleFichiersXML):
             raise NotImplementedError
 
     @property
+    def id(self):
+        return os.path.basename(self.etu_path[:-8])
+
+    @property
     def etu_path(self):
         """
         :return: Chemin vers le fichier étude (etu.xml)
@@ -746,6 +750,61 @@ class Etude(EnsembleFichiersXML):
             errors[os.path.basename(file_path)] = self._check_xml_file(file_path)
         return errors
 
+    def treeview(self):
+        txt = [
+            "# Arborescence des Sc/Mo/Sm",
+            self.id,
+        ]
+        for i_sc, scenario in enumerate(self.get_liste_scenarios()):
+            if i_sc != len(self.scenarios) - 1:
+                left_sc = "├──"
+                below_sc = "│  "
+            else:
+                left_sc = "└──"
+                below_sc = "   "
+            txt.append(f"{left_sc} {scenario.id}")
+
+            modele = scenario.modele
+            left_mo = f"{below_sc} └──"
+            below_mo = "   "
+            txt.append(f"{left_mo} {modele.id}")
+
+            for i_sm, sous_modele in enumerate(modele.liste_sous_modeles):
+                if i_sm != len(modele.liste_sous_modeles) - 1:
+                    left_sm = f"{below_sc} {below_mo} ├──"
+                else:
+                    left_sm = f"{below_sc} {below_mo} └──"
+                txt.append(f"{left_sm} {sous_modele.id}")
+
+        return '\n'.join(txt)
+
+    def details(self):
+        txt = []
+        if self.scenarios:
+            txt.append("# Liste des scénarios")
+            for scenario in self.get_liste_scenarios():
+                txt.append(f"- {scenario.id}")
+        else:
+            txt.append("Aucun scénario")
+
+        txt.append("")
+        if self.modeles:
+            txt.append("# Liste des modèles")
+            for modele in self.get_liste_modeles():
+                txt.append(f"- {modele.id}")
+        else:
+            txt.append("Aucun modèle")
+
+        txt.append("")
+        if self.sous_modeles:
+            txt.append("# Liste des sous-modèles")
+            for sous_modele in self.get_liste_sous_modeles():
+                txt.append(f"- {sous_modele.id}")
+        else:
+            txt.append("Aucun scénario")
+
+        return "\n".join(txt) + "\n\n" + self.treeview()
+
     def summary(self):
         return (
             f"{self}: "
@@ -755,4 +814,4 @@ class Etude(EnsembleFichiersXML):
         )
 
     def __repr__(self):
-        return "Étude %s" % os.path.basename(self.etu_path[:-8])
+        return f"Étude {self.id}"

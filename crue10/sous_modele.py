@@ -1,4 +1,4 @@
-# coding: utf-8
+import copy
 from builtins import super  # Python2 fix (requires module `future`)
 from collections import OrderedDict
 import fiona
@@ -232,9 +232,9 @@ class SousModele(EnsembleFichiersXML):
         """
         Ajouter les lois de frottement par défaut
         """
-        self.ajouter_loi_frottement(DEFAULT_FK_STO)
-        self.ajouter_loi_frottement(DEFAULT_FK_MAJ)
-        self.ajouter_loi_frottement(DEFAULT_FK_MIN)
+        self.ajouter_loi_frottement(copy.copy(DEFAULT_FK_STO))
+        self.ajouter_loi_frottement(copy.copy(DEFAULT_FK_MAJ))
+        self.ajouter_loi_frottement(copy.copy(DEFAULT_FK_MIN))
 
     def get_noeud(self, nom_noeud):
         """
@@ -1074,6 +1074,29 @@ class SousModele(EnsembleFichiersXML):
             for shp_name in SousModele.FILES_SHP:
                 sm_folder = os.path.join(folder, folder_config, self.id.upper())
                 self.files[shp_name] = os.path.join(sm_folder, shp_name + '.shp')
+
+    def rename_emhs(self, suffix, emh_list=['Fk'], emhs_to_preserve=[]):
+        """
+        Renommer les EMHs du sous-modèle du modèle courant
+
+        :param suffix: suffixe à ajouter aux EMHs
+            (pour les sections sans géométrie, le suffixe à ajouter est mis avant le suffixe `_Am` ou `_Av`)
+        :type suffix: str
+        :param emh_list: liste des types d'EMHs à renommer
+        :type emh_list: list(str)
+        :param emhs_to_preserve: liste des noeuds à ne pas renommer
+        :type emhs_to_preserve: list(str)
+        """
+        if 'Fk' in emh_list:
+            SousModele._rename_key_and_obj(self.lois_frottement, suffix)
+        if 'Nd' in emh_list:
+            raise NotImplementedError
+        if 'Cd' in emh_list:
+            raise NotImplementedError
+        if 'St' in emh_list:
+            raise NotImplementedError
+        if 'Br' in emh_list:
+            raise NotImplementedError
 
     def remove_sectioninterpolee(self):
         """Remove all `SectionInterpolee` which are internal sections"""

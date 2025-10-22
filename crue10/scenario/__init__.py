@@ -1,4 +1,3 @@
-# coding: utf-8
 from builtins import super  # Python2 fix
 from collections import OrderedDict
 from copy import deepcopy
@@ -1076,6 +1075,9 @@ class Scenario(EnsembleFichiersXML):
         xsd_tree = etree.parse(xsd_path)
         xsd_schema = etree.XMLSchema(xsd_tree)
 
+        # with open(f"debug_check_xml_scenario_{self.id}.xml", 'w') as out:
+        #     out.write(xml_content)
+
         return check_xml_content(xml_content, xsd_schema)
 
     def log_check_xml_scenario(self, folder):
@@ -1098,11 +1100,11 @@ class Scenario(EnsembleFichiersXML):
         nb_pseudo_perm = len(self.liste_ord_calc_pseudoperm)
         nb_transitoires = len(self.liste_ord_calc_trans)
         return (
-            f"{self}: "
-            f"{pluralize(len(self.calculs), 'calcul')}, "
+            f"{self}: {self.modele.id} "
+            f"({pluralize(len(self.calculs), 'calcul')}, "
             f"dont {pluralize(nb_pseudo_perm, 'pseudo-permanent')} "
             f"et {pluralize(nb_transitoires, 'transitoire')} "
-            f"{pluralize(nb_pseudo_perm + nb_transitoires, 'actif', ignore_counter=True)}"
+            f"{pluralize(nb_pseudo_perm + nb_transitoires, 'actif', ignore_counter=True)})"
         )
 
     def __repr__(self):

@@ -22,7 +22,7 @@ class ModeleTestCase(unittest.TestCase):
         self.branches = self.modele.get_liste_branches_entre_deux_noeuds('Nd_N1', 'Nd_N5')
 
     def test_summary(self):
-        self.assertEqual(self.modele.summary(), "Modèle Mo_M3-6_c10: 1 sous-modèle")
+        self.assertEqual(self.modele.summary(), "Modèle Mo_M3-6_c10: Sm_M3-6_c10 (7 CIni aux noeuds, 2 aux casiers, 7 aux branches)")
 
     def test_get(self):
         # SousModele

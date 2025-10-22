@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<DCSP xmlns="http://www.fudaa.fr/xsd/crue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fudaa.fr/xsd/crue http://www.fudaa.fr/xsd/crue/dcsp-1.2.xsd">
+  <Commentaire></Commentaire>
+  <DonCalcSansPrtBranches>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_AMB105.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+    <DonCalcSansPrtBrancheBarrageFilEau NomRef="Br_BGE105.500">
+      <QLimInf>-1.0E30</QLimInf>
+      <QLimSup>1.0E30</QLimSup>
+      <ElemSeuil>
+        <Largeur>1.0</Largeur>
+        <Zseuil>0.0</Zseuil>
+        <CoefD>1.0</CoefD>
+      </ElemSeuil>
+      <RegimeDenoye Nom="LoiQpilZam_BGE105.500" Type="LoiQpilZam">
+        <Commentaire></Commentaire>
+        <EvolutionFF>
+          <PointFF>0.0 -15.0</PointFF>
+        </EvolutionFF>
+      </RegimeDenoye>
+    </DonCalcSansPrtBrancheBarrageFilEau>
+    <DonCalcSansPrtBrancheSaintVenant NomRef="Br_AVB106.000">
+      <CoefBeta>1.0</CoefBeta>
+      <CoefRuisQdm>0.0</CoefRuisQdm>
+      <CoefRuis>0.0</CoefRuis>
+    </DonCalcSansPrtBrancheSaintVenant>
+  </DonCalcSansPrtBranches>
+  <DonCalcSansPrtCasiers/>
+</DCSP>

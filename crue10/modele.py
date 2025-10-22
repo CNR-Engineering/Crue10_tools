@@ -76,31 +76,12 @@ class Modele(EnsembleFichiersXML):
             self._build_graph()
         return self._graph
 
-    @staticmethod
-    def rename_emh(dictionary, old_id, new_id, replace_obj=True):
-        """Renommer une EMH (changer son attribut id) dans un dictionnaire"""
-        dictionary[new_id] = dictionary.pop(old_id)
-        if replace_obj:
-            dictionary[new_id].id = new_id
-
-    @staticmethod
-    def rename_key_and_obj(dictionary, suffix, replace_obj=True, insert_before=False, emhs_to_preserve=[]):
-        """Add suffix to all keys of dictionary and `id` attribute of objects"""
-        for old_id in deepcopy(list(dictionary.keys())):
-            if old_id not in emhs_to_preserve:
-                if insert_before or old_id.endswith('_Am') or old_id.endswith('_Av'):
-                    new_left_id, new_right_id = old_id.rsplit('_', 1)
-                    new_id = new_left_id + suffix + '_' + new_right_id
-                else:
-                    new_id = old_id + suffix
-                Modele.rename_emh(dictionary, old_id, new_id, replace_obj)
-
     def rename_noeud(self, old_id, new_id):
         """Renommer un noeud"""
         logger.debug("Renommage Noeud: %s -> %s" % (old_id, new_id))
         for sous_modele in self.liste_sous_modeles:
-            Modele.rename_emh(sous_modele.noeuds, old_id, new_id)
-            Modele.rename_emh(self.noeuds_ic, old_id, new_id, replace_obj=False)
+            Modele._rename_emh(sous_modele.noeuds, old_id, new_id)
+            Modele._rename_emh(self.noeuds_ic, old_id, new_id, replace_obj=False)
 
     def rename_emhs(self, suffix, emh_list=['Fk', 'Nd', 'Cd', 'St', 'Br'], emhs_to_preserve=[]):
         """
@@ -116,21 +97,21 @@ class Modele(EnsembleFichiersXML):
         """
         for sous_modele in self.liste_sous_modeles:
             if 'Fk' in emh_list:
-                Modele.rename_key_and_obj(sous_modele.lois_frottement, suffix)
+                Modele._rename_key_and_obj(sous_modele.lois_frottement, suffix)
             if 'Nd' in emh_list:
-                Modele.rename_key_and_obj(sous_modele.noeuds, suffix, emhs_to_preserve=emhs_to_preserve)
-                Modele.rename_key_and_obj(self.noeuds_ic, suffix, emhs_to_preserve=emhs_to_preserve, replace_obj=False)
+                Modele._rename_key_and_obj(sous_modele.noeuds, suffix, emhs_to_preserve=emhs_to_preserve)
+                Modele._rename_key_and_obj(self.noeuds_ic, suffix, emhs_to_preserve=emhs_to_preserve, replace_obj=False)
             if 'Cd' in emh_list:
-                Modele.rename_key_and_obj(sous_modele.casiers, suffix)
-                Modele.rename_key_and_obj(self.casiers_ic, suffix, replace_obj=False)
-                Modele.rename_key_and_obj(sous_modele.profils_casier, suffix, insert_before=True)
+                Modele._rename_key_and_obj(sous_modele.casiers, suffix)
+                Modele._rename_key_and_obj(self.casiers_ic, suffix, replace_obj=False)
+                Modele._rename_key_and_obj(sous_modele.profils_casier, suffix, insert_before=True)
             if 'St' in emh_list:
-                Modele.rename_key_and_obj(sous_modele.sections, suffix)
+                Modele._rename_key_and_obj(sous_modele.sections, suffix)
                 for st in sous_modele.get_liste_sections_profil():
                     st.set_profilsection_name()
             if 'Br' in emh_list:
-                Modele.rename_key_and_obj(sous_modele.branches, suffix)
-                Modele.rename_key_and_obj(self.branches_ic, suffix, replace_obj=False)
+                Modele._rename_key_and_obj(sous_modele.branches, suffix)
+                Modele._rename_key_and_obj(self.branches_ic, suffix, replace_obj=False)
 
     def get_sous_modele(self, nom_sous_modele):
         """
@@ -398,6 +379,16 @@ class Modele(EnsembleFichiersXML):
         if sous_modele.id in self.liste_sous_modeles:
             raise ExceptionCrue10("Le sous-modèle %s est déjà présent" % sous_modele.id)
         self.liste_sous_modeles.append(sous_modele)
+
+    def ajouter_liste_sous_modeles(self, liste_sous_modeles):
+        """
+        Ajouter une série de sous-modèles au modèle
+
+        :param sous_modele: liste de sous-modèles à ajouter
+        :type: list(SousModele)
+        """
+        for sous_modele in liste_sous_modeles:
+            self.ajouter_sous_modele(sous_modele)
 
     def ajouter_depuis_modele(self, modele):
         """
@@ -757,16 +748,17 @@ class Modele(EnsembleFichiersXML):
         :type shallow: bool
         """
         if version_grammaire == '1.3':  # HARDCODED to support g1.2
-            interpol_st_venant = self.xml_trees['opti'].find(PREFIX + 'MethodeInterpol') \
-                .find(PREFIX + 'InterpolSaintVenant')
-            if interpol_st_venant is not None:
-                # Fix indentation (add 2 whitespaces)
-                elt_Pm_TolNdZ = interpol_st_venant.find(PREFIX + 'Pm_TolNdZ')
-                elt_Pm_TolNdZ.tail += '  '
-                # Parameter `Pm_TolStQ` is added (it was in CCM before)
-                elt_Pm_TolStQ = etree.SubElement(interpol_st_venant, PREFIX + 'Pm_TolStQ')
-                elt_Pm_TolStQ.text = float2str(CCM.variable['Pm_TolStQ'].dft)
-                elt_Pm_TolStQ.tail = '\n    '
+            if 'opti' in self.xml_trees:
+                interpol_st_venant = self.xml_trees['opti'].find(PREFIX + 'MethodeInterpol') \
+                    .find(PREFIX + 'InterpolSaintVenant')
+                if interpol_st_venant is not None:
+                    # Fix indentation (add 2 whitespaces)
+                    elt_Pm_TolNdZ = interpol_st_venant.find(PREFIX + 'Pm_TolNdZ')
+                    elt_Pm_TolNdZ.tail += '  '
+                    # Parameter `Pm_TolStQ` is added (it was in CCM before)
+                    elt_Pm_TolStQ = etree.SubElement(interpol_st_venant, PREFIX + 'Pm_TolStQ')
+                    elt_Pm_TolStQ.text = float2str(CCM.variable['Pm_TolStQ'].dft)
+                    elt_Pm_TolStQ.tail = '\n    '
 
             if 'dreg' not in self.xml_trees:
                 # Add dreg in self.xml_trees if missing (because is from grammar v1.2)
@@ -776,15 +768,16 @@ class Modele(EnsembleFichiersXML):
                 self.files['dreg'] = os.path.join(os.path.dirname(self.files['optr']), self.id[3:] + '.dreg.xml')
 
         elif version_grammaire == '1.2':  # HARDCODED to support g1.2
-            interpol_st_venant = self.xml_trees['opti'].find(PREFIX + 'MethodeInterpol') \
-                .find(PREFIX + 'InterpolSaintVenant')
-            if interpol_st_venant is not None:
-                # Fix indentation (remove 2 whitespaces)
-                elt_Pm_TolNdZ = interpol_st_venant.find(PREFIX + 'Pm_TolNdZ')
-                if elt_Pm_TolNdZ.tail.endswith('  '):
-                    elt_Pm_TolNdZ.tail = elt_Pm_TolNdZ.tail[:-2]
-                # Parameter `Pm_TolStQ` removed as it was in CCM before
-                interpol_st_venant.remove(interpol_st_venant.find(PREFIX + 'Pm_TolStQ'))
+            if 'opti' in self.xml_trees:
+                interpol_st_venant = self.xml_trees['opti'].find(PREFIX + 'MethodeInterpol') \
+                    .find(PREFIX + 'InterpolSaintVenant')
+                if interpol_st_venant is not None:
+                    # Fix indentation (remove 2 whitespaces)
+                    elt_Pm_TolNdZ = interpol_st_venant.find(PREFIX + 'Pm_TolNdZ')
+                    if elt_Pm_TolNdZ.tail.endswith('  '):
+                        elt_Pm_TolNdZ.tail = elt_Pm_TolNdZ.tail[:-2]
+                    # Parameter `Pm_TolStQ` removed as it was in CCM before
+                    interpol_st_venant.remove(interpol_st_venant.find(PREFIX + 'Pm_TolStQ'))
 
         if not shallow:
             for sous_modele in self.liste_sous_modeles:
@@ -954,7 +947,12 @@ class Modele(EnsembleFichiersXML):
             logger.warning("Branches dupliquées: %s" % duplicated_branches)
 
     def summary(self):
-        return f"{self}: {pluralize(len(self.liste_sous_modeles), 'sous-modèle')}"
+        if self.liste_sous_modeles:
+            txt = f"{self}: {' + '.join([sm.id for sm in self.liste_sous_modeles])}"
+            txt += f" ({len(self.noeuds_ic)} CIni aux noeuds, {len(self.casiers_ic)} aux casiers, {len(self.branches_ic)} aux branches)"
+            return txt
+        else:
+            return f"{self}: aucun sous-modèle"
 
     def __repr__(self):
         return "Modèle %s" % self.id
