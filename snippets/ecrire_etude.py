@@ -111,8 +111,8 @@ if __name__ == "__main__":
 
         # Write topographical graphs
         def write_topographical_graph(modele):
-            etu_folder = etude_in.folder
-            path_svg = os.path.join(etu_folder, f"graphe_{modele.id}.svg")
+            folder = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'graphes_topographiques', 'Etu_from_scratch')
+            path_svg = os.path.join(folder, f"{modele.id}.svg")
             modele.write_topological_graph([path_svg])
         if version_grammaire == VERSION_GRAMMAIRE_COURANTE:
             for modele in etude_in.get_liste_modeles():
