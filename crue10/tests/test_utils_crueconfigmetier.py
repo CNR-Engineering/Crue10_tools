@@ -3,7 +3,7 @@ import unittest
 from crue10.utils.crueconfigmetier import CCM
 
 
-class CCMTestCase(unittest.TestCase):
+class UtilsCrueConfigMetierTestCase(unittest.TestCase):
 
     def setUp(self):
         # CCM vient directement de 'crue10.utils.crueconfigmetier'

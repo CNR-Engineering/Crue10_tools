@@ -16,7 +16,7 @@ from crue10.emh.noeud import Noeud
 from crue10.emh.section import DEFAULT_FK_MAJ, DEFAULT_FK_MIN, DEFAULT_FK_STO, LoiFrottement, \
     LimiteGeom, LitNumerote, Section, SectionIdem, SectionInterpolee, SectionProfil, SectionSansGeometrie
 from crue10.utils import check_isinstance, check_preffix, ExceptionCrue10, ExceptionCrue10GeometryNotFound, \
-    ExceptionCrue10Grammar, get_optional_commentaire, logger, parse_loi, pluralize, PREFIX
+    ExceptionCrue10Grammar, get_optional_commentaire, logger, parse_loi, pluralize, PREFIX, sorted_by_id
 
 
 def parse_elem_seuil(elt, nom_elem, coef_list):
@@ -71,7 +71,7 @@ class SousModele(EnsembleFichiersXML):
     :ivar noeuds: dictionnaire ordonné des noeuds
     :vartype noeuds: OrderedDict(Noeud)
     :ivar sections: dictionnaire ordonné des sections (profil, idem, interpolée et sans géométrie)
-    :vartype sections: OrderedDict(Section
+    :vartype sections: OrderedDict(Section)
     :ivar branches: dictionnaire ordonné des branches
     :vartype branches: OrderedDict(Branche)
     :ivar casiers: dictionnaire ordonné des casiers
@@ -807,9 +807,17 @@ class SousModele(EnsembleFichiersXML):
 
         :param folder: dossier de sortie
         """
+        lois_frottement_fksto = []
+        lois_frottement_fk = []
+        for loi in self.get_liste_lois_frottement():
+            if loi.type == 'FkSto':
+                lois_frottement_fksto.append(loi)
+            else:  # loi.type='Fk'
+                lois_frottement_fk.append(loi)
         self._write_xml_file(
             'dfrt', folder,
-            loi_frottement_liste=[fl for _, fl in self.lois_frottement.items()],
+            loi_frottement_liste=sorted_by_id(lois_frottement_fksto, case_insensitive=False) +
+                                 sorted_by_id(lois_frottement_fk, case_insensitive=False)  # FKSto first
         )
 
     def _write_drso(self, folder):
@@ -839,11 +847,11 @@ class SousModele(EnsembleFichiersXML):
         """
         self._write_xml_file(
             'dptg', folder,
-            profil_casier_list=self.get_liste_profils_casier(),
-            bati_casier_list=sorted(self.get_liste_batis_casier(), key=lambda bc: bc.id),  # alphabetic order
-            section_profil_list=sorted(self.get_liste_sections_profil(), key=lambda st: st.id),  # alphabetic order
-            section_idem_list=sorted(self.get_liste_sections_idem(), key=lambda st: st.id),  # alphabetic order
-            branche_saintvenant_list=sorted(self.get_liste_branches([20]), key=lambda br: br.id),  # alphabetic order
+            profil_casier_list=sorted_by_id(self.get_liste_profils_casier()),
+            bati_casier_list=sorted_by_id(self.get_liste_batis_casier()),
+            section_profil_list=sorted_by_id(self.get_liste_sections_profil()),
+            section_idem_list=sorted_by_id(self.get_liste_sections_idem()),
+            branche_saintvenant_list=sorted_by_id(self.get_liste_branches([20])),
         )
 
     def _write_dcsp(self, folder):

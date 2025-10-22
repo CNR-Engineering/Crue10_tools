@@ -144,6 +144,14 @@ def pluralize(count, singular, plural=None, ignore_counter=False):
         return f"{count} {word}"
 
 
+def sorted_by_id(liste, case_insensitive=True):
+    """Trie une liste d'objets"""
+    if case_insensitive:
+        return sorted(liste, key=lambda obj: obj.id)
+    else:
+        return sorted(liste, key=lambda obj: obj.id.upper())
+
+
 def get_file_docstring(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
         module = ast.parse(f.read())

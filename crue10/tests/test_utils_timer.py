@@ -4,7 +4,7 @@ import unittest
 from crue10.utils.timer import time_it, activ_period
 
 
-class TimerTestCase(unittest.TestCase):
+class UtilsTimerTestCase(unittest.TestCase):
 
     def setUp(self):
         # Il n'y a rien de spécial à définir ici

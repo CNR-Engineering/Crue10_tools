@@ -12,8 +12,8 @@ class RunGprecTestCase(unittest.TestCase):
         scenario = etude.get_scenario_courant()
         self.run = scenario.get_dernier_run()
 
-    def test_repr(self):
-        self.assertEqual(str(self.run), "Run R2023-04-17-10h07m24s (0 avertissement + 0 erreur au total, 0 avertissement + 0 erreur de calcul)")
+    def test_summary(self):
+        self.assertEqual(self.run.summary(), "Run R2023-04-17-10h07m24s (0 avertissement + 0 erreur au total, 0 avertissement + 0 erreur de calcul)")
 
     def test_gprec_traces(self):
         self.assertEqual(len(self.run.traces['r']), 39)
@@ -37,8 +37,8 @@ class RunGcourTestCase(unittest.TestCase):
         scenario = etude.get_scenario_courant()
         self.run = scenario.get_dernier_run()
 
-    def test_repr(self):
-        self.assertEqual(str(self.run), "Run R2023-04-21-15h39m47s (41 avertissements + 0 erreur au total, 41 avertissements + 0 erreur de calcul)")
+    def test_summary(self):
+        self.assertEqual(self.run.summary(), "Run R2023-04-21-15h39m47s (41 avertissements + 0 erreur au total, 41 avertissements + 0 erreur de calcul)")
 
     def test_gcour_traces(self):
         self.assertEqual(len(self.run.traces['r']), 39)

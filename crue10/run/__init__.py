@@ -388,7 +388,7 @@ class Run:
         """Définir le commentaire"""
         self.metadata['Commentaire'] = comment
 
-    def __repr__(self):
+    def summary(self):
         text = "Run %s" % self.id
         if self.traces[Run.SERVICES[0]]:
             text += f" ({pluralize(self.nb_avertissements(), 'avertissement')} + " \
@@ -400,3 +400,6 @@ class Run:
                         f"{pluralize(self.nb_erreurs_calcul(), 'erreur')} de calcul"
             text += ')'
         return text
+
+    def __repr__(self):
+        return self.summary()

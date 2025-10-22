@@ -9,7 +9,7 @@ import re
 from sys import version_info
 import xml.etree.ElementTree as ET
 
-from crue10.utils import ExceptionCrue10, PREFIX
+from crue10.utils import ExceptionCrue10, pluralize, PREFIX
 from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV
 
 
@@ -365,16 +365,6 @@ class ResultatsCalcul:
                                       % (calc_name, ', '.join(self.res_calc_trans.keys())))
             else:
                 raise ExceptionCrue10("Calcul transitoire `%s` non trouvé !\nAucun calcul n'est trouvé." % calc_name)
-
-    def summary(self):
-        text = ""
-        for emh_type in self.emh_types:
-            if len(self.emh[emh_type]) > 0 and len(self.variables_extended(emh_type)) > 0:
-                text += "~> %i %s (avec %i variables)\n" % (len(self.emh[emh_type]), emh_type,
-                                                            len(self.variables_extended(emh_type)))
-        text += "=> %s calculs permanents et %i calculs transitoires\n" \
-                % (len(self.res_calc_pseudoperm), len(self.res_calc_trans))
-        return text
 
     def get_data_pseudoperm(self, calc_name):
         """
@@ -770,6 +760,30 @@ class ResultatsCalcul:
                                                      'variable': variable,
                                                      'value': FMT_FLOAT_CSV % value})
 
+    def details(self):
+        text = self.summary() + " :"
+
+        lines = []
+        for emh_type in self.emh_types:
+            if len(self.emh[emh_type]) > 0 and len(self.variables_extended(emh_type)) > 0:
+                lines.append(f"{len(self.emh[emh_type])} {emh_type} "
+                             f"(avec {pluralize(len(self.variables_extended(emh_type)), 'variable')})")
+
+        for i, line in enumerate(lines):
+            if i != len(lines) - 1:
+                left = "├──"
+            else:
+                left = "└──"
+            text += f"\n{left} {line}"
+
+        return text
+
+    def summary(self):
+        return (
+            f"Résultats run #{self.run_id} "
+            f"({pluralize(len(self.res_calc_pseudoperm), 'calcul permanent', 'calculs permanents')} et"
+            f" {pluralize(len(self.res_calc_trans), 'calcul transitoire', 'calculs transitoires')})"
+        )
+
     def __repr__(self):
-        return "Résultats run #%s (%i permanents, %i transitoires)" % (self.run_id, len(self.res_calc_pseudoperm),
-                                                                       len(self.res_calc_trans))
+        return self.summary()

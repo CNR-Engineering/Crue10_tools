@@ -14,17 +14,14 @@ def html_escape(text):
     return "".join(HTML_ESCAPE_TABLE.get(c, c) for c in text)
 
 
-def float2str(value):
-    """
-    34.666664123535156 => not changed!
-    1e30 => 1.0E30
-    """
-    text = str(value).replace('e+', 'E')
-    if 'E' in text:
-        # Exponent case
-        if '.' not in text:
-            text = text.replace('E', '.0E')
-    return text
-    # # Conventional rendering
-    # text = format(value, '.15f')
-    # return re.sub(r'\.([0-9])([0]+)$', r'.\1', text) # remove ending useless zeros
+def float2str(x: float) -> str:
+    if abs(x) >= 1e9 or (0 < abs(x) < 1e-6):
+        # Si c’est un grand ou petit nombre, utiliser la notation scientifique en majuscules
+        return f"{x:.1E}".replace('E+', 'E')
+    else:
+        # Sinon, garder la précision complète
+        s = str(x)
+        # S'assurer que les entiers aient ".0"
+        if '.' not in s:
+            s += '.0'
+        return s

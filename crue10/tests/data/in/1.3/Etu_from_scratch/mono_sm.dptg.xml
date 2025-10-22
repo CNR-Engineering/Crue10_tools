@@ -4,7 +4,7 @@
   <DonPrtGeoProfilCasiers>
     <ProfilCasier Nom="Pc_CAS1_001">
       <Commentaire>ProfilCasier #Pc_CAS1_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
-      <Longueur>1800</Longueur>
+      <Longueur>1800.0</Longueur>
       <EvolutionFF>
         <PointFF>0.0 90.0</PointFF>
         <PointFF>360.0 100.0</PointFF>
@@ -18,7 +18,7 @@
     </ProfilCasier>
     <ProfilCasier Nom="Pc_CAS2_001">
       <Commentaire>ProfilCasier #Pc_CAS2_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
-      <Longueur>1800</Longueur>
+      <Longueur>1800.0</Longueur>
       <EvolutionFF>
         <PointFF>0.0 90.0</PointFF>
         <PointFF>360.0 100.0</PointFF>
@@ -32,7 +32,7 @@
     </ProfilCasier>
     <ProfilCasier Nom="Pc_CAS3_001">
       <Commentaire>ProfilCasier #Pc_CAS3_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
-      <Longueur>1800</Longueur>
+      <Longueur>1800.0</Longueur>
       <EvolutionFF>
         <PointFF>0.0 90.0</PointFF>
         <PointFF>360.0 100.0</PointFF>
@@ -46,7 +46,7 @@
     </ProfilCasier>
     <ProfilCasier Nom="Pc_CAS4_001">
       <Commentaire>ProfilCasier #Pc_CAS4_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
-      <Longueur>1800</Longueur>
+      <Longueur>1800.0</Longueur>
       <EvolutionFF>
         <PointFF>0.0 90.0</PointFF>
         <PointFF>360.0 100.0</PointFF>
@@ -60,7 +60,7 @@
     </ProfilCasier>
     <ProfilCasier Nom="Pc_CAS5_001">
       <Commentaire>ProfilCasier #Pc_CAS5_001: longueur = 1800.000000 m, Z dans [90.000000, 110.000000] calculé avec un MNTerrain</Commentaire>
-      <Longueur>1800</Longueur>
+      <Longueur>1800.0</Longueur>
       <EvolutionFF>
         <PointFF>0.0 90.0</PointFF>
         <PointFF>360.0 100.0</PointFF>

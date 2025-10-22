@@ -559,7 +559,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_VRH80.000">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -643,7 +643,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_VRH84.800a">
           <Pos>Aval</Pos>
-          <Xp>4900</Xp>
+          <Xp>4900.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -674,7 +674,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_VRH85.200b">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -765,7 +765,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET90.000a">
           <Pos>Aval</Pos>
-          <Xp>4900</Xp>
+          <Xp>4900.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -780,7 +780,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_CAF87.000">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -822,7 +822,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET90.000b">
           <Pos>Aval</Pos>
-          <Xp>3000</Xp>
+          <Xp>3000.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -837,7 +837,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_RET90.000">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1047,7 +1047,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET96.000">
           <Pos>Aval</Pos>
-          <Xp>6000</Xp>
+          <Xp>6000.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1062,7 +1062,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_RET96.000a">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1132,7 +1132,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET98.000">
           <Pos>Aval</Pos>
-          <Xp>2000</Xp>
+          <Xp>2000.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1147,7 +1147,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_RET98.000a">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1231,7 +1231,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET100.400a">
           <Pos>Aval</Pos>
-          <Xp>2500</Xp>
+          <Xp>2500.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1246,7 +1246,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_RET100.400b">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1323,7 +1323,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET102.800a">
           <Pos>Aval</Pos>
-          <Xp>2200</Xp>
+          <Xp>2200.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1354,7 +1354,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_RET103.000">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1424,7 +1424,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_RET105.000">
           <Pos>Aval</Pos>
-          <Xp>2000</Xp>
+          <Xp>2000.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1439,7 +1439,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_AFF5">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1453,7 +1453,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_AFF3">
           <Pos>Aval</Pos>
-          <Xp>2000</Xp>
+          <Xp>2000.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1468,7 +1468,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_AFF3a">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -1489,7 +1489,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_AFF0">
           <Pos>Aval</Pos>
-          <Xp>3000</Xp>
+          <Xp>3000.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>

@@ -202,7 +202,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_CAA105.000">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -272,7 +272,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_CAA107.500">
           <Pos>Aval</Pos>
-          <Xp>2500</Xp>
+          <Xp>2500.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -287,7 +287,7 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_CAA107.500a">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -567,7 +567,7 @@
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_CAA110.000">
           <Pos>Aval</Pos>
-          <Xp>2500</Xp>
+          <Xp>2500.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>

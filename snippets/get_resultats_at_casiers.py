@@ -13,7 +13,7 @@ print(sous_modele.validate())
 run = scenario.get_dernier_run()
 resultats = run.get_resultats_calcul()
 print("RUN=%s" % run.id)
-print(resultats.summary())
+print(resultats.details())
 
 casier_names = resultats.emh['Casier']
 res = resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', casier_names)

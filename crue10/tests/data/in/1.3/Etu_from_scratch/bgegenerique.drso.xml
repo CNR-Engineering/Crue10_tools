@@ -49,14 +49,14 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_AMB105.000">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_AMB105.500">
           <Pos>Aval</Pos>
-          <Xp>500</Xp>
+          <Xp>500.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
@@ -88,14 +88,14 @@
       <BrancheSaintVenant-Sections>
         <BrancheSaintVenant-Section NomRef="St_AVB106.000">
           <Pos>Amont</Pos>
-          <Xp>0</Xp>
+          <Xp>0.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>
         </BrancheSaintVenant-Section>
         <BrancheSaintVenant-Section NomRef="St_AVB106.200">
           <Pos>Aval</Pos>
-          <Xp>200</Xp>
+          <Xp>200.0</Xp>
           <CoefPond>0.5</CoefPond>
           <CoefConv>0.0</CoefConv>
           <CoefDiv>0.0</CoefDiv>

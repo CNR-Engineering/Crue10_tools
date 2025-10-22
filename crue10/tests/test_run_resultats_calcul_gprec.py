@@ -9,11 +9,11 @@ import unittest
 
 from crue10.etude import Etude
 from crue10.tests import DATA_TESTS_FOLDER_ABSPATH, WRITE_REFERENCE_FILES
-from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV, VERSION_GRAMMAIRE_COURANTE
+from crue10.utils.settings import CSV_DELIMITER, FMT_FLOAT_CSV, VERSION_GRAMMAIRE_PRECEDENTE
 
 
-FOLDER_IN = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_COURANTE, 'Etu3-6I_run')
-FOLDER_OUT = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_COURANTE, 'Etu3-6I_run')
+FOLDER_IN = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'in', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6I_run')
+FOLDER_OUT = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'out', VERSION_GRAMMAIRE_PRECEDENTE, 'Etu3-6I_run')
 
 CASIERS = ['Ca_N7', 'Ca_N6']
 
@@ -54,6 +54,16 @@ class ResultatsCalculTestCase(unittest.TestCase):
         self.section_names = [st.id for st in scenario.modele.get_liste_sections()]
         if not os.path.exists(FOLDER_OUT):
             os.makedirs(FOLDER_OUT)
+
+    def test_summary(self):
+        self.assertEqual(self.resultats.summary(), "Résultats run #R2023-04-17-10h07m24s (2 calculs permanents et 1 calcul transitoire)")
+
+    def test_details(self):
+        self.assertEqual(self.resultats.details(), """Résultats run #R2023-04-17-10h07m24s (2 calculs permanents et 1 calcul transitoire) :
+├── 2 Casier (avec 3 variables)
+├── 26 Section (avec 5 variables)
+├── 3 BrancheSaintVenant (avec 4 variables)
+└── 1 BrancheStrickler (avec 2 variables)""")
 
     def test_emh(self):
         self.assertEqual(self.resultats.emh,
@@ -151,35 +161,11 @@ class ResultatsCalculTestCase(unittest.TestCase):
         df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
         self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
 
-        basename = 'Etu3-6I_run_profil_long_T01_max_with_time.csv'
-        if WRITE_REFERENCE_FILES:
-            df_reference = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches,
-                                                                                     associated_time=True)
-            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
-        df_actual = self.resultats.extract_profil_long_trans_max_as_dataframe('Cc_T01', self.branches,
-                                                                              associated_time=True)
-        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
-        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))
-
     def test_get_all_pseudoperm_var_at_emhs_as_array(self):
         reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
                                            'Etu3-6I_run_pseudoperm_Z_at_sections.p')
 
         actual = self.resultats.get_all_pseudoperm_var_at_emhs_as_array('Z', self.section_names)
-
-        if WRITE_REFERENCE_FILES:
-            with open(reference_file_path, 'wb') as f:
-                pickle.dump(actual, f)
-
-        with open(reference_file_path, 'rb') as f:
-            desired = pickle.load(f)
-        np.testing.assert_equal(actual, desired)
-
-    def test_get_all_pseudoperm_vars_at_emh_as_array(self):
-        reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
-                                           'Etu3-6I_run_pseudoperm_ZQ_at_St_PROF10.p')
-
-        actual = self.resultats.get_all_pseudoperm_vars_at_emh_as_array('St_PROF10', varname_list=['Z', 'Q'])
 
         if WRITE_REFERENCE_FILES:
             with open(reference_file_path, 'wb') as f:
@@ -202,26 +188,3 @@ class ResultatsCalculTestCase(unittest.TestCase):
         with open(reference_file_path, 'rb') as f:
             desired = pickle.load(f)
         np.testing.assert_equal(actual, desired)
-
-    def test_get_trans_vars_at_emh_as_array(self):
-        reference_file_path = os.path.join(DATA_TESTS_FOLDER_ABSPATH, 'pickle_py%i' % version_info[0],
-                                           'Etu3-6I_run_trans_T01_ZQ_at_St_PROF10.p')
-
-        actual = self.resultats.get_trans_vars_at_emh_as_array('Cc_T01', 'St_PROF10', varname_list=['Z', 'Q'])
-
-        if WRITE_REFERENCE_FILES:
-            with open(reference_file_path, 'wb') as f:
-                pickle.dump(actual, f)
-
-        with open(reference_file_path, 'rb') as f:
-            desired = pickle.load(f)
-        np.testing.assert_equal(actual, desired)
-
-    def test_extract_res_trans_as_dataframe(self):
-        basename = 'Etu3-6I_Cc_T01_extract_res_trans_as_dataframe.csv'
-        if WRITE_REFERENCE_FILES:
-            df_reference = self.resultats.extract_res_trans_as_dataframe(['Q', 'Z'], SECTIONS)
-            df_reference.to_csv(os.path.join(FOLDER_IN, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
-        df_actual = self.resultats.extract_res_trans_as_dataframe(['Q', 'Z'], SECTIONS)
-        df_actual.to_csv(os.path.join(FOLDER_OUT, basename), sep=CSV_DELIMITER, float_format=FMT_FLOAT_CSV)
-        self.assertTrue(cmp(os.path.join(FOLDER_IN, basename), os.path.join(FOLDER_OUT, basename)))

@@ -218,7 +218,7 @@
         </Branche-Section>
         <Branche-Section NomRef="St_CAS2">
           <Pos>Aval</Pos>
-          <Xp>2000</Xp>
+          <Xp>2000.0</Xp>
         </Branche-Section>
       </Branche-Sections>
     </BrancheStrickler>
@@ -266,7 +266,7 @@
         </Branche-Section>
         <Branche-Section NomRef="St_CAS5">
           <Pos>Aval</Pos>
-          <Xp>2000</Xp>
+          <Xp>2000.0</Xp>
         </Branche-Section>
       </Branche-Sections>
     </BrancheStrickler>

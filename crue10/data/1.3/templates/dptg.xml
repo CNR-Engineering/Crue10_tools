@@ -6,7 +6,7 @@
     {%- for profil_casier in profil_casier_list %}
     <ProfilCasier Nom="{{ profil_casier.id }}">
       <Commentaire>{{ profil_casier.comment|html_escape }}</Commentaire>
-      <Longueur>{{ profil_casier.longueur }}</Longueur>
+      <Longueur>{{ profil_casier.longueur|float2str }}</Longueur>
       <EvolutionFF>
         {%- for xt, z in profil_casier.xz %}
         <PointFF>{{ xt }} {{ z }}</PointFF>

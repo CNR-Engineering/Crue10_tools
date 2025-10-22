@@ -98,7 +98,7 @@
         </Branche-Section>
         <Branche-Section NomRef="{{ branche.get_section_aval().id }}">
           <Pos>Aval</Pos>
-          <Xp>{{ branche.length }}</Xp>
+          <Xp>{{ branche.length|float2str }}</Xp>
         </Branche-Section>
       </Branche-Sections>
     </{{branche.type_name}}>

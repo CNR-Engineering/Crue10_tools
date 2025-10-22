@@ -61,7 +61,7 @@ class SousModeleFromScratch:
         logger.debug(f"Ajout {section}")
         return section
 
-    def create_sectionprofil_from_position(self, trigramme, pk_km):
+    def creer_sectionprofil_depuis_position(self, trigramme, pk_km):
         nom_section = f"St_{trigramme}{pk_km}"
         if trigramme == TRIGRAMME_AFFLUENT:
             nom_section = re.sub(r'\.([0-9]+)$', r'', nom_section)
@@ -155,7 +155,7 @@ class SousModeleFromScratch:
             if nom_section_reference in self.sous_modele.sections:
                 section_reference = self.sous_modele.get_section(nom_section_reference)
             else:
-                section_reference = self.ajouter_section(self.create_sectionprofil_from_position(TRIGRAMME_RETENUE, pk_km))
+                section_reference = self.ajouter_section(self.creer_sectionprofil_depuis_position(TRIGRAMME_RETENUE, pk_km))
             return self.ajouter_sectionidem(section_reference)  # SectionIdem
 
         elif pkm % delta_xp == 0:
@@ -167,7 +167,7 @@ class SousModeleFromScratch:
                 else:
                     return self.ajouter_sectionidem(section_reference)  # SectionIdem
             else:
-                return self.ajouter_section(self.create_sectionprofil_from_position(trigramme, pk_km))  # SectionProfil
+                return self.ajouter_section(self.creer_sectionprofil_depuis_position(trigramme, pk_km))  # SectionProfil
 
         else:
             pkm_nearest_bathy = round(pkm / delta_xp) * delta_xp
@@ -177,7 +177,7 @@ class SousModeleFromScratch:
             if nom_section_reference in self.sous_modele.sections:
                 section_reference = self.sous_modele.get_section(nom_section_reference)
             else:
-                section_reference = self.ajouter_section(self.create_sectionprofil_from_position(trigramme, pk_km_nearest_bathy))
+                section_reference = self.ajouter_section(self.creer_sectionprofil_depuis_position(trigramme, pk_km_nearest_bathy))
             return self.ajouter_sectionidem(section_reference)  # SectionIdem
 
     def ajouter_branche(self, branche, sections_at_xp):
@@ -243,7 +243,7 @@ class SousModeleFromScratch:
                     if nom_section in self.sous_modele.sections:
                         section = self.sous_modele.get_section(nom_section)
                     else:
-                        section = self.ajouter_section(self.create_sectionprofil_from_position(trigramme_br, pk_km))
+                        section = self.ajouter_section(self.creer_sectionprofil_depuis_position(trigramme_br, pk_km))
                     xp = pkm - pkm_min
                     assert 0 < xp < xp_aval
                     sections_at_xp.append((section, xp))

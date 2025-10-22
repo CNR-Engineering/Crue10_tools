@@ -14,23 +14,26 @@ class EndToEndTestCase(unittest.TestCase):
 
         nb_common_xml = nb_sm * 4 + nb_mo * 6 + nb_sc * 5 + 1
         if version_grammaire == VERSION_GRAMMAIRE_PRECEDENTE:
-            nb_common_xml -= nb_mo  # dreg
+            nb_common_xml -= nb_mo  # g1.2: ignore dreg
 
         has_error = False
+        txt_error = f"COMPARAISON {folder_in} VS {folder_out}\n"
         if len(comparison.common) != nb_common_xml:
-            print("DIFF_FILES = %s" % comparison.diff_files)
-            print("COMMON = %s" % comparison.common)
+            txt_error += "~> DIFF_FILES = %s\n" % comparison.diff_files
+            txt_error += "~> COMMON = %s\n" % comparison.common
             has_error = True
         if len(comparison.left_only) != 0:
-            print("LEFT ONLY = %s" % comparison.left_only)
+            txt_error += "~> LEFT ONLY = %s\n" % comparison.left_only
             has_error = True
         if len(comparison.right_only) != 0:
-            print("LEFT ONLY = %s" % comparison.right_only)
+            txt_error += "~> RIGHT ONLY = %s\n" % comparison.right_only
             has_error = True
         nb_diff_files = 1 if etu_changed else 0  # etu.xml
         if len(comparison.diff_files) != nb_diff_files:
-            print("DIFF FILES = %s" % comparison.diff_files)
+            txt_error += "~> DIFF FILES = %s\n" % comparison.diff_files
             has_error = True
+        if has_error:
+            print(txt_error)
         self.assertFalse(has_error)
 
     def _test_write_from_scratch(self, version_grammaire):
