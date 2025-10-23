@@ -313,9 +313,8 @@ class SousModeleFromScratch:
 
         self.ajouter_branche(branche, sections_at_xp)
 
-        for section in branche.liste_sections_dans_branche:
-            if isinstance(section, SectionProfil):
-                section.build_orthogonal_trace(branche.geom)
+        if branche.type in Branche.TYPES_WITH_GEOM:
+            branche.construire_traces_geometriques_des_sectionprofils()
 
         return branche
 

@@ -53,6 +53,8 @@ DEFAULT_QLIMINF = -1.0E30  # m3/s
 
 DEFAULT_QLIMSUP = 1.0E30  # m3/s
 
+DIFF_RATIO = 0.001
+
 
 class Branche(ABC):
     """
@@ -249,6 +251,32 @@ class Branche(ABC):
                     dy = node.y - section_point.y
                     self.liste_sections_dans_branche[pos].set_geom_trace(
                         translate(section.geom_trace, xoff=dx, yoff=dy))
+
+    def construire_traces_geometriques_des_sectionprofils(self):
+        """
+        Construire une trace orthogonale (ligne droite entre les rives droite et gauche) pour toutes les SectionProfil
+        """
+        if self.type not in Branche.TYPES_WITH_GEOM:
+            logger.warning(f"La branche {self.id} n'est pas de type géométrique "
+                           f"pour calculer la trace des sections associées")
+
+        for i, section in enumerate(self.liste_sections_dans_branche):
+            if isinstance(section, SectionProfil):
+                if i == 0:  # Section amont
+                    ratio = 0.0
+                elif self.type in Branche.TYPES_WITH_LENGTH:  # Section intermédiaire ou finale
+                    ratio = section.xp / self.length
+                else:  # Section aval forcément
+                    ratio = 1.0
+
+                point = self.geom.interpolate(ratio, normalized=True)
+                point_avant = self.geom.interpolate(max(ratio - DIFF_RATIO, 0.0), normalized=True)
+                point_apres = self.geom.interpolate(min(ratio + DIFF_RATIO, 1.0), normalized=True)
+                distance = self.geom.project(point_apres) - self.geom.project(point_avant)
+                u, v = (point_avant.y - point_apres.y) / distance, (point_apres.x - point_avant.x) / distance
+                xt_list = section.xz_filtered[:, 0]
+                coords = [(point.x + (xt - section.xt_axe) * u, point.y + (xt - section.xt_axe) * v) for xt in xt_list]
+                section.geom_trace = LineString(coords)
 
     def normalize_sections_xp(self):
         """

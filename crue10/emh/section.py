@@ -350,7 +350,7 @@ class SectionProfil(Section):
     @property
     def xz_filtered(self):
         """
-        :return: Tableau avec les abscisses transversales et la cote entre les rives gauche et droite
+        :return: Tableau avec les abscisses transversales et la cote entre les rives droite et gauche
         :rtype: np.ndarray
         """
         return self.xz[np.logical_and(self.lits_numerotes[0].xt_min <= self.xz[:, 0],
