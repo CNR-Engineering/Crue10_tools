@@ -3,11 +3,11 @@ from builtins import super  # Python2 fix
 from collections import Counter, OrderedDict
 from copy import deepcopy
 import fiona
-from lxml import etree
 import numpy as np
 import os.path
 import pandas as pd
 from shapely.geometry import LineString, mapping, Point
+import xml.etree.ElementTree as ET
 
 from crue10.base import EnsembleFichiersXML
 from crue10.emh.branche import Branche, BrancheOrifice, BrancheBarrageFilEau, BrancheBarrageGenerique
@@ -371,7 +371,7 @@ class Modele(EnsembleFichiersXML):
         pdt_elt = self._get_pnum_CalcPseudoPerm().find(PREFIX + 'Pdt')
         pdtcst_elt = pdt_elt.find(PREFIX + 'PdtCst')
         if pdtcst_elt is None:
-            logger.debug(etree.tostring(pdt_elt))
+            logger.debug(ET.tostring(pdt_elt))
             raise ExceptionCrue10("Le pas de temps n'est pas constant")
         return duration_iso8601_to_seconds(pdtcst_elt.text)
 
@@ -383,7 +383,7 @@ class Modele(EnsembleFichiersXML):
         pdt_elt = self._get_pnum_CalcTrans().find(PREFIX + 'Pdt')
         pdtcst_elt = pdt_elt.find(PREFIX + 'PdtCst')
         if pdtcst_elt is None:
-            logger.debug(etree.tostring(pdt_elt))
+            logger.debug(ET.tostring(pdt_elt))
             raise ExceptionCrue10("Le pas de temps n'est pas constant")
         return duration_iso8601_to_seconds(pdtcst_elt.text)
 
@@ -517,7 +517,7 @@ class Modele(EnsembleFichiersXML):
         for elt in pdt_elt:
             pdt_elt.remove(elt)
         # Add new single element
-        sub_elt = etree.SubElement(pdt_elt, PREFIX + 'PdtCst')
+        sub_elt = ET.SubElement(pdt_elt, PREFIX + 'PdtCst')
         sub_elt.text = duration_seconds_to_iso8601(value)
 
     def set_pnum_CalcTrans_PdtCst(self, value):
@@ -534,7 +534,7 @@ class Modele(EnsembleFichiersXML):
         for elt in pdt_elt:
             pdt_elt.remove(elt)
         # Add new single element
-        sub_elt = etree.SubElement(pdt_elt, PREFIX + 'PdtCst')
+        sub_elt = ET.SubElement(pdt_elt, PREFIX + 'PdtCst')
         sub_elt.text = duration_seconds_to_iso8601(value)
 
     def renommer(self, nom_modele_cible, folder):
@@ -764,7 +764,7 @@ class Modele(EnsembleFichiersXML):
                 elt_Pm_TolNdZ = interpol_st_venant.find(PREFIX + 'Pm_TolNdZ')
                 elt_Pm_TolNdZ.tail += '  '
                 # Parameter `Pm_TolStQ` is added (it was in CCM before)
-                elt_Pm_TolStQ = etree.SubElement(interpol_st_venant, PREFIX + 'Pm_TolStQ')
+                elt_Pm_TolStQ = ET.SubElement(interpol_st_venant, PREFIX + 'Pm_TolStQ')
                 elt_Pm_TolStQ.text = float2str(CCM.variable['Pm_TolStQ'].dft)
                 elt_Pm_TolStQ.tail = '\n    '
 
