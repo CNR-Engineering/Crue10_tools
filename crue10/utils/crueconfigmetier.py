@@ -127,6 +127,11 @@ class CrueConfigMetierType:
         """
         raise NotImplementedError
 
+    def is_egal(self, val_a, val_b):
+        """ Vérifier l'égalité de deux valeurs. À spécialiser.
+        """
+        raise NotImplementedError
+
 
 class CrueConfigMetierEnum(CrueConfigMetierType):
     """ Élément de CrueConfigMetier de type Enum.
@@ -185,6 +190,17 @@ class CrueConfigMetierEnum(CrueConfigMetierType):
         """
         val_enum = self.convert(val)
         return "{0}({1})".format(val_enum.name, val_enum.value)
+
+    def is_egal(self, val_a, val_b):
+        """ Vérifier l'égalité de deux valeurs.
+        :param val_a: première valeur
+        :type val_a: str
+        :param val_b: seconde valeur
+        :type val_a: str
+        :return: résultat de l'égalité
+        :rtype: bool
+        """
+        return self.convert(val_a) == self.convert(val_b)
 
 
 class CrueConfigMetierNature(CrueConfigMetierType):
@@ -294,6 +310,17 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         txt += (' ' + self.unt) if (add_unt and self.unt != '') else ''
         return txt
 
+    def is_egal(self, val_a, val_b):
+        """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
+        :param val_a: première valeur
+        :type val_a: int|float|datetime|timedelta
+        :param val_b: seconde valeur
+        :type val_a: int|float|datetime|timedelta
+        :return: résultat de l'égalité
+        :rtype: bool
+        """
+        return abs(val_a - val_b) <= self.eps
+
 
 class CrueConfigMetierVariable:
     """ Classe commune pour les Constantes et les Variables.
@@ -394,6 +421,14 @@ class CrueConfigMetierVariable:
         """
         return self._nat if (self._enum is None) else self._enum
 
+    @property
+    def eps(self):
+        """ Renvoyer l'epsilon de a nature de la constante ou de la variable.
+        :return: nature
+        :rtype: CrueConfigMetierNature
+        """
+        return self._nat.eps if (self._enum is None) else 0
+
     def txt(self, val, add_unt=True):
         """ Formater une valeur selon sa variable ou sa nature et renvoyer une chaîne.
         :param val: valeur à formater
@@ -443,6 +478,17 @@ class CrueConfigMetierVariable:
 
         # Valeur valide et normale
         return True, ''
+
+    def is_egal(self, val_a, val_b):
+        """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
+        :param val_a: première valeur
+        :type val_a: int|float|datetime|timedelta
+        :param val_b: seconde valeur
+        :type val_a: int|float|datetime|timedelta
+        :return: résultat de l'égalité
+        :rtype: bool
+        """
+        return self.nat.is_egal(val_a, val_b)
 
 
 class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exclut d'avoir des CCM sur différents cœurs

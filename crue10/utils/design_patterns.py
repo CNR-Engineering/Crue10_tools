@@ -1,7 +1,7 @@
 # coding: utf-8
 
 # Imports généraux
-from typing import Callable
+from typing import Callable, Any
 from importlib import import_module
 
 # Imports spécifiques
@@ -22,7 +22,7 @@ class Singleton(type):
     # Variable de classe: dictionnaire des instances {}
     _dic_nom_obj = {}
 
-    def __call__(cls, *args, **kwargs) -> any:
+    def __call__(cls, *args, **kwargs) -> Any:
         """ Fournir une instance de la classe, en la créant seulement la première fois.
         """
         if cls not in cls._dic_nom_obj:
@@ -62,13 +62,13 @@ class FactoryClass(metaclass=Singleton):
         :param nom_cls: nom de la classe (classe à instancier, alternative au passage de cls)
         :param cnd: condition à évaluer pour choisir une classe
         """
-        ord = 0                                 # Ordre de définition de cls pour un typ_cls particulier
+        _ord = 0                                # Ordre de définition de cls pour un typ_cls particulier
         for cfg_cls in self._lst_cfg_cls:
             if cfg_cls['typ_cls'] == typ_cls:
-                ord = max(ord, cfg_cls['ord'])
-        ord += 1
+                _ord = max(_ord, cfg_cls['ord'])
+        _ord += 1
         self._lst_cfg_cls.append(
-            {'typ_cls': typ_cls, 'ord': ord, 'cls': cls, 'nom_mod': nom_mod, 'nom_cls': nom_cls, 'cnd': cnd})
+            {'typ_cls': typ_cls, 'ord': _ord, 'cls': cls, 'nom_mod': nom_mod, 'nom_cls': nom_cls, 'cnd': cnd})
 
     def make(self, typ_cls: str, nom_cls: str = None) -> type:
         """ Fournir la classe à partir du nom qui lui est associé.
@@ -130,7 +130,8 @@ class FactoryClass(metaclass=Singleton):
                     pass                            # La condition n'a pas pu être évaluée
         raise ExceptionCrue10(f"FactoryClass ne trouve pas le type '{typ_cls}' pour les conditions: {kwargs}")
 
-    def _get_cls(self, typ_cls: str, cls: type, nom_mod: str, nom_cls: str) -> type:
+    @staticmethod
+    def _get_cls(typ_cls: str, cls: type, nom_mod: str, nom_cls: str) -> type:
         """ Renvoyer la cls à instancier
 
         :param typ_cls: nom associé au type de classe (classe générique)
