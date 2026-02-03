@@ -2,7 +2,7 @@
 import os.path
 import unittest
 
-from crue10.utils.traceback import trace_except, trace_except_log, cur_file, cur_func, cur_class, cur_meth
+from crue10.utils.trace_back import trace_except, trace_except_log, cur_file, cur_func, cur_class, cur_meth
 
 
 class TracebackTestCase(unittest.TestCase):
@@ -70,12 +70,12 @@ class TracebackTestCase(unittest.TestCase):
         ref_path = os.sep.join(os.path.normpath('Crue10_tools/crue10/tests/test_traceback.py').split(os.sep)[-4:])
         self.assertEqual(tst_path, ref_path)
         tst_path = os.sep.join(os.path.normpath(cur_file(0)).split(os.sep)[-4:])
-        ref_path = os.sep.join(os.path.normpath('Crue10_tools/crue10/utils/traceback.py').split(os.sep)[-4:])
+        ref_path = os.sep.join(os.path.normpath('Crue10_tools/crue10/utils/trace_back.py').split(os.sep)[-4:])
         self.assertEqual(tst_path, ref_path)
 
     def test_cur_func(self):
         self.assertEqual(cur_func(), 'test_traceback.py\\test_cur_func')
-        self.assertEqual(cur_func(0), 'traceback.py\\cur_func')
+        self.assertEqual(cur_func(0), 'trace_back.py\\cur_func')
 
     def test_cur_class(self):
         self.assertEqual(cur_class(), 'TracebackTestCase')

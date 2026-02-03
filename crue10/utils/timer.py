@@ -4,7 +4,7 @@
 from datetime import datetime, timedelta
 
 # Imports spécifiques
-from crue10.utils.traceback import trace_except
+from crue10.utils.trace_back import trace_except
 
 """
 Utilitaires généraux pour les traces d'exécution et les exceptions.

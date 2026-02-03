@@ -127,6 +127,11 @@ class CrueConfigMetierType:
         """
         raise NotImplementedError
 
+    def txt_eps(self, val):
+        """ Formater une valeur selon son epsilon de comparaison. À spécialiser.
+        """
+        raise NotImplementedError
+
     def is_egal(self, val_a, val_b):
         """ Vérifier l'égalité de deux valeurs. À spécialiser.
         """
@@ -191,6 +196,15 @@ class CrueConfigMetierEnum(CrueConfigMetierType):
         val_enum = self.convert(val)
         return "{0}({1})".format(val_enum.name, val_enum.value)
 
+    def txt_eps(self, val):
+        """ Formater une valeur en chaine formatée.
+        :param val: valeur à formater
+        :vartype val: str
+        :return: valeur formatée
+        :rtype: str
+        """
+        return self.txt(val, add_unt=False)
+
     def is_egal(self, val_a, val_b):
         """ Vérifier l'égalité de deux valeurs.
         :param val_a: première valeur
@@ -219,6 +233,7 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         self.eps = self._load_eps(src_xml)      # Epsilon de comparaison
         self._fmt = self._load_fmt(src_xml)     # Format de présentation
         self._unt = self._load_unt(src_xml)     # Unité
+        self._fmt_eps = self._get_fmt_eps()     # Format de comparaison (nombre de chiffres représentatifs)
 
     def _load_typ(self, src_xml):
         """ Extraire le type numérique associé à la nature.
@@ -279,6 +294,19 @@ class CrueConfigMetierNature(CrueConfigMetierType):
             pass
         return unt if (unt is not None) else ''
 
+    def _get_fmt_eps(self):
+        """ Renvoyer le format de comparaison (nombre de chiffres représentatifs) associé à la nature.
+        :return: format de comparaison Python
+        :rtype: str
+        """
+        fmt = ''
+        try:
+            pre = math.floor(math.log10(self.eps))  # Précision, pour déduire le nombre de chiffres à afficher
+        except ArithmeticError:
+            pre = 1
+        fmt = self.typ.get_fmt(pre)
+        return fmt
+
     def __getitem__(self, val):
         """ Convertir une valeur en valeur du type numérique sous-jacent; appel par 'self[val]'.
         :param val: valeur textuelle à convertir
@@ -309,6 +337,15 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         txt = self.typ.txt(val, self.fmt)
         txt += (' ' + self.unt) if (add_unt and self.unt != '') else ''
         return txt
+
+    def txt_eps(self, val):
+        """ Formater une valeur selon son epsilon de comparaison (chaîne avec tous les chiffres significatifs).
+        :param val: valeur à formater
+        :vartype val: int|float|datetime|timedelta
+        :return: valeur formatée
+        :rtype: str
+        """
+        return self.typ.txt(val, self._fmt_eps)
 
     def is_egal(self, val_a, val_b):
         """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
@@ -423,7 +460,7 @@ class CrueConfigMetierVariable:
 
     @property
     def eps(self):
-        """ Renvoyer l'epsilon de a nature de la constante ou de la variable.
+        """ Renvoyer l'epsilon de la nature de la constante ou de la variable.
         :return: nature
         :rtype: CrueConfigMetierNature
         """
@@ -439,6 +476,15 @@ class CrueConfigMetierVariable:
         :rtype: str
         """
         return self.nat.txt(val, add_unt)
+
+    def txt_eps(self, val):
+        """ Formater une valeur selon son epsilon de comparaison (chaîne avec tous les chiffres significatifs).
+        :param val: valeur à formater
+        :vartype val: int|float|datetime|timedelta
+        :return: valeur formatée
+        :rtype: str
+        """
+        return self.nat.txt_eps(val)
 
     def valider(self, val):
         """ Tester la normalité et la validité de la variable, en fonction de sa valeur.

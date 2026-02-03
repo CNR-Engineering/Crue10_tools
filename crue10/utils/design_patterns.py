@@ -11,7 +11,7 @@ from crue10.utils import ExceptionCrue10
 Ensemble d'utilitaires mettant en œuvre divers design patterns.
 - Singleton
 - Factory
-PBa 2025-06 Création
+PBa@CNR 2025-06 Création
 """
 
 
@@ -32,15 +32,12 @@ class Singleton(type):
 
 class FactoryClass(metaclass=Singleton):
     """ Classe utilitaire mettant en œuvre le design pattern Factory.
-    Cela permet de définir une classe associée à un type, pour ensuite pouvoir l'instancier en late binding.
-
-    Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make' (les deux fonctions constituent l'interface).
-
-    - Usage 1: spécialiser une classe de Crue10_tools dans un autre package, sans toucher à Crue10_tools:
+    Cela permet de définir une classe associée à un type, pour ensuite pouvoir l'instancier en late binding.\n
+    Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make' (les deux fonctions constituent l'interface).\n
+    - Usage 1: spécialiser une classe de Crue10_tools dans un autre package, sans toucher à Crue10_tools:\n
       - définir une classe spécialisée pour un certain type: @factory_define('Etude') avant class EtudeSpec(Etude)
       - instancier la dernière déclaration trouvée: etu = factory_make('Etude')(etu_path='path/to/Etu_XX.etu.xml')
-
-    - Usage 2: instancier une classe d'après son nom:
+    - Usage 2: instancier une classe d'après son nom:\n
       - définir une classe pour un certain type: FactoryClass().define('ModEnch', nom_mod='Crue10e', nom_cls='Crue10e')
       - instancier cette classe: mod = factory_make('ModEnch', nom_cls='Crue10e')(mod_id='GE', mbr='00')
     """
@@ -55,7 +52,6 @@ class FactoryClass(metaclass=Singleton):
 
     def define(self, typ_cls: str, cls: type = None, nom_mod: str = None, nom_cls: str = None, cnd: str = None) -> None:
         """ Définir une association entre un nom et une classe.
-
         :param typ_cls: nom associé au type de classe (classe générique)
         :param cls: classe à utiliser (classe à instancier)
         :param nom_mod: nom du module de la classe (classe à instancier, alternative au passage de cls)
@@ -72,7 +68,6 @@ class FactoryClass(metaclass=Singleton):
 
     def make(self, typ_cls: str, nom_cls: str = None) -> type:
         """ Fournir la classe à partir du nom qui lui est associé.
-
         :param typ_cls: nom associé au type de classe (classe générique)
         :param nom_cls: nom de la classe à instancier; par défaut la dernière définie pour typ_cls
         :return: classe à utiliser
@@ -94,7 +89,6 @@ class FactoryClass(metaclass=Singleton):
     def make_cnd(self, typ_cls: str, **kwargs) -> type:
         """ Fournir la classe à partir du nom qui lui est associé et de la vérification d'une condition,
         évaluée dans l'ordre de définition des classes.
-
         :param typ_cls: nom associé au type de classe (classe générique)
         :param kwargs: arguments nommés pour l'évaluation de la condition de choix d'une classe particulière
         :return: classe à utiliser
@@ -108,7 +102,6 @@ class FactoryClass(metaclass=Singleton):
     def get_from_cnd(self, typ_cls: str, **kwargs) -> tuple[type, str, str]:
         """ Trouver la classe à partir du nom qui lui est associé et de la vérification d'une condition,
         évaluée dans l'ordre de définition des classes.
-
         :param typ_cls: nom associé au type de classe (classe générique)
         :param kwargs: arguments nommés pour l'évaluation de la condition de choix d'une classe particulière
         :return: (classe, nom du module, nom de la classe)
@@ -133,7 +126,6 @@ class FactoryClass(metaclass=Singleton):
     @staticmethod
     def _get_cls(typ_cls: str, cls: type, nom_mod: str, nom_cls: str) -> type:
         """ Renvoyer la cls à instancier
-
         :param typ_cls: nom associé au type de classe (classe générique)
         :param cls: classe à instancier
         :param nom_mod: nom du module de la classe à instancier
@@ -151,17 +143,13 @@ class FactoryClass(metaclass=Singleton):
             raise ExceptionCrue10(f"FactoryClass ne connait pas la classe '{nom_cls}' pour le type '{typ_cls}'")
 
 def factory_define(typ_cls: str) -> Callable:
-    """ Décorateur qui associe le nom du type passé en paramètre à la classe décorée; pour ensuite utiliser 'factory'.
-
-    Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make'.
-
-    Usage: @factory_define('Etude') avant class EtudeSpec(Etude)
-
+    """ Décorateur qui associe le nom du type passé en paramètre à la classe décorée; pour ensuite utiliser 'factory'.\n
+    Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make'.\n
+    - Usage: @factory_define('Etude') avant class EtudeSpec(Etude)
     :param typ_cls: nom associé au type de classe (classe générique)
     """
     def decorator(cls: type) -> type:
         """ Récupérer la classe décorée pour pouvoir l'utiliser via 'factory'.
-
         :param cls: classe décorée
         :return: classe définie
         """
@@ -171,13 +159,10 @@ def factory_define(typ_cls: str) -> Callable:
 
 
 def factory_make(typ_cls: str, nom_cls: str = None) -> type:
-    """ Renvoyer la classe associée à un nom de type.
-
-    Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make'.
-
-    Usage 1: etu = factory_make('Etude')(etu_path='path/to/Etu_XX.etu.xml')
-    Usage 2: mod = factory_make('ModEnch', nom_cls='Crue10e')(mod_id='GE', mbr='00')
-
+    """ Renvoyer la classe associée à un nom de type.\n
+    Ensemble cohérent: 'FactoryClass', 'factory_define', 'factory_make'.\n
+    - Usage 1: etu = factory_make('Etude')(etu_path='path/to/Etu_XX.etu.xml')
+    - Usage 2: mod = factory_make('ModEnch', nom_cls='Crue10e')(mod_id='GE', mbr='00')
     :param typ_cls: nom associé au type de classe (classe générique)
     :param nom_cls: nom de la classe à instancier; par défaut la dernière définie pour typ_cls
     :return: classe associée

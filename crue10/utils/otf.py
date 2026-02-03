@@ -2,35 +2,50 @@
 
 # Imports généraux
 from typing import Any
-import math
 import numpy as np
 import pprint
 
 # Imports spécifiques
+from crue10.utils.trace_back import trace_except
+from crue10.utils.utils import lst_unique
 from crue10.utils.crueconfigmetier import CCM_FILE, CrueConfigMetier
 from crue10.etude import Etude
 
 """
 Package pour un diff fonctionnel sur les objets Crue10.
-PBa@CNR 2026-01 Création
+PBa@CNR 2026-02 Création
 """
 
-# Constantes de module
-DIC_KEY_SEV = {                                 # Sévérité des diff.: 0 Anodine | 1 Mineure | 2 Majeure | 3 Anomalie
+# Constante de module. Sévérité des différences, selon l'élément: 0 Anodine | 1 Mineure | 2 Majeure
+DIC_ELT_SEV = {
     'files': 0,
     'id': 1,
     'Commentaire': 1,
+    'comment': 1,
+    'comment_profilsection': 1,
+    'comment_loi': 1,
     'AuteurCreation': 1,
     'DateCreation': 1,
     'AuteurDerniereModif': 1,
     'DateDerniereModif': 1,
     'xz': 2,
+    'xp': 2,
+    'dz_section_reference': 2,
+    'longueur': 2,
+    'xt_min': 2,
     'liste_elements_seuil': 2,
     'liste_elements_barrage': 2,
-    'DIFF_TYPE': 3,
+    'DIFF_TYPE': 2,
 }
-DIC_KEY_CCM = {                                 # Variables du CCM à utiliser
+
+# Constante de module. Variables du CCM à utiliser pour la comparaison des valeurs, selon le type d'élément.
+DIC_ELT_CCM = {
+    'xp': ['Xp'],
     'xz': ['Xt', 'Z'],
+    'dz_section_reference': ['DzSectionIdem'],
+    'longueur': ['Longueur'],
+    'xt_min': ['Xt'],
+    'xt_max': ['Xt'],
     'liste_elements_seuil': ['Largeur', 'Zseuil', 'CoefD', 'CoefPdc'],
     'liste_elements_barrage': ['Largeur', 'Zseuil', 'CoefNoy', 'CoefDen'],
     'Largeur': ['Largeur'],
@@ -45,181 +60,226 @@ class OTF(object):
     Comparaison arborescente d'objets Crue10, en tenant compte du CrueConfigMetier.
     """
 
-    def __init__(self, ccm_path: str = CCM_FILE):
-        self.ccm = CrueConfigMetier()
+    @trace_except
+    def __init__(self, ccm_path: str = CCM_FILE) -> None:
+        """ Construire l'instance de classe.
+        :param ccm_path: nom long du fichier de configuration CrueConfigMetier.xml
+        """
+        self.nbr_cmp = 0                        # Compteur des comparaisons effectuées
+        self.ccm = CrueConfigMetier()           # Instance de CCM
         self.ccm.load(ccm_path)
 
-    def diff(self, obj_a: object, obj_b: object, lst_key: list = None) -> dict:
+    @trace_except
+    def diff(self, obj_a: object, obj_b: object, lst_niv: list = None) -> dict:
+        """ Renvoyer un dictionnaire des différences (fonctionnelles: analysées selon CCM) entre deux objets Crue10.
+        Le parcours est récursif pour explorer l'arborescence interne des objets.
+        :param obj_a: premier objet
+        :param obj_b: second objet
+        :param lst_niv: liste des niveaux de l'arborescence pour les objets à examiner; None à la racine (liste vide)
+        :return: dictionnaire des différences {str_niv: {'sev': sev, 'a': var_a, 'b': var_b}} où str_niv décrit les
+        niveaux de l'arborescence, sev indique la sévérité, var_a/var_b sont les valeurs en écart (None si absence)
+        """
         # Initialiser
-        if lst_key is None:
-            lst_key = []
+        if lst_niv is None:
+            lst_niv = []
         dic_dif = {}
-        dic_var_a, dic_var_b = self._get_var(obj_a, lst_key), self._get_var(obj_b, lst_key)
-        dic_var_b_restant = dic_var_b.copy()
+        dic_var_a = self._get_var(obj_a, lst_niv)
+        dic_var_b = self._get_var(obj_b, lst_niv)
 
-        # Comparer les dictionnaires de variables des deux objets
-        for key, val_a in dic_var_a.items():
-            # Parcourir les éléments de dic_var_a et rechercher les correspondances dans dic_var_b
-            val_b = dic_var_b.get(key, None)    # Renvoie None si pas de correspondance
-            lst_key_new = lst_key + [str(key)]
-            self._chk_dif(dic_dif=dic_dif, var_a=val_a, var_b=val_b, lst_key=lst_key_new)
-            if val_b is not None:
-                dic_var_b_restant.pop(key)      # Ne pas modifier dic_var_b
+        # Comparer les variables des deux objets
+        lst_elt = lst_unique(list(dic_var_a.keys()) + list(dic_var_b.keys()))   # Liste à valeurs uniques des clés des
+        for elt in lst_elt:                                                     # dict, en respectant l'ordre
+            var_a = dic_var_a.get(elt, None)
+            var_b = dic_var_b.get(elt, None)
+            self._comparer(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv+[str(elt)])
 
-        for key, val_b in dic_var_b_restant.items():
-            # Parcourir les éléments restants dans dic_var_b, n'ayant donc pas de correspondance dans dic_var_a
-            lst_key_new = lst_key + [str(key)]
-            self._chk_dif(dic_dif=dic_dif, var_a=None, var_b=val_b, lst_key=lst_key_new)
-
+        # Renvoyer les différences
         return dic_dif
 
-    def _get_var(self, obj: object, lst_key: list) -> dict:
-        """ Récupérer un dictionnaire de variables de l'objet: membres de l'instance, éléments d'un dictionnaire,
+    @trace_except
+    def _get_var(self, obj: object, lst_niv: list) -> dict:
+        """ Récupérer les variables internes d'un objet complexe: membres de l'instance, éléments d'un dictionnaire,
         éléments d'une liste, éléments d'un ndarray, etc.
-        :param obj: objet à examiner; instance de classe, dictionnaire, liste, etc.
-        :param lst_key: liste des clés, correspondant aux niveaux de l'arbre parcouru
-        :return: dictionnaire {variable: valeur}
+        :param obj: objet complexe à examiner
+        :param lst_niv: liste des niveaux de l'arborescence jusqu'à l'objet à examiner
+        :return: dictionnaire {elt: var} où elt est la str représentant l'élément, et var la variable associée (Any)
         """
         # Traiter un cas limite
         if obj is None:
             return {}
 
-        # Traiter les types complexes
-        if isinstance(obj, dict):               # Dictionnaire
-            return obj
-        if isinstance(obj, list):               # Liste
+        # Traiter un dictionnaire
+        if isinstance(obj, dict):
+            dic_var = {str(k): v for k, v in obj.items()}
+            return dic_var
+
+        # Traiter une liste
+        if isinstance(obj, list):
             dic_var = {}
-            for elt in obj:
-                key = self._fmt_ccm(elt, lst_key)   # Formater la clé selon CCM
+            for var in obj:
+                # Formater la clé selon CCM
+                key = self._fmt_ccm(var, lst_niv)
+
+                # Conserver chaque élément d'une série d'éléments identiques (en le suffixant par son numéro d'ordre)
                 key_unq, i = key, 1
                 while key_unq in dic_var:
                     i += 1
                     key_unq = f"{key}{i}"
-                dic_var[key_unq] = elt          # Conserver chaque élément d'une liste d'éléments identiques
+                dic_var[key_unq] = var
             return dic_var
-        if isinstance(obj, np.ndarray):         # Tableau numpy
-            lst = list(obj) # Préféré à obj.tolist() afin de conserver des elt de type ndarray
+
+        # Traiter un tableau numpy
+        if isinstance(obj, np.ndarray):
+            lst = list(obj) # Préféré à obj.tolist() afin de conserver des sous-éléments de type ndarray
             dic_var = {}
-            for elt in lst:
-                key = self._fmt_ccm(elt, lst_key)   # Formater la clé selon CCM
+            for var in lst:
+                # Formater la clé selon CCM
+                key = self._fmt_ccm(var, lst_niv)
+
+                # Conserver chaque élément d'une série d'éléments identiques (en le suffixant par son numéro d'ordre)
                 key_unq, i = key, 1
                 while key_unq in dic_var:
                     i += 1
                     key_unq = f"{key}{i}"
-                dic_var[key_unq] = elt          # Conserver chaque élément d'une liste d'éléments identiques
+                dic_var[key_unq] = var
             return dic_var
-        if hasattr(obj, '__dict__'):            # Instance de classe
-            return vars(obj).copy()             # Copie des variables membres pour ne pas interférer
 
-        # On ne devrait pas se retrouver ici: il doit manquer une vérification sur un type de variable
-        print(f"! ANOMALIE OTF._get_var '{obj}', {type(obj)}")
+        # Traiter une instance de classe
+        if hasattr(obj, '__dict__'):
+            return vars(obj).copy()             # Copier les variables membres pour ne pas interférer
 
-    def _chk_dif(self, dic_dif: dict, var_a: Any, var_b: Any, lst_key: list) -> None:
-        # Vérifier les différences d'existence ou de type
+        # On ne devrait pas arriver ici: il doit manquer un traitement sur un type de variable
+        print(f"! OTF._get_var impossible de récupérer les variables dans '{obj}', {type(obj)}")
+        return {}
+
+    @trace_except
+    def _comparer(self, dic_dif: dict, var_a: Any, var_b: Any, lst_niv: list) -> None:
+        """ Comparer les variables de différentes sources et remonter les différences significatives (selon CCM).
+        :param dic_dif: dictionnaire des différences, à compléter
+        :param var_a: première variable
+        :param var_b: seconde variable
+        :param lst_niv: liste des niveaux de l'arborescence de la comparaison à mener
+        """
+        self.nbr_cmp += 1
+
+        # Traiter les différences d'existence ou de type
         if (var_a is None) and (var_b is None):
             return
-        if var_a is None:
-            self._add_dif(dic_dif=dic_dif, var_a=None, var_b=var_b, lst_key=lst_key)
-            return
-        if var_b is None:
-            self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=None, lst_key=lst_key)
+        if (var_a is None) or (var_b is None):
+            self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
         if type(var_a) != type(var_b):
-            self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_key=lst_key+['DIFF_TYPE'])
+            self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv+['DIFF_TYPE'])
             return
 
-        # Vérifier les différences sur les types simples
+        # Traiter les différences sur les types simples
         if isinstance(var_a, bool) or isinstance(var_a, str) or isinstance(var_a, int) or isinstance(var_a, complex) \
             or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
             if var_a != var_b:
-                self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_key=lst_key)
+                self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
         if isinstance(var_a, float):
             if var_a != var_b:
-                if self._fmt_ccm(var_a, lst_key) != self._fmt_ccm(var_b, lst_key):  # Vérifier plus finement avec CCM
-                    self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_key=lst_key)
+                # Comparer plus finement selon CCM: on compare les str formatées selon les epsilons de comparaison
+                if self._fmt_ccm(var_a, lst_niv) != self._fmt_ccm(var_b, lst_niv):
+                    self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
 
-        # Vérifier les différences sur les types complexes
+        # Vérifier les différences sur les types complexes: parcours récursif
         if isinstance(var_a, dict):             # Dictionnaire
-            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_key=lst_key)
+            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
             dic_dif.update(dif_new)
             return
         if isinstance(var_a, list):             # Liste
-            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_key=lst_key)
+            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
             dic_dif.update(dif_new)
             return
         if isinstance(var_a, np.ndarray):       # Tableau numpy
             # Cas d'un tableau déjà analysé via CCM
-            if len(lst_key) > 1 and lst_key[-2] in DIC_KEY_CCM:
+            if len(lst_niv) > 1 and lst_niv[-2] in DIC_ELT_CCM:
                 if (var_a is None) or (var_b is None) or (len(var_a) != len(var_b)):
-                    self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_key=lst_key)
+                    self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
                 return
+
             # Cas d'un tableau non analysé au préalable
-            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_key=lst_key)
+            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
             dic_dif.update(dif_new)
             return
         if hasattr(var_a, '__dict__'):          # Instance de classe
-            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_key=lst_key)
+            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
             dic_dif.update(dif_new)
             return
 
-        # On ne devrait pas se retrouver ici: il doit manquer une vérification sur un type de variable
-        print(f"! ANOMALIE OTF._chk_dif '{lst_key}', '{var_a}', '{var_b}', {type(var_a)}, {type(var_b)}")
+        # On ne devrait pas arriver ici: il doit manquer une vérification sur un type de variable
+        print(f"! OTF._comparer comparaison manquante '{lst_niv}', '{var_a}', '{var_b}', {type(var_a)}, {type(var_b)}")
 
-    def _fmt_ccm(self, elt: Any, lst_key: list) -> str:
-        """ Formater la clé pour le dictionnaire des variables, si possible selon le CCM.
-        :param elt: élément pour lequel on cherche une clé
-        :param lst_key: niveaux de l'arborescence de comparaison
+    @trace_except
+    def _fmt_ccm(self, var: Any, lst_niv: list) -> str:
+        """ Formater la variable, si possible selon le CCM.
+        :param var: variable à formater, éventuellement complexe
+        :param lst_niv: liste des niveaux de l'arborescence
         :return: chaîne formatée
         """
-        # Récupérer le lien avec le CCM, en fonction du dernier élément de lst_key
-        lst_var_ccm = DIC_KEY_CCM.get(lst_key[-1], None) if len(lst_key) > 0 else None
+        # Récupérer le lien avec CCM, en fonction du dernier élément de la liste des niveaux
+        lst_var_ccm = DIC_ELT_CCM.get(lst_niv[-1], None) if len(lst_niv) > 0 else None
 
         if lst_var_ccm is None:
-            # Élément non présent dans DIC_KEY_CCM
-            return f"{elt}"
+            # Élément non présent dans DIC_ELT_CCM
+            return f"{var}"
         else:
-            # Élément présent dans DIC_KEY_CCM: formater la clé selon l'epsilon de comparaison du type des variables
+            # Élément présent dans DIC_ELT_CCM: formater selon l'epsilon de comparaison des variables
             try:
                 str_key = '['
                 for idx, var_ccm in enumerate(lst_var_ccm):
-                    var = elt[idx] if hasattr(elt, '__getitem__') else elt
-                    eps = self.ccm.variable[var_ccm].eps    # TODO récupérer directement CCM.variable[var_ccm].fmt_eps ou .txt_eps(elt[idx])
-                    if isinstance(eps, float):
-                        fmt = f".{abs(min(0,math.floor(math.log10(eps))))}f"
-                        str_key += f"{var_ccm}={var:{fmt}}, "
-                    else:
-                        str_key += f"{var_ccm}={int(var):d}, "
+                    val = var[idx] if hasattr(var, '__getitem__') else var  # Valeur de la variable simple ou complexe
+                    str_val = self.ccm.variable[var_ccm].txt_eps(val)       # Valeur avec ses chiffres significatifs
+                    str_key += f"{var_ccm}={str_val}, "
                 return str_key[0:-2] + ']'
-            except Exception as e:  #TODO Exception si elt incompatible
-                raise e
+            except Exception as e:
+                print(f"! OTF._fmt_ccm incompatibilité avec DIC_ELT_CCM {var=} {lst_var_ccm=} {lst_niv=}: {repr(e)}")
+                return f"{var}"
 
-    def _add_dif(self, dic_dif: dict, var_a: Any, var_b: Any, lst_key: list) -> None:
-        """ Ajouter une ligne de différence, en affectant la sévérité.
+    @staticmethod
+    @trace_except
+    def _add_dif(dic_dif: dict, var_a: Any, var_b: Any, lst_niv: list) -> None:
+        """ Ajouter une ligne de différence, en déterminant la sévérité.
         :param dic_dif: dictionnaire des différences, à modifier
-        :param var_a:
-        :param var_b:
-        :param lst_key:
+        :param var_a: première variable
+        :param var_b: seconde variable
+        :param lst_niv: liste des niveaux de l'arborescence
         """
-        str_key = '>'.join(lst_key)             # L'arborescence de comparaison est séparée par ce caractère
-        sev = DIC_KEY_SEV.get(lst_key[-2]) if len(lst_key) > 1 else None        # Sévérité selon avant-dernière clé
+        # Formater l'arborescence de comparaison
+        str_niv = '>'.join(lst_niv)
+
+        # Déterminer la sévérité: majeure par défaut, ou récupérée dans l'avant-dernier ou le dernier niveau
+        sev = DIC_ELT_SEV.get(lst_niv[-2]) if len(lst_niv) > 1 else None        # Sévérité selon avant-dernière clé
         if sev is None:
-            sev = DIC_KEY_SEV.get(lst_key[-1]) if len(lst_key) > 0 else None    # Sévérité selon dernière clé
+            sev = DIC_ELT_SEV.get(lst_niv[-1]) if len(lst_niv) > 0 else None    # Sévérité selon dernière clé
         if sev is None:
-            sev = 2                             # Sévérité majeure par défaut
-        dif_new = {str_key: {'sev': sev, 'a': str(var_a), 'b': str(var_b)}}
+            sev = 2
+
+        # Enregistrer la ligne dans le dictionnaire des différences
+        val_a = str(var_a) if var_a is not None else None
+        val_b = str(var_b) if var_b is not None else None
+        dif_new = {str_niv: {'sev': sev, 'a': val_a, 'b': val_b}}
         dic_dif.update(dif_new)
+
 
 if __name__ == '__main__':
     """ Si lancement en tant que script.
     """
-    nom_etu_a = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
-    nom_sce_a = r"Sc_DCNC_1500_08_c0_1"
-    nom_smo_a = r"Sm_DCNC_1500_08_c0_1"
-    nom_etu_b = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
-    nom_sce_b = r"Sc_DCNC_1500_08_c0_2"
-    nom_smo_b = r"Sm_DCNC_1500_08_c0_2"
+    # nom_etu_a = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
+    # nom_sce_a = r"Sc_DCNC_1500_08_c0_1"
+    # nom_smo_a = r"Sm_DCNC_1500_08_c0_1"
+    # nom_etu_b = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
+    # nom_sce_b = r"Sc_DCNC_1500_08_c0_2"
+    # nom_smo_b = r"Sm_DCNC_1500_08_c0_2"
+    nom_etu_a = r"C:\DATA\GéoRelai\Etu_BV2024_Conc_ori\Etu_BV2024_Conc.etu.xml"
+    nom_sce_a = r"Sc_BV2024-CalP-VR_RET"
+    nom_smo_a = r"Sm_BV2024-CalP-VR_RET"
+    nom_etu_b = r"C:\DATA\GéoRelai\Etu_BV2024_Conc\Etu_BV2024_Conc.etu.xml"
+    nom_sce_b = r"Sc_BV2024-CalP-VR_RET"
+    nom_smo_b = r"Sm_BV2024-CalP-VR_RET"
 
     etu_a = Etude(nom_etu_a)
     sce_a = etu_a.get_scenario(nom_sce_a)
@@ -233,5 +293,6 @@ if __name__ == '__main__':
     smo_b = mod_b.get_sous_modele(nom_smo_b)
 
     otf = OTF()
-    dic_dif = otf.diff(smo_a, smo_b)
-    pprint.pp(dic_dif, width=300)
+    dic_diff = otf.diff(smo_a, smo_b)
+    pprint.pp(dic_diff, width=300)
+    print(f"{len(dic_diff)} différences trouvées sur {otf.nbr_cmp} comparaisons effectuées")
