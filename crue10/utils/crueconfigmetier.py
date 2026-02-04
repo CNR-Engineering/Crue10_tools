@@ -134,7 +134,7 @@ class CrueConfigMetierType:
         """
         raise NotImplementedError
 
-    def valider(self, val, vld_min, vld_min_stc, vld_max, vld_max_stc, nrm_min, nrm_min_stc, nrm_max, nrm_max_stc):
+    def valider(self, nom, val, vld_min, vld_min_stc, vld_max, vld_max_stc, nrm_min, nrm_min_stc, nrm_max, nrm_max_stc):
         """ Tester la normalité et la validité de la variable, en fonction de sa valeur. À spécialiser.
         """
         raise NotImplementedError
@@ -227,9 +227,11 @@ class CrueConfigMetierEnum(CrueConfigMetierType):
         """
         return self.txt(val, add_unt=False)
 
-    def valider(self, val, vld_min=None, vld_min_stc=None, vld_max=None, vld_max_stc=None,
+    def valider(self, nom, val, vld_min=None, vld_min_stc=None, vld_max=None, vld_max_stc=None,
         nrm_min=None, nrm_min_stc=None, nrm_max=None, nrm_max_stc=None):
         """ Tester la normalité et la validité de la variable: aucunes pour une Enum.
+        :param nom: nom de l'Enum à tester
+        :vartype nom: str
         :param val: valeur à analyser
         :vartype val: str
         :return: tuple (True si valeur normale et valide ou False sinon; chaîne descriptive si False)
@@ -385,8 +387,10 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         """
         return self.typ.txt(val, self._fmt_eps)
 
-    def valider(self, val, vld_min, vld_min_stc, vld_max, vld_max_stc, nrm_min, nrm_min_stc, nrm_max, nrm_max_stc):
+    def valider(self, nom, val, vld_min, vld_min_stc, vld_max, vld_max_stc, nrm_min, nrm_min_stc, nrm_max, nrm_max_stc):
         """ Tester la normalité et la validité de la variable, en fonction de sa valeur.
+        :param nom: nom de la variable à tester
+        :vartype nom: str
         :param val: valeur à analyser
         :vartype val: int|float|datetime|timedelta
         :param vld_min: minimum de la plage de validité
@@ -418,7 +422,7 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         is_vld_max, msg_max = valider_elem(val, vld_max, vld_max_stc, is_max=True)
         vld = is_vld_min and is_vld_max
         if not vld:
-            msg = "{}={} est invalide: hors de l'intervale {};{}".format(self.nom, str_val, msg_min, msg_max)
+            msg = "{}={} est invalide: hors de l'intervale {};{}".format(nom, str_val, msg_min, msg_max)
             return vld, msg
 
         # Tester la normalité
@@ -426,7 +430,7 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         is_nrm_max, msg_max = valider_elem(val, nrm_max, nrm_max_stc, is_max=True)
         nrm = is_nrm_min and is_nrm_max
         if not nrm:
-            msg = "{}={} est anormale: hors de l'intervale {};{}".format(self.nom, str_val, msg_min, msg_max)
+            msg = "{}={} est anormale: hors de l'intervale {};{}".format(nom, str_val, msg_min, msg_max)
             return nrm, msg
 
         # Valeur valide et normale
@@ -586,7 +590,7 @@ class CrueConfigMetierVariable:
         :return: tuple (True si valeur normale et valide ou False sinon; chaîne descriptive si False)
         :rtype: (bool, str)
         """
-        return self.nat.valider(val, self.vld_min, self.vld_min_stc, self.vld_max, self.vld_max_stc,
+        return self.nat.valider(self.nom, val, self.vld_min, self.vld_min_stc, self.vld_max, self.vld_max_stc,
             self.nrm_min, self.nrm_min_stc, self.nrm_max, self.nrm_max_stc)
 
     def is_egal(self, val_a, val_b):
