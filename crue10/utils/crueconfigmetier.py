@@ -60,6 +60,8 @@ class CrueConfigMetierTypeNum:
             fmt = "%id" % (pre + 1)
         elif self.typ == float:
             fmt = ".%if" % abs(pre) if (pre < 0) else "%i.0f" % (pre + 1)
+        elif self.typ == datetime:
+            fmt = '%Y-%m-%d %H:%M:%S'
         return fmt
 
     def convert(self, val):
@@ -93,7 +95,7 @@ class CrueConfigMetierTypeNum:
             return '-Infini'
         if val >= self.infini:
             return '+Infini'
-        str_fmt = "{{val:{fmt}}}".format(fmt=fmt)
+        str_fmt = "{{val:{fmt}}}".format(fmt=fmt) if fmt != '' else "{val}"
         return str_fmt.format(val=val)
 
 
@@ -129,6 +131,11 @@ class CrueConfigMetierType:
 
     def txt_eps(self, val):
         """ Formater une valeur selon son epsilon de comparaison. À spécialiser.
+        """
+        raise NotImplementedError
+
+    def valider(self, val, vld_min, vld_min_stc, vld_max, vld_max_stc, nrm_min, nrm_min_stc, nrm_max, nrm_max_stc):
+        """ Tester la normalité et la validité de la variable, en fonction de sa valeur. À spécialiser.
         """
         raise NotImplementedError
 
@@ -184,6 +191,21 @@ class CrueConfigMetierEnum(CrueConfigMetierType):
         """
         return self._enum[val]
 
+    def nat(self):
+        """ Renvoyer la nature: Enum sous-jacente.
+        :return: nature
+        :rtype: CrueConfigMetierNature
+        """
+        return self._enum
+
+    @property
+    def eps(self):
+        """ Renvoyer l'epsilon de comparaison: aucune pour une Enum.
+        :return: epsilon de comparaison
+        :rtype: float
+        """
+        return 0
+
     def txt(self, val, add_unt=False):
         """ Convertir une valeur en chaine formatée avec le code de l'Enum et la valeur associée.
         :param val: valeur textuelle à convertir
@@ -204,6 +226,20 @@ class CrueConfigMetierEnum(CrueConfigMetierType):
         :rtype: str
         """
         return self.txt(val, add_unt=False)
+
+    def valider(self, val, vld_min=None, vld_min_stc=None, vld_max=None, vld_max_stc=None,
+        nrm_min=None, nrm_min_stc=None, nrm_max=None, nrm_max_stc=None):
+        """ Tester la normalité et la validité de la variable: aucunes pour une Enum.
+        :param val: valeur à analyser
+        :vartype val: str
+        :return: tuple (True si valeur normale et valide ou False sinon; chaîne descriptive si False)
+        :rtype: (bool, str)
+        """
+        try:
+            val_enum = self.convert(val)
+            return True, ''
+        except ValueError:
+            return False, f"{val} invalide pour {self.nom}"
 
     def is_egal(self, val_a, val_b):
         """ Vérifier l'égalité de deux valeurs.
@@ -230,10 +266,11 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         # Déclarer et initialiser les variables membres
         super().__init__(nom)                   # Instancier la classe mère
         self.typ = self._load_typ(src_xml)      # Type numérique
-        self.eps = self._load_eps(src_xml)      # Epsilon de comparaison
-        self._fmt = self._load_fmt(src_xml)     # Format de présentation
         self._unt = self._load_unt(src_xml)     # Unité
-        self._fmt_eps = self._get_fmt_eps()     # Format de comparaison (nombre de chiffres représentatifs)
+        self.eps = self._load_eps(src_xml)              # Epsilon de comparaison
+        self.eps_prt = self._load_eps_prt(src_xml)      # Epsilon de présentation
+        self._fmt = self._get_fmt_eps(self.eps)         # Format de présentation
+        self._fmt_eps = self._get_fmt_eps(self.eps_prt) # Format de comparaison (nombre de chiffres représentatifs)
 
     def _load_typ(self, src_xml):
         """ Extraire le type numérique associé à la nature.
@@ -264,21 +301,20 @@ class CrueConfigMetierNature(CrueConfigMetierType):
             pass
         return eps if (eps is not None) else 0.0
 
-    def _load_fmt(self, src_xml):
-        """ Extraire le format de présentation associé à la nature.
+    def _load_eps_prt(self, src_xml):
+        """ Extraire l'epsilon de présentation associé à la nature.
         :param src_xml: sous-arbre XML de CCM
         :type src_xml: ElementTree
-        :return: format de présentation Python
-        :rtype: str
+        :return: valeur de l'epsilon de présentation
+        :rtype: int|float|datetime|timedelta
         """
-        fmt = ''
+        eps, str_eps = None, None
         try:
-            eps_pre = float(src_xml.find(PREFIX + 'EpsilonPresentation').text)
-            pre = math.floor(math.log10(eps_pre))  # Précision, pour déduire le nombre de chiffres à afficher
-            fmt = self.typ.get_fmt(pre)
+            str_eps = src_xml.find(PREFIX + 'EpsilonPresentation').text
+            eps = self.typ.convert(str_eps)
         except AttributeError:
             pass
-        return fmt
+        return eps if (eps is not None) else 0.0
 
     def _load_unt(self, src_xml):
         """ Extraire l'unité associée à la nature.
@@ -294,14 +330,16 @@ class CrueConfigMetierNature(CrueConfigMetierType):
             pass
         return unt if (unt is not None) else ''
 
-    def _get_fmt_eps(self):
-        """ Renvoyer le format de comparaison (nombre de chiffres représentatifs) associé à la nature.
+    def _get_fmt_eps(self, eps):
+        """ Renvoyer le format (nombre de chiffres représentatifs) associé à la nature.
+        :param eps: valeur numérique de l'epsilon
+        :type eps: int|float
         :return: format de comparaison Python
         :rtype: str
         """
         fmt = ''
         try:
-            pre = math.floor(math.log10(self.eps))  # Précision, pour déduire le nombre de chiffres à afficher
+            pre = math.floor(math.log10(eps))  # Précision, pour déduire le nombre de chiffres à afficher
         except ArithmeticError:
             pre = 1
         fmt = self.typ.get_fmt(pre)
@@ -346,6 +384,53 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         :rtype: str
         """
         return self.typ.txt(val, self._fmt_eps)
+
+    def valider(self, val, vld_min, vld_min_stc, vld_max, vld_max_stc, nrm_min, nrm_min_stc, nrm_max, nrm_max_stc):
+        """ Tester la normalité et la validité de la variable, en fonction de sa valeur.
+        :param val: valeur à analyser
+        :vartype val: int|float|datetime|timedelta
+        :param vld_min: minimum de la plage de validité
+        :param vld_min_stc: minimum strict
+        :param vld_max: maximum de la plage de validité
+        :param vld_max_stc: maximum strict
+        :param nrm_min: minimum de la plage de normalité
+        :param nrm_min_stc: minimum strict
+        :param nrm_max: maximum de la plage de normalité
+        :param nrm_max_stc: maximum strict
+        :return: tuple (True si valeur normale et valide ou False sinon; chaîne descriptive si False)
+        :rtype: (bool, str)
+        """
+        # Définir une inner function utilitaire: test élémentaire pour une borne min ou max
+        def valider_elem(_val, brn, brn_stc, is_max=True):
+            if is_max:
+                # Tester le max
+                is_vld = not (_val >= brn if (brn_stc is True) else _val > brn)
+                msg_elem = self.txt(brn, add_unt=False) + ('[' if (brn_stc is True) else ']')
+            else:
+                # Tester le min
+                is_vld = not (_val <= brn if (brn_stc is True) else _val < brn)
+                msg_elem = (']' if (brn_stc is True) else '[') + self.txt(brn, add_unt=False)
+            return is_vld, msg_elem
+
+        # Tester la validité
+        str_val = self.txt(val, add_unt=True)
+        is_vld_min, msg_min = valider_elem(val, vld_min, vld_min_stc, is_max=False)
+        is_vld_max, msg_max = valider_elem(val, vld_max, vld_max_stc, is_max=True)
+        vld = is_vld_min and is_vld_max
+        if not vld:
+            msg = "{}={} est invalide: hors de l'intervale {};{}".format(self.nom, str_val, msg_min, msg_max)
+            return vld, msg
+
+        # Tester la normalité
+        is_nrm_min, msg_min = valider_elem(val, nrm_min, nrm_min_stc, is_max=False)
+        is_nrm_max, msg_max = valider_elem(val, nrm_max, nrm_max_stc, is_max=True)
+        nrm = is_nrm_min and is_nrm_max
+        if not nrm:
+            msg = "{}={} est anormale: hors de l'intervale {};{}".format(self.nom, str_val, msg_min, msg_max)
+            return nrm, msg
+
+        # Valeur valide et normale
+        return True, ''
 
     def is_egal(self, val_a, val_b):
         """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
@@ -459,10 +544,18 @@ class CrueConfigMetierVariable:
         return self._nat if (self._enum is None) else self._enum
 
     @property
+    def unt(self):
+        """ Renvoyer l'unité de la constante ou de la variable.
+        :return: unité
+        :rtype: str
+        """
+        return self.nat.unt
+
+    @property
     def eps(self):
-        """ Renvoyer l'epsilon de la nature de la constante ou de la variable.
-        :return: nature
-        :rtype: CrueConfigMetierNature
+        """ Renvoyer l'epsilon de comparaison de la constante ou de la variable.
+        :return: epsilon de comparaison
+        :rtype: float
         """
         return self._nat.eps if (self._enum is None) else 0
 
@@ -493,37 +586,8 @@ class CrueConfigMetierVariable:
         :return: tuple (True si valeur normale et valide ou False sinon; chaîne descriptive si False)
         :rtype: (bool, str)
         """
-        # Définir une inner function utilitaire: test élémentaire pour une borne min ou max
-        def valider_elem(_val, brn, brn_stc, is_max=True):
-            if is_max:
-                # Tester le max
-                valid = not (_val >= brn if (brn_stc is True) else _val > brn)
-                msg_elem = self.txt(brn, add_unt=False) + ('[' if (brn_stc is True) else ']')
-            else:
-                # Tester le min
-                valid = not (_val <= brn if (brn_stc is True) else _val < brn)
-                msg_elem = (']' if (brn_stc is True) else '[') + self.txt(brn, add_unt=False)
-            return valid, msg_elem
-
-        # Tester la validité
-        str_val = self.txt(val, add_unt=True)
-        vld_min, msg_min = valider_elem(val, self.vld_min, self.vld_min_stc, is_max=False)
-        vld_max, msg_max = valider_elem(val, self.vld_max, self.vld_max_stc, is_max=True)
-        vld = vld_min and vld_max
-        if not vld:
-            msg = "{}={} est invalide: hors de l'intervale {};{}".format(self.nom, str_val, msg_min, msg_max)
-            return vld, msg
-
-        # Tester la normalité
-        nrm_min, msg_min = valider_elem(val, self.nrm_min, self.nrm_min_stc, is_max=False)
-        nrm_max, msg_max = valider_elem(val, self.nrm_max, self.nrm_max_stc, is_max=True)
-        nrm = nrm_min and nrm_max
-        if not nrm:
-            msg = "{}={} est anormale: hors de l'intervale {};{}".format(self.nom, str_val, msg_min, msg_max)
-            return nrm, msg
-
-        # Valeur valide et normale
-        return True, ''
+        return self.nat.valider(val, self.vld_min, self.vld_min_stc, self.vld_max, self.vld_max_stc,
+            self.nrm_min, self.nrm_min_stc, self.nrm_max, self.nrm_max_stc)
 
     def is_egal(self, val_a, val_b):
         """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
