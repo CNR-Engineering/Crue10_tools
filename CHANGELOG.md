@@ -3,8 +3,18 @@ Journal des modifications
 
 
 ## En cours
+...
+
+
+## [4.5] - 2026-02-04
 ### Nouveautés
-- Compléter l'implémentation de CrueConfigMetier
+- Complétion implémentation de CrueConfigMetier
+- Ajout d'utilitaires (timer, traceback...) pour une utilisation par bibcal_wrapper
+
+### Corrections
+- Remplacement utilisation de trapz qui est déprécié (sur numpy>=2.0.0)
+- Correction id_branche pour crue10_model_for_maps (retours VDU)
+- Utilisation librairie standard xml au lieu de lxml pour la lecture/écriture des fichiers Crue10 (éviter plantages sur QGIS selon la version lxml, mauvaise gestion de la mémoire à priori). lxml reste une dépendance nécessaire pour la validation XSD.
 
 
 ## [4.4] - 2025-06-04
