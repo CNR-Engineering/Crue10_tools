@@ -59,7 +59,7 @@ class CrueConfigMetierTypeNum:
         if self.typ == int:
             fmt = "%id" % (pre + 1)
         elif self.typ == float:
-            fmt = ".%if" % abs(pre) if (pre < 0) else "%i.0f" % (pre + 1)
+            fmt = ".%if" % abs(pre) if (pre < 0) else ".0f"
         elif self.typ == datetime:
             fmt = '%Y-%m-%d %H:%M:%S'
         return fmt
@@ -95,6 +95,9 @@ class CrueConfigMetierTypeNum:
             return '-Infini'
         if val >= self.infini:
             return '+Infini'
+        # TODO l'utilisation actuelle des formats ne permet pas des arrondis à la dizaine (EpsilonComparaison=1E+1),
+        #  ou centaine (EpsilonComparaison=1E+2) par exemple: idée d'exploiter un pseudo-format custom comme '2g'
+        #  par exemple pour appliquer une transformation sur la valeur comme {int(val / 100) * 100} dans ce cas...
         str_fmt = "{{val:{fmt}}}".format(fmt=fmt) if fmt != '' else "{val}"
         return str_fmt.format(val=val)
 
@@ -271,8 +274,8 @@ class CrueConfigMetierNature(CrueConfigMetierType):
         self._unt = self._load_unt(src_xml)     # Unité
         self.eps = self._load_eps(src_xml)              # Epsilon de comparaison
         self.eps_prt = self._load_eps_prt(src_xml)      # Epsilon de présentation
-        self._fmt = self._get_fmt_eps(self.eps)         # Format de présentation
-        self._fmt_eps = self._get_fmt_eps(self.eps_prt) # Format de comparaison (nombre de chiffres représentatifs)
+        self._fmt = self._get_fmt_eps(self.eps_prt)     # Format de présentation
+        self._fmt_eps = self._get_fmt_eps(self.eps)     # Format de comparaison (nombre de chiffres représentatifs)
 
     def _load_typ(self, src_xml):
         """ Extraire le type numérique associé à la nature.

@@ -207,15 +207,10 @@ class OTF(object):
 
         # Traiter les différences sur les types simples
         if isinstance(var_a, bool) or isinstance(var_a, str) or isinstance(var_a, int) or isinstance(var_a, complex) \
-            or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
-            if var_a != var_b:
+            or isinstance(var_a, bytes) or isinstance(var_a, bytearray) or isinstance(var_a, float):
+            # Comparer les variables simples en fonction de CCM, si applicable
+            if not self._is_egal_ccm(var_a, var_b, lst_niv):
                 self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
-            return
-        if isinstance(var_a, float):
-            if var_a != var_b:
-                # Comparer plus finement selon CCM: on compare les str formatées selon les epsilons de comparaison
-                if self._fmt_ccm(var_a, lst_niv) != self._fmt_ccm(var_b, lst_niv):
-                    self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
 
         # Vérifier les différences sur les types complexes: parcours récursif
@@ -245,6 +240,40 @@ class OTF(object):
 
         # On ne devrait pas arriver ici: il doit manquer une vérification sur un type de variable
         print(f"! OTF._comparer comparaison manquante '{lst_niv}', '{var_a}', '{var_b}', {type(var_a)}, {type(var_b)}")
+
+    @trace_except
+    def _is_egal_ccm(self, var_a: Any, var_b: Any, lst_niv: list) -> bool:
+        """ Comparer deux variable simples, si possible selon le CCM.
+        :param var: première variable
+        :param var: seconde variable
+        :param lst_niv: liste des niveaux de l'arborescence
+        :return: chaîne formatée
+        """
+        try:
+            # Cas simple d'égalité
+            if var_a == var_b:
+                return True
+
+            # Récupérer le lien avec CCM, en fonction du dernier élément de la liste des niveaux
+            lst_var_ccm = DIC_ELT_CCM.get(lst_niv[-1], None) if len(lst_niv) > 0 else None
+
+            if lst_var_ccm is None:
+                # Élément non présent dans DIC_ELT_CCM, et différent
+                return False
+            else:
+                # Élément présent dans DIC_ELT_CCM: comparer selon l'epsilon de comparaison des variables
+                is_egal = True
+                for idx, var_ccm in enumerate(lst_var_ccm):
+                    # Récupérer les valeurs, dans le cas de variables simples ou complexes
+                    val_a = var_a[idx] if hasattr(var_a, '__getitem__') else var_a
+                    val_b = var_b[idx] if hasattr(var_b, '__getitem__') else var_b
+                    # Tester l'égalité à l'epsilon de comparaison près
+                    is_egal &= self.ccm.variable[var_ccm].is_egal(val_a, val_b)
+                return is_egal
+        except Exception as e:
+            print(f"! OTF._is_egal_ccm incompatibilité avec DIC_ELT_CCM {var_a=}, {var_b=}, {lst_var_ccm=}, {lst_niv=}: {repr(e)}")
+            # Tenter un fallback: comparaison de chaînes formatées selon CCM
+            return self._fmt_ccm(var_a, lst_niv) == self._fmt_ccm(var_b, lst_niv)
 
     @trace_except
     def _fmt_ccm(self, var: Any, lst_niv: list) -> str:
@@ -343,8 +372,8 @@ if __name__ == '__main__':
     nom_sce_b = r"Sc_BV2024-CalP-VR_RET"
     nom_smo_b = r"Sm_BV2024-CalP-VR_RET"
 
-    otf = OTF()
+    otf = OTF(r'C:\PROJETS\Crue10_tools\crue10\data\CrueConfigMetier.xml')
     dic_diff = otf.diff_crue10(nom_etu_a=nom_etu_a, nom_sce_a=nom_sce_a, nom_smo_a=nom_smo_a,
-        nom_etu_b=nom_etu_b) #, nom_sce_b=nom_sce_b) #, nom_smo_b=nom_smo_b)
+        nom_etu_b=nom_etu_b, nom_sce_b=nom_sce_b, nom_smo_b=nom_smo_b)
     pprint.pp(dic_diff, width=300)
     print(f"{len(dic_diff)} différences trouvées sur {otf.nbr_cmp} comparaisons effectuées")
