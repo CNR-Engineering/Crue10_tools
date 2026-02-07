@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import inspect
 # Imports généraux
 from typing import Any
 import numpy as np
@@ -53,6 +53,11 @@ DIC_ELT_CCM = {
     '_loi_Fk': ['Z', 'K'],
     'loi_QPdc': ['Q', 'Pdc']
 }
+
+# Constante de module. Liste de méthodes intégrées à exclure de dir(obj)
+LST_BUILTIN = [
+    'append', 'clear', 'count', 'extend', 'index', 'insert', 'pop', 'remove', 'reverse', 'sort'
+]
 
 
 class OTF(object):
@@ -206,9 +211,19 @@ class OTF(object):
                 dic_var[key_unq] = var
             return dic_var
 
-        # Traiter une instance de classe
+        # Traiter une instance de classe classique (ayant un dictionnaire de données)
         if hasattr(obj, '__dict__'):
             return vars(obj).copy()             # Copier les variables membres pour ne pas interférer
+
+        # Traiter une instance de classe sans dictionnaire de données (cas de xml.stree.ElementTree.Element)
+        if isinstance(obj, object):
+            dic_var = {}
+            for attr in dir(obj):
+                attr_ = getattr(obj, attr)
+                if not attr.startswith('__') and not inspect.isroutine(attr_) and attr not in LST_BUILTIN:
+                    # Exclure les fonctions et méthodes pour ne conserver a priori que les variables membres
+                    dic_var[str(attr)] = attr_
+            return dic_var
 
         # On ne devrait pas arriver ici: il doit manquer un traitement sur un type de variable
         print(f"! OTF._get_var impossible de récupérer les variables dans '{obj}', {type(obj)}")
@@ -262,7 +277,11 @@ class OTF(object):
             dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
             dic_dif.update(dif_new)
             return
-        if hasattr(var_a, '__dict__'):          # Instance de classe
+        if hasattr(var_a, '__dict__'):          # Instance de classe classique
+            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
+            dic_dif.update(dif_new)
+            return
+        if isinstance(var_a, object):           # Instance de classe sans dictionnaire de données (xml.stree.ElementTree.Element)
             dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
             dic_dif.update(dif_new)
             return
