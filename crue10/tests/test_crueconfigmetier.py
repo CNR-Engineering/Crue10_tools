@@ -37,7 +37,7 @@ class CCMTestCase(unittest.TestCase):
         self.assertEqual(CCM.variable['FormulePdc'].dft.name, 'DIVERGENT')  # Variable Enum
         self.assertEqual(CCM.variable['Beta'].dft, 1.0)                     # Variable avec nature
         self.assertEqual(CCM.variable['Qam'].txt(123., add_unt=True), '123.0000 m^(3)/s')           # Formatage variable
-        self.assertEqual(CCM.variable['FormulePdc'].txt('DIVERGENT'), 'DIVERGENT(0)')               # Formatage Enum
+        self.assertEqual(CCM.variable['FormulePdc'].cvt('DIVERGENT'), 0)    # Formatage Enum
         self.assertEqual(CCM.variable['CoefPdc'].valider(-1.),
             (False, "CoefPdc=-1.00000 est invalide: hors de l'intervalle [0.00000;+Infini]"))
         self.assertEqual(CCM.variable['CoefPdc'].valider(0.),

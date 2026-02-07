@@ -237,13 +237,10 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
         :return: chaine formatée
         :rtype: str
         """
-        enum = None
         for enum_ in self._enum:
             if enum_.value == val:
-                enum = enum_
-                break
-        #val_enum = self.cvt(val)
-        return "{0}({1})".format(enum.name, enum.value)
+                return "{0}({1})".format(enum_.name, enum_.value)
+        raise ValueError("{0} not in {1}".format(val, self._enum))
 
     def txt_eps(self, val):
         """ Formater une valeur en chaine formatée.
