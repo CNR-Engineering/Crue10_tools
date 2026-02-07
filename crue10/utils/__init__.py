@@ -5,11 +5,12 @@ from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
 from jinja2.filters import do_lower
 import logging
+from lxml import etree
 import numpy as np
 import os
 import re
 import shutil
-from lxml import etree
+import xml.etree.ElementTree as ET
 
 from crue10.utils.filters import float2str, html_escape
 from crue10.utils.settings import XML_ENCODING
@@ -136,30 +137,20 @@ def write_default_xml_file(xml_type, version_grammaire, file_path):
 
 
 def get_xml_root_from_file(file_path):
-    with open(file_path, 'r', encoding=XML_ENCODING) as in_xml:
-        content = ''.join(in_xml.readlines())
-        if not isinstance(content, str):  # Python2 fix on Linux
-            content = content.encode(XML_ENCODING)
-        return etree.fromstring(content)
+    tree = ET.parse(file_path)
+    return tree.getroot()
 
 
 def write_xml_from_tree(xml_tree, file_path):
-    # Avoid some self-closing tags
-    def avoid_self_closing_tags(elt):
-        """Avoid some elements to be not self-closing"""
-        if not isinstance(elt, etree._Comment):  # ignore comments
-            if elt.tag.replace(PREFIX, '') not in SELF_CLOSING_TAGS:
-                if elt.text is None:
-                    elt.text = ''
-            for sub_elt in elt:
-                avoid_self_closing_tags(sub_elt)
-        return elt
-
-    xml_tree = avoid_self_closing_tags(xml_tree)
-
     # Convert xml tree to string
-    main_text = etree.tostring(xml_tree, method='xml', encoding=XML_ENCODING,
-                               pretty_print=False, xml_declaration=False).decode(XML_ENCODING)
+    ET.register_namespace("", PREFIX[1:-1])
+    main_text = ET.tostring(xml_tree, method='xml', encoding=XML_ENCODING,
+                            short_empty_elements=False,  # empty tags are not self-closing
+                            xml_declaration=False).decode(XML_ENCODING)
+
+    # Transform some specific tags to self-closing
+    pattern = rf'<({"|".join(SELF_CLOSING_TAGS)})></\1>'
+    main_text = re.sub(pattern, r'<\1/>', main_text)
 
     # Insert HTML entities in <Commentaire> tags
     def insert_html_entities(match):
