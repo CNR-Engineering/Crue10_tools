@@ -65,7 +65,8 @@ class OTF(object):
         """ Construire l'instance de classe.
         :param ccm_path: nom long du fichier de configuration CrueConfigMetier.xml
         """
-        self.nbr_cmp = 0                        # Compteur des comparaisons effectuées
+        self._description = ''                  # Description de la comparaison effectuée
+        self._nbr_cmp = 0                       # Compteur des comparaisons effectuées
         self.ccm = CrueConfigMetier()           # Instance de CCM
         self.ccm.load(ccm_path)
 
@@ -84,20 +85,48 @@ class OTF(object):
         niveaux de l'arborescence, sev indique la sévérité, var_a/var_b sont les valeurs en écart (None si absence)
         """
         # Traiter les entrées
+        if nom_etu_b is None:
+            nom_etu_b = nom_etu_a
+        if nom_sce_b is None:
+            nom_sce_b = nom_sce_a
+        if nom_smo_b is None:
+            nom_smo_b = nom_smo_a
+
+        # Instancier les objects Crue10
         etu_a = Etude(nom_etu_a)
         sce_a = etu_a.get_scenario(nom_sce_a) if nom_sce_a else None
         mod_a = sce_a.modele if sce_a else None
         smo_a = mod_a.get_sous_modele(nom_smo_a) if nom_smo_a else None
-        etu_b = Etude(nom_etu_b) if nom_etu_b else etu_a
-        sce_b = etu_b.get_scenario(nom_sce_b) if nom_sce_b else (etu_b.get_scenario(nom_sce_a) if nom_sce_a else None)
+        etu_b = Etude(nom_etu_b)
+        sce_b = etu_b.get_scenario(nom_sce_b) if nom_sce_b else None
         mod_b = sce_b.modele if sce_b else None
-        smo_b = mod_b.get_sous_modele(nom_smo_b) if nom_smo_b else mod_b.get_sous_modele(nom_smo_a) if nom_smo_a else None
+        smo_b = mod_b.get_sous_modele(nom_smo_b) if nom_smo_b else None
 
-        # Lire les objets Crue10 demandés
+        # Lire les données des objets Crue10 demandés
         obj_a = smo_a if smo_a else (mod_a if mod_a else (sce_a if sce_a else etu_a))
         obj_b = smo_b if smo_b else (mod_b if mod_b else (sce_b if sce_b else etu_b))
         obj_a.read_all(ignore_shp=True)
         obj_b.read_all(ignore_shp=True)
+
+        # Description de la diff demandée
+        nom_a, nom_b, nom_c = '', '', ''
+        if nom_etu_a == nom_etu_b:
+            nom_c = nom_etu_a
+        else:
+            nom_a = nom_etu_a
+            nom_b = nom_etu_b
+        if nom_sce_a == nom_sce_b and nom_c != '':
+            nom_c += ('>' + nom_sce_a) if nom_sce_a else ''
+        else:
+            nom_a += (('>' if nom_a != '' else '') + nom_sce_a) if nom_sce_a else ''
+            nom_b += (('>' if nom_a != '' else '') + nom_sce_b) if nom_sce_b else ''
+        if nom_smo_a == nom_smo_b and nom_c != '':
+            nom_c += ('>' + nom_smo_a) if nom_smo_a else ''
+        else:
+            nom_a += (('>' if nom_a != '' else '') + nom_smo_a) if nom_smo_a else ''
+            nom_b += (('>' if nom_a != '' else '') + nom_smo_b) if nom_smo_b else ''
+        commun = f"sur '{nom_c}', " if nom_c != '' else ''
+        self._description = f"diff_crue10 {commun}entre '{nom_a}' et '{nom_b}'"
 
         # Comparer les objets demandés
         return self.diff(obj_a, obj_b)
@@ -193,7 +222,7 @@ class OTF(object):
         :param var_b: seconde variable
         :param lst_niv: liste des niveaux de l'arborescence de la comparaison à mener
         """
-        self.nbr_cmp += 1
+        self._nbr_cmp += 1
 
         # Traiter les différences d'existence ou de type
         if (var_a is None) and (var_b is None):
@@ -271,7 +300,7 @@ class OTF(object):
                     is_egal &= self.ccm.variable[var_ccm].is_egal(val_a, val_b)
                 return is_egal
         except Exception as e:
-            print(f"! OTF._is_egal_ccm incompatibilité avec DIC_ELT_CCM {var_a=}, {var_b=}, {lst_var_ccm=}, {lst_niv=}: {repr(e)}")
+            print(f"! OTF._is_egal_ccm incompatibilité avec DIC_ELT_CCM {var_a=}, {var_b=}, {lst_niv=}: {repr(e)}")
             # Tenter un fallback: comparaison de chaînes formatées selon CCM
             return self._fmt_ccm(var_a, lst_niv) == self._fmt_ccm(var_b, lst_niv)
 
@@ -326,39 +355,24 @@ class OTF(object):
         dif_new = {str_niv: {'sev': sev, 'a': val_a, 'b': val_b}}
         dic_dif.update(dif_new)
 
-    # @property
-    # def nbr_cmp(self) -> int:
-    #     """ Renvoyer le compteur de comparaisons effectuées.
-    #     :return: nombre de comparaisons
-    #     """
-    #     return self.nbr_cmp
+    @property
+    def description(self) -> str:
+        """ Renvoyer la description de la comparaison effectuée.
+        :return: description des objets comparés
+        """
+        return self._description
+
+    @property
+    def nbr_cmp(self) -> int:
+        """ Renvoyer le compteur de comparaisons effectuées.
+        :return: nombre de comparaisons
+        """
+        return self._nbr_cmp
 
 
 if __name__ == '__main__':
     """ Si lancement en tant que script.
     """
-    # from crue10.utils.crueconfigmetier import CCM
-    #
-    # def explorer_ccm(typ: str, val: Any) -> str:
-    #     str_val = CCM.variable[typ].txt(val, add_unt=True)
-    #     nat = CCM.variable[typ].nat.nom
-    #     dft = CCM.variable[typ].dft
-    #     unt = CCM.variable[typ].nat.unt
-    #     nrm_min = CCM.variable[typ].nrm_min
-    #     nrm_max = CCM.variable[typ].nrm_max
-    #     vld_min = CCM.variable[typ].vld_min
-    #     vld_max = CCM.variable[typ].vld_max
-    #     vld, msg = CCM.variable[typ].valider(val)
-    #     return f"{typ=}, {nat=}, {str_val=}, {dft=}, {unt=}, {nrm_min=}, {nrm_max=}, {vld_min=}, {vld_max=}, {vld=}, {msg=}"
-    #
-    # print(explorer_ccm(typ='CoefD', val=0.9))   # Exemple d'une valeur valide
-    # print(explorer_ccm(typ='CrMaxFlu', val=2))  # Exemple d'une valeur valide
-    # print(explorer_ccm(typ='CoefD', val=1.1))   # Exemple d'une valeur anormale
-    # print(explorer_ccm(typ='CoefD', val=-0.1))  # Exemple d'une valeur invalide
-    # #print(explorer_ccm(typ='Inexistante', val=0.0))
-    # print(explorer_ccm(typ='FormulePdc', val='BORDA'))
-    # #vld, msg = CCM.enum['Inexistante'].valider('XXX')
-
     # nom_etu_a = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
     # nom_sce_a = r"Sc_DCNC_1500_08_c0_1"
     # nom_smo_a = r"Sm_DCNC_1500_08_c0_1"
@@ -374,6 +388,6 @@ if __name__ == '__main__':
 
     otf = OTF(r'C:\PROJETS\Crue10_tools\crue10\data\CrueConfigMetier.xml')
     dic_diff = otf.diff_crue10(nom_etu_a=nom_etu_a, nom_sce_a=nom_sce_a, nom_smo_a=nom_smo_a,
-        nom_etu_b=nom_etu_b, nom_sce_b=nom_sce_b, nom_smo_b=nom_smo_b)
+        nom_etu_b=nom_etu_b) #, nom_sce_b=nom_sce_b, nom_smo_b=nom_smo_b)
     pprint.pp(dic_diff, width=300)
-    print(f"{len(dic_diff)} différences trouvées sur {otf.nbr_cmp} comparaisons effectuées")
+    print(f"{otf.description}\n{len(dic_diff)} différences trouvées sur {otf.nbr_cmp} comparaisons effectuées")
