@@ -273,8 +273,8 @@ class OTF(object):
     @trace_except
     def _is_egal_ccm(self, var_a: Any, var_b: Any, lst_niv: list) -> bool:
         """ Comparer deux variable simples, si possible selon le CCM.
-        :param var: première variable
-        :param var: seconde variable
+        :param var_a: première variable
+        :param var_b: seconde variable
         :param lst_niv: liste des niveaux de l'arborescence
         :return: chaîne formatée
         """
@@ -379,15 +379,15 @@ if __name__ == '__main__':
     # nom_etu_b = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
     # nom_sce_b = r"Sc_DCNC_1500_08_c0_2"
     # nom_smo_b = r"Sm_DCNC_1500_08_c0_2"
-    nom_etu_a = r"C:\DATA\GéoRelai\Etu_BV2024_Conc_ori\Etu_BV2024_Conc.etu.xml"
-    nom_sce_a = r"Sc_BV2024-CalP-VR_RET"
-    nom_smo_a = r"Sm_BV2024-CalP-VR_RET"
-    nom_etu_b = r"C:\DATA\GéoRelai\Etu_BV2024_Conc\Etu_BV2024_Conc.etu.xml"
-    nom_sce_b = r"Sc_BV2024-CalP-VR_RET"
-    nom_smo_b = r"Sm_BV2024-CalP-VR_RET"
+    _nom_etu_a = r"C:\DATA\GéoRelai\Etu_BV2024_Conc_ori\Etu_BV2024_Conc.etu.xml"
+    _nom_sce_a = r"Sc_BV2024-CalP-VR_RET"
+    _nom_smo_a = r"Sm_BV2024-CalP-VR_RET"
+    _nom_etu_b = r"C:\DATA\GéoRelai\Etu_BV2024_Conc\Etu_BV2024_Conc.etu.xml"
+    _nom_sce_b = r"Sc_BV2024-CalP-VR_RET"
+    _nom_smo_b = r"Sm_BV2024-CalP-VR_RET"
 
     otf = OTF(r'C:\PROJETS\Crue10_tools\crue10\data\CrueConfigMetier.xml')
-    dic_diff = otf.diff_crue10(nom_etu_a=nom_etu_a, nom_sce_a=nom_sce_a, nom_smo_a=nom_smo_a,
-        nom_etu_b=nom_etu_b) #, nom_sce_b=nom_sce_b, nom_smo_b=nom_smo_b)
+    dic_diff = otf.diff_crue10(nom_etu_a=_nom_etu_a, nom_sce_a=_nom_sce_a, nom_smo_a=_nom_smo_a,
+        nom_etu_b=_nom_etu_b) #, nom_sce_b=_nom_sce_b, nom_smo_b=_nom_smo_b)
     pprint.pp(dic_diff, width=300)
     print(f"{otf.description}\n{len(dic_diff)} différences trouvées sur {otf.nbr_cmp} comparaisons effectuées")
