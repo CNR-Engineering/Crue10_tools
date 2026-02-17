@@ -40,6 +40,9 @@ class OrdCalcPseudoPerm:
         self.init = calc_init
         self.cliche_fin = cliche_fin
 
+    def __repr__(self):
+        return "OrdCalcPseudoPerm %s" % self.id
+
 
 class OrdCalcTrans:
     """
@@ -98,6 +101,9 @@ class OrdCalcTrans:
             for (nb_pdt, pdt_float) in self.pdt_res:
                 res.append((nb_pdt, duration_seconds_to_iso8601(pdt_float)))
             return res
+
+    def __repr__(self):
+        return "OrdCalcTrans %s" % self.id
 
 
 @factory_define('Scenario')                     # Cette classe pourra être appelée par factory_make('Scenario')

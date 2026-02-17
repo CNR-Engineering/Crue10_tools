@@ -1,7 +1,8 @@
 # coding: utf-8
-import inspect
 # Imports généraux
+import inspect
 from typing import Any
+import os.path
 import numpy as np
 import pprint
 
@@ -70,7 +71,7 @@ class OTF(object):
         """ Construire l'instance de classe.
         :param ccm_path: nom long du fichier de configuration CrueConfigMetier.xml
         """
-        self._description = ''                  # Description de la comparaison effectuée
+        self._dic_desc = {}                     # Dictionnaire de description de la comparaison effectuée
         self._nbr_cmp = 0                       # Compteur des comparaisons effectuées
         self.ccm = CrueConfigMetier()           # Instance de CCM
         self.ccm.load(ccm_path)
@@ -130,8 +131,7 @@ class OTF(object):
         else:
             nom_a += (('>' if nom_a != '' else '') + nom_smo_a) if nom_smo_a else ''
             nom_b += (('>' if nom_a != '' else '') + nom_smo_b) if nom_smo_b else ''
-        commun = f"sur '{nom_c}', " if nom_c != '' else ''
-        self._description = f"diff_crue10 {commun}entre '{nom_a}' et '{nom_b}'"
+        self._dic_desc = {'a': nom_a, 'b': nom_b, 'c': nom_c}
 
         # Comparer les objets demandés
         return self.diff(obj_a, obj_b)
@@ -153,12 +153,15 @@ class OTF(object):
         dic_var_a = self._get_var(obj_a, lst_niv)
         dic_var_b = self._get_var(obj_b, lst_niv)
 
-        # Comparer les variables des deux objets
-        lst_elt = lst_unique(list(dic_var_a.keys()) + list(dic_var_b.keys()))   # Liste à valeurs uniques des clés des
+        # Comparer les variables des deux objets (si les clés sont des path, on en prend juste le basename)
+        lst_key_a = [self.get_basename(str(key)) for key in dic_var_a.keys()]
+        lst_key_b = [self.get_basename(str(key)) for key in dic_var_b.keys()]
+        lst_elt = lst_unique(lst_key_a + lst_key_b)   # Liste à valeurs uniques des clés des
         for elt in lst_elt:                                                     # dict, en respectant l'ordre
             var_a = dic_var_a.get(elt, None)
             var_b = dic_var_b.get(elt, None)
-            self._comparer(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv+[str(elt)])
+            lst_niv_new = lst_niv+[str(elt)]    # Ajouter un nouveau niveau
+            self._comparer(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv_new)
 
         # Renvoyer les différences
         return dic_dif
@@ -250,7 +253,14 @@ class OTF(object):
             return
 
         # Traiter les différences sur les types simples
-        if isinstance(var_a, bool) or isinstance(var_a, str) or isinstance(var_a, int) or isinstance(var_a, complex) \
+        if isinstance(var_a, str):
+            # Traiter le cas particulier des path
+            val_a = self.get_basename(var_a)
+            val_b = self.get_basename(var_b)
+            if not val_a == val_b:
+                self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
+            return
+        if isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, complex) \
             or isinstance(var_a, bytes) or isinstance(var_a, bytearray) or isinstance(var_a, float):
             # Comparer les variables simples en fonction de CCM, si applicable
             if not self._is_egal_ccm(var_a, var_b, lst_niv):
@@ -374,12 +384,57 @@ class OTF(object):
         dif_new = {str_niv: {'sev': sev, 'a': val_a, 'b': val_b}}
         dic_dif.update(dif_new)
 
+    @staticmethod
+    @trace_except
+    def get_basename(txt: str) -> str:
+        """ Renvoyer le basename si path, sinon renvoyer la chaîne initiale.
+        :param txt: chaîne à analyser
+        :return: chaîne initiale ou basename si path
+        """
+        if ('/' in txt) or ('\\' in txt):
+            return os.path.basename(txt)
+        return txt
+
+    @staticmethod
+    @trace_except
+    def nbr_dif(dic_dif: dict) -> dict:
+        """ Renvoyer le nombre de différences par sévérité.
+        :param dic_dif: dictionnaire des différences
+        :return: dictionnaire du nombre de différences par sévérité
+        """
+        # Compter le nombre de différences par sévérité
+        dic_nbr_dif = {}
+        for k, v in dic_dif.items():
+            sev = v['sev']
+            dic_nbr_dif[sev] = dic_nbr_dif[sev] + 1 if sev in dic_nbr_dif else 1
+
+        # Ordonner le dict par sévérité croissante
+        return {k: v for k, v in sorted(dic_nbr_dif.items(), key=lambda x: x[0])}   # sorted renvoie des tuples
+
+    @staticmethod
+    @trace_except
+    def filtrer(dic_dif: dict, niv_flt: int = 2) -> dict:
+        """ Filter un dictionnaire des différences, en supprimant les niveaux bas.
+        :param dic_dif: dictionnaire des différences de départ
+        :param niv_flt: niveau de filtrage inclus; les niveaux strictement inférieurs sont supprimés
+        :return: dictionnaire des différences filtré
+        """
+        return {k: v for k, v in dic_dif.items() if v['sev'] >= niv_flt}
+
+    @property
+    def dic_desc(self) -> int:
+        """ Renvoyer le dictionnaire de description de la comparaison effectuée.
+        :return: dictionnaire avec clés: 'a' pour le premier objet, 'b' pour le second, 'c' pour la partie commune
+        """
+        return self._dic_desc
+
     @property
     def description(self) -> str:
         """ Renvoyer la description de la comparaison effectuée.
         :return: description des objets comparés
         """
-        return self._description
+        commun = f"sur '{self._dic_desc['c']}', " if self._dic_desc['c'] != '' else ''
+        return f"diff_crue10 {commun}entre '{self._dic_desc['a']}' et '{self._dic_desc['b']}'"
 
     @property
     def nbr_cmp(self) -> int:
@@ -392,21 +447,37 @@ class OTF(object):
 if __name__ == '__main__':
     """ Si lancement en tant que script.
     """
-    # nom_etu_a = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
-    # nom_sce_a = r"Sc_DCNC_1500_08_c0_1"
-    # nom_smo_a = r"Sm_DCNC_1500_08_c0_1"
-    # nom_etu_b = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
-    # nom_sce_b = r"Sc_DCNC_1500_08_c0_2"
-    # nom_smo_b = r"Sm_DCNC_1500_08_c0_2"
-    _nom_etu_a = r"C:\DATA\GéoRelai\Etu_BV2024_Conc_ori\Etu_BV2024_Conc.etu.xml"
-    _nom_sce_a = r"Sc_BV2024-CalP-VR_RET"
-    _nom_smo_a = r"Sm_BV2024-CalP-VR_RET"
-    _nom_etu_b = r"C:\DATA\GéoRelai\Etu_BV2024_Conc\Etu_BV2024_Conc.etu.xml"
-    _nom_sce_b = r"Sc_BV2024-CalP-VR_RET"
-    _nom_smo_b = r"Sm_BV2024-CalP-VR_RET"
+    # _nom_etu_a = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
+    # _nom_sce_a = r"Sc_DCNC_1500_08_c0_1"
+    # _nom_smo_a = r"Sm_DCNC_1500_08_c0_1"
+    # _nom_etu_b = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
+    # _nom_sce_b = r"Sc_DCNC_1500_08_c0_2"
+    # _nom_smo_b = r"Sm_DCNC_1500_08_c0_2"
+
+    # _nom_etu_a = r"C:\DATA\GéoRelai\Etu_BV2024_Conc_ori\Etu_BV2024_Conc.etu.xml"
+    # _nom_sce_a = r"Sc_BV2024-CalP-VR_RET"
+    # _nom_smo_a = r"Sm_BV2024-CalP-VR_RET"
+    # _nom_etu_b = r"C:\DATA\GéoRelai\Etu_BV2024_Conc\Etu_BV2024_Conc.etu.xml"
+    # _nom_sce_b = r"Sc_BV2024-CalP-VR_RET"
+    # _nom_smo_b = r"Sm_BV2024-CalP-VR_RET"
+
+    # _nom_etu_a = r"C:\DATA\GéoRelai\Etu_from_scratch_ori\Etu_from_scratch.etu.xml"
+    # _nom_sce_a = r"Sc_multi_sm_avec_bgefileau"
+    # _nom_smo_a = r"Sm_amont_min"
+    # _nom_etu_b = r"C:\DATA\GéoRelai\Etu_from_scratch\Etu_from_scratch.etu.xml"
+    # _nom_sce_b = r"Sc_multi_sm_avec_bgefileau"
+    # _nom_smo_b = r"Sm_amont_min"
+
+    _nom_etu_a = r"C:\DATA\GéoRelai\Etu_BY2018_Conc_ori\Etu_BY2018_Conc.etu.xml"
+    _nom_sce_a = r"Sc_BY20_Conc"
+    _nom_smo_a = r"Sm_BY20_OBLI_1"
+    _nom_etu_b = r"C:\DATA\GéoRelai\Etu_BY2018_Conc\Etu_BY2018_Conc.etu.xml"
+    _nom_sce_b = r"Sc_BY20_Conc"
+    _nom_smo_b = r"Sm_BY20_OBLI_1"
 
     otf = OTF(r'C:\PROJETS\Crue10_tools\crue10\data\CrueConfigMetier.xml')
-    dic_diff = otf.diff_crue10(nom_etu_a=_nom_etu_a, nom_sce_a=_nom_sce_a, nom_smo_a=_nom_smo_a,
+    dic_diff = otf.diff_crue10(nom_etu_a=_nom_etu_a, #nom_sce_a=_nom_sce_a, nom_smo_a=_nom_smo_a,
         nom_etu_b=_nom_etu_b) #, nom_sce_b=_nom_sce_b, nom_smo_b=_nom_smo_b)
-    pprint.pp(dic_diff, width=300)
-    print(f"{otf.description}\n{len(dic_diff)} différences trouvées sur {otf.nbr_cmp} comparaisons effectuées")
+    pprint.pp(otf.filtrer(dic_diff, 0), width=300)
+    print(f"Différences entre '{otf.dic_desc['a']}' et '{otf.dic_desc['b']}'")
+    print(f"{len(dic_diff)} différences trouvées (sévérités: {otf.nbr_dif(dic_diff)}) sur {otf.nbr_cmp:_d} comparaisons")
