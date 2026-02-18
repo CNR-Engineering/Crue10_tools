@@ -3,7 +3,7 @@
 # Imports généraux WinPython
 import copy
 from typing import Any
-from PyQt5.QtCore import QObject, pyqtSignal
+# from PyQt5.QtCore import QObject, pyqtSignal
 
 # Imports spécifiques
 from crue10.utils.trace_back import trace_except
@@ -13,17 +13,18 @@ from utils import abs_path, get_lst, json_load, json_save, dic_deep_update
 Classe de gestion de configurations.
 - Permet de faire le lien entre fichiers de sauvegarde et un dictionnaire utilisable dans le code.
 - Supporte des sources de configuration en cascade.
-- Envoie des signaux en cas de sauvegarde et en cas de modif de la config (afin de pouvoir gérer un idicateur de modif).
+Idée:
+- Envoie des signaux en cas de sauvegarde ou de modif de la config (afin de pouvoir gérer un indicateur de modif).
 PBa@CNR 2024-09 Création
 """
 
 
-class Configuration(QObject):
+class Configuration(object):    # Idée: hériter de QObject pour gérer les signaux
     """ Gestionnaire de configuration, sous la forme d'un dictionnaire.
     """
     # Variables de classe: signaux personnalisés
-    sgl_saved = pyqtSignal()                    # Signal configuration sauvegardée
-    sgl_unsaved = pyqtSignal()                  # Signal configuration modifiée non sauvegardée
+    # sgl_saved = pyqtSignal()                    # Signal configuration sauvegardée
+    # sgl_unsaved = pyqtSignal()                  # Signal configuration modifiée non sauvegardée
 
     @trace_except
     def __init__(self, lst_cfg: list | str = None, fic_sav: str = 'user.json') -> None:
@@ -53,7 +54,7 @@ class Configuration(QObject):
         """
         if self.__getitem__(key) != value:
             self.cfg[key] = value
-            self.sgl_unsaved.emit()             # Émettre le signal
+            # self.sgl_unsaved.emit()             # Émettre le signal
 
     @trace_except
     def __getitem__(self, key: Any) -> Any:
@@ -129,7 +130,7 @@ class Configuration(QObject):
 
         # Sauvegarder la configuration utilisateur et avertir
         json_save(self.fic_sav, dic=cfg_sav)
-        self.sgl_saved.emit()                   # Émettre le signal
+        # self.sgl_saved.emit()                   # Émettre le signal
 
     @trace_except
     def _diff(self, itm: object, itm_ref: object) -> object:
