@@ -301,7 +301,7 @@ class OTF(object):
 
     @trace_except
     def _is_egal_ccm(self, var_a: Any, var_b: Any, lst_niv: list) -> bool:
-        """ Comparer deux variable simples, si possible selon le CCM.
+        """ Comparer deux variables simples, si possible selon le CCM.
         :param var_a: première variable
         :param var_b: seconde variable
         :param lst_niv: liste des niveaux de l'arborescence
@@ -422,7 +422,7 @@ class OTF(object):
         return {k: v for k, v in dic_dif.items() if v['sev'] >= niv_flt}
 
     @property
-    def dic_desc(self) -> int:
+    def dic_desc(self) -> dict:
         """ Renvoyer le dictionnaire de description de la comparaison effectuée.
         :return: dictionnaire avec clés: 'a' pour le premier objet, 'b' pour le second, 'c' pour la partie commune
         """
@@ -476,7 +476,7 @@ if __name__ == '__main__':
     _nom_smo_b = r"Sm_BY20_OBLI_1"
 
     otf = OTF(r'C:\PROJETS\Crue10_tools\crue10\data\CrueConfigMetier.xml')
-    dic_diff = otf.diff_crue10(nom_etu_a=_nom_etu_a, #nom_sce_a=_nom_sce_a, nom_smo_a=_nom_smo_a,
+    dic_diff = otf.diff_crue10(nom_etu_a=_nom_etu_a, nom_sce_a=_nom_sce_a, nom_smo_a=_nom_smo_a,
         nom_etu_b=_nom_etu_b) #, nom_sce_b=_nom_sce_b, nom_smo_b=_nom_smo_b)
     pprint.pp(otf.filtrer(dic_diff, 0), width=300)
     print(f"Différences entre '{otf.dic_desc['a']}' et '{otf.dic_desc['b']}'")
