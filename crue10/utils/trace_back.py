@@ -1,6 +1,7 @@
 # coding: utf-8
 
-# Imports généraux WinPython
+# Imports généraux
+from typing import Any, Callable
 import os
 import inspect
 
@@ -11,12 +12,12 @@ PBa 2025
 
 
 #: Gestion des exceptions
-def trace_except(func: callable) -> callable:
+def trace_except(func: Callable) -> Callable:
     """ Définir un décorateur pour tracer (print) les exceptions et leur origine. Adapté aux méthodes ou aux fonctions.
     :param func: fonction ou méthode à décorer
     :return: méthode ou fonction décorée, renvoyant son résultat normal ou une exception
     """
-    def wrapper(*args, **kwargs) -> any:
+    def wrapper(*args, **kwargs) -> Any:
         """ Wrapper appelant la méthode ou la fonction et l'enveloppant pour en récupérer les erreurs.
         :param args: arguments simples (dont self pour une méthode)
         :param kwargs: arguments nommés
@@ -30,17 +31,17 @@ def trace_except(func: callable) -> callable:
     return wrapper
 
 
-def trace_except_log(fn_log: callable = print) -> callable:
+def trace_except_log(fn_log: Callable = print) -> Callable:
     """ Définir un décorateur pour tracer les exceptions et leur origine. Adapté aux méthodes ou aux fonctions.
     :param fn_log: fonction de tracé à utiliser, son prototype doit être log(txt: str) -> None
     :return: méthode ou fonction décorée, renvoyant son résultat normal ou une exception
     """
-    def inner_trace_except(func: callable) -> callable:
+    def inner_trace_except(func: Callable) -> Callable:
         """ Définir un décorateur pour tracer les exceptions et leur origine. Adapté aux méthodes ou aux fonctions.
         :param func: fonction ou méthode à décorer
         :return: méthode ou fonction décorée
         """
-        def wrapper(*args, **kwargs) -> any:
+        def wrapper(*args, **kwargs) -> Any:
             """ Wrapper appelant la méthode ou la fonction et l'enveloppant pour en récupérer les erreurs.
             :param args: arguments simples (dont self pour une méthode)
             :param kwargs: arguments nommés

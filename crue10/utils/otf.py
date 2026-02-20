@@ -10,6 +10,7 @@ import pprint
 from crue10.utils.trace_back import trace_except
 from crue10.utils.utils import lst_unique
 from crue10.utils.crueconfigmetier import CCM_FILE, CrueConfigMetier
+from crue10.utils.configuration import Configuration
 from crue10.etude import Etude
 
 """
@@ -17,42 +18,13 @@ Package pour un diff fonctionnel sur les objets Crue10.
 PBa@CNR 2026-02 Création
 """
 
-# Constante de module. Sévérité des différences, selon l'élément: 0 Anodine | 1 Mineure | 2 Majeure
-DIC_ELT_SEV = {
-    'files': 0,
-    'id': 1,
-    'Commentaire': 1,
-    'comment': 1,
-    'comment_profilsection': 1,
-    'comment_loi': 1,
-    'AuteurCreation': 1,
-    'DateCreation': 1,
-    'AuteurDerniereModif': 1,
-    'DateDerniereModif': 1,
-    'xz': 2,
-    'xp': 2,
-    'dz_section_reference': 2,
-    'longueur': 2,
-    'xt_min': 2,
-    'liste_elements_seuil': 2,
-    'liste_elements_barrage': 2,
-    'DIFF_TYPE': 2,
-}
-
-# Constante de module. Variables du CCM à utiliser pour la comparaison des valeurs, selon le type d'élément.
-DIC_ELT_CCM = {
-    'xp': ['Xp'],
-    'xz': ['Xt', 'Z'],
-    'dz_section_reference': ['DzSectionIdem'],
-    'longueur': ['Longueur'],
-    'xt_min': ['Xt'],
-    'xt_max': ['Xt'],
-    'liste_elements_seuil': ['Largeur', 'Zseuil', 'CoefD', 'CoefPdc'],
-    'liste_elements_barrage': ['Largeur', 'Zseuil', 'CoefNoy', 'CoefDen'],
-    'Largeur': ['Largeur'],
-    'CoefBeta': ['CoefBeta'],
-    '_loi_Fk': ['Z', 'K'],
-    'loi_QPdc': ['Q', 'Pdc']
+# Constante de module. Configuration par défaut pour utiliser CCM, complétée par Otf.json
+CFG_OTF_DFT = {
+    'dic_elt_sev': {            # Sévérité des différences, selon l'élément: 0 Anodine | 1 Mineure | 2 Majeure (défaut)
+        'DIFF_TYPE': 2
+    },
+    'dic_elt_ccm': {            # Variables du CCM à utiliser pour la comparaison des valeurs, selon le type d'élément
+    }
 }
 
 # Constante de module. Liste de méthodes intégrées à exclure de dir(obj)
@@ -71,6 +43,8 @@ class OTF(object):
         """ Construire l'instance de classe.
         :param ccm_path: nom long du fichier de configuration CrueConfigMetier.xml
         """
+        self.cfg = Configuration(               # Configuration pour utiliser CCM
+            lst_cfg=[CFG_OTF_DFT, 'Oft.json'])
         self._dic_desc = {}                     # Dictionnaire de description de la comparaison effectuée
         self._nbr_cmp = 0                       # Compteur des comparaisons effectuées
         self.ccm = CrueConfigMetier()           # Instance de CCM
@@ -248,7 +222,7 @@ class OTF(object):
         if (var_a is None) or (var_b is None):
             self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
-        if type(var_a) != type(var_b):
+        if (type(var_a) != type(var_b)) and (self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-1) is None):
             self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv+['DIFF_TYPE'])
             return
 
@@ -260,8 +234,8 @@ class OTF(object):
             if not val_a == val_b:
                 self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
-        if isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, complex) \
-            or isinstance(var_a, bytes) or isinstance(var_a, bytearray) or isinstance(var_a, float):
+        if isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, float) \
+            or isinstance(var_a, complex) or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
             # Comparer les variables simples en fonction de CCM, si applicable
             if not self._is_egal_ccm(var_a, var_b, lst_niv):
                 self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
@@ -278,7 +252,7 @@ class OTF(object):
             return
         if isinstance(var_a, np.ndarray):       # Tableau numpy
             # Cas d'un tableau déjà analysé via CCM
-            if len(lst_niv) > 1 and lst_niv[-2] in DIC_ELT_CCM:
+            if self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-2) is not None:
                 if (var_a is None) or (var_b is None) or (len(var_a) != len(var_b)):
                     self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
                 return
@@ -300,6 +274,20 @@ class OTF(object):
         print(f"! OTF._comparer comparaison manquante '{lst_niv}', '{var_a}', '{var_b}', {type(var_a)}, {type(var_b)}")
 
     @trace_except
+    def _get_itm(self, dic: dict, lst_niv: list, niv: int = -1) -> list | None:
+        """ Récupérer un élément s'il existe pour la clé visée (correspondant à un niveau de l'arborescence), dans un
+        dictionnaire; exemple: sévérité, liste des variables CCM.
+        :param dic: dictionnaire dans lequel rechercher
+        :param lst_niv: liste des niveaux de l'arborescence
+        :param niv: niveau à récupérer: -1 pour le dernier, -2 pour l'avant-dernier, etc.
+        :return: liste des variables CCM pour ce niveau, si elle existe; None sinon
+        """
+        # Récupérer le lien avec CCM, en fonction du dernier élément de la liste des niveaux
+        if len(lst_niv) < abs(niv):
+            return None
+        return dic.get(lst_niv[niv], None)
+
+    @trace_except
     def _is_egal_ccm(self, var_a: Any, var_b: Any, lst_niv: list) -> bool:
         """ Comparer deux variables simples, si possible selon le CCM.
         :param var_a: première variable
@@ -312,14 +300,14 @@ class OTF(object):
             if var_a == var_b:
                 return True
 
-            # Récupérer le lien avec CCM, en fonction du dernier élément de la liste des niveaux
-            lst_var_ccm = DIC_ELT_CCM.get(lst_niv[-1], None) if len(lst_niv) > 0 else None
+            # Récupérer la liste des variables CCM, en fonction du dernier élément de la liste des niveaux
+            lst_var_ccm = self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-1)
 
             if lst_var_ccm is None:
-                # Élément non présent dans DIC_ELT_CCM, et différent
+                # Élément non décrit par CCM
                 return False
             else:
-                # Élément présent dans DIC_ELT_CCM: comparer selon l'epsilon de comparaison des variables
+                # Élément décrit par CCM: comparer selon l'epsilon de comparaison des variables
                 is_egal = True
                 for idx, var_ccm in enumerate(lst_var_ccm):
                     # Récupérer les valeurs, dans le cas de variables simples ou complexes
@@ -340,14 +328,14 @@ class OTF(object):
         :param lst_niv: liste des niveaux de l'arborescence
         :return: chaîne formatée
         """
-        # Récupérer le lien avec CCM, en fonction du dernier élément de la liste des niveaux
-        lst_var_ccm = DIC_ELT_CCM.get(lst_niv[-1], None) if len(lst_niv) > 0 else None
+        # Récupérer la liste des variables CCM, en fonction du dernier élément de la liste des niveaux
+        lst_var_ccm = self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-1)
 
         if lst_var_ccm is None:
-            # Élément non présent dans DIC_ELT_CCM
+            # Élément non décrit par CCM
             return f"{var}"
         else:
-            # Élément présent dans DIC_ELT_CCM: formater selon l'epsilon de comparaison des variables
+            # Élément décrit par CCM: formater selon l'epsilon de comparaison des variables
             try:
                 str_key = '['
                 for idx, var_ccm in enumerate(lst_var_ccm):
@@ -359,9 +347,8 @@ class OTF(object):
                 print(f"! OTF._fmt_ccm incompatibilité avec DIC_ELT_CCM {var=} {lst_var_ccm=} {lst_niv=}: {repr(e)}")
                 return f"{var}"
 
-    @staticmethod
     @trace_except
-    def _add_dif(dic_dif: dict, var_a: Any, var_b: Any, lst_niv: list) -> None:
+    def _add_dif(self, dic_dif: dict, var_a: Any, var_b: Any, lst_niv: list) -> None:
         """ Ajouter une ligne de différence, en déterminant la sévérité.
         :param dic_dif: dictionnaire des différences, à modifier
         :param var_a: première variable
@@ -372,9 +359,9 @@ class OTF(object):
         str_niv = '>'.join(lst_niv)
 
         # Déterminer la sévérité: majeure par défaut, ou récupérée dans l'avant-dernier ou le dernier niveau
-        sev = DIC_ELT_SEV.get(lst_niv[-2]) if len(lst_niv) > 1 else None        # Sévérité selon avant-dernière clé
+        sev = self._get_itm(self.cfg['dic_elt_sev'], lst_niv, niv=-2)       # Sévérité selon avant-dernière clé
         if sev is None:
-            sev = DIC_ELT_SEV.get(lst_niv[-1]) if len(lst_niv) > 0 else None    # Sévérité selon dernière clé
+            sev = self._get_itm(self.cfg['dic_elt_sev'], lst_niv, niv=-1)   # Sévérité selon dernière clé
         if sev is None:
             sev = 2
 
@@ -461,19 +448,26 @@ if __name__ == '__main__':
     # _nom_sce_b = r"Sc_BV2024-CalP-VR_RET"
     # _nom_smo_b = r"Sm_BV2024-CalP-VR_RET"
 
-    # _nom_etu_a = r"C:\DATA\GéoRelai\Etu_from_scratch_ori\Etu_from_scratch.etu.xml"
-    # _nom_sce_a = r"Sc_multi_sm_avec_bgefileau"
-    # _nom_smo_a = r"Sm_amont_min"
-    # _nom_etu_b = r"C:\DATA\GéoRelai\Etu_from_scratch\Etu_from_scratch.etu.xml"
-    # _nom_sce_b = r"Sc_multi_sm_avec_bgefileau"
-    # _nom_smo_b = r"Sm_amont_min"
+    # _nom_etu_a = r"C:\DATA\GéoRelai\Etu_BY2018_Conc_ori\Etu_BY2018_Conc.etu.xml"
+    # _nom_sce_a = r"Sc_BY20_Conc"
+    # _nom_smo_a = r"Sm_BY20_OBLI_1"
+    # _nom_etu_b = r"C:\DATA\GéoRelai\Etu_BY2018_Conc\Etu_BY2018_Conc.etu.xml"
+    # _nom_sce_b = r"Sc_BY20_Conc"
+    # _nom_smo_b = r"Sm_BY20_OBLI_1"
 
-    _nom_etu_a = r"C:\DATA\GéoRelai\Etu_BY2018_Conc_ori\Etu_BY2018_Conc.etu.xml"
-    _nom_sce_a = r"Sc_BY20_Conc"
-    _nom_smo_a = r"Sm_BY20_OBLI_1"
-    _nom_etu_b = r"C:\DATA\GéoRelai\Etu_BY2018_Conc\Etu_BY2018_Conc.etu.xml"
-    _nom_sce_b = r"Sc_BY20_Conc"
-    _nom_smo_b = r"Sm_BY20_OBLI_1"
+    _nom_etu_a = r"C:\DATA\GéoRelai\Etu_from_scratch_v2_import-v0.11.0_ori\Etu_from_scratch.etu.xml"
+    _nom_sce_a = r"Sc_mono_sm_avec_bgefileau"
+    _nom_smo_a = r"Sm_mono_sm_avec_bgefileau"
+    _nom_etu_b = r"C:\DATA\GéoRelai\Etu_from_scratch_v2_import-v0.11.0\Etu_from_scratch.etu.xml"
+    _nom_sce_b = r"Sc_mono_sm_avec_bgefileau"
+    _nom_smo_b = r"Sm_mono_sm_avec_bgefileau"
+
+    # _nom_etu_a = r"C:\DATA\GéoRelai\Etu_CA-AV_EDD\Etu_CA-AV.etu.xml"
+    # _nom_sce_a = r"Sc_CA-AV_EDD_6"
+    # _nom_smo_a = r"Sm_CA-AV_EDD_601"
+    # _nom_etu_b = r"C:\DATA\GéoRelai\Etu_CA-AV_EDD\Etu_CA-AV.etu.xml"
+    # _nom_sce_b = r"Sc_CA-AV_EDD_6"
+    # _nom_smo_b = r"Sm_CA-AV_EDD_601"
 
     otf = OTF(r'C:\PROJETS\Crue10_tools\crue10\data\CrueConfigMetier.xml')
     dic_diff = otf.diff_crue10(nom_etu_a=_nom_etu_a, nom_sce_a=_nom_sce_a, nom_smo_a=_nom_smo_a,
