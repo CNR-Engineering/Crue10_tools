@@ -8,7 +8,6 @@ import pprint
 
 # Imports spécifiques
 from crue10.utils.trace_back import trace_except
-from crue10.utils.utils import lst_unique
 from crue10.utils.crueconfigmetier import CCM_FILE, CrueConfigMetier
 from crue10.utils.configuration import Configuration
 from crue10.etude import Etude
@@ -43,8 +42,9 @@ class OTF(object):
         """ Construire l'instance de classe.
         :param ccm_path: nom long du fichier de configuration CrueConfigMetier.xml
         """
-        self.cfg = Configuration(               # Configuration pour utiliser CCM
-            lst_cfg=[CFG_OTF_DFT, 'Oft.json'])
+        rep_src = os.path.dirname(__file__)     # Répertoire source d'OTF, pour localiser le fichier de configuration
+        fic_cfg = os.path.join(rep_src, 'Otf.json')                 # Fichier de configuration, à côté de ce module
+        self.cfg = Configuration(lst_cfg=[CFG_OTF_DFT, fic_cfg])    # Configuration pour utiliser CCM
         self._dic_desc = {}                     # Dictionnaire de description de la comparaison effectuée
         self._nbr_cmp = 0                       # Compteur des comparaisons effectuées
         self.ccm = CrueConfigMetier()           # Instance de CCM
@@ -76,11 +76,11 @@ class OTF(object):
         etu_a = Etude(nom_etu_a)
         sce_a = etu_a.get_scenario(nom_sce_a) if nom_sce_a else None
         mod_a = sce_a.modele if sce_a else None
-        smo_a = mod_a.get_sous_modele(nom_smo_a) if nom_smo_a else None
+        smo_a = mod_a.get_sous_modele(nom_smo_a) if mod_a and nom_smo_a else None
         etu_b = Etude(nom_etu_b)
         sce_b = etu_b.get_scenario(nom_sce_b) if nom_sce_b else None
         mod_b = sce_b.modele if sce_b else None
-        smo_b = mod_b.get_sous_modele(nom_smo_b) if nom_smo_b else None
+        smo_b = mod_b.get_sous_modele(nom_smo_b) if mod_b and nom_smo_b else None
 
         # Lire les données des objets Crue10 demandés
         obj_a = smo_a if smo_a else (mod_a if mod_a else (sce_a if sce_a else etu_a))
@@ -111,7 +111,7 @@ class OTF(object):
         return self.diff(obj_a, obj_b)
 
     @trace_except
-    def diff(self, obj_a: object, obj_b: object, lst_niv: list = None) -> dict:
+    def diff(self, obj_a: object, obj_b: object, lst_niv: list|None = None) -> dict:
         """ Renvoyer un dictionnaire des différences (fonctionnelles: analysées selon CCM) entre deux objets Crue10.
         Le parcours est récursif pour explorer l'arborescence interne des objets.
         :param obj_a: premier objet
@@ -128,13 +128,15 @@ class OTF(object):
         dic_var_b = self._get_var(obj_b, lst_niv)
 
         # Comparer les variables des deux objets (si les clés sont des path, on en prend juste le basename)
-        lst_key_a = [self.get_basename(str(key)) for key in dic_var_a.keys()]
-        lst_key_b = [self.get_basename(str(key)) for key in dic_var_b.keys()]
-        lst_elt = lst_unique(lst_key_a + lst_key_b)   # Liste à valeurs uniques des clés des
-        for elt in lst_elt:                                                     # dict, en respectant l'ordre
+        lst_elt = []                            # Liste à valeurs uniques des clés à comparer, en respectant l'ordre
+        [lst_elt.append(k) for k in dic_var_a.keys() if k not in lst_elt]
+        [lst_elt.append(k) for k in dic_var_b.keys() if k not in lst_elt]
+        for elt in lst_elt:
+            # Récupérer les variables de chaque objet, selon une clé commune
             var_a = dic_var_a.get(elt, None)
             var_b = dic_var_b.get(elt, None)
-            lst_niv_new = lst_niv+[str(elt)]    # Ajouter un nouveau niveau
+            #lst_niv_new = lst_niv + [self._fmt_var(elt, lst_niv)]   # Ajouter un nouveau niveau, formaté
+            lst_niv_new = lst_niv + [elt]       # Ajouter un nouveau niveau
             self._comparer(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv_new)
 
         # Renvoyer les différences
@@ -154,31 +156,19 @@ class OTF(object):
 
         # Traiter un dictionnaire
         if isinstance(obj, dict):
-            dic_var = {str(k): v for k, v in obj.items()}
+            dic_var = {self._fmt_var(k, lst_niv): v for k, v in obj.items()}
             return dic_var
 
+        # Traiter un tableau numpy: se ramener au cas d'une liste, traité juste après
+        if isinstance(obj, np.ndarray):
+            obj = list(obj) # Préféré à obj.tolist() afin de conserver des sous-éléments de type ndarray
+  
         # Traiter une liste
         if isinstance(obj, list):
             dic_var = {}
             for var in obj:
                 # Formater la clé selon CCM
-                key = self._fmt_ccm(var, lst_niv)
-
-                # Conserver chaque élément d'une série d'éléments identiques (en le suffixant par son numéro d'ordre)
-                key_unq, i = key, 1
-                while key_unq in dic_var:
-                    i += 1
-                    key_unq = f"{key}{i}"
-                dic_var[key_unq] = var
-            return dic_var
-
-        # Traiter un tableau numpy
-        if isinstance(obj, np.ndarray):
-            lst = list(obj) # Préféré à obj.tolist() afin de conserver des sous-éléments de type ndarray
-            dic_var = {}
-            for var in lst:
-                # Formater la clé selon CCM
-                key = self._fmt_ccm(var, lst_niv)
+                key = self._fmt_var(var, lst_niv)
 
                 # Conserver chaque élément d'une série d'éléments identiques (en le suffixant par son numéro d'ordre)
                 key_unq, i = key, 1
@@ -190,7 +180,8 @@ class OTF(object):
 
         # Traiter une instance de classe classique (ayant un dictionnaire de données)
         if hasattr(obj, '__dict__'):
-            return vars(obj).copy()             # Copier les variables membres pour ne pas interférer
+            dic_var = vars(obj).copy()          # Copier les variables membres pour ne pas interférer
+            return dic_var
 
         # Traiter une instance de classe sans dictionnaire de données (cas de xml.stree.ElementTree.Element)
         if isinstance(obj, object):
@@ -199,7 +190,7 @@ class OTF(object):
                 attr_ = getattr(obj, attr)
                 if not attr.startswith('__') and not inspect.isroutine(attr_) and attr not in LST_BUILTIN:
                     # Exclure les fonctions et méthodes pour ne conserver a priori que les variables membres
-                    dic_var[str(attr)] = attr_
+                    dic_var[self._fmt_var(attr, lst_niv)] = attr_
             return dic_var
 
         # On ne devrait pas arriver ici: il doit manquer un traitement sur un type de variable
@@ -223,23 +214,26 @@ class OTF(object):
             self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
         if (type(var_a) != type(var_b)) and (self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-1) is None):
-            self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv+['DIFF_TYPE'])
+            # Traiter les différences de type, sauf si le CCM permet de traiter cela ci-dessous
+            lst_niv_new = lst_niv + ['DIFF_TYPE']   # Ajouter un nouveau niveau
+            self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv_new)
             return
 
         # Traiter les différences sur les types simples
-        if isinstance(var_a, str):
+        if isinstance(var_a, str) or isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, float) \
+            or isinstance(var_a, complex) or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
             # Traiter le cas particulier des path
-            val_a = self.get_basename(var_a)
-            val_b = self.get_basename(var_b)
+            val_a = self._fmt_var(var_a, lst_niv)
+            val_b = self._fmt_var(var_b, lst_niv)
             if not val_a == val_b:
                 self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
-        if isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, float) \
-            or isinstance(var_a, complex) or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
-            # Comparer les variables simples en fonction de CCM, si applicable
-            if not self._is_egal_ccm(var_a, var_b, lst_niv):
-                self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
-            return
+        # if isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, float) \
+        #     or isinstance(var_a, complex) or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
+        #     # Comparer les variables simples en fonction de CCM, si applicable
+        #     if not self._is_egal_ccm(var_a, var_b, lst_niv):
+        #         self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
+        #     return
 
         # Vérifier les différences sur les types complexes: parcours récursif
         if isinstance(var_a, dict):             # Dictionnaire
@@ -276,8 +270,8 @@ class OTF(object):
     @trace_except
     def _get_itm(self, dic: dict, lst_niv: list, niv: int = -1) -> list | None:
         """ Récupérer un élément s'il existe pour la clé visée (correspondant à un niveau de l'arborescence), dans un
-        dictionnaire; exemple: sévérité, liste des variables CCM.
-        :param dic: dictionnaire dans lequel rechercher
+        dictionnaire de configuration.
+        :param dic: dictionnaire de configuration dans lequel rechercher, exemples: sévérité, liste des variables CCM
         :param lst_niv: liste des niveaux de l'arborescence
         :param niv: niveau à récupérer: -1 pour le dernier, -2 pour l'avant-dernier, etc.
         :return: liste des variables CCM pour ce niveau, si elle existe; None sinon
@@ -288,53 +282,28 @@ class OTF(object):
         return dic.get(lst_niv[niv], None)
 
     @trace_except
-    def _is_egal_ccm(self, var_a: Any, var_b: Any, lst_niv: list) -> bool:
-        """ Comparer deux variables simples, si possible selon le CCM.
-        :param var_a: première variable
-        :param var_b: seconde variable
-        :param lst_niv: liste des niveaux de l'arborescence
-        :return: chaîne formatée
-        """
-        try:
-            # Cas simple d'égalité
-            if var_a == var_b:
-                return True
-
-            # Récupérer la liste des variables CCM, en fonction du dernier élément de la liste des niveaux
-            lst_var_ccm = self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-1)
-
-            if lst_var_ccm is None:
-                # Élément non décrit par CCM
-                return False
-            else:
-                # Élément décrit par CCM: comparer selon l'epsilon de comparaison des variables
-                is_egal = True
-                for idx, var_ccm in enumerate(lst_var_ccm):
-                    # Récupérer les valeurs, dans le cas de variables simples ou complexes
-                    val_a = var_a[idx] if hasattr(var_a, '__getitem__') else var_a
-                    val_b = var_b[idx] if hasattr(var_b, '__getitem__') else var_b
-                    # Tester l'égalité à l'epsilon de comparaison près
-                    is_egal &= self.ccm.variable[var_ccm].is_egal(val_a, val_b)
-                return is_egal
-        except Exception as e:
-            print(f"! OTF._is_egal_ccm incompatibilité avec DIC_ELT_CCM {var_a=}, {var_b=}, {lst_niv=}: {repr(e)}")
-            # Tenter un fallback: comparaison de chaînes formatées selon CCM
-            return self._fmt_ccm(var_a, lst_niv) == self._fmt_ccm(var_b, lst_niv)
-
-    @trace_except
-    def _fmt_ccm(self, var: Any, lst_niv: list) -> str:
-        """ Formater la variable, si possible selon le CCM.
+    def _fmt_var(self, var: Any, lst_niv: list) -> str|None:
+        """ Formater la variable, si possible: selon id, selon basename, selon le CCM.
         :param var: variable à formater, éventuellement complexe
         :param lst_niv: liste des niveaux de l'arborescence
-        :return: chaîne formatée
+        :return: chaîne formatée ou None si var est None
         """
-        # Récupérer la liste des variables CCM, en fonction du dernier élément de la liste des niveaux
-        lst_var_ccm = self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-1)
+        # Traiter un cas limite
+        if var is None:
+            return None
 
-        if lst_var_ccm is None:
-            # Élément non décrit par CCM
-            return f"{var}"
-        else:
+        # Formater selon id si la variable est une instance de classe avec un id
+        if hasattr(var, 'id'):
+            return var.id
+
+        # Formater selon basename si la variable est une chaîne de caractères avec un path
+        if isinstance(var, str):
+            if ('/' in var) or ('\\' in var):
+                return os.path.basename(var)
+
+        # Formater selon CCM, si la variable est décrite par le dernier élément de la liste des niveaux
+        lst_var_ccm = self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-1)   # Liste des variables CCM associées
+        if lst_var_ccm is not None:
             # Élément décrit par CCM: formater selon l'epsilon de comparaison des variables
             try:
                 str_key = '['
@@ -344,8 +313,10 @@ class OTF(object):
                     str_key += f"{var_ccm}={str_val}, "
                 return str_key[0:-2] + ']'
             except Exception as e:
-                print(f"! OTF._fmt_ccm incompatibilité avec DIC_ELT_CCM {var=} {lst_var_ccm=} {lst_niv=}: {repr(e)}")
-                return f"{var}"
+                print(f"! OTF._fmt_var incompatibilité avec Otf.json/dic_elt_ccm {var=} {lst_niv=} {lst_var_ccm=}: {repr(e)}")
+
+        # Sinon formater en chaîne de caractères
+        return str(var)
 
     @trace_except
     def _add_dif(self, dic_dif: dict, var_a: Any, var_b: Any, lst_niv: list) -> None:
@@ -356,7 +327,8 @@ class OTF(object):
         :param lst_niv: liste des niveaux de l'arborescence
         """
         # Formater l'arborescence de comparaison
-        str_niv = '>'.join(lst_niv)
+        lst_niv_fmt = [self._fmt_var(niv, []) for niv in lst_niv]           # Formater l'arborescence, sans utiliser CCM
+        str_niv = '>'.join(lst_niv_fmt)
 
         # Déterminer la sévérité: majeure par défaut, ou récupérée dans l'avant-dernier ou le dernier niveau
         sev = self._get_itm(self.cfg['dic_elt_sev'], lst_niv, niv=-2)       # Sévérité selon avant-dernière clé
@@ -366,21 +338,10 @@ class OTF(object):
             sev = 2
 
         # Enregistrer la ligne dans le dictionnaire des différences
-        val_a = str(var_a) if var_a is not None else None
-        val_b = str(var_b) if var_b is not None else None
+        val_a = self._fmt_var(var_a, lst_niv)   # alternative: val_a = str(var_a) if var_a is not None else None
+        val_b = self._fmt_var(var_b, lst_niv)   # alternative: val_b = str(var_b) if var_b is not None else None
         dif_new = {str_niv: {'sev': sev, 'a': val_a, 'b': val_b}}
         dic_dif.update(dif_new)
-
-    @staticmethod
-    @trace_except
-    def get_basename(txt: str) -> str:
-        """ Renvoyer le basename si path, sinon renvoyer la chaîne initiale.
-        :param txt: chaîne à analyser
-        :return: chaîne initiale ou basename si path
-        """
-        if ('/' in txt) or ('\\' in txt):
-            return os.path.basename(txt)
-        return txt
 
     @staticmethod
     @trace_except
@@ -434,44 +395,53 @@ class OTF(object):
 if __name__ == '__main__':
     """ Si lancement en tant que script.
     """
-    # _nom_etu_a = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
-    # _nom_sce_a = r"Sc_DCNC_1500_08_c0_1"
-    # _nom_smo_a = r"Sm_DCNC_1500_08_c0_1"
-    # _nom_etu_b = r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml"
-    # _nom_sce_b = r"Sc_DCNC_1500_08_c0_2"
-    # _nom_smo_b = r"Sm_DCNC_1500_08_c0_2"
+    dic_campagne = {
+        'Etu_AS_CS_CI.etu.xml': {
+            'nom_etu_a': r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml",
+            'nom_sce_a': r"Sc_DCNC_1500_08_c0_1",
+            'nom_smo_a': r"Sm_DCNC_1500_08_c0_1",   
+            'nom_etu_b': r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml",
+            'nom_sce_b': r"Sc_DCNC_1500_08_c0_2",
+            'nom_smo_b': r"Sm_DCNC_1500_08_c0_2"
+        },
+        'Etu_BV2024_Conc.etu.xml': {
+            'nom_etu_a': r"C:\DATA\GéoRelai\Etu_BV2024_Conc_ori\Etu_BV2024_Conc.etu.xml",
+            'nom_sce_a': r"Sc_BV2024-CalP-VR_RET",
+            'nom_smo_a': r"Sm_BV2024-CalP-VR_RET",
+            'nom_etu_b': r"C:\DATA\GéoRelai\Etu_BV2024_Conc\Etu_BV2024_Conc.etu.xml",
+            # 'nom_sce_b': r"Sc_BV2024-CalP-VR_RET",
+            # 'nom_smo_b': r"Sm_BV2024-CalP-VR_RET"
+        },
+        'Etu_BY2018_Conc.etu.xml': {
+            'nom_etu_a': r"C:\DATA\GéoRelai\Etu_BY2018_Conc_ori\Etu_BY2018_Conc.etu.xml",
+            'nom_sce_a': r"Sc_BY20_Conc",
+            'nom_smo_a': r"Sm_BY20_OBLI_1",
+            'nom_etu_b': r"C:\DATA\GéoRelai\Etu_BY2018_Conc\Etu_BY2018_Conc.etu.xml",
+            # 'nom_sce_b': r"Sc_BY20_Conc",
+            # 'nom_smo_b': r"Sm_BY20_OBLI_1"
+        },
+        'Etu_from_scratch.etu.xml': {
+            'nom_etu_a': r"C:\DATA\GéoRelai\Etu_from_scratch_v2_import-v0.11.0_ori\Etu_from_scratch.etu.xml",
+            'nom_sce_a': r"Sc_mono_sm_avec_bgefileau",
+            'nom_smo_a': r"Sm_mono_sm_avec_bgefileau",
+            'nom_etu_b': r"C:\DATA\GéoRelai\Etu_from_scratch_v2_import-v0.11.0\Etu_from_scratch.etu.xml",
+            # 'nom_sce_b': r"Sc_mono_sm_avec_bgefileau",
+            # 'nom_smo_b': r"Sm_mono_sm_avec_bgefileau"
+        },
+        'Etu_CA-AV.etu.xml': {
+            'nom_etu_a': r"C:\DATA\GéoRelai\Etu_CA-AV_EDD_ori\Etu_CA-AV.etu.xml",
+            'nom_sce_a': r"Sc_CA-AV_EDD_6",
+            'nom_smo_a': r"Sm_CA-AV_EDD_601",
+            'nom_etu_b': r"C:\DATA\GéoRelai\Etu_CA-AV_EDD\Etu_CA-AV.etu.xml",
+            # 'nom_sce_b': r"Sc_CA-AV_EDD_6",
+            # 'nom_smo_b': r"Sm_CA-AV_EDD_601"
+        }
+    }
 
-    # _nom_etu_a = r"C:\DATA\GéoRelai\Etu_BV2024_Conc_ori\Etu_BV2024_Conc.etu.xml"
-    # _nom_sce_a = r"Sc_BV2024-CalP-VR_RET"
-    # _nom_smo_a = r"Sm_BV2024-CalP-VR_RET"
-    # _nom_etu_b = r"C:\DATA\GéoRelai\Etu_BV2024_Conc\Etu_BV2024_Conc.etu.xml"
-    # _nom_sce_b = r"Sc_BV2024-CalP-VR_RET"
-    # _nom_smo_b = r"Sm_BV2024-CalP-VR_RET"
-
-    # _nom_etu_a = r"C:\DATA\GéoRelai\Etu_BY2018_Conc_ori\Etu_BY2018_Conc.etu.xml"
-    # _nom_sce_a = r"Sc_BY20_Conc"
-    # _nom_smo_a = r"Sm_BY20_OBLI_1"
-    # _nom_etu_b = r"C:\DATA\GéoRelai\Etu_BY2018_Conc\Etu_BY2018_Conc.etu.xml"
-    # _nom_sce_b = r"Sc_BY20_Conc"
-    # _nom_smo_b = r"Sm_BY20_OBLI_1"
-
-    _nom_etu_a = r"C:\DATA\GéoRelai\Etu_from_scratch_v2_import-v0.11.0_ori\Etu_from_scratch.etu.xml"
-    _nom_sce_a = r"Sc_mono_sm_avec_bgefileau"
-    _nom_smo_a = r"Sm_mono_sm_avec_bgefileau"
-    _nom_etu_b = r"C:\DATA\GéoRelai\Etu_from_scratch_v2_import-v0.11.0\Etu_from_scratch.etu.xml"
-    _nom_sce_b = r"Sc_mono_sm_avec_bgefileau"
-    _nom_smo_b = r"Sm_mono_sm_avec_bgefileau"
-
-    # _nom_etu_a = r"C:\DATA\GéoRelai\Etu_CA-AV_EDD\Etu_CA-AV.etu.xml"
-    # _nom_sce_a = r"Sc_CA-AV_EDD_6"
-    # _nom_smo_a = r"Sm_CA-AV_EDD_601"
-    # _nom_etu_b = r"C:\DATA\GéoRelai\Etu_CA-AV_EDD\Etu_CA-AV.etu.xml"
-    # _nom_sce_b = r"Sc_CA-AV_EDD_6"
-    # _nom_smo_b = r"Sm_CA-AV_EDD_601"
-
-    otf = OTF(r'C:\PROJETS\Crue10_tools\crue10\data\CrueConfigMetier.xml')
-    dic_diff = otf.diff_crue10(nom_etu_a=_nom_etu_a, nom_sce_a=_nom_sce_a, nom_smo_a=_nom_smo_a,
-        nom_etu_b=_nom_etu_b) #, nom_sce_b=_nom_sce_b, nom_smo_b=_nom_smo_b)
-    pprint.pp(otf.filtrer(dic_diff, 0), width=300)
-    print(f"Différences entre '{otf.dic_desc['a']}' et '{otf.dic_desc['b']}'")
-    print(f"{len(dic_diff)} différences trouvées (sévérités: {otf.nbr_dif(dic_diff)}) sur {otf.nbr_cmp:_d} comparaisons")
+    for cas, dic_cas in dic_campagne.items():
+        print(f"\n\n=== {cas} ===")
+        otf = OTF(r'C:\PROJETS\Crue10_tools\crue10\data\CrueConfigMetier.xml')
+        dic_diff = otf.diff_crue10(**dic_cas)
+        pprint.pp(otf.filtrer(dic_diff, 0), width=300)
+        print(f"Différences entre '{otf.dic_desc['a']}' et '{otf.dic_desc['b']}'")
+        print(f"{len(dic_diff)} différences trouvées (sévérités: {otf.nbr_dif(dic_diff)}) sur {otf.nbr_cmp:_d} comparaisons")
