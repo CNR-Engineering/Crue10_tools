@@ -33,7 +33,7 @@ class Configuration(object):    # Idée: hériter de QObject pour gérer les sig
         :param fic_sav: fichier json pour sauvegarder la configuration utilisateur
         """
         # Construire la classe mère
-        super().__init__()                      # Classe mère QObject pour les signaux
+        #super().__init__()                      # Classe mère QObject pour les signaux
 
         # Déclarer les variables membres de l'instance
         self.cfg = {}                           # Dictionnaire contenant la configuration
