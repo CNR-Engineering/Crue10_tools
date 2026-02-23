@@ -399,7 +399,7 @@ if __name__ == '__main__':
         'Etu_AS_CS_CI.etu.xml': {
             'nom_etu_a': r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml",
             'nom_sce_a': r"Sc_DCNC_1500_08_c0_1",
-            'nom_smo_a': r"Sm_DCNC_1500_08_c0_1",   
+            'nom_smo_a': r"Sm_DCNC_1500_08_c0_1",
             'nom_etu_b': r"C:\PROJETS\Enchaineur\Ossature\Modele_CA_g1.3\Etu_AS_CS_CI.etu.xml",
             'nom_sce_b': r"Sc_DCNC_1500_08_c0_2",
             'nom_smo_b': r"Sm_DCNC_1500_08_c0_2"
@@ -420,6 +420,14 @@ if __name__ == '__main__':
             # 'nom_sce_b': r"Sc_BY20_Conc",
             # 'nom_smo_b': r"Sm_BY20_OBLI_1"
         },
+        'Etu_CA-AV.etu.xml': {
+            'nom_etu_a': r"C:\DATA\GéoRelai\Etu_CA-AV_EDD_ori\Etu_CA-AV.etu.xml",
+            'nom_sce_a': r"Sc_CA-AV_EDD_6",
+            'nom_smo_a': r"Sm_CA-AV_EDD_601",
+            'nom_etu_b': r"C:\DATA\GéoRelai\Etu_CA-AV_EDD\Etu_CA-AV.etu.xml",
+            # 'nom_sce_b': r"Sc_CA-AV_EDD_6",
+            # 'nom_smo_b': r"Sm_CA-AV_EDD_601"
+        },
         'Etu_from_scratch.etu.xml': {
             'nom_etu_a': r"C:\DATA\GéoRelai\Etu_from_scratch_v2_import-v0.11.0_ori\Etu_from_scratch.etu.xml",
             'nom_sce_a': r"Sc_mono_sm_avec_bgefileau",
@@ -428,14 +436,22 @@ if __name__ == '__main__':
             # 'nom_sce_b': r"Sc_mono_sm_avec_bgefileau",
             # 'nom_smo_b': r"Sm_mono_sm_avec_bgefileau"
         },
-        'Etu_CA-AV.etu.xml': {
-            'nom_etu_a': r"C:\DATA\GéoRelai\Etu_CA-AV_EDD_ori\Etu_CA-AV.etu.xml",
-            'nom_sce_a': r"Sc_CA-AV_EDD_6",
-            'nom_smo_a': r"Sm_CA-AV_EDD_601",
-            'nom_etu_b': r"C:\DATA\GéoRelai\Etu_CA-AV_EDD\Etu_CA-AV.etu.xml",
-            # 'nom_sce_b': r"Sc_CA-AV_EDD_6",
-            # 'nom_smo_b': r"Sm_CA-AV_EDD_601"
-        }
+        'Etu_SV2019_Conc.etu.xml': {
+            'nom_etu_a': r"C:\DATA\GéoRelai\Etu_SV2019_Conc_Br15\Etu_SV2019_Conc.etu.xml",
+            'nom_sce_a': r"Sc_SV2019_Conc_EtatRef",
+            'nom_smo_a': r"Sm_SV2019_Conc_EtatRef",
+            'nom_etu_b': r"C:\DATA\GéoRelai\Etu_SV2019_Conc_Br15\Etu_SV2019_Conc.etu.xml",
+            # 'nom_sce_b': r"Sc_SV2019_Conc_EtatRef",
+            # 'nom_smo_b': r"Sm_SV2019_Conc_EtatRef"
+        },
+        'Etu_VS2021.etu.xml': {
+            'nom_etu_a': r"C:\DATA\GéoRelai\Etu_VS2021_MEC_ori\Etu_VS2021.etu.xml",
+            'nom_sce_a': r"Sc_VS_Mec_g0p0",
+            'nom_smo_a': r"Sm_VS_Mec",
+            'nom_etu_b': r"C:\DATA\GéoRelai\Etu_VS2021_MEC\Etu_VS2021.etu.xml",
+            # 'nom_sce_b': r"Sc_VS_Mec_g0p0",
+            # 'nom_smo_b': r"Sm_VS_Mec"
+        },
     }
 
     for cas, dic_cas in dic_campagne.items():
