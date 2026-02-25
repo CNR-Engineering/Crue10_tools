@@ -46,7 +46,7 @@ class guiOTF():
         """ Sélectionner les données d'entrée dans une fenêtre dédiée.
         Met à jour les variables membres concernant la première et la seconde étude.
         """
-        # Construire l'IHM de selection des études / Scénario / Sous-modèle 
+        # Construire l'IHM de selection des études / Scénario / Sous‑modèle 
         root = tk.Tk()
         root.title("Sélection ETU → Scénario → Sous‑modèle")
         frm = ttk.Frame(root, padding=10)
@@ -197,7 +197,7 @@ class guiOTF():
         try:
             #Recuperer l'objet scenario via Etude
             scenario_obj = etudebox.get_scenario(scenario_key)
-            #Accéder au modèle et à la liste des sous-modeles
+            #Accéder au modèle et à la liste des sous-modèles
             modele =scenario_obj.modele
     
             if modele is None:
@@ -216,7 +216,7 @@ class guiOTF():
     def afficher_differences(self):
         """
         Fenêtre d'affichage des différences, avec groupes parent/enfants et carets +/- par ligne
-        (utilise la colonne arbre '#0' pour afficher le chemin).
+        (affiche la colonne 'Sévérité' en première colonne)
         """
         otf = OTF()
         dic_diff = otf.diff_crue10(nom_etu_a=gui.cfg["nom_etu_a"], nom_sce_a=gui.cfg["nom_sce_a"], nom_smo_a=gui.cfg["nom_smo_a"],
@@ -242,32 +242,25 @@ class guiOTF():
         ttk.Checkbutton(topfrm, text="Afficher A", variable=var_show_a).grid(row=0, column=4, padx=6)
         ttk.Checkbutton(topfrm, text="Afficher B", variable=var_show_b).grid(row=0, column=5, padx=6)
 
-        # Expand/collapse buttons (globaux) + actions
-        btn_expand_all = ttk.Button(topfrm, text="Tout développer", command=lambda: expand_all())
-        btn_expand_all.grid(row=0, column=6, padx=4)
-        btn_collapse_all = ttk.Button(topfrm, text="Tout réduire", command=lambda: collapse_all())
-        btn_collapse_all.grid(row=0, column=7, padx=4)
-        btn_toggle_sel = ttk.Button(topfrm, text="Basculer sélection", command=lambda: toggle_selected())
-        btn_toggle_sel.grid(row=0, column=8, padx=4)
-
-        btn_search = ttk.Button(topfrm, text="Filtrer", command=lambda: refresh_view())
-        btn_search.grid(row=0, column=9, padx=6)
+        combo_sev.bind("<<ComboboxSelected>>", lambda e: refresh_view())
         btn_clear = ttk.Button(topfrm, text="Réinitialiser", command=lambda: (combo_sev.current(0), entry_search.delete(0, tk.END), var_show_a.set(True), var_show_b.set(True), refresh_view()))
         btn_clear.grid(row=0, column=10, padx=6)
         btn_export = ttk.Button(topfrm, text="Exporter...", command=lambda: export_diff())
         btn_export.grid(row=0, column=11, padx=6)
         btn_copy = ttk.Button(topfrm, text="Copier sélection", command=lambda: copy_selection())
         btn_copy.grid(row=0, column=12, padx=6)
+        btn_prev = ttk.Button(topfrm, text="Précédent", command=lambda: reselect_inputs())
+        btn_prev.grid(row=0, column=6, padx=6)
 
-        # Treeview : utiliser la colonne #0 pour le chemin afin d'afficher caret +/- par ligne
-        cols = ('sev', 'a', 'b')
-        tree = ttk.Treeview(win, columns=cols, show='tree headings', height=20)
-        tree.heading('#0', text='Niveau / Chemin')
+        # Treeview : maintenant on affiche explicitement les colonnes et on met 'sev' en première colonne
+        cols = ('sev', 'elem', 'a', 'b')
+        tree = ttk.Treeview(win, columns=cols, show='headings', height=20)
         tree.heading('sev', text='Sévérité')
+        tree.heading('elem', text='Element comparé')
         tree.heading('a', text='Valeur A')
         tree.heading('b', text='Valeur B')
-        tree.column('#0', width=600, anchor='w')
         tree.column('sev', width=90, anchor='center')
+        tree.column('elem', width=600, anchor='w')
         tree.column('a', width=260, anchor='w')
         tree.column('b', width=260, anchor='w')
         tree.grid(row=1, column=0, sticky="nsew", padx=6, pady=6)
@@ -303,36 +296,12 @@ class guiOTF():
             a = info.get('a')
             b = info.get('b')
             items.append((key, sev, a, b))
-        items.sort(key=lambda x: (-x[1], x[0]))
+        #items.sort(key=lambda x: (-x[1], x[0]))
 
         # Helpers
         def short(v, n=140):
             s = str(v) if v is not None else ''
             return s if len(s) <= n else (s[:n-1] + '…')
-        #TODO : à ajuster
-        def aggregate_by_parent(self,items_list):
-            #from collections import defaultdict
-            children = defaultdict(list)
-            for key, sev, a, b in items_list:
-                parts = key.rsplit('>', 1)
-                parent = parts[0] if len(parts) == 2 else key
-                children[parent].append((key, sev, a, b))
-
-            groups = []
-            for parent in list(children.keys()):
-                child_list = children[parent]
-                max_sev = max(c[1] for c in child_list)
-                def uniq_vals(idx):
-                    seen = []
-                    for c in child_list:
-                        s = str(c[idx]) if c[idx] is not None else ''
-                        if s not in seen:
-                            seen.append(s)
-                    return seen
-                agg_a = ' | '.join(uniq_vals(2))
-                agg_b = ' | '.join(uniq_vals(3))
-                groups.append((parent, max_sev, agg_a, agg_b, len(child_list)))
-            return groups, children
 
         def update_status():
             total = len(items)
@@ -351,7 +320,6 @@ class guiOTF():
             for pid in tree.get_children(''):
                 tree.item(pid, open=False)
 
-        @staticmethod
         def toggle_selected():
             sel = tree.selection()
             if not sel: return
@@ -364,7 +332,7 @@ class guiOTF():
         menu.add_command(label="Réduire", command=lambda: [tree.item(iid, open=False) for iid in tree.selection()])
         menu.add_separator()
         menu.add_command(label="Copier", command=lambda: copy_selection())
-        menu.add_command(label="Voir détail", command=lambda: [open_detail_window(tree.item(iid)['text'], dic_diff.get(tree.item(iid)['text'], {})) for iid in tree.selection()])
+        menu.add_command(label="Voir détail", command=lambda: [open_detail_window(tree.item(iid)['values'][1], dic_diff.get(tree.item(iid)['values'][1], {})) for iid in tree.selection()])
 
         def on_right_click(event):
             iid = tree.identify_row(event.y)
@@ -373,6 +341,20 @@ class guiOTF():
                 menu.tk_popup(event.x_root, event.y_root)
 
         tree.bind("<Button-3>", on_right_click)
+
+
+        # retour en arrière 
+        def reselect_inputs():
+            # fermer la fenêtre des différences, relancer la sélection et ré-ouvrir l'affichage
+            try:
+                win.destroy()
+            except Exception:
+                pass
+            # ouvre la fenêtre de sélection (bloquante jusqu'à validation)
+            self.select_input()
+            # après validation, ré-affiche les différences avec les nouveaux paramètres
+            self.afficher_differences()
+
 
         # Refresh / insertion hiérarchique
         def refresh_view():
@@ -403,20 +385,12 @@ class guiOTF():
                 if txt and txt not in hay: continue
                 filtered.append((key, sev, a, b))
 
-            groups, children_map = aggregate_by_parent(self, filtered)
-            for parent_key, group_sev, agg_a, agg_b, child_count in groups:
-                tag = f"sev{group_sev}"
-                display_a = short(agg_a) if show_a else ''
-                display_b = short(agg_b) if show_b else ''
-                parent_label = parent_key if child_count == 1 and parent_key == children_map[parent_key][0][0] else f"{parent_key} ({child_count})"
-                parent_iid = tree.insert('', 'end', text=parent_label, values=(str(group_sev), display_a, display_b), tags=(tag,))
-                for child in children_map[parent_key]:
-                    key, sev, a, b = child
-                    child_tag = f"sev{sev}"
-                    child_display_key = key.rsplit('>', 1)[-1]  # ne montrer que le dernier segment pour la lisibilité
-                    tree.insert(parent_iid, 'end', text=child_display_key, values=(str(sev), short(a) if show_a else '', short(b) if show_b else ''), tags=(child_tag,))
-                # parent fermé par défaut
-                tree.item(parent_iid, open=False)
+            for key, sev, a, b in filtered:
+                tag = f"sev{sev}"
+                display_a = short(a) if show_a else ''
+                display_b = short(b) if show_b else ''
+                # On affiche la clé complète (chemin) dans la colonne 'elem'
+                tree.insert('', 'end', values=(str(sev), key, display_a, display_b), tags=(tag,))
 
             update_status()
 
@@ -425,21 +399,19 @@ class guiOTF():
             sel = tree.selection()
             if not sel: return
             iid = sel[0]
-            # récupérer texte (chemin affiché) et valeurs
-            chemin_display = tree.item(iid)['text']
+            # récupérer valeurs
             vals = tree.item(iid)['values']
+            chemin_display = vals[1] if len(vals) > 1 else ''
             # s'il y a des enfants => parent : afficher détail agrégé
             if tree.get_children(iid):
                 content_lines = []
                 for cid in tree.get_children(iid):
-                    child_text = tree.item(cid)['text']
                     child_vals = tree.item(cid)['values']
-                    # reconstruire la clé complète si nécessaire: children_map stores full keys in items, but we don't store mapping here.
-                    content_lines.append(f"{child_text} | sev={child_vals[0]}\nA: {child_vals[1]}\nB: {child_vals[2]}\n")
+                    child_text = child_vals[1] if len(child_vals) > 1 else ''
+                    content_lines.append(f"{child_text} | sev={child_vals[0]}\nA: {child_vals[2]}\nB: {child_vals[3]}\n")
                 detail = f"Groupe: {chemin_display}\n\n" + "\n".join(content_lines)
             else:
                 # enfant : chemin_display est le dernier segment ; il faut retrouver la clé complète dans dic_diff
-                # recherhce par suffixe (meilleure heuristique si noms uniques)
                 key_full = None
                 for k in dic_diff.keys():
                     if k.endswith('>' + chemin_display) or k == chemin_display:
@@ -469,16 +441,18 @@ class guiOTF():
             if not sel: return
             iid = sel[0]
             if tree.get_children(iid):
-                chemin_display = tree.item(iid)['text']
-
+                vals = tree.item(iid)['values']
+                chemin_display = vals[1] if len(vals) > 1 else ''
                 content_lines = []
                 for cid in tree.get_children(iid):
                     cvals = tree.item(cid)['values']
-                    content_lines.append(f"{tree.item(cid)['text']} | sev={cvals[0]}\nA: {cvals[1]}\nB: {cvals[2]}\n")
+                    child_text = cvals[1] if len(cvals) > 1 else ''
+                    content_lines.append(f"{child_text} | sev={cvals[0]}\nA: {cvals[2]}\nB: {cvals[3]}\n")
                 content = f"Groupe: {chemin_display}\n\n" + "\n".join(content_lines)
                 open_detail_window(chemin_display, {'sev':'', 'a':'', 'b':content})
             else:
-                child_display = tree.item(iid)['text']
+                vals = tree.item(iid)['values']
+                child_display = vals[1] if len(vals) > 1 else ''
                 key_full = None
                 for k in dic_diff.keys():
                     if k.endswith('>' + child_display) or k == child_display:
@@ -521,9 +495,11 @@ class guiOTF():
                 if tree.get_children(iid):
                     for cid in tree.get_children(iid):
                         cvals = tree.item(cid)['values']
-                        lines.append(f"{tree.item(cid)['text']} | sev={cvals[0]}\nA: {cvals[1]}\nB: {cvals[2]}\n")
+                        child_text = cvals[1] if len(cvals) > 1 else ''
+                        lines.append(f"{child_text} | sev={cvals[0]}\nA: {cvals[2]}\nB: {cvals[3]}\n")
                 else:
-                    display = tree.item(iid)['text']
+                    vals = tree.item(iid)['values']
+                    display = vals[1] if len(vals) > 1 else ''
                     key_full = None
                     for k in dic_diff.keys():
                         if k.endswith('>' + display) or k == display:
@@ -557,7 +533,4 @@ if __name__ == '__main__':
     gui = guiOTF()
     gui.select_input()            # idem gui_selection_etus, sauf que les résultats sont retenus dans des variables membres
     gui.afficher_differences()
-
-
-
 
