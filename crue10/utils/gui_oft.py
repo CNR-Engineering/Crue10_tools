@@ -7,6 +7,8 @@ import tkinter.scrolledtext as scrolledtext
 import csv 
 import tkinter.scrolledtext as scrolledtext
 from collections import defaultdict, OrderedDict
+import fnmatch
+
 # Imports spécifiques
 from crue10.utils.configuration import Configuration
 from crue10.utils.design_patterns import factory_define
@@ -256,7 +258,7 @@ class guiOTF():
         cols = ('sev', 'elem', 'a', 'b')
         tree = ttk.Treeview(win, columns=cols, show='headings', height=20)
         tree.heading('sev', text='Sévérité')
-        tree.heading('elem', text='Element comparé')
+        tree.heading('elem', text='Element comparé', command=lambda: toggle_sort('elem'))
         tree.heading('a', text='Valeur A')
         tree.heading('b', text='Valeur B')
         tree.column('sev', width=90, anchor='center')
@@ -297,6 +299,10 @@ class guiOTF():
             b = info.get('b')
             items.append((key, sev, a, b))
         #items.sort(key=lambda x: (-x[1], x[0]))
+        # conserver copie de l'ordre initial pour revenir à l'état "non trié"
+        original_items = list(items)
+        # état de tri courant : colonne et 'asc'/'desc' ou None
+        current_sort = {'col': None, 'state': None}
 
         # Helpers
         def short(v, n=140):
@@ -359,8 +365,21 @@ class guiOTF():
         # Refresh / insertion hiérarchique
         def refresh_view():
             tree.delete(*tree.get_children())
-            txt = entry_search.get().strip().lower()
-
+            pattern = entry_search.get().strip().lower()
+            # si motif vide => pas de filtre
+            if not pattern:
+                use_wild = False
+            else:
+                # présence explicite de jokers ? (utilisateur a tapé '*' ou '?')
+                use_wild = ('*' in pattern) or ('?' in pattern)
+                if use_wild:
+                    # normaliser pour matcher n'importe où dans la chaîne :
+                    # si motif ne commence pas par '*' ou '?' on préfixe '*'
+                    if not (pattern.startswith('*') or pattern.startswith('?')):
+                        pattern = '*' + pattern
+                    # si motif ne se termine pas par '*' ou '?' on suffixe '*'
+                    if not (pattern.endswith('*') or pattern.endswith('?')):
+                        pattern = pattern + '*'
             sel = combo_sev.get()
             if sel == "Toutes":
                 show0 = show1 = show2 = True
@@ -376,14 +395,30 @@ class guiOTF():
             show_a = var_show_a.get()
             show_b = var_show_b.get()
 
+            # utiliser l'ordre initial comme source (afin de pouvoir revenir au non-trié)
+            source = original_items
+
             filtered = []
-            for key, sev, a, b in items:
+            for key, sev, a, b in source:
                 if sev == 0 and not show0: continue
                 if sev == 1 and not show1: continue
                 if sev == 2 and not show2: continue
                 hay = f"{key} {a if a is not None else ''} {b if b is not None else ''}".lower()
-                if txt and txt not in hay: continue
+                use_wild = ('*' in pattern) or ('?' in pattern)
+                if pattern:
+                    if use_wild:
+                        # fnmatch attend le motif couvrant la chaîne entière, '*sec*' fonctionnera bien
+                        if not fnmatch.fnmatch(hay, pattern):
+                            continue
+                    else:
+                        # comportement par défaut : contient (substring)
+                        if pattern not in hay:
+                            continue
                 filtered.append((key, sev, a, b))
+            # appliquer tri si demandé (ici : tri alphabétique sur la clé 'key' = élément comparé)
+            if current_sort['col'] == 'elem' and current_sort['state'] in ('asc', 'desc'):
+                reverse = (current_sort['state'] == 'desc')
+                filtered.sort(key=lambda it: (it[0] or '').lower(), reverse=reverse)
 
             for key, sev, a, b in filtered:
                 tag = f"sev{sev}"
@@ -523,9 +558,33 @@ class guiOTF():
         win.bind_all("<minus>", lambda e: collapse_all())
         win.bind_all("<Key-minus>", lambda e: collapse_all())
         win.bind_all("<space>", lambda e: toggle_selected())
+
+        def toggle_sort(col):
+            """Cycle: None -> 'asc' -> 'desc' -> None, puis rafraîchit la vue."""
+            # bascule
+            if current_sort['col'] != col or current_sort['state'] is None:
+                current_sort['col'], current_sort['state'] = col, 'asc'
+            elif current_sort['state'] == 'asc':
+                current_sort['state'] = 'desc'
+            else:
+                current_sort['col'], current_sort['state'] = None, None
+
+            # optionnel : afficher une flèche dans le heading
+            base = 'Element comparé'
+            if current_sort['col'] == 'elem' and current_sort['state'] == 'asc':
+                tree.heading('elem', text=base + ' ↑')
+            elif current_sort['col'] == 'elem' and current_sort['state'] == 'desc':
+                tree.heading('elem', text=base + ' ↓')
+            else:
+                tree.heading('elem', text=base)
+
+            refresh_view()        
         # Initialisation
         refresh_view()
         win.mainloop()
+
+
+
 
 if __name__ == '__main__':
     """ Si lancement en tant que script.
