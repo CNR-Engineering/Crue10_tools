@@ -135,7 +135,6 @@ class OTF(object):
             # Récupérer les variables de chaque objet, selon une clé commune
             var_a = dic_var_a.get(elt, None)
             var_b = dic_var_b.get(elt, None)
-            #lst_niv_new = lst_niv + [self._fmt_var(elt, lst_niv)]   # Ajouter un nouveau niveau, formaté
             lst_niv_new = lst_niv + [elt]       # Ajouter un nouveau niveau
             self._comparer(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv_new)
 
@@ -220,38 +219,36 @@ class OTF(object):
             return
 
         # Traiter les différences sur les types simples
-        if isinstance(var_a, str) or isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, float) \
-            or isinstance(var_a, complex) or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
+        if isinstance(var_a, str):
             # Traiter le cas particulier des path
             val_a = self._fmt_var(var_a, lst_niv)
             val_b = self._fmt_var(var_b, lst_niv)
             if not val_a == val_b:
                 self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
             return
-        # if isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, float) \
-        #     or isinstance(var_a, complex) or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
-        #     # Comparer les variables simples en fonction de CCM, si applicable
-        #     if not self._is_egal_ccm(var_a, var_b, lst_niv):
-        #         self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
-        #     return
+        if isinstance(var_a, bool) or isinstance(var_a, int) or isinstance(var_a, float) \
+            or isinstance(var_a, complex) or isinstance(var_a, bytes) or isinstance(var_a, bytearray):
+            # Comparer les variables simples en fonction de CCM, si applicable
+            if not self._is_egal_ccm(var_a, var_b, lst_niv):
+                self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
+            return
 
         # Vérifier les différences sur les types complexes: parcours récursif
+        if isinstance(var_a, np.ndarray):       # Tableau numpy
+            # Tableau numpy: cas d'un tableau déjà analysé via CCM
+            if self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-2) is not None:
+                if (var_a is None) or (var_b is None) or (len(var_a) != len(var_b)):
+                    self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
+                return
+            # Tableau numpy: cas d'un tableau non analysé au préalable
+            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
+            dic_dif.update(dif_new)
+            return
         if isinstance(var_a, dict):             # Dictionnaire
             dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
             dic_dif.update(dif_new)
             return
         if isinstance(var_a, list):             # Liste
-            dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
-            dic_dif.update(dif_new)
-            return
-        if isinstance(var_a, np.ndarray):       # Tableau numpy
-            # Cas d'un tableau déjà analysé via CCM
-            if self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-2) is not None:
-                if (var_a is None) or (var_b is None) or (len(var_a) != len(var_b)):
-                    self._add_dif(dic_dif=dic_dif, var_a=var_a, var_b=var_b, lst_niv=lst_niv)
-                return
-
-            # Cas d'un tableau non analysé au préalable
             dif_new = self.diff(obj_a=var_a, obj_b=var_b, lst_niv=lst_niv)
             dic_dif.update(dif_new)
             return
@@ -306,17 +303,55 @@ class OTF(object):
         if lst_var_ccm is not None:
             # Élément décrit par CCM: formater selon l'epsilon de comparaison des variables
             try:
-                str_key = '['
+                lst_str = []
                 for idx, var_ccm in enumerate(lst_var_ccm):
                     val = var[idx] if hasattr(var, '__getitem__') else var  # Valeur de la variable simple ou complexe
+                    if self.ccm.variable[var_ccm].is_egal(val, 0):          # Protection contre -0. != +0.
+                        val = 0
                     str_val = self.ccm.variable[var_ccm].txt_eps(val)       # Valeur avec ses chiffres significatifs
-                    str_key += f"{var_ccm}={str_val}, "
-                return str_key[0:-2] + ']'
+                    lst_str.append(f"{var_ccm}={str_val}")
+                return f"[{', '.join(lst_str)}]"
             except Exception as e:
                 print(f"! OTF._fmt_var incompatibilité avec Otf.json/dic_elt_ccm {var=} {lst_niv=} {lst_var_ccm=}: {repr(e)}")
 
         # Sinon formater en chaîne de caractères
         return str(var)
+
+    @trace_except
+    def _is_egal_ccm(self, var_a: Any, var_b: Any, lst_niv: list) -> bool:
+        """ Comparer deux variables simples, si possible selon le CCM.
+        :param var_a: première variable
+        :param var_b: seconde variable
+        :param lst_niv: liste des niveaux de l'arborescence
+        :return: chaîne formatée
+        """
+        try:
+            # Cas simple d'égalité
+            if var_a == var_b:
+                return True
+
+            # Comparer selon CCM, si la variable est décrite par le dernier élément de la liste des niveaux
+            lst_var_ccm = self._get_itm(self.cfg['dic_elt_ccm'], lst_niv, niv=-1)   # Liste des variables CCM associées
+            if lst_var_ccm is None:
+                # Élément non décrit par CCM
+                return False
+            else:
+                # Élément décrit par CCM: comparer selon l'epsilon de comparaison des variables
+                is_egal = True
+                for idx, var_ccm in enumerate(lst_var_ccm):
+                    # Récupérer les valeurs, dans le cas de variables simples ou complexes
+                    val_a = var_a[idx] if hasattr(var_a, '__getitem__') else var_a
+                    val_b = var_b[idx] if hasattr(var_b, '__getitem__') else var_b
+                    # Tester l'égalité à l'epsilon de comparaison près
+                    is_egal &= self.ccm.variable[var_ccm].is_egal(val_a, val_b)
+                return is_egal
+        except Exception as e:
+            print(f"! OTF._is_egal_ccm incompatibilité avec Otf.json/dic_elt_ccm {var_a=}, {var_b=}, {lst_niv=}: {repr(e)}")
+
+        # Fallback de l'exception: comparaison de chaînes formatées selon CCM
+        val_a = self._fmt_var(var_a, lst_niv)
+        val_b = self._fmt_var(var_b, lst_niv)
+        return val_a == val_b
 
     @trace_except
     def _add_dif(self, dic_dif: dict, var_a: Any, var_b: Any, lst_niv: list) -> None:

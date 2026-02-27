@@ -453,7 +453,9 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
         :return: résultat de l'égalité
         :rtype: bool
         """
-        return abs(val_a - val_b) <= self.eps
+        if isinstance(val_a, (int, float)) and isinstance(val_b, (int, float)):
+            return abs(val_a - val_b) <= self.eps
+        return val_a == val_b
 
 
 class CrueConfigMetierVariable:
