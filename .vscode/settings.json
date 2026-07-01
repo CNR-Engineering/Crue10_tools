@@ -1,0 +1,6 @@
+{
+    "python.envFile": "${workspaceFolder}/.vscode/.env",
+    "python.terminal.useEnvFile": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.useEnvironmentsExtension": true
+}
