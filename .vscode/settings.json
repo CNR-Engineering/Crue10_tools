@@ -2,12 +2,5 @@
     "python.envFile": "${workspaceFolder}/.vscode/.env",
     "python.terminal.useEnvFile": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
-    "python.useEnvironmentsExtension": true,
-    "python-envs.pythonProjects": [
-        {
-            "path": ".",
-            "envManager": "ms-python.python:venv",
-            "packageManager": "ms-python.python:pip"
-        }
-    ]
+    "python.useEnvironmentsExtension": true
 }
