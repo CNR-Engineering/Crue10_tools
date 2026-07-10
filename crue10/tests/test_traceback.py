@@ -12,7 +12,7 @@ class TracebackTestCase(unittest.TestCase):
         pass
 
     def test_trace_except_function(self):
-        # Définir une inner-function de test
+        # Définir une inner function de test
         @trace_except
         def test_exception():
             raise ValueError('Exception sur une fonction')
@@ -24,7 +24,7 @@ class TracebackTestCase(unittest.TestCase):
         self.assertEqual(cm.exception.args[0], 'Exception sur une fonction')
 
     def test_trace_except_log_function(self):
-        # Définir une inner-function de test
+        # Définir une inner function de test
         @trace_except_log(print)
         def test_exception():
             raise ValueError('Exception sur une fonction')

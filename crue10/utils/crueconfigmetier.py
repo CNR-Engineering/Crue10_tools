@@ -1,12 +1,13 @@
 # coding: utf-8
 
-# Imports
+# Imports généraux
 import os.path
 from datetime import datetime, timedelta
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as Et
 from enum import IntEnum                        # Python >= 3.7
 import math
-# from future.utils import with_metaclass         # Python2 compatibility
+
+# Imports spécifiques
 # from crue10.utils.design_patterns import Singleton
 from crue10.utils import DATA_FOLDER_ABSPATH, ExceptionCrue10, PREFIX
 
@@ -30,12 +31,10 @@ class CrueConfigMetierTypeNum:
     FMT_DUR = '%H:%M:%S.%f'                     #: Format par défaut des durées
     EPOCH_DAT = datetime(1970, 1, 1)            #: Origine des dates, convention Unix (1er janv 1970)
 
-    def __init__(self, nom, src_xml):
+    def __init__(self, nom: str, src_xml: Et.Element) -> None:
         """ Construire l'instance de classe.
         :param nom: nom de la nature de variable
-        :type nom: str
         :param src_xml: sous-arbre XML de CCM pour la description de la nature de variable
-        :type src_xml: ElementTree
         """
         self.nom = nom                          # Nom de la nature de variable
         self.typ = self.TYPE_NUMERIQUE.get(nom) # Type numérique Python de la variable
@@ -44,17 +43,15 @@ class CrueConfigMetierTypeNum:
         for itm in src_xml:
             self.infini = self.cvt(itm.text)    # Valeur numérique représentant l'infini
 
-    def __repr__(self):
+    def __repr__(self) -> type[int]|type[float]|type[datetime]|type[timedelta]:
         """ Renvoyer le type numérique sous-jacent, par appel direct de l'instance.
         """
         return self.typ
 
-    def cvt(self, val):
+    def cvt(self, val: str) -> int|float|datetime|timedelta:
         """ Convertir (cast) la valeur val dans le type numérique.
         :param val: valeur textuelle à convertir, incluant les infinis
-        :type val: str
         :return: valeur convertie
-        :rtype: type numérique visé
         """
         # Traiter les infinis
         if val == '-Infini':
@@ -66,61 +63,66 @@ class CrueConfigMetierTypeNum:
         if ':' in val:
             try:
                 # Cas d'une date
-                dat = datetime.strptime(val, self.FMT_DAT)
-                val = (dat - self.EPOCH_DAT).total_seconds()    # Écart avec l'Epoch de référence
+                _dat = datetime.strptime(val, self.FMT_DAT)
+                val = (_dat - self.EPOCH_DAT).total_seconds()   # Écart avec l'Epoch de référence
             except ValueError:
                 # Cas d'une durée
-                dat = datetime.strptime(val, self.FMT_DUR)
-                dur = timedelta(hours=dat.hour, minutes=dat.minute, seconds=dat.second, microseconds=dat.microsecond)
-                val = dur.total_seconds()
+                _dat = datetime.strptime(val, self.FMT_DUR)
+                _dur = timedelta(hours=dat.hour, minutes=dat.minute, seconds=dat.second, microseconds=dat.microsecond)
+                val = _dur.total_seconds()
         # Cas général
         return self.typ(float(val)) if (val is not None) else val
 
-    def txt(self, val, eps):
+    def txt(self, val: int|float|datetime|timedelta, eps: int|float) -> str:
         """ Convertir une valeur en chaine formatée selon son type, en gérant les infinis.
         :param val: valeur numérique à convertir
-        :type val: type numérique de la variable
         :param eps: précision à utiliser
-        :type eps: int|float
         :return: chaine formatée
-        :rtype: str
         """
-        # Définir une inner-function utilitaire
-        def chk_inf(val_):
+        # Définir une inner function utilitaire
+        def chk_inf(_val) -> str|int|float:
             """ Traiter les infinis. """
-            if val_ <= -self.infini:
+            if _val <= -self.infini:
                 return '-Infini'
-            if val_ >= self.infini:
+            if _val >= self.infini:
                 return '+Infini'
-            return val_
+            return _val
 
-        # Traiter les valeurs selon leurs types numériques
+        # Cas d'une date
         if isinstance(val, datetime):
             return val.strftime(self.FMT_DAT)
-        elif isinstance(val, timedelta):
+
+        # Cas d'une durée
+        if isinstance(val, timedelta):
             return str(val)
 
         prc = -math.floor(math.log10(eps)) if eps != 0 else 0
-        val_ = round(val, prc)
+        _val = round(val, prc)
+
+        # Cas d'un entier
         if self.typ == int:
-            inf = chk_inf(val_)
+            inf = chk_inf(_val)
             if isinstance(inf, str):
                 return inf
             else:
-                return f"{int(round(val_, 0)):d}"
-        elif self.typ == float:
-            inf = chk_inf(val_)
-            if isinstance(inf, str):
-                return inf
-            else:
-                prc_ = prc if prc >= 0 else 0
-                return f"{val_:.{prc_}f}"
+                return f"{int(round(_val, 0)):d}"
+
+        # Cas d'un float (cas restant)
+        inf = chk_inf(_val)
+        if isinstance(inf, str):
+            return inf
+        else:
+            prc_ = prc if prc >= 0 else 0
+            return f"{_val:.{prc_}f}"
 
 
 class CrueConfigMetierCat:
     """ Catégorie de CrueConfigMetier, interface pour CrueConfigMetierEnum et CrueConfigMetierNature.
     """
-    def __init__(self, nom):
+    def __init__(self, nom: str) -> None:
+        """ Construire l'instance de classe.
+        :param nom: nom de l'Enum ou de la nature de variable
+        """
         self._nom = nom                         # Nom de l'instance
         self._nat = None                        # Nature de la variable (Enum sous-jacente ou CrueConfigMetierNature)
         self._unt = ''                          # Unité de représentation
@@ -128,52 +130,68 @@ class CrueConfigMetierCat:
         self._eps_prt = 0.                      # Epsilon de présentation
 
     @property
-    def nom(self):
-        """ Nom de la variable ou de l'Enum. """
+    def nom(self) -> str:
+        """ Nom de l'Enum ou de la nature de variable. """
         return self._nom
 
     @property
-    def nat(self):
-        """ Nature de la variable ou de l'Enum (instance de classe). """
+    def nat(self) -> 'IntEnum|CrueConfigMetierNature':
+        """ Enum ou nature de la variable (instance de classe). """
         return self._nat
 
     @property
-    def unt(self):
+    def unt(self) -> str:
         """ Unité de la variable (ou de l'Enum mais vide dans ce cas). """
         return self._unt
 
     @property
-    def eps(self):
+    def eps(self) -> float:
         """ Epsilon de comparaison de la variable (ou de l'Enum mais nul dans ce cas). """
         return self._eps
 
     @property
-    def eps_prt(self):
+    def eps_prt(self) -> float:
         """ Epsilon de présentation de la variable (ou de l'Enum mais nul dans ce cas). """
         return self._eps_prt
 
-    def cvt(self, val):
+    def cvt(self, val: str):
         """ Convertir une valeur en valeur du type sous-jacent. À spécialiser.
+        :param val: valeur textuelle à convertir
+        :return: valeur convertie
         """
         raise NotImplementedError
 
-    def txt(self, val, add_unt=False):
-        """ Convertir une valeur en chaine formatée, selon son epsilon de comparaison, voire son unité. À spécialiser.
+    def txt(self, val, add_unt: bool=False) -> str:
+        """ Formater une valeur selon son epsilon de présentation, voire son unité. À spécialiser.
+        :param val: valeur à formater
+        :param add_unt: indique si l'unité doit être ajoutée
+        :return: chaine formatée
         """
         raise NotImplementedError
 
-    def txt_eps(self, val):
+    def txt_eps(self, val) -> str:
         """ Formater une valeur selon son epsilon de comparaison. À spécialiser.
+        :param val: valeur à formater
+        :return: chaine formatée
         """
         raise NotImplementedError
 
-    def valider(self, nom, val, vld_min, vld_min_stc, vld_max, vld_max_stc, nrm_min, nrm_min_stc, nrm_max, nrm_max_stc):
+    def valider(self, nom, val, 
+        vld_min, vld_min_stc, vld_max, vld_max_stc, nrm_min, nrm_min_stc, nrm_max, nrm_max_stc) -> tuple[bool, str]:
         """ Tester la normalité et la validité de la variable, en fonction de sa valeur. À spécialiser.
+        :param nom: nom de la variable
+        :param val: valeur à valider
+        :param vld|nrm_min|max: valeur seuil à tester pour la validité|normalité et min|max
+        :param *_stc: inégalité sur seuil stricte ou non
+        :return: tuple (validité, message)
         """
         raise NotImplementedError
 
-    def is_egal(self, val_a, val_b):
+    def is_egal(self, val_a, val_b) -> bool:
         """ Vérifier l'égalité de deux valeurs, selon leur epsilon de comparaison. À spécialiser.
+        :param val_a: première valeur
+        :param val_b: seconde valeur
+        :return: résultat de l'égalité
         """
         raise NotImplementedError
 
@@ -182,12 +200,10 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
     """ Élément de CrueConfigMetier de type Enum.
     Cette classe agit comme un wrapper autour de IntEnum (Enum avec des valeurs int), mais ajoute un nom.
     """
-    def __init__(self, nom, src_xml):
+    def __init__(self, nom: str, src_xml: Et.Element) -> None:
         """ Construire l'instance de classe.
         :param nom: nom de l'Enum
-        :type nom: str
         :param src_xml: sous-arbre XML de CCM pour la description de l'Enum
-        :type src_xml: ElementTree
         """
         super().__init__(nom)                   # Instancier la classe mère
         dic_nom_int = {}                        # Dictionnaire {clé: valeur_int} pour l'Enum
@@ -196,70 +212,61 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
         self._enum = IntEnum(nom, dic_nom_int)  # Enum sous-jacente
         self._nat = self._enum                  # Nature: Enum sous-jacente
 
-    def __repr__(self):
+    def __repr__(self) -> IntEnum:
         """ Renvoyer l'Enum sous-jacente, par appel direct de l'instance.
+        :return: Enum sous-jacente
         """
         return self._enum
 
-    def __cmp__(self, other):
+    def __cmp__(self, other: 'CrueConfigMetierEnum'):
         """ Renvoyer l'Enum sous-jacente pour les comparaisons (==, !=, >, >=, <, <=).
         """
-        return self._enum.__cmp__(other)
+        return self._enum.__cmp__(other._enum)
 
     def __getitem__(self, key):
-        """ Renvoyer l'Enum sous-jacente pour les appels 'self[key]'.
+        """ Renvoyer le membre d'Enum sous-jacente pour les appels 'self[key]'.
         """
         return self._enum[key]
 
     def __getattr__(self, name):
-        """ Renvoyer l'Enum sous-jacente pour les appels 'self.name'.
+        """ Renvoyer le membre d'Enum sous-jacente pour les appels 'self.name'.
         """
         return self._enum[name]
 
-    def cvt(self, val):
-        """ Convertir une valeur en Enum sous-jacente.
+    def cvt(self, val: str):
+        """ Convertir une valeur en membre d'Enum sous-jacente.
         :param val: valeur textuelle à convertir
-        :type val: str
-        :return: valeur d'Enum associée
-        :rtype: Enum
+        :return: valeur du membre d'Enum associée
         """
         for enum_ in self._enum:
             if enum_.name == val:
                 return enum_
         raise ValueError("{0} not in {1}".format(val, self._enum))
 
-    def txt(self, val, add_unt=False):
-        """ Convertir une valeur en chaine formatée avec le code de l'Enum et la valeur associée.
-        :param val: valeur textuelle à convertir
-        :type val: str
+    def txt(self, val, add_unt: bool=False) -> str:
+        """ Formater une valeur en chaine formatée avec le code de l'Enum et la valeur associée.
+        :param val: valeur à formater
         :param add_unt: ajouter l'unité, sans effet pour une Enum
-        :type add_unt: bool
         :return: chaine formatée
-        :rtype: str
         """
         for enum_ in self._enum:
             if enum_.value == val:
                 return "{0}({1})".format(enum_.name, enum_.value)
         raise ValueError("{0} not in {1}".format(val, self._enum))
 
-    def txt_eps(self, val):
-        """ Formater une valeur en chaine formatée.
+    def txt_eps(self, val) -> str:
+        """ Formater une valeur en chaine formatée avec le code de l'Enum et la valeur associée.
         :param val: valeur à formater
-        :vartype val: str
         :return: valeur formatée
-        :rtype: str
         """
         return self.txt(val, add_unt=False)
 
-    def valider(self, nom, val, vld_min=None, vld_min_stc=None, vld_max=None, vld_max_stc=None,
-        nrm_min=None, nrm_min_stc=None, nrm_max=None, nrm_max_stc=None):
+    def valider(self, nom: str, val: str, vld_min=None, vld_min_stc=None, vld_max=None, vld_max_stc=None,
+        nrm_min=None, nrm_min_stc=None, nrm_max=None, nrm_max_stc=None) -> tuple[bool, str]:
         """ Tester la normalité et la validité de la variable: aucunes pour une Enum.
         :param nom: nom de l'Enum à tester
-        :vartype nom: str
         :param val: valeur à analyser
-        :vartype val: str
-        :return: tuple (True si valeur normale et valide ou False sinon; chaîne descriptive si False)
-        :rtype: (bool, str)
+        :return: tuple (True si valeur normale et valide ou False sinon; chaîne descriptive si False sinon vide)
         """
         try:
             _ = self.cvt(val)
@@ -267,14 +274,11 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
         except ValueError:
             return False, "{0} invalide pour {1}".format(val, self.nom)
 
-    def is_egal(self, val_a, val_b):
+    def is_egal(self, val_a: str, val_b: str) -> bool:
         """ Vérifier l'égalité de deux valeurs.
         :param val_a: première valeur
-        :type val_a: str
         :param val_b: seconde valeur
-        :type val_a: str
         :return: résultat de l'égalité
-        :rtype: bool
         """
         return self.cvt(val_a) == self.cvt(val_b)
 
@@ -282,12 +286,10 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
 class CrueConfigMetierNature(CrueConfigMetierCat):
     """ Élément de CrueConfigMetier de type Nature de variable.
     """
-    def __init__(self, nom, src_xml):
+    def __init__(self, nom: str, src_xml: Et.Element) -> None:
         """ Construire l'instance de classe.
         :param nom: nom de la nature
-        :type nom: str
         :param src_xml: sous-arbre XML de CCM pour la description de la nature
-        :type src_xml: ElementTree
         """
         # Déclarer et initialiser les variables membres
         super().__init__(nom)                   # Instancier la classe mère
@@ -297,10 +299,9 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
         self._eps = self._load_eps(src_xml)     # Epsilon de comparaison
         self._eps_prt = self._load_eps_prt(src_xml) # Epsilon de présentation
 
-    def _load_typ(self, src_xml):
+    def _load_typ(self, src_xml: Et.Element):
         """ Extraire le type numérique associé à la nature.
         :param src_xml: sous-arbre XML de CCM
-        :type src_xml: ElementTree
         :return: type numérique
         :rtype: CrueConfigMetierTypeNum
         """
@@ -311,12 +312,10 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
         except AttributeError as e:
             raise ExceptionCrue10("Erreur type numérique `%s` incompatible pour nature `%s`:\n%s" % (typ, self.nom, e))
 
-    def _load_unt(self, src_xml):
+    def _load_unt(self, src_xml: Et.Element) -> str:
         """ Extraire l'unité associée à la nature.
         :param src_xml: sous-arbre XML de CCM
-        :type src_xml: ElementTree
         :return: unité
-        :rtype: str
         """
         unt = None
         try:
@@ -325,12 +324,10 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
             pass
         return unt if (unt is not None) else ''
 
-    def _load_eps(self, src_xml):
+    def _load_eps(self, src_xml: Et.Element) -> int|float|datetime|timedelta:
         """ Extraire l'epsilon de comparaison associé à la nature.
         :param src_xml: sous-arbre XML de CCM
-        :type src_xml: ElementTree
         :return: valeur de l'epsilon de comparaison
-        :rtype: int|float|datetime|timedelta
         """
         eps, str_eps = None, None
         try:
@@ -340,12 +337,10 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
             pass
         return eps if (eps is not None) else 0.0
 
-    def _load_eps_prt(self, src_xml):
+    def _load_eps_prt(self, src_xml: Et.Element) -> int|float|datetime|timedelta:
         """ Extraire l'epsilon de présentation associé à la nature.
         :param src_xml: sous-arbre XML de CCM
-        :type src_xml: ElementTree
         :return: valeur de l'epsilon de présentation
-        :rtype: int|float|datetime|timedelta
         """
         eps, str_eps = None, None
         try:
@@ -355,43 +350,34 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
             pass
         return eps if (eps is not None) else 0.0
 
-    def __getitem__(self, val):
+    def __getitem__(self, val: str) -> int|float|datetime|timedelta:
         """ Convertir une valeur en valeur du type numérique sous-jacent; appel par 'self[val]'.
         :param val: valeur textuelle à convertir
-        :type val: str
         :return: valeur numérique associée
-        :rtype: int|float|datetime|timedelta
         """
         return self.typ.cvt(val)
 
-    def cvt(self, val):
+    def cvt(self, val: str) -> int|float|datetime|timedelta:
         """ Convertir une valeur en valeur du type numérique sous-jacent.
         :param val: valeur textuelle à convertir
-        :type val: str
         :return: valeur numérique associée
-        :rtype: int|float|datetime|timedelta
         """
         return self.typ.cvt(val)
 
-    def txt(self, val, add_unt=True):
+    def txt(self, val: int|float|datetime|timedelta, add_unt: bool=True) -> str:
         """ Convertir une valeur numérique en chaine formatée.
         :param val: valeur numérique à convertir
-        :type val: int
         :param add_unt: ajouter l'unité
-        :type add_unt: bool
         :return: chaine formatée
-        :rtype: str
         """
         txt = self.typ.txt(val, self.eps_prt)
         txt += (' ' + self.unt) if (add_unt and self.unt != '') else ''
         return txt
 
-    def txt_eps(self, val):
+    def txt_eps(self, val: int|float|datetime|timedelta) -> str:
         """ Formater une valeur selon son epsilon de comparaison (chaîne avec tous les chiffres significatifs).
         :param val: valeur à formater
-        :vartype val: int|float|datetime|timedelta
         :return: valeur formatée
-        :rtype: str
         """
         return self.typ.txt(val, self.eps)
 
@@ -444,12 +430,10 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
         # Valeur valide et normale
         return True, ''
 
-    def is_egal(self, val_a, val_b):
+    def is_egal(self, val_a: int|float|datetime|timedelta, val_b: int|float|datetime|timedelta):
         """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
         :param val_a: première valeur
-        :type val_a: int|float|datetime|timedelta
         :param val_b: seconde valeur
-        :type val_a: int|float|datetime|timedelta
         :return: résultat de l'égalité
         :rtype: bool
         """
@@ -461,12 +445,10 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
 class CrueConfigMetierVariable:
     """ Classe commune pour les Constantes et les Variables.
     """
-    def __init__(self, nom, src_xml):
+    def __init__(self, nom: str, src_xml: Et.Element) -> None:
         """ Construire l'instance de classe.
         :param nom: nom de la constante ou de la variable
-        :type nom: str
         :param src_xml: sous-arbre XML de CCM pour la description d'élément
-        :type src_xml: ElementTree
         """
         self._nom = nom                             # Nom de la constante ou de la variable
         self._enum = self._load_typ_enum(src_xml)   # Type de l'Enum si applicable
@@ -477,10 +459,9 @@ class CrueConfigMetierVariable:
         self.nrm_min, self.nrm_min_stc = self._load_borne(src_xml, typ='MinNormalite')  # Minimum plage de normalité
         self.nrm_max, self.nrm_max_stc = self._load_borne(src_xml, typ='MaxNormalite')  # Maximum plage de normalité
 
-    def _load_typ_enum(self, src_xml):
+    def _load_typ_enum(self, src_xml: Et.Element):
         """ Extraire le type de l'Enum, si applicable.
         :param src_xml: sous-arbre XML de CCM
-        :type src_xml: ElementTree
         :return: type de l'Enum
         :rtype: CrueConfigMetierEnum
         """
@@ -491,10 +472,9 @@ class CrueConfigMetierVariable:
             pass
         return CCM.enum[enum] if (enum is not None) else None
 
-    def _load_nat(self, src_xml):
+    def _load_nat(self, src_xml: Et.Element):
         """ Extraire la nature, si applicable.
         :param src_xml: sous-arbre XML de CCM
-        :type src_xml: ElementTree
         :return: nature
         :rtype: CrueConfigMetierNature
         """
@@ -505,10 +485,9 @@ class CrueConfigMetierVariable:
             pass
         return CCM.nature[nat] if (nat is not None) else None
 
-    def _load_dft(self, src_xml):
+    def _load_dft(self, src_xml: Et.Element):
         """ Extraire la valeur par défaut, la valeur, ou le vecteur valeur, selon le cas.
         :param src_xml: sous-arbre XML de CCM
-        :type src_xml: ElementTree
         :return: valeur ou vecteur de valeurs
         :rtype: any
         """
@@ -532,14 +511,11 @@ class CrueConfigMetierVariable:
         dft = get_dft(str_find='ValeurVecteur', nat=None) if dft is None else dft       # Constante vecteur
         return dft
 
-    def _load_borne(self, src_xml, typ):
+    def _load_borne(self, src_xml: Et.Element, typ: str) -> tuple[int|float|datetime|timedelta|None, bool]:
         """ Extraire la borne (min/max) de validité/normalité pour la variable.
         :param src_xml: sous-arbre XML de CCM
-        :type src_xml: ElementTree
         :param typ: balise XML à analyser
-        :type typ: str
         :return: valeur de la borne ou None; True si inégalité stricte ou False si la borne est incluse
-        :rtype: (int|float|datetime|timedelta|None, bool)
         """
         brn, brn_stc = None, False
         try:
@@ -590,23 +566,18 @@ class CrueConfigMetierVariable:
         """
         return self.nat.eps_prt
 
-    def cvt(self, val):
+    def cvt(self, val: str) -> int|float|datetime|timedelta:
         """ Convertir une valeur en valeur du type numérique sous-jacent.
         :param val: valeur textuelle à convertir
-        :type val: str
         :return: valeur numérique associée
-        :rtype: int|float|datetime|timedelta
         """
         return self.nat.cvt(val)
 
-    def txt(self, val, add_unt=True):
+    def txt(self, val:int|float|datetime|timedelta, add_unt: bool=True) -> str:
         """ Formater une valeur selon sa variable ou sa nature et renvoyer une chaîne.
         :param val: valeur à formater
-        :vartype val: int|float|datetime|timedelta
         :param add_unt: True pour ajouter son unité ou False sinon
-        :vartype add_unt: bool
         :return: valeur formatée
-        :rtype: str
         """
         return self.nat.txt(val, add_unt)
 
@@ -629,14 +600,11 @@ class CrueConfigMetierVariable:
         return self.nat.valider(self.nom, val, self.vld_min, self.vld_min_stc, self.vld_max, self.vld_max_stc,
             self.nrm_min, self.nrm_min_stc, self.nrm_max, self.nrm_max_stc)
 
-    def is_egal(self, val_a, val_b):
+    def is_egal(self, val_a: int|float|datetime|timedelta, val_b: int|float|datetime|timedelta) -> bool:
         """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
         :param val_a: première valeur
-        :type val_a: int|float|datetime|timedelta
         :param val_b: seconde valeur
-        :type val_a: int|float|datetime|timedelta
         :return: résultat de l'égalité
-        :rtype: bool
         """
         return self.nat.is_egal(val_a, val_b)
 
@@ -644,38 +612,36 @@ class CrueConfigMetierVariable:
 class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exclut d'avoir des CCM sur différents cœurs
     """ Classe lectrice du fichier CrueConfigMetier.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """ Construire l'instance de classe.
         """
-        self.ccm_path = None
-        self.ccm_root = None
-        self.dic_typ_num = {}
-        self.dic_enum = {}
-        self.dic_nature = {}
-        self.dic_constante = {}
-        self.dic_variable = {}
-        self.dic_loi = {}
+        self.ccm_path = None                    # Chemin vers le fichier de configuration CCM
+        self.ccm_root = None                    # Racine du document XML pour CCM
+        self.dic_typ_num = {}                   # Dictionnaire des types numériques
+        self.dic_enum = {}                      # Dictionnaire des Enum
+        self.dic_nature = {}                    # Dictionnaire des natures
+        self.dic_constante = {}                 # Dictionnaire des constantes
+        self.dic_variable = {}                  # Dictionnaire des variables
+        self.dic_loi = {}                       # Dictionnaire des lois
 
-    def load(self, ccm_path=CCM_FILE):
+    def load(self, ccm_path: str = CCM_FILE) -> None:
         """ Charger à partir du fichier.
-        :param ccm_path: nom long du fichier
-        :type ccm_path: str
+        :param ccm_path: nom long du fichier de configuration
         """
         try:
             self.ccm_path = ccm_path
-            self.ccm_root = ET.parse(ccm_path).getroot()
+            self.ccm_root = Et.parse(ccm_path).getroot()
             self.dic_typ_num = self._read_typ_num()
             self.dic_enum = self._read_enum()
             self.dic_nature = self._read_nature()
             self.dic_constante = self._read_constante()
             self.dic_variable = self._read_variable()
-        except ET.ParseError as e:
+        except Et.ParseError as e:
             raise ExceptionCrue10("Erreur syntaxe XML dans `%s`:\n%s" % (self.ccm_path, e))
 
-    def _read_typ_num(self):
+    def _read_typ_num(self) -> dict:
         """ Lire les TypeNumeriques.
         :return: dictionnaire des types numériques
-        :rtype: {nom: CrueConfigMetierTypeNum}
         """
         dic_typ_num = {}
         for itm in self.ccm_root.find(PREFIX + 'TypeNumeriques'):
@@ -683,10 +649,9 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
             dic_typ_num[nom] = CrueConfigMetierTypeNum(nom=nom, src_xml=itm)
         return dic_typ_num
 
-    def _read_enum(self):
+    def _read_enum(self) -> dict:
         """ Lire les Enum.
         :return: dictionnaire des Enum
-        :rtype: {nom: CrueConfigMetierEnum}
         """
         dic_enum = {}
         for itm in self.ccm_root.find(PREFIX + 'TypeEnums'):
@@ -694,10 +659,9 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
             dic_enum[nom] = CrueConfigMetierEnum(nom=nom, src_xml=itm)
         return dic_enum
 
-    def _read_nature(self):
+    def _read_nature(self) -> dict:
         """ Lire les Natures.
         :return: dictionnaire des natures
-        :rtype: {nom: CrueConfigMetierNature}
         """
         dic_nature = {}
         for itm in self.ccm_root.find(PREFIX + 'Natures'):
@@ -705,10 +669,9 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
             dic_nature[nom] = CrueConfigMetierNature(nom=nom, src_xml=itm)
         return dic_nature
 
-    def _read_constante(self):
+    def _read_constante(self) -> dict:
         """ Lire les Constantes.
         :return: dictionnaire des constantes
-        :rtype: {nom: CrueConfigMetierVariable}
         """
         dic_constante = {}
         for itm in self.ccm_root.find(PREFIX + 'Constantes'):
@@ -716,10 +679,9 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
             dic_constante[nom] = CrueConfigMetierVariable(nom=nom, src_xml=itm)
         return dic_constante
 
-    def _read_variable(self):
+    def _read_variable(self) -> dict:
         """ Lire les Variables.
         :return: dictionnaire des variables
-        :rtype: {nom: CrueConfigMetierVariable}
         """
         dic_variable = {}
         for itm in self.ccm_root.find(PREFIX + 'Variables'):
@@ -728,23 +690,23 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
         return dic_variable
 
     @property
-    def typ_num(self):
+    def typ_num(self) -> dict:
         return self.dic_typ_num
 
     @property
-    def enum(self):
+    def enum(self) -> dict:
         return self.dic_enum
 
     @property
-    def nature(self):
+    def nature(self) -> dict:
         return self.dic_nature
 
     @property
-    def constante(self):
+    def constante(self) -> dict :
         return self.dic_constante
 
     @property
-    def variable(self):
+    def variable(self) -> dict:
         return self.dic_variable
 
 

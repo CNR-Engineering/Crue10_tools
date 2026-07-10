@@ -93,7 +93,7 @@ class Log(object):
         :param ecraser: option pour écrire à la suite de la ligne précédente (False) ou à sa place (True)
         :param init: option pour l'initialisation (efface les logs préexistants)
         :param niv: niveau de sévérité du message (INFO | WARN | ERRNBLK | ERRBLK | FATAL)
-        :param dat: date associée au mesage
+        :param dat: date associée au message
         :param dur: durée associée au message
         """
         try:
