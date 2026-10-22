@@ -149,7 +149,11 @@ class Run:
         logger.info("Éxécution : %s" % ' '.join(cmd_list))
         with open(os.path.join(run_folder, 'stdout.csv'), "w") as out_csv:
             with open(os.path.join(run_folder, 'stderr.csv'), "w") as err_csv:
-                exit_code = subprocess.call(cmd_list, stdout=out_csv, stderr=err_csv)
+                # CREATE_NO_WINDOW (Windows seulement, 0 ailleurs) : sans console propre, un appel depuis une
+                # application graphique (sans console, ex : Alluvia / MEC10) ne crée plus de fenêtre console
+                # pour chaque calcul
+                exit_code = subprocess.call(cmd_list, stdout=out_csv, stderr=err_csv,
+                                            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
                 # exit_code is always to 0 even in case of computation error...
 
         self.read_traces(services)
