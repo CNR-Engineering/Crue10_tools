@@ -120,6 +120,8 @@ class ProfilCasier:
         self.xz = None
         self.xt_min = -1.0
         self.xt_max = -1.0
+        self.z_lim_deb = None
+        self.z_lim_fin = None
         self.comment = ''
 
         self.set_xz(ProfilCasier.DEFAULT_COORDS)

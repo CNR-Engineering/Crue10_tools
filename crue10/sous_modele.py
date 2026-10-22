@@ -572,8 +572,14 @@ class SousModele(EnsembleFichiersXML):
                     profil_casier.set_xz(parse_loi(emh))
 
                     lit_num_elt = emh.find(PREFIX + 'LitUtile')
+                    # lim_deb= [float(v) for v in lit_num_elt.find(PREFIX+'LimDeb').text.split()] # xt, z debut 
+                    # lim_fin= [float(v) for v in lit_num_elt.find(PREFIX+'LimDeb').text.split()] # xt, z fin
+                    #profil_casier.set_lit_util(lim_deb[0],lim_fin[0],z_lim_deb[1],z_lim_fin[1]) # à ajouter une condition d'existance (if len>1 ? si necessaire )
+
                     profil_casier.xt_min = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[0])
                     profil_casier.xt_max = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[0])
+                    profil_casier.z_lim_deb = float(lit_num_elt.find(PREFIX + 'LimDeb').text.split()[1])
+                    profil_casier.z_lim_fin = float(lit_num_elt.find(PREFIX + 'LimFin').text.split()[1])
 
             elif emh_group.tag == (PREFIX + 'DonPrtGeoProfilSections'):
                 for emh in emh_group.findall(PREFIX + 'ProfilSection'):
