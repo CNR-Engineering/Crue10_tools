@@ -17,7 +17,7 @@
     <LoiFF Nom="Fk_DefautMin" Type="Fk">
       <Commentaire></Commentaire>
       <EvolutionFF>
-        <PointFF>0 8.0</PointFF>
+        <PointFF>0.0 8.0</PointFF>
       </EvolutionFF>
     </LoiFF>
   </LoiFFs>
