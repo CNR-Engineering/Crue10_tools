@@ -1,10 +1,10 @@
 # coding: utf-8
 import unittest
+from datetime import datetime, timedelta
+from crue10.utils.crueconfigmetier import CCM, ccm, ccmu
 
-from crue10.utils.crueconfigmetier import CCM
 
-
-class ResultatsCalculTestCase(unittest.TestCase):
+class CCMTestCase(unittest.TestCase):
 
     def setUp(self):
         # CCM vient directement de 'crue10.utils.crueconfigmetier'
@@ -20,7 +20,7 @@ class ResultatsCalculTestCase(unittest.TestCase):
         self.assertEqual(CCM.enum['Ten_Severite']['ERRNBLK'], 20)           # Enum, ex-ENUM_SEVERITE
 
     def test_nature(self):
-        self.assertEqual(CCM.nature['Nat_Q'].unt, 'm^(3)/s')
+        self.assertEqual(CCM.nature['Nat_Q'].unt, 'm³/s')
 
     def test_constante(self):
         self.assertEqual(CCM.constante['DdPtgEpsilon'].nat.nom, 'Nat_D')    # Constante avec Nature
@@ -36,12 +36,20 @@ class ResultatsCalculTestCase(unittest.TestCase):
         self.assertEqual(CCM.variable['FormulePdc'].dft.value, 0)           # Variable Enum
         self.assertEqual(CCM.variable['FormulePdc'].dft.name, 'DIVERGENT')  # Variable Enum
         self.assertEqual(CCM.variable['Beta'].dft, 1.0)                     # Variable avec nature
-        self.assertEqual(CCM.variable['Qam'].txt(123., add_unt=True), '123.0000 m^(3)/s')           # Formatage variable
-        self.assertEqual(CCM.variable['FormulePdc'].txt('DIVERGENT'), 'DIVERGENT(0)')               # Formatage Enum
+        self.assertEqual(CCM.variable['Qam'].txt(123., add_unt=True), '123.0000 m³/s')              # Formatage variable
+        self.assertEqual(CCM.variable['FormulePdc'].cvt('DIVERGENT'), 0)    # Formatage Enum
+        # self.assertEqual(CCM.variable['FormulePdc'].txt('DIVERGENT'), 'DIVERGENT(0)')               # Formatage Enum
         self.assertEqual(CCM.variable['CoefPdc'].valider(-1.),
-            (False, "CoefPdc=-1.00000 est invalide: hors de l'intervale [0.00000;+Infini]"))
+            (False, "CoefPdc=-1.00000 est invalide: hors de l'intervalle [0.00000;+Infini]"))
         self.assertEqual(CCM.variable['CoefPdc'].valider(0.),
-            (False, "CoefPdc=0.00000 est anormale: hors de l'intervale [0.20000;1.00000]"))
+            (False, "CoefPdc=0.00000 est anormale: hors de l'intervalle [0.20000;1.00000]"))
         self.assertEqual(CCM.variable['CoefPdc'].valider(0.5), (True, ''))
         self.assertEqual(CCM.variable['CoefPdc'].valider(1.1),
-            (False, "CoefPdc=1.10000 est anormale: hors de l'intervale [0.20000;1.00000]"))
+            (False, "CoefPdc=1.10000 est anormale: hors de l'intervalle [0.20000;1.00000]"))
+
+    def test_func_format(self):
+        self.assertEqual(ccm(123., nom='Qam'), '123.0000')
+        self.assertEqual(ccmu(123., nom='Qam'), '123.0000 m³/s')
+        self.assertEqual(ccmu(0, nom='FormulePdc'), 'DIVERGENT(0)')
+        self.assertEqual(ccm(datetime(2026, 10, 25, 12, 0, 0), nom='DateDebSce'), '2026-10-25T12:00:00.000000')
+        self.assertEqual(ccm(timedelta(days=1, hours=6, minutes=30), nom='DureeCalc'), '1 day, 6:30:00')

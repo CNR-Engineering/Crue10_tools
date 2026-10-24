@@ -5,11 +5,11 @@ from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
 from jinja2.filters import do_lower
 import logging
+from lxml import etree
 import numpy as np
 import os
 import re
 import shutil
-from lxml import etree
 
 from crue10.utils.filters import float2str, html_escape
 from crue10.utils.settings import XML_ENCODING
