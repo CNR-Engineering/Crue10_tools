@@ -1,7 +1,7 @@
 # coding: utf-8
 
 # Imports généraux
-import os.path
+from pathlib import Path
 from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 from enum import IntEnum                        # Python >= 3.7
@@ -17,8 +17,9 @@ Si on souhaite forcer son unicité au niveau de l'application, utiliser la méta
 """
 
 # Variables de module; certaines sont déclarées ici, d'autres plus bas, mais toutes indiquées pour mémoire
-CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml'))  #: Chemin vers le fichier CCM
-# CCM = None                                                                            #: Classe statique CCM
+CCM_NOM = 'CrueConfigMetier.xml'
+CCM_FILE = Path(DATA_FOLDER_ABSPATH) / CCM_NOM  #: Chemin vers le fichier CCM
+# CCM = None                                    #: Classe statique CCM
 
 
 class CrueConfigMetierTypeNum:
@@ -187,6 +188,15 @@ class CrueConfigMetierCat:
         """
         raise NotImplementedError
 
+    def compare(self, val_a, comp:str, val_b) -> bool:
+        """ Comparer deux valeurs, à leur epsilon de comparaison près. À spécialiser.
+        :param val_a: première valeur
+        :param comp: comparaison à mener, parmi ['>', '>=', '==', '<=', '<']
+        :param val_b: seconde valeur
+        :return: résultat de la comparaison
+        """
+        raise NotImplementedError
+
     def is_egal(self, val_a, val_b) -> bool:
         """ Vérifier l'égalité de deux valeurs, selon leur epsilon de comparaison. À spécialiser.
         :param val_a: première valeur
@@ -273,6 +283,28 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
             return True, ''
         except ValueError:
             return False, "{0} invalide pour {1}".format(val, self.nom)
+
+    def compare(self, val_a: str, comp:str, val_b: str) -> bool:
+        """ Comparer deux valeurs, à leur epsilon de comparaison près. À spécialiser.
+        :param val_a: première valeur
+        :param comp: comparaison à mener, parmi ['>', '>=', '==', '<=', '<']
+        :param val_b: seconde valeur
+        :return: résultat de la comparaison
+        """
+        int_enum_a = int(self.cvt(val_a))
+        int_enum_b = int(self.cvt(val_b))
+        if comp == '>':
+            return int_enum_a > int_enum_b
+        elif comp == '>=':
+            return int_enum_a >= int_enum_b
+        elif comp == '==':
+            return int_enum_a == int_enum_b
+        elif comp == '<=':
+            return int_enum_a <= int_enum_b
+        elif comp == '<':
+            return int_enum_a < int_enum_b
+        # Les cas restants sont des erreurs
+        raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
 
     def is_egal(self, val_a: str, val_b: str) -> bool:
         """ Vérifier l'égalité de deux valeurs.
@@ -429,6 +461,42 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
 
         # Valeur valide et normale
         return True, ''
+
+    def compare(self, val_a: int|float|datetime|timedelta, comp:str, val_b: int|float|datetime|timedelta) -> bool:
+        """ Comparer deux valeurs, à leur epsilon de comparaison près. À spécialiser.
+        :param val_a: première valeur
+        :param comp: comparaison à mener, parmi ['>', '>=', '==', '<=', '<']
+        :param val_b: seconde valeur
+        :return: résultat de la comparaison
+        """
+        diff = val_a - val_b
+        if comp == '>':
+            if isinstance(diff, (int, float)):
+                return diff > self.eps
+            elif isinstance(diff, timedelta):
+                return diff > timedelta(seconds=0)
+        elif comp == '>=':
+            if isinstance(diff, (int, float)):
+                return diff >= -self.eps
+            elif isinstance(diff, timedelta):
+                return diff >= timedelta(seconds=0)
+        elif comp == '==':
+            if isinstance(diff, (int, float)):
+                return abs(diff) <= self.eps
+            elif isinstance(diff, timedelta):
+                return diff == timedelta(seconds=0)
+        elif comp == '<=':
+            if isinstance(diff, (int, float)):
+                return diff <= self.eps
+            elif isinstance(diff, timedelta):
+                return diff <= timedelta(seconds=0)
+        elif comp == '<':
+            if isinstance(diff, (int, float)):
+                return diff < -self.eps
+            elif isinstance(diff, timedelta):
+                return diff < timedelta(seconds=0)
+        # Les cas restants sont des erreurs
+        raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
 
     def is_egal(self, val_a: int|float|datetime|timedelta, val_b: int|float|datetime|timedelta):
         """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
@@ -600,6 +668,15 @@ class CrueConfigMetierVariable:
         return self.nat.valider(self.nom, val, self.vld_min, self.vld_min_stc, self.vld_max, self.vld_max_stc,
             self.nrm_min, self.nrm_min_stc, self.nrm_max, self.nrm_max_stc)
 
+    def compare(self, val_a: int|float|datetime|timedelta, comp:str, val_b: int|float|datetime|timedelta) -> bool:
+        """ Comparer deux valeurs, à leur epsilon de comparaison près. À spécialiser.
+        :param val_a: première valeur
+        :param comp: comparaison à mener, parmi ['>', '>=', '==', '<=', '<']
+        :param val_b: seconde valeur
+        :return: résultat de la comparaison
+        """
+        return self.nat.compare(val_a, comp, val_b)
+
     def is_egal(self, val_a: int|float|datetime|timedelta, val_b: int|float|datetime|timedelta) -> bool:
         """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
         :param val_a: première valeur
@@ -615,7 +692,7 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
     def __init__(self) -> None:
         """ Construire l'instance de classe.
         """
-        self.ccm_path = None                    # Chemin vers le fichier de configuration CCM
+        self.ccm_path: Path|None = None         # Chemin vers le fichier de configuration CCM
         self.ccm_root = None                    # Racine du document XML pour CCM
         self.dic_typ_num = {}                   # Dictionnaire des types numériques
         self.dic_enum = {}                      # Dictionnaire des Enum
@@ -624,13 +701,20 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
         self.dic_variable = {}                  # Dictionnaire des variables
         self.dic_loi = {}                       # Dictionnaire des lois
 
-    def load(self, ccm_path: str=CCM_FILE) -> None:
-        """ Charger à partir du fichier.
+    def load(self, ccm_path: str|Path=CCM_FILE, exe_path: str | Path | None=None) -> None:
+        """ Charger à partir du fichier: fichier CCM ou exe Crue10 (le CCM est un cran au-dessus).
         :param ccm_path: nom long du fichier de configuration
-        #TODO alternativement, pourvoir localiser ccm_path à partir de fic_exe
+        :param exe_path: chemin long du fichier exe à partir duquel trouver le CCM (préféré si fourni)
         """
         try:
-            self.ccm_path = ccm_path
+            # Si exe_path est fourni, le préférer pour récupérer ccm_path
+            if exe_path is not None:
+                parent_dir = Path(exe_path).resolve().parent.parent
+                ccm_path = parent_dir / CCM_NOM
+        except:
+            pass
+        try:
+            self.ccm_path = Path(ccm_path)
             self.ccm_root = ET.parse(ccm_path).getroot()
             self.dic_typ_num = self._read_typ_num()
             self.dic_enum = self._read_enum()
@@ -712,9 +796,9 @@ class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exc
 
 
 # Variables de module; certaines sont déclarées ici, d'autres plus haut, mais toutes indiquées pour mémoire
-# CCM_FILE = os.path.normpath(os.path.join(DATA_FOLDER_ABSPATH, 'CrueConfigMetier.xml')) #: Chemin vers le fichier CCM
-CCM = CrueConfigMetier()                                                                 #: Classe statique CCM
-CCM.load(CCM_FILE)
+# CCM_FILE = Path(DATA_FOLDER_ABSPATH) / CCM_NOM #: Chemin vers le fichier CCM
+CCM = CrueConfigMetier()                        #: Classe statique CCM
+CCM.load(ccm_path=CCM_FILE)
 
 
 def ccm(val: int|float|datetime|timedelta, nom: str) -> str:
@@ -755,5 +839,24 @@ if __name__ == '__main__':
     print(ccm(datetime(2026, 10, 25, 12, 0, 0), nom='DateDebSce'))
     print(ccm(timedelta(days=1, hours=6, minutes=30), nom='DureeCalc'))
     print(ccmu(86400, nom='DureeCalc'))
-    #TODO vérifier xml.etree ou lxml
-    #TODO compare('Xt', a, "<=", b) -> bool
+    print(f"{CCM.variable['Xt'].compare(1.234, '<', 1.2345)=}")
+    print(f"{CCM.variable['Xt'].compare(1.234, '<', 1.235)=}")
+    print(f"{CCM.variable['Xt'].compare(1.234, '<=', 1.235)=}")
+    print(f"{CCM.variable['Xt'].compare(1.234, '==', 1.235)=}")
+    print(f"{CCM.variable['Xt'].compare(1.234, '>=', 1.235)=}")
+    print(f"{CCM.variable['Xt'].compare(1.234, '>', 1.235)=}")
+    print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '<', datetime(2026, 10, 31, 1, 16, 1))=}")
+    print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '<=', datetime(2026, 10, 31, 1, 16, 1))=}")
+    print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '==', datetime(2026, 10, 31, 1, 16, 1))=}")
+    print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '>=', datetime(2026, 10, 31, 1, 16, 1))=}")
+    print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '>', datetime(2026, 10, 31, 1, 16, 1))=}")
+    print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '<', timedelta(seconds=11))=}")
+    print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '<=', timedelta(seconds=11))=}")
+    print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '==', timedelta(seconds=11))=}")
+    print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '>=', timedelta(seconds=11))=}")
+    print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '>', timedelta(seconds=11))=}")
+    print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '<', 'BORDA')=}")
+    print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '<=', 'BORDA')=}")
+    print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '==', 'BORDA')=}")
+    print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '>=', 'BORDA')=}")
+    print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '>', 'BORDA')=}")
