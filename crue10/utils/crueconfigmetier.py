@@ -197,13 +197,13 @@ class CrueConfigMetierCat:
         """
         raise NotImplementedError
 
-    def is_egal(self, val_a, val_b) -> bool:
-        """ Vérifier l'égalité de deux valeurs, selon leur epsilon de comparaison. À spécialiser.
-        :param val_a: première valeur
-        :param val_b: seconde valeur
-        :return: résultat de l'égalité
-        """
-        raise NotImplementedError
+    # def is_egal(self, val_a, val_b) -> bool:
+    #     """ Vérifier l'égalité de deux valeurs, selon leur epsilon de comparaison. À spécialiser.
+    #     :param val_a: première valeur
+    #     :param val_b: seconde valeur
+    #     :return: résultat de l'égalité
+    #     """
+    #     raise NotImplementedError
 
 
 class CrueConfigMetierEnum(CrueConfigMetierCat):
@@ -306,13 +306,13 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
         # Les cas restants sont des erreurs
         raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
 
-    def is_egal(self, val_a: str, val_b: str) -> bool:
-        """ Vérifier l'égalité de deux valeurs.
-        :param val_a: première valeur
-        :param val_b: seconde valeur
-        :return: résultat de l'égalité
-        """
-        return self.cvt(val_a) == self.cvt(val_b)
+    # def is_egal(self, val_a: str, val_b: str) -> bool:
+    #     """ Vérifier l'égalité de deux valeurs.
+    #     :param val_a: première valeur
+    #     :param val_b: seconde valeur
+    #     :return: résultat de l'égalité
+    #     """
+    #     return self.cvt(val_a) == self.cvt(val_b)
 
 
 class CrueConfigMetierNature(CrueConfigMetierCat):
@@ -498,16 +498,16 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
         # Les cas restants sont des erreurs
         raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
 
-    def is_egal(self, val_a: int|float|datetime|timedelta, val_b: int|float|datetime|timedelta):
-        """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
-        :param val_a: première valeur
-        :param val_b: seconde valeur
-        :return: résultat de l'égalité
-        :rtype: bool
-        """
-        if isinstance(val_a, (int, float)) and isinstance(val_b, (int, float)):
-            return abs(val_a - val_b) <= self.eps
-        return val_a == val_b
+    # def is_egal(self, val_a: int|float|datetime|timedelta, val_b: int|float|datetime|timedelta):
+    #     """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
+    #     :param val_a: première valeur
+    #     :param val_b: seconde valeur
+    #     :return: résultat de l'égalité
+    #     :rtype: bool
+    #     """
+    #     if isinstance(val_a, (int, float)) and isinstance(val_b, (int, float)):
+    #         return abs(val_a - val_b) <= self.eps
+    #     return val_a == val_b
 
 
 class CrueConfigMetierVariable:
@@ -677,13 +677,13 @@ class CrueConfigMetierVariable:
         """
         return self.nat.compare(val_a, comp, val_b)
 
-    def is_egal(self, val_a: int|float|datetime|timedelta, val_b: int|float|datetime|timedelta) -> bool:
-        """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
-        :param val_a: première valeur
-        :param val_b: seconde valeur
-        :return: résultat de l'égalité
-        """
-        return self.nat.is_egal(val_a, val_b)
+    # def is_egal(self, val_a: int|float|datetime|timedelta, val_b: int|float|datetime|timedelta) -> bool:
+    #     """ Vérifier l'égalité de deux valeurs à l'epsilon de comparaison près.
+    #     :param val_a: première valeur
+    #     :param val_b: seconde valeur
+    #     :return: résultat de l'égalité
+    #     """
+    #     return self.nat.is_egal(val_a, val_b)
 
 
 class CrueConfigMetier:  # CrueConfigMetier(with_metaclass(Singleton)) si on exclut d'avoir des CCM sur différents cœurs

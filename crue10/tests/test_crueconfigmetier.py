@@ -53,3 +53,16 @@ class CCMTestCase(unittest.TestCase):
         self.assertEqual(ccmu(0, nom='FormulePdc'), 'DIVERGENT(0)')
         self.assertEqual(ccm(datetime(2026, 10, 25, 12, 0, 0), nom='DateDebSce'), '2026-10-25T12:00:00.000000')
         self.assertEqual(ccm(timedelta(days=1, hours=6, minutes=30), nom='DureeCalc'), '1 day, 6:30:00')
+
+    def test_compare(self):
+        self.assertTrue(CCM.enum['Ten_Severite'].compare('ERRBLK', '<', 'INFO'))
+        self.assertFalse(CCM.variable['Verbosite'].compare('ERRBLK', '>=', 'INFO'))
+        self.assertTrue(CCM.variable['Xt'].compare(1.234, '<=', 1.235))
+        self.assertFalse(CCM.variable['Xt'].compare(1.234, '<', 1.2345))
+        self.assertTrue(CCM.variable['Xt'].compare(1.234, '==', 1.2345))
+        dat_a = datetime(2026, 10, 31, 1, 23, 0)
+        dat_b = datetime(2026, 10, 31, 1, 23, 1)
+        self.assertTrue(CCM.variable['DateDebSce'].compare(dat_a, '<', dat_b))
+        dur_a = timedelta(seconds=11)
+        dur_b = timedelta(seconds=10)
+        self.assertTrue(CCM.variable['DureeCalc'].compare(dur_a, '>=', dur_b))
