@@ -6,6 +6,15 @@ Journal des modifications
 ...
 
 
+## [4.6] - 2026-11-10
+### Nouveautés
+- CrueConfigMetier: ajout de compare() et suppression de is_egal (redondant)
+
+### Corrections
+- requirements: lxml~=6.1.0 car 5.3.0 a une faille de sécurité
+- CrueConfigMetier: remplacement des exposants dans les unités du CCM
+
+
 ## [4.5] - 2026-02-04
 ### Nouveautés
 - Complétion implémentation de CrueConfigMetier
