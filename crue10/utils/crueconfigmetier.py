@@ -20,6 +20,7 @@ Si on souhaite forcer son unicité au niveau de l'application, utiliser la méta
 CCM_NOM = 'CrueConfigMetier.xml'
 CCM_FILE = Path(DATA_FOLDER_ABSPATH) / CCM_NOM  #: Chemin vers le fichier CCM
 # CCM = None                                    #: Classe statique CCM
+LST_COMPARE = ['>', '>=', '==', '<=', '<']      #: Opérateurs de comparaisons acceptés
 
 
 class CrueConfigMetierTypeNum:
@@ -235,7 +236,7 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
         """
         return self._enum[name]
 
-    def cvt(self, val: str):
+    def cvt(self, val: str) -> IntEnum:
         """ Convertir une valeur en membre d'Enum sous-jacente.
         :param val: valeur textuelle à convertir
         :return: valeur du membre d'Enum associée
@@ -283,20 +284,14 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
         :param val_b: seconde valeur
         :return: résultat de la comparaison
         """
-        int_enum_a = int(self.cvt(val_a))
-        int_enum_b = int(self.cvt(val_b))
-        if comp == '>':
-            return int_enum_a > int_enum_b
-        elif comp == '>=':
-            return int_enum_a >= int_enum_b
-        elif comp == '==':
-            return int_enum_a == int_enum_b
-        elif comp == '<=':
-            return int_enum_a <= int_enum_b
-        elif comp == '<':
-            return int_enum_a < int_enum_b
-        # Les cas restants sont des erreurs
-        raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
+        try:
+            assert(comp in LST_COMPARE)
+            int_enum_a = int(self.cvt(val_a))
+            int_enum_b = int(self.cvt(val_b))
+            str_to_eval = f"{int_enum_a} {comp} {int_enum_b}"
+            return bool(eval(str_to_eval))
+        except (ValueError, AssertionError):
+            raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
 
 
 class CrueConfigMetierNature(CrueConfigMetierCat):
@@ -453,34 +448,39 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
         :param val_b: seconde valeur
         :return: résultat de la comparaison
         """
-        diff = val_a - val_b
-        if comp == '>':
-            if isinstance(diff, (int, float)):
-                return diff > self.eps
-            elif isinstance(diff, timedelta):
-                return diff > timedelta(seconds=0)
-        elif comp == '>=':
-            if isinstance(diff, (int, float)):
-                return diff >= -self.eps
-            elif isinstance(diff, timedelta):
-                return diff >= timedelta(seconds=0)
-        elif comp == '==':
-            if isinstance(diff, (int, float)):
-                return abs(diff) <= self.eps
-            elif isinstance(diff, timedelta):
-                return diff == timedelta(seconds=0)
-        elif comp == '<=':
-            if isinstance(diff, (int, float)):
-                return diff <= self.eps
-            elif isinstance(diff, timedelta):
-                return diff <= timedelta(seconds=0)
-        elif comp == '<':
-            if isinstance(diff, (int, float)):
-                return diff < -self.eps
-            elif isinstance(diff, timedelta):
-                return diff < timedelta(seconds=0)
-        # Les cas restants sont des erreurs
-        raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
+        try:
+            assert(comp in LST_COMPARE)
+            diff = val_a - val_b
+            if isinstance(diff, timedelta):
+                # Cas des datetime et timedelta: eps de comparaison nul
+                if comp == '>':
+                    return diff > timedelta(seconds=0)
+                elif comp == '>=':
+                    return diff >= timedelta(seconds=0)
+                elif comp == '==':
+                    return abs(diff) == timedelta(seconds=0)
+                elif comp == '<=':
+                    return diff <= timedelta(seconds=0)
+                elif comp == '<':
+                    return diff < timedelta(seconds=0)
+                else:
+                    raise                       # Les cas restants sont des erreurs
+            else:
+                # Cas des int et float: eps de comparaison non nul
+                if comp == '>':
+                    return diff > self.eps
+                elif comp == '>=':
+                    return diff >= -self.eps
+                elif comp == '==':
+                    return abs(diff) <= self.eps
+                elif comp == '<=':
+                    return diff <= self.eps
+                elif comp == '<':
+                    return diff < -self.eps
+                else:
+                    raise                       # Les cas restants sont des erreurs
+        except (ValueError, AssertionError):
+            raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
 
 
 class CrueConfigMetierVariable:
@@ -810,18 +810,22 @@ if __name__ == '__main__':
     print(f"{CCM.variable['Xt'].compare(1.234, '==', 1.235)=}")
     print(f"{CCM.variable['Xt'].compare(1.234, '>=', 1.235)=}")
     print(f"{CCM.variable['Xt'].compare(1.234, '>', 1.235)=}")
+    # print(f"{CCM.variable['Xt'].compare(1.234, '><', 1.235)=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '<', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '<=', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '==', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '>=', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '>', datetime(2026, 10, 31, 1, 16, 1))=}")
+    # print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '><', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '<', timedelta(seconds=11))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '<=', timedelta(seconds=11))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '==', timedelta(seconds=11))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '>=', timedelta(seconds=11))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '>', timedelta(seconds=11))=}")
+    # print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '><', timedelta(seconds=11))=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '<', 'BORDA')=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '<=', 'BORDA')=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '==', 'BORDA')=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '>=', 'BORDA')=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '>', 'BORDA')=}")
+    # print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '><', 'BORDA')=}")
