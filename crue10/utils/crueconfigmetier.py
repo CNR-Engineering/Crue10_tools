@@ -290,7 +290,7 @@ class CrueConfigMetierEnum(CrueConfigMetierCat):
             int_enum_b = int(self.cvt(val_b))
             str_to_eval = f"{int_enum_a} {comp} {int_enum_b}"
             return bool(eval(str_to_eval))
-        except (ValueError, AssertionError):
+        except (TypeError, ValueError, AssertionError):
             raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
 
 
@@ -479,7 +479,7 @@ class CrueConfigMetierNature(CrueConfigMetierCat):
                     return diff < -self.eps
                 else:
                     raise                       # Les cas restants sont des erreurs
-        except (ValueError, AssertionError):
+        except (TypeError, ValueError, AssertionError):
             raise ValueError(f"Can't compare: '{val_a}' {comp} '{val_b}'")
 
 
@@ -811,21 +811,25 @@ if __name__ == '__main__':
     print(f"{CCM.variable['Xt'].compare(1.234, '>=', 1.235)=}")
     print(f"{CCM.variable['Xt'].compare(1.234, '>', 1.235)=}")
     # print(f"{CCM.variable['Xt'].compare(1.234, '><', 1.235)=}")
+    # print(f"{CCM.variable['Xt'].compare(1.234, '>', None)=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '<', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '<=', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '==', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '>=', datetime(2026, 10, 31, 1, 16, 1))=}")
     print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '>', datetime(2026, 10, 31, 1, 16, 1))=}")
     # print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '><', datetime(2026, 10, 31, 1, 16, 1))=}")
+    # print(f"{CCM.variable['DateDebSce'].compare(datetime(2026, 10, 31, 1, 16, 0), '>', None)=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '<', timedelta(seconds=11))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '<=', timedelta(seconds=11))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '==', timedelta(seconds=11))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '>=', timedelta(seconds=11))=}")
     print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '>', timedelta(seconds=11))=}")
     # print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '><', timedelta(seconds=11))=}")
+    # print(f"{CCM.variable['DureeCalc'].compare(timedelta(seconds=10), '>', None)=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '<', 'BORDA')=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '<=', 'BORDA')=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '==', 'BORDA')=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '>=', 'BORDA')=}")
     print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '>', 'BORDA')=}")
     # print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '><', 'BORDA')=}")
+    # print(f"{CCM.variable['FormulePdc'].compare('DIVERGENT', '>', None)=}")
