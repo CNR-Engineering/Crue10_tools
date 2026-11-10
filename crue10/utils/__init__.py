@@ -1,5 +1,8 @@
 # coding: utf-8
 from builtins import super  # Python2 fix
+import os
+import re
+import shutil
 from datetime import datetime
 from io import open  # Python2 fix
 from jinja2 import Environment, FileSystemLoader
@@ -7,10 +10,8 @@ from jinja2.filters import do_lower
 import logging
 from lxml import etree
 import numpy as np
-import os
-import re
-import shutil
 import xml.etree.ElementTree as ET
+
 
 from crue10.utils.filters import float2str, html_escape
 from crue10.utils.settings import XML_ENCODING

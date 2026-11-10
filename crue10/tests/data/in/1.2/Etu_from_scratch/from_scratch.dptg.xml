@@ -37,7 +37,7 @@
           <LitNomme>Lt_StoD</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
-          <Frot NomRef="FkSto_K0_0001"/>
+          <Frot NomRef="FkSto_K0"/>
         </LitNumerote>
         <LitNumerote>
           <LimDeb>0.0 3.0</LimDeb>
@@ -69,7 +69,7 @@
           <LitNomme>Lt_StoG</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
-          <Frot NomRef="FkSto_K0_0001"/>
+          <Frot NomRef="FkSto_K0"/>
         </LitNumerote>
       </LitNumerotes>
       <Etiquettes>
@@ -94,7 +94,7 @@
           <LitNomme>Lt_StoD</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
-          <Frot NomRef="FkSto_K0_0001"/>
+          <Frot NomRef="FkSto_K0"/>
         </LitNumerote>
         <LitNumerote>
           <LimDeb>0.0 3.0</LimDeb>
@@ -126,7 +126,7 @@
           <LitNomme>Lt_StoG</LitNomme>
           <IsLitActif>false</IsLitActif>
           <IsLitMineur>false</IsLitMineur>
-          <Frot NomRef="FkSto_K0_0001"/>
+          <Frot NomRef="FkSto_K0"/>
         </LitNumerote>
       </LitNumerotes>
       <Etiquettes>
